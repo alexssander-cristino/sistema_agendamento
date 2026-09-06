@@ -1,9 +1,19 @@
+# Dependências
 node_modules/
+
+# Variáveis de ambiente (contém a senha do banco — nunca subir pro git)
 .env
+.env.example
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Editor
 .vscode/
 .idea/

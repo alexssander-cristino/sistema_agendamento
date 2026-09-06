@@ -51,7 +51,23 @@ BEFORE UPDATE ON agendamentos
 FOR EACH ROW
 EXECUTE FUNCTION set_timestamp();
 
--- serviços iniciais (edite os preços à vontade depois, pela tela "Serviços" do sistema)
+-- ============================================================
+-- Tabela de despesas (custos do lavajato: produtos, água, luz,
+-- manutenção, salários, aluguel etc.) — usada para calcular o
+-- lucro líquido junto com o faturamento da tabela agendamentos.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS despesas (
+  id            SERIAL PRIMARY KEY,
+  descricao     VARCHAR(200) NOT NULL,
+  categoria     VARCHAR(60) NOT NULL DEFAULT 'Outros',
+  valor         NUMERIC(10,2) NOT NULL DEFAULT 0,
+  data          DATE NOT NULL DEFAULT CURRENT_DATE,
+  observacoes   TEXT,
+  criado_em     TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_despesas_data ON despesas(data);
 INSERT INTO servicos (nome, preco, duracao_min)
 SELECT * FROM (VALUES
   ('Lavagem Simples',        35.00,  30),

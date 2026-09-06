@@ -51,11 +51,13 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/servicos/:id — desativa (soft delete) um serviço
+// DELETE /api/servicos/:id — remove definitivamente o serviço
+// (agendamentos que já usam esse serviço continuam existindo; o vínculo
+// simplesmente vira NULL, graças ao ON DELETE SET NULL no banco)
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('UPDATE servicos SET ativo = FALSE WHERE id = $1', [id]);
+    await pool.query('DELETE FROM servicos WHERE id = $1', [id]);
     res.status(204).end();
   } catch (err) {
     console.error(err);

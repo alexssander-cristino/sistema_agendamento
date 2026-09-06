@@ -69,14 +69,30 @@ npm run dev
 ## 4. Uso no dia a dia
 
 - **Agenda**: cadastre os agendamentos do dia, avance o status
-  (agendado → em lavagem → concluído) direto pelo card.
+  (agendado → em lavagem → concluído) direto pelo card, edite detalhes
+  a qualquer momento, e receba um aviso se dois agendamentos caírem no
+  mesmo horário.
 - **Faturamento**: todo serviço concluído aparece aqui automaticamente.
-  Marque a forma de pagamento, dê baixa quando for pago e emita o recibo
-  (usa a caixa de impressão do navegador).
-- **Financeiro**: totais de hoje, dos últimos 7 dias, do mês atual e
-  faturamento por tipo de serviço.
+  Marque a forma de pagamento, dê baixa quando for pago (a forma de
+  pagamento trava depois de confirmado) e emita o recibo.
+- **Financeiro**: totais de hoje, dos últimos 7 dias, do mês atual,
+  faturamento por tipo de serviço, despesas do mês e o **lucro líquido
+  do mês** (faturamento − despesas).
+- **Despesas**: lance custos como produtos de limpeza, água, energia,
+  manutenção, salários e aluguel — eles entram automaticamente no
+  cálculo do lucro em Financeiro.
 - **Serviços**: cadastre e edite sua própria tabela de preços — é você
   quem controla os valores, a agenda só usa o que estiver aqui.
+- **Clientes**: busque por nome, telefone ou placa e veja todo o
+  histórico de visitas de uma pessoa.
+
+## Atualizando um banco já existente
+
+Se você já tinha rodado o `database/schema.sql` antes e está só
+atualizando os arquivos do sistema, não precisa recriar nada: o script
+usa `CREATE TABLE IF NOT EXISTS`, então rodá-lo de novo no Query Tool
+do pgAdmin é seguro e só vai criar a tabela `despesas` (nova), sem
+tocar nos dados que já existem.
 
 ## Acesso de outros dispositivos na mesma rede (opcional)
 

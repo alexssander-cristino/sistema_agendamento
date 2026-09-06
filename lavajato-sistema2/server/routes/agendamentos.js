@@ -10,10 +10,22 @@ const SELECT_BASE = `
 `;
 
 // GET /api/agendamentos
-// Filtros opcionais via query string: ?data=YYYY-MM-DD  ou  ?de=YYYY-MM-DD&ate=YYYY-MM-DD
+// Filtros opcionais via query string:
+//   ?data=YYYY-MM-DD              → um dia específico
+//   ?de=YYYY-MM-DD&ate=YYYY-MM-DD → intervalo de datas
+//   ?busca=texto                  → procura em cliente, telefone e placa (todo o histórico)
 router.get('/', async (req, res) => {
-  const { data, de, ate } = req.query;
+  const { data, de, ate, busca } = req.query;
   try {
+    if (busca) {
+      const termo = `%${busca}%`;
+      const { rows } = await pool.query(
+        `${SELECT_BASE} WHERE a.cliente ILIKE $1 OR a.telefone ILIKE $1 OR a.placa ILIKE $1
+         ORDER BY a.data DESC, a.hora DESC`,
+        [termo]
+      );
+      return res.json(rows);
+    }
     if (data) {
       const { rows } = await pool.query(
         `${SELECT_BASE} WHERE a.data = $1 ORDER BY a.hora ASC`,
