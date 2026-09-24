@@ -15,6 +15,228 @@
 
 <body>
 
+  <!-- =========================================================
+     TELA DE LOGIN
+     ========================================================= -->
+
+<div id="auth-screen" class="auth-screen">
+
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logo-mark"></div>
+    </div>
+
+    <div class="auth-header">
+
+      <h1>Lavajato</h1>
+
+      <p id="auth-subtitle">
+    Gestão simples para sua lavação
+      </p>
+
+    </div>
+
+
+    <!-- LOGIN -->
+
+    <form id="login-form" class="auth-form">
+
+      <div class="auth-field">
+
+        <label for="login-email">
+          E-mail
+        </label>
+
+        <input
+          type="email"
+          id="login-email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="login-password">
+          Senha
+        </label>
+
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Sua senha"
+          autocomplete="current-password"
+          required
+        >
+
+      </div>
+
+
+      <div
+        id="login-error"
+        class="auth-error"
+      ></div>
+
+
+      <button
+        type="submit"
+        class="auth-submit"
+        id="login-submit"
+      >
+        Entrar
+      </button>
+
+
+      <button
+        type="button"
+        class="auth-switch"
+        id="show-register"
+      >
+        Criar uma conta
+      </button>
+
+    </form>
+
+
+    <!-- CADASTRO -->
+
+    <form
+      id="register-form"
+      class="auth-form"
+      style="display:none;"
+    >
+
+      <div class="auth-field">
+
+        <label for="register-company">
+          Nome da lavação
+        </label>
+
+        <input
+          type="text"
+          id="register-company"
+          placeholder="Ex: Alx Garage"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-company-email">
+          E-mail da empresa
+        </label>
+
+        <input
+          type="email"
+          id="register-company-email"
+          placeholder="contato@empresa.com"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-phone">
+          Telefone
+        </label>
+
+        <input
+          type="text"
+          id="register-phone"
+          placeholder="(47) 99999-9999"
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-name">
+          Seu nome
+        </label>
+
+        <input
+          type="text"
+          id="register-name"
+          placeholder="Alex"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-email">
+          Seu e-mail
+        </label>
+
+        <input
+          type="email"
+          id="register-email"
+          placeholder="alex@email.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-password">
+          Senha
+        </label>
+
+        <input
+          type="password"
+          id="register-password"
+          placeholder="Mínimo 6 caracteres"
+          autocomplete="new-password"
+          minlength="6"
+          required
+        >
+
+      </div>
+
+
+      <div
+        id="register-error"
+        class="auth-error"
+      ></div>
+
+
+      <button
+        type="submit"
+        class="auth-submit"
+        id="register-submit"
+      >
+        Criar conta
+      </button>
+
+
+      <button
+        type="button"
+        class="auth-switch"
+        id="show-login"
+      >
+        Já tenho uma conta
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
 <!-- =========================================================
      BOTÃO DO MENU MOBILE
      ========================================================= -->
