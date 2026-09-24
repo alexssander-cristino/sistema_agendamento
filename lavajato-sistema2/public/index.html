@@ -8,7 +8,10 @@
   <title>Lavajato — Agenda &amp; Faturamento</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
 
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -264,7 +267,7 @@
   </button>
 
 
-  <!-- Fundo escuro quando o menu mobile estiver aberto -->
+  <!-- FUNDO DO MENU MOBILE -->
 
   <div
     class="sidebar-overlay"
@@ -300,7 +303,8 @@
 
         </div>
 
-        <!-- Botão recolher sidebar -->
+
+        <!-- BOTÃO RECOLHER -->
 
         <button
           class="sidebar-toggle"
@@ -367,7 +371,7 @@
       </div>
 
 
-      <!-- TÍTULO DO MENU -->
+      <!-- TÍTULO -->
 
       <div class="menu-label">
         MENU
@@ -599,6 +603,58 @@
 
         </button>
 
+
+        <!-- ===================================================
+           USUÁRIOS
+           SOMENTE ADMINISTRADOR
+           =================================================== -->
+
+        <button
+          class="nav-btn"
+          id="nav-usuarios"
+          data-tab="usuarios"
+          type="button"
+          style="display:none;"
+        >
+
+          <svg
+            class="nav-icon"
+            viewBox="0 0 20 20"
+          >
+
+            <circle
+              cx="10"
+              cy="6"
+              r="3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+
+            <path
+              d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="M15 4v4M13 6h4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
+          <span class="nav-text">
+            Usuários
+          </span>
+
+        </button>
+
       </nav>
 
 
@@ -654,9 +710,7 @@
         </div>
 
 
-        <!-- =================================================
-           BOTÃO SAIR
-           ================================================= -->
+        <!-- SAIR -->
 
         <button
           type="button"
@@ -1284,6 +1338,116 @@
 
       </div>
 
+
+      <!-- =====================================================
+         USUÁRIOS
+         SOMENTE ADMINISTRADOR
+         ===================================================== -->
+
+      <div
+        class="panel"
+        id="panel-usuarios"
+      >
+
+        <div class="topbar">
+
+          <div>
+
+            <h1>
+              Usuários
+            </h1>
+
+            <div class="date-label">
+              Gerencie usuários, cargos e acesso ao sistema
+            </div>
+
+          </div>
+
+
+          <button
+            class="btn btn-primary"
+            id="btn-new-user"
+            type="button"
+          >
+            Novo usuário
+          </button>
+
+        </div>
+
+
+        <!-- RESUMO -->
+
+        <div class="totals-strip">
+
+          <div class="stat-card">
+
+            <div class="label">
+              Total de usuários
+            </div>
+
+            <div
+              class="value"
+              id="usuarios-total"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="label">
+              Administradores
+            </div>
+
+            <div
+              class="value"
+              id="usuarios-admins"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="label">
+              Funcionários
+            </div>
+
+            <div
+              class="value"
+              id="usuarios-funcionarios"
+            >
+              0
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- LISTA DE USUÁRIOS -->
+
+        <div
+          id="usuarios-list"
+          class="ticket-list"
+        >
+
+          <div class="empty">
+
+            <strong>
+              Carregando usuários...
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </main>
 
   </div>
@@ -1698,6 +1862,160 @@
 
 
   <!-- =========================================================
+     MODAL: USUÁRIO
+     ========================================================= -->
+
+  <div
+    class="overlay"
+    id="overlay-user"
+  >
+
+    <div class="modal">
+
+      <h3 id="user-modal-title">
+        Novo usuário
+      </h3>
+
+
+      <form id="form-user">
+
+        <!-- NOME -->
+
+        <div class="field">
+
+          <label for="user-name">
+            Nome
+          </label>
+
+          <input
+            type="text"
+            id="user-name"
+            placeholder="Nome do usuário"
+            required
+          >
+
+        </div>
+
+
+        <!-- E-MAIL -->
+
+        <div class="field">
+
+          <label for="user-email">
+            E-mail
+          </label>
+
+          <input
+            type="email"
+            id="user-email"
+            placeholder="usuario@email.com"
+            required
+          >
+
+        </div>
+
+
+        <!-- CARGO -->
+
+        <div class="field">
+
+          <label for="user-profile">
+            Cargo
+          </label>
+
+          <select id="user-profile">
+
+            <option value="funcionario">
+              Funcionário
+            </option>
+
+            <option value="administrador">
+              Administrador
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- SENHA -->
+
+        <div
+          class="field"
+          id="user-password-field"
+        >
+
+          <label for="user-password">
+            Senha
+          </label>
+
+          <input
+            type="password"
+            id="user-password"
+            placeholder="Mínimo 6 caracteres"
+            minlength="6"
+          >
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div
+          class="field"
+          id="user-active-field"
+          style="display:none;"
+        >
+
+          <label for="user-active">
+            Status
+          </label>
+
+          <select id="user-active">
+
+            <option value="true">
+              Ativo
+            </option>
+
+            <option value="false">
+              Bloqueado
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- AÇÕES -->
+
+        <div class="modal-actions">
+
+          <button
+            type="button"
+            class="btn btn-ghost"
+            id="btn-cancel-user"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="user-submit-btn"
+          >
+            Salvar
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
      ÁREA DE IMPRESSÃO
      ========================================================= -->
 
@@ -1757,7 +2075,6 @@
 
         const dados = await resposta.json();
 
-
         const empresa = dados.empresa;
         const usuario = dados.usuario;
 
@@ -1786,6 +2103,12 @@
           );
 
 
+        const usuariosNav =
+          document.getElementById(
+            'nav-usuarios'
+          );
+
+
         /* =====================================================
            EMPRESA
            ===================================================== */
@@ -1802,7 +2125,7 @@
 
 
         /* =====================================================
-           NOME DO USUÁRIO
+           NOME
            ===================================================== */
 
         if (nomeElement && usuario) {
@@ -1841,6 +2164,29 @@
               .trim()
               .charAt(0)
               .toUpperCase();
+
+        }
+
+
+        /* =====================================================
+           MENU DE USUÁRIOS
+           ===================================================== */
+
+        if (usuariosNav && usuario) {
+
+          if (
+            usuario.perfil === 'administrador'
+          ) {
+
+            usuariosNav.style.display =
+              'flex';
+
+          } else {
+
+            usuariosNav.style.display =
+              'none';
+
+          }
 
         }
 
@@ -1895,7 +2241,7 @@
 
 
     /* =========================================================
-       CARREGA DADOS DO USUÁRIO
+       CARREGA USUÁRIO
        ========================================================= */
 
     carregarUsuarioSidebar();
@@ -1977,7 +2323,7 @@
 
 
     /*
-     * Recolhe / expande a sidebar no computador
+     * Recolhe / expande a sidebar
      */
 
     if (sidebarToggle && sidebar) {
@@ -1987,7 +2333,7 @@
         () => {
 
           /*
-           * No celular, apenas fecha o menu
+           * No celular fecha o menu
            */
 
           if (window.innerWidth <= 760) {
@@ -2011,17 +2357,13 @@
 
 
           /*
-           * No computador, recolhe a sidebar
+           * No computador recolhe
            */
 
           sidebar.classList.toggle(
             'collapsed'
           );
 
-
-          /*
-           * Salva a preferência
-           */
 
           localStorage.setItem(
             'lavajato-sidebar-collapsed',
@@ -2037,7 +2379,7 @@
 
 
     /*
-     * Recupera a preferência salva
+     * Recupera preferência
      */
 
     if (
@@ -2056,7 +2398,7 @@
 
 
     /*
-     * Fecha o menu mobile quando clicar em uma opção
+     * Fecha menu mobile ao clicar
      */
 
     document
@@ -2097,7 +2439,7 @@
 
 
     /*
-     * Ajusta o menu quando a janela muda de tamanho
+     * Ajusta ao redimensionar
      */
 
     window.addEventListener(
