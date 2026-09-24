@@ -1591,3 +1591,354 @@ section.block h2{
     max-width:100%;
   }
 }
+
+/* =========================================================
+   SIDEBAR / MENU
+   ========================================================= */
+
+.sidebar{
+  width:230px;
+  min-width:230px;
+  transition:
+    width .22s ease,
+    min-width .22s ease,
+    transform .22s ease;
+}
+
+.brand{
+  position:relative;
+  min-height:48px;
+}
+
+.brand-logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.brand-info{
+  min-width:0;
+  overflow:hidden;
+  transition:opacity .18s ease;
+}
+
+.sidebar-toggle{
+  margin-left:auto;
+  width:30px;
+  height:30px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+  color:var(--side-ink-dim);
+  border-radius:var(--radius-s);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:
+    background-color var(--ease),
+    color var(--ease),
+    transform .22s ease;
+}
+
+.sidebar-toggle svg{
+  width:17px;
+  height:17px;
+}
+
+.sidebar-toggle:hover{
+  background:rgba(255,255,255,.12);
+  color:#fff;
+}
+
+.menu-label{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  color:var(--side-ink-dimmer);
+  margin:0 8px 8px;
+}
+
+.sidebar-nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.nav-btn{
+  width:100%;
+  min-height:42px;
+  position:relative;
+}
+
+.nav-text{
+  white-space:nowrap;
+  overflow:hidden;
+  transition:
+    opacity .18s ease,
+    width .22s ease;
+}
+
+.nav-btn .count{
+  margin-left:auto;
+}
+
+/* Sidebar recolhida */
+
+.sidebar.collapsed{
+  width:76px;
+  min-width:76px;
+  padding-left:12px;
+  padding-right:12px;
+}
+
+.sidebar.collapsed .brand{
+  justify-content:center;
+  gap:0;
+}
+
+.sidebar.collapsed .brand-info,
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .count,
+.sidebar.collapsed .sidebar-stats{
+  display:none;
+}
+
+.sidebar.collapsed .sidebar-toggle{
+  position:absolute;
+  right:-15px;
+  top:50%;
+  transform:translateY(-50%) rotate(180deg);
+  background:var(--primary-2);
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+
+.sidebar.collapsed .nav-btn{
+  justify-content:center;
+  padding:10px;
+}
+
+.sidebar.collapsed .nav-icon{
+  width:19px;
+  height:19px;
+}
+
+.sidebar.collapsed .nav-btn.active{
+  box-shadow:none;
+}
+
+.sidebar.collapsed .nav-btn.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  width:3px;
+  height:24px;
+  background:var(--accent);
+  border-radius:0 3px 3px 0;
+}
+
+/* Tooltip quando recolhida */
+
+.sidebar.collapsed .nav-btn::after{
+  content:attr(data-tab);
+  position:absolute;
+  left:calc(100% + 12px);
+  top:50%;
+  transform:translateY(-50%);
+  background:var(--primary-dark);
+  color:#fff;
+  padding:6px 9px;
+  border-radius:var(--radius-s);
+  font-size:11px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .15s ease;
+  z-index:100;
+  text-transform:capitalize;
+}
+
+.sidebar.collapsed .nav-btn:hover::after{
+  opacity:1;
+}
+
+.sidebar-bottom{
+  margin-top:auto;
+}
+
+.sidebar-overlay{
+  display:none;
+}
+
+.mobile-menu-btn{
+  display:none;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width:960px){
+
+  .sidebar{
+    width:200px;
+    min-width:200px;
+  }
+
+  .sidebar.collapsed{
+    width:70px;
+    min-width:70px;
+  }
+
+  .nav-btn{
+    font-size:13.5px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width:760px){
+
+  .mobile-menu-btn{
+    display:flex;
+    position:fixed;
+    top:12px;
+    left:12px;
+    width:42px;
+    height:42px;
+    align-items:center;
+    justify-content:center;
+    border:none;
+    border-radius:var(--radius-m);
+    background:var(--primary);
+    color:#fff;
+    box-shadow:var(--shadow-md);
+    z-index:80;
+    cursor:pointer;
+  }
+
+  .mobile-menu-btn svg{
+    width:21px;
+    height:21px;
+  }
+
+  .sidebar{
+    display:flex;
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    width:270px;
+    min-width:270px;
+    height:100vh;
+    padding:22px 18px;
+    transform:translateX(-105%);
+    transition:transform .25s ease;
+    z-index:100;
+    box-shadow:8px 0 30px rgba(0,0,0,.25);
+  }
+
+  .sidebar.mobile-open{
+    transform:translateX(0);
+  }
+
+  .sidebar.collapsed{
+    width:270px;
+    min-width:270px;
+    padding:22px 18px;
+  }
+
+  .sidebar.collapsed .brand{
+    justify-content:flex-start;
+    gap:8px;
+  }
+
+  .sidebar.collapsed .brand-info,
+  .sidebar.collapsed .menu-label,
+  .sidebar.collapsed .nav-text,
+  .sidebar.collapsed .count,
+  .sidebar.collapsed .sidebar-stats{
+    display:block;
+  }
+
+  .sidebar.collapsed .nav-text{
+    opacity:1;
+    width:auto;
+  }
+
+  .sidebar.collapsed .sidebar-toggle{
+    position:static;
+    transform:none;
+    background:rgba(255,255,255,.05);
+    box-shadow:none;
+  }
+
+  .sidebar.collapsed .nav-btn{
+    justify-content:flex-start;
+    padding:10px;
+  }
+
+  .sidebar.collapsed .nav-btn.active{
+    box-shadow:inset 2px 0 0 var(--accent);
+  }
+
+  .sidebar.collapsed .nav-btn.active::before{
+    display:none;
+  }
+
+  .sidebar.collapsed .nav-btn::after{
+    display:none;
+  }
+
+  .sidebar-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    z-index:90;
+    opacity:0;
+    visibility:hidden;
+    transition:
+      opacity .25s ease,
+      visibility .25s ease;
+  }
+
+  .sidebar-overlay.active{
+    display:block;
+    opacity:1;
+    visibility:visible;
+  }
+
+  main{
+    width:100%;
+    padding-top:70px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE PEQUENO
+   ========================================================= */
+
+@media (max-width:400px){
+
+  .sidebar{
+    width:255px;
+    min-width:255px;
+  }
+
+  .sidebar.collapsed{
+    width:255px;
+    min-width:255px;
+  }
+
+}

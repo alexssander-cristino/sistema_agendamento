@@ -1,284 +1,1736 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lavajato — Agenda &amp; Faturamento</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Lavajato — Agenda &amp; Faturamento</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
 
+<!-- =========================================================
+     BOTÃO DO MENU MOBILE
+     ========================================================= -->
+
+<button
+  class="mobile-menu-btn"
+  id="mobile-menu-btn"
+  type="button"
+  aria-label="Abrir menu"
+>
+  <svg viewBox="0 0 24 24">
+    <path
+      d="M4 6h16M4 12h16M4 18h16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+  </svg>
+</button>
+
+
+<!-- Fundo escuro quando o menu mobile estiver aberto -->
+<div
+  class="sidebar-overlay"
+  id="sidebar-overlay"
+></div>
+
+
 <div class="app">
-  <aside class="sidebar">
+
+  <!-- =======================================================
+       SIDEBAR
+       ======================================================= -->
+
+  <aside class="sidebar" id="sidebar">
+
+    <!-- LOGO -->
     <div class="brand">
-      <span class="mark"></span>
-      <div>
-        <div class="brand-text">Lavajato</div>
-        <div class="brand-sub">agenda &amp; caixa</div>
+
+      <div class="brand-logo">
+        <span class="mark"></span>
       </div>
+
+      <div class="brand-info">
+
+        <div class="brand-text">
+          Lavajato
+        </div>
+
+        <div class="brand-sub">
+          agenda &amp; caixa
+        </div>
+
+      </div>
+
+      <!-- Botão recolher sidebar -->
+      <button
+        class="sidebar-toggle"
+        id="sidebar-toggle"
+        type="button"
+        aria-label="Recolher menu"
+      >
+        <svg viewBox="0 0 20 20">
+          <path
+            d="M12.5 4.5L7 10l5.5 5.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
     </div>
-    <nav>
-      <button class="nav-btn active" data-tab="agenda">
-        <svg class="nav-icon" viewBox="0 0 20 20"><path d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <span>Agenda</span>
-        <span class="count" id="nav-count-agenda"></span>
+
+
+    <!-- TÍTULO DO MENU -->
+    <div class="menu-label">
+      MENU
+    </div>
+
+
+    <!-- =====================================================
+         MENU PRINCIPAL
+         ===================================================== -->
+
+    <nav class="sidebar-nav">
+
+
+      <!-- AGENDA -->
+
+      <button
+        class="nav-btn active"
+        data-tab="agenda"
+        type="button"
+      >
+
+        <svg
+          class="nav-icon"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <span class="nav-text">
+          Agenda
+        </span>
+
+        <span
+          class="count"
+          id="nav-count-agenda"
+        ></span>
+
       </button>
-      <button class="nav-btn" data-tab="faturamento">
-        <svg class="nav-icon" viewBox="0 0 20 20"><path d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 8h14" stroke="currentColor" stroke-width="1.4"/></svg>
-        <span>Faturamento</span>
-        <span class="count" id="nav-count-fat"></span>
+
+
+      <!-- FATURAMENTO -->
+
+      <button
+        class="nav-btn"
+        data-tab="faturamento"
+        type="button"
+      >
+
+        <svg
+          class="nav-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <path
+            d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+          <path
+            d="M3 8h14"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+        </svg>
+
+        <span class="nav-text">
+          Faturamento
+        </span>
+
+        <span
+          class="count"
+          id="nav-count-fat"
+        ></span>
+
       </button>
-      <button class="nav-btn" data-tab="financeiro">
-        <svg class="nav-icon" viewBox="0 0 20 20"><path d="M4 15V9M10 15V5M16 15v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <span>Financeiro</span>
+
+
+      <!-- FINANCEIRO -->
+
+      <button
+        class="nav-btn"
+        data-tab="financeiro"
+        type="button"
+      >
+
+        <svg
+          class="nav-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <path
+            d="M4 15V9M10 15V5M16 15v-4"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+        <span class="nav-text">
+          Financeiro
+        </span>
+
       </button>
-      <button class="nav-btn" data-tab="servicos">
-        <svg class="nav-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <span>Serviços</span>
+
+
+      <!-- SERVIÇOS -->
+
+      <button
+        class="nav-btn"
+        data-tab="servicos"
+        type="button"
+      >
+
+        <svg
+          class="nav-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <circle
+            cx="10"
+            cy="10"
+            r="7"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+          <path
+            d="M10 6v4l3 2"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+        <span class="nav-text">
+          Serviços
+        </span>
+
       </button>
-      <button class="nav-btn" data-tab="clientes">
-        <svg class="nav-icon" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <span>Clientes</span>
+
+
+      <!-- CLIENTES -->
+
+      <button
+        class="nav-btn"
+        data-tab="clientes"
+        type="button"
+      >
+
+        <svg
+          class="nav-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <circle
+            cx="10"
+            cy="7"
+            r="3.2"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+          <path
+            d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+        <span class="nav-text">
+          Clientes
+        </span>
+
       </button>
-      <button class="nav-btn" data-tab="despesas">
-        <svg class="nav-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 10h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <span>Despesas</span>
+
+
+      <!-- DESPESAS -->
+
+      <button
+        class="nav-btn"
+        data-tab="despesas"
+        type="button"
+      >
+
+        <svg
+          class="nav-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <circle
+            cx="10"
+            cy="10"
+            r="7"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+          <path
+            d="M7 10h6"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+        <span class="nav-text">
+          Despesas
+        </span>
+
       </button>
+
     </nav>
-    <div class="sidebar-stats">
-      <div class="stat-line"><span>Hoje</span><b id="side-today">R$ 0</b></div>
-      <div class="stat-line"><span>A receber</span><b id="side-pending">R$ 0</b></div>
-      <div class="stat-line conn" id="conn-status"><span>Banco</span><b id="conn-badge">verificando…</b></div>
+
+
+    <!-- =====================================================
+         INFORMAÇÕES DO SIDEBAR
+         ===================================================== -->
+
+    <div class="sidebar-bottom">
+
+      <div class="sidebar-stats">
+
+        <div class="stat-line">
+          <span>Hoje</span>
+          <b id="side-today">
+            R$ 0
+          </b>
+        </div>
+
+        <div class="stat-line">
+          <span>A receber</span>
+          <b id="side-pending">
+            R$ 0
+          </b>
+        </div>
+
+        <div
+          class="stat-line conn"
+          id="conn-status"
+        >
+
+          <span>
+            Banco
+          </span>
+
+          <b id="conn-badge">
+            verificando…
+          </b>
+
+        </div>
+
+      </div>
+
     </div>
+
   </aside>
+
+
+  <!-- =======================================================
+       CONTEÚDO PRINCIPAL
+       ======================================================= -->
 
   <main>
 
-    <!-- AGENDA -->
-    <div class="panel active" id="panel-agenda">
+
+    <!-- =====================================================
+         AGENDA
+         ===================================================== -->
+
+    <div
+      class="panel active"
+      id="panel-agenda"
+    >
+
       <div class="topbar">
+
         <div>
-          <h1>Agenda</h1>
-          <div class="date-label" id="agenda-date-label">—</div>
+
+          <h1>
+            Agenda
+          </h1>
+
+          <div
+            class="date-label"
+            id="agenda-date-label"
+          >
+            —
+          </div>
+
         </div>
+
         <div class="topbar-actions">
-          <button class="btn btn-ghost" id="btn-closing">Fechamento do dia</button>
-          <button class="btn btn-primary" id="btn-new-appointment">Novo agendamento</button>
+
+          <button
+            class="btn btn-ghost"
+            id="btn-closing"
+            type="button"
+          >
+            Fechamento do dia
+          </button>
+
+          <button
+            class="btn btn-primary"
+            id="btn-new-appointment"
+            type="button"
+          >
+            Novo agendamento
+          </button>
+
         </div>
+
       </div>
+
+
       <div class="date-picker-row">
-        <input type="date" id="agenda-date-input">
-        <button class="chip" id="btn-today">Hoje</button>
-      </div>
-      <div class="ticket-list" id="agenda-list"></div>
-    </div>
 
-    <!-- FATURAMENTO -->
-    <div class="panel" id="panel-faturamento">
-      <div class="topbar">
-        <div>
-          <h1>Faturamento</h1>
-          <div class="date-label">Serviços concluídos e recibos</div>
-        </div>
-      </div>
-      <div class="totals-strip">
-        <div class="stat-card money"><div class="label">Total faturado</div><div class="value" id="fat-total">R$ 0</div></div>
-        <div class="stat-card"><div class="label">Recebido</div><div class="value" id="fat-pago">R$ 0</div></div>
-        <div class="stat-card warn"><div class="label">Pendente</div><div class="value" id="fat-pendente">R$ 0</div></div>
-      </div>
-      <div id="fat-list"></div>
-    </div>
+        <input
+          type="date"
+          id="agenda-date-input"
+        >
 
-    <!-- FINANCEIRO -->
-    <div class="panel" id="panel-financeiro">
-      <div class="topbar">
-        <div>
-          <h1>Financeiro</h1>
-          <div class="date-label">Visão geral do caixa</div>
-        </div>
-      </div>
-      <div class="totals-strip">
-        <div class="stat-card money"><div class="label">Hoje</div><div class="value" id="fin-hoje">R$ 0</div></div>
-        <div class="stat-card money"><div class="label">Últimos 7 dias</div><div class="value" id="fin-semana">R$ 0</div></div>
-        <div class="stat-card money"><div class="label">Este mês</div><div class="value" id="fin-mes">R$ 0</div></div>
-        <div class="stat-card"><div class="label">Lavagens concluídas</div><div class="value" id="fin-count">0</div></div>
-      </div>
-      <div class="totals-strip">
-        <div class="stat-card warn"><div class="label">Despesas do mês</div><div class="value" id="fin-despesas-mes">R$ 0</div></div>
-        <div class="stat-card profit" id="fin-lucro-card"><div class="label">Lucro líquido do mês</div><div class="value" id="fin-lucro-mes">R$ 0</div></div>
-      </div>
-      <section class="block">
-        <h2>Faturamento por serviço (mês atual)</h2>
-        <div class="bar-chart" id="fin-bars"></div>
-      </section>
-      <section class="block">
-        <h2>Despesas por categoria (mês atual)</h2>
-        <div class="bar-chart bar-chart-warn" id="fin-despesas-bars"></div>
-      </section>
-    </div>
-
-    <!-- SERVICOS -->
-    <div class="panel" id="panel-servicos">
-      <div class="topbar">
-        <div>
-          <h1>Serviços</h1>
-          <div class="date-label">Tabela de preços usada na agenda</div>
-        </div>
-        <button class="btn btn-primary" id="btn-new-service">Novo serviço</button>
-      </div>
-      <div id="services-list"></div>
-    </div>
-
-    <!-- CLIENTES -->
-    <div class="panel" id="panel-clientes">
-      <div class="topbar">
-        <div>
-          <h1>Clientes</h1>
-          <div class="date-label">Busque o histórico por nome, telefone ou placa</div>
-        </div>
-      </div>
-      <div class="search-bar">
-        <svg class="search-icon" viewBox="0 0 20 20"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M17 17l-4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <input type="text" id="cli-search-input" placeholder="Nome, telefone ou placa...">
-        <button class="search-clear" id="btn-cli-clear" type="button" aria-label="Limpar busca">
-          <svg viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <button
+          class="chip"
+          id="btn-today"
+          type="button"
+        >
+          Hoje
         </button>
-        <button class="btn btn-primary search-btn" id="btn-cli-search">Buscar</button>
+
       </div>
-      <div id="cli-summary"></div>
-      <div class="ticket-list" id="cli-results">
-        <div class="empty">
-          <svg class="empty-icon" viewBox="0 0 20 20"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M17 17l-4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <strong>Busque um cliente</strong>Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
-        </div>
-      </div>
+
+
+      <div
+        class="ticket-list"
+        id="agenda-list"
+      ></div>
+
     </div>
 
-    <!-- DESPESAS -->
-    <div class="panel" id="panel-despesas">
+
+    <!-- =====================================================
+         FATURAMENTO
+         ===================================================== -->
+
+    <div
+      class="panel"
+      id="panel-faturamento"
+    >
+
       <div class="topbar">
+
         <div>
-          <h1>Despesas</h1>
-          <div class="date-label">Produtos, água, luz, manutenção e outros custos</div>
+
+          <h1>
+            Faturamento
+          </h1>
+
+          <div class="date-label">
+            Serviços concluídos e recibos
+          </div>
+
         </div>
-        <button class="btn btn-primary" id="btn-new-expense">Nova despesa</button>
+
       </div>
+
+
       <div class="totals-strip">
-        <div class="stat-card warn"><div class="label">Total no período</div><div class="value" id="desp-total">R$ 0</div></div>
-        <div class="stat-card"><div class="label">Lançamentos</div><div class="value" id="desp-count">0</div></div>
+
+        <div class="stat-card money">
+
+          <div class="label">
+            Total faturado
+          </div>
+
+          <div
+            class="value"
+            id="fat-total"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="label">
+            Recebido
+          </div>
+
+          <div
+            class="value"
+            id="fat-pago"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card warn">
+
+          <div class="label">
+            Pendente
+          </div>
+
+          <div
+            class="value"
+            id="fat-pendente"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
       </div>
+
+
+      <div id="fat-list"></div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FINANCEIRO
+         ===================================================== -->
+
+    <div
+      class="panel"
+      id="panel-financeiro"
+    >
+
+      <div class="topbar">
+
+        <div>
+
+          <h1>
+            Financeiro
+          </h1>
+
+          <div class="date-label">
+            Visão geral do caixa
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="totals-strip">
+
+        <div class="stat-card money">
+
+          <div class="label">
+            Hoje
+          </div>
+
+          <div
+            class="value"
+            id="fin-hoje"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card money">
+
+          <div class="label">
+            Últimos 7 dias
+          </div>
+
+          <div
+            class="value"
+            id="fin-semana"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card money">
+
+          <div class="label">
+            Este mês
+          </div>
+
+          <div
+            class="value"
+            id="fin-mes"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="label">
+            Lavagens concluídas
+          </div>
+
+          <div
+            class="value"
+            id="fin-count"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="totals-strip">
+
+        <div class="stat-card warn">
+
+          <div class="label">
+            Despesas do mês
+          </div>
+
+          <div
+            class="value"
+            id="fin-despesas-mes"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div
+          class="stat-card profit"
+          id="fin-lucro-card"
+        >
+
+          <div class="label">
+            Lucro líquido do mês
+          </div>
+
+          <div
+            class="value"
+            id="fin-lucro-mes"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <section class="block">
+
+        <h2>
+          Faturamento por serviço (mês atual)
+        </h2>
+
+        <div
+          class="bar-chart"
+          id="fin-bars"
+        ></div>
+
+      </section>
+
+
+      <section class="block">
+
+        <h2>
+          Despesas por categoria (mês atual)
+        </h2>
+
+        <div
+          class="bar-chart bar-chart-warn"
+          id="fin-despesas-bars"
+        ></div>
+
+      </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         SERVIÇOS
+         ===================================================== -->
+
+    <div
+      class="panel"
+      id="panel-servicos"
+    >
+
+      <div class="topbar">
+
+        <div>
+
+          <h1>
+            Serviços
+          </h1>
+
+          <div class="date-label">
+            Tabela de preços usada na agenda
+          </div>
+
+        </div>
+
+        <button
+          class="btn btn-primary"
+          id="btn-new-service"
+          type="button"
+        >
+          Novo serviço
+        </button>
+
+      </div>
+
+
+      <div id="services-list"></div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CLIENTES
+         ===================================================== -->
+
+    <div
+      class="panel"
+      id="panel-clientes"
+    >
+
+      <div class="topbar">
+
+        <div>
+
+          <h1>
+            Clientes
+          </h1>
+
+          <div class="date-label">
+            Busque o histórico por nome, telefone ou placa
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="search-bar">
+
+        <svg
+          class="search-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <circle
+            cx="9"
+            cy="9"
+            r="6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+          />
+
+          <path
+            d="M17 17l-4-4"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+
+        <input
+          type="text"
+          id="cli-search-input"
+          placeholder="Nome, telefone ou placa..."
+        >
+
+
+        <button
+          class="search-clear"
+          id="btn-cli-clear"
+          type="button"
+          aria-label="Limpar busca"
+        >
+
+          <svg viewBox="0 0 20 20">
+
+            <path
+              d="M6 6l8 8M14 6l-8 8"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
+        </button>
+
+
+        <button
+          class="btn btn-primary search-btn"
+          id="btn-cli-search"
+          type="button"
+        >
+          Buscar
+        </button>
+
+      </div>
+
+
+      <div id="cli-summary"></div>
+
+
+      <div
+        class="ticket-list"
+        id="cli-results"
+      >
+
+        <div class="empty">
+
+          <svg
+            class="empty-icon"
+            viewBox="0 0 20 20"
+          >
+
+            <circle
+              cx="9"
+              cy="9"
+              r="6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+
+            <path
+              d="M17 17l-4-4"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
+
+          <strong>
+            Busque um cliente
+          </strong>
+
+          Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DESPESAS
+         ===================================================== -->
+
+    <div
+      class="panel"
+      id="panel-despesas"
+    >
+
+      <div class="topbar">
+
+        <div>
+
+          <h1>
+            Despesas
+          </h1>
+
+          <div class="date-label">
+            Produtos, água, luz, manutenção e outros custos
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          id="btn-new-expense"
+          type="button"
+        >
+          Nova despesa
+        </button>
+
+      </div>
+
+
+      <div class="totals-strip">
+
+        <div class="stat-card warn">
+
+          <div class="label">
+            Total no período
+          </div>
+
+          <div
+            class="value"
+            id="desp-total"
+          >
+            R$ 0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="label">
+            Lançamentos
+          </div>
+
+          <div
+            class="value"
+            id="desp-count"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+
       <div id="desp-list"></div>
+
     </div>
 
   </main>
+
 </div>
 
-<!-- bottom nav para telas pequenas -->
+
+<!-- =========================================================
+     NAVEGAÇÃO MOBILE
+     ========================================================= -->
+
 <nav class="bottom-nav">
-  <button class="bn-btn active" data-tab="agenda">
-    <svg class="bn-icon" viewBox="0 0 20 20"><path d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <span>Agenda</span>
+
+  <button
+    class="bn-btn active"
+    data-tab="agenda"
+    type="button"
+  >
+
+    <svg
+      class="bn-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <path
+        d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
+
+    </svg>
+
+    <span>
+      Agenda
+    </span>
+
   </button>
-  <button class="bn-btn" data-tab="faturamento">
-    <svg class="bn-icon" viewBox="0 0 20 20"><path d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 8h14" stroke="currentColor" stroke-width="1.4"/></svg>
-    <span>Faturas</span>
+
+
+  <button
+    class="bn-btn"
+    data-tab="faturamento"
+    type="button"
+  >
+
+    <svg
+      class="bn-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <path
+        d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+      />
+
+      <path
+        d="M3 8h14"
+        stroke="currentColor"
+        stroke-width="1.4"
+      />
+
+    </svg>
+
+    <span>
+      Faturas
+    </span>
+
   </button>
-  <button class="bn-btn" data-tab="financeiro">
-    <svg class="bn-icon" viewBox="0 0 20 20"><path d="M4 15V9M10 15V5M16 15v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    <span>Financeiro</span>
+
+
+  <button
+    class="bn-btn"
+    data-tab="financeiro"
+    type="button"
+  >
+
+    <svg
+      class="bn-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <path
+        d="M4 15V9M10 15V5M16 15v-4"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+
+    </svg>
+
+    <span>
+      Financeiro
+    </span>
+
   </button>
-  <button class="bn-btn" data-tab="servicos">
-    <svg class="bn-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <span>Serviços</span>
+
+
+  <button
+    class="bn-btn"
+    data-tab="servicos"
+    type="button"
+  >
+
+    <svg
+      class="bn-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <circle
+        cx="10"
+        cy="10"
+        r="7"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+      />
+
+      <path
+        d="M10 6v4l3 2"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
+
+    </svg>
+
+    <span>
+      Serviços
+    </span>
+
   </button>
-  <button class="bn-btn" data-tab="clientes">
-    <svg class="bn-icon" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <span>Clientes</span>
+
+
+  <button
+    class="bn-btn"
+    data-tab="clientes"
+    type="button"
+  >
+
+    <svg
+      class="bn-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <circle
+        cx="10"
+        cy="7"
+        r="3.2"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+      />
+
+      <path
+        d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
+
+    </svg>
+
+    <span>
+      Clientes
+    </span>
+
   </button>
-  <button class="bn-btn" data-tab="despesas">
-    <svg class="bn-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 10h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    <span>Despesas</span>
+
+
+  <button
+    class="bn-btn"
+    data-tab="despesas"
+    type="button"
+  >
+
+    <svg
+      class="bn-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <circle
+        cx="10"
+        cy="10"
+        r="7"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+      />
+
+      <path
+        d="M7 10h6"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+
+    </svg>
+
+    <span>
+      Despesas
+    </span>
+
   </button>
+
 </nav>
 
-<!-- MODAL: novo agendamento / editar agendamento -->
-<div class="overlay" id="overlay-appointment">
+
+<!-- =========================================================
+     MODAL: NOVO AGENDAMENTO / EDITAR
+     ========================================================= -->
+
+<div
+  class="overlay"
+  id="overlay-appointment"
+>
+
   <div class="modal">
-    <h3 id="appointment-modal-title">Novo agendamento</h3>
+
+    <h3 id="appointment-modal-title">
+      Novo agendamento
+    </h3>
+
+
     <form id="form-appointment">
-      <div class="field-row">
-        <div class="field"><label>Data</label><input type="date" id="ap-date" required></div>
-        <div class="field"><label>Hora</label><input type="time" id="ap-time" required></div>
-      </div>
-      <div class="field"><label>Cliente</label><input type="text" id="ap-client" placeholder="Nome do cliente" required></div>
-      <div class="field-row">
-        <div class="field"><label>Telefone</label><input type="text" id="ap-phone" placeholder="(00) 00000-0000"></div>
-        <div class="field"><label>Placa</label><input type="text" id="ap-plate" placeholder="ABC1D23"></div>
-      </div>
-      <div class="field"><label>Veículo</label><input type="text" id="ap-vehicle" placeholder="Modelo / cor"></div>
-      <div class="field"><label>Serviço</label><select id="ap-service" required></select></div>
-      <div class="field"><label>Valor (R$)</label><input type="number" id="ap-price" step="0.01" min="0" required></div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="btn-cancel-appointment">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="appointment-submit-btn">Agendar</button>
-      </div>
-    </form>
-  </div>
-</div>
 
-<!-- MODAL: novo serviço -->
-<div class="overlay" id="overlay-service">
-  <div class="modal">
-    <h3>Novo serviço</h3>
-    <form id="form-service">
-      <div class="field"><label>Nome</label><input type="text" id="sv-name" required></div>
       <div class="field-row">
-        <div class="field"><label>Preço (R$)</label><input type="number" id="sv-price" step="0.01" min="0" required></div>
-        <div class="field"><label>Duração (min)</label><input type="number" id="sv-duration" min="0" required></div>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="btn-cancel-service">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar</button>
-      </div>
-    </form>
-  </div>
-</div>
 
-<!-- MODAL: nova despesa -->
-<div class="overlay" id="overlay-expense">
-  <div class="modal">
-    <h3>Nova despesa</h3>
-    <form id="form-expense">
-      <div class="field"><label>Descrição</label><input type="text" id="ex-desc" placeholder="Ex: Compra de shampoo automotivo" required></div>
-      <div class="field-row">
         <div class="field">
-          <label>Categoria</label>
-          <select id="ex-category">
-            <option>Produtos de limpeza</option>
-            <option>Água</option>
-            <option>Energia</option>
-            <option>Manutenção de equipamentos</option>
-            <option>Salários</option>
-            <option>Aluguel</option>
-            <option>Outros</option>
-          </select>
+
+          <label>
+            Data
+          </label>
+
+          <input
+            type="date"
+            id="ap-date"
+            required
+          >
+
         </div>
-        <div class="field"><label>Data</label><input type="date" id="ex-date" required></div>
+
+
+        <div class="field">
+
+          <label>
+            Hora
+          </label>
+
+          <input
+            type="time"
+            id="ap-time"
+            required
+          >
+
+        </div>
+
       </div>
-      <div class="field"><label>Valor (R$)</label><input type="number" id="ex-value" step="0.01" min="0" required></div>
+
+
+      <div class="field">
+
+        <label>
+          Cliente
+        </label>
+
+        <input
+          type="text"
+          id="ap-client"
+          placeholder="Nome do cliente"
+          required
+        >
+
+      </div>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            Telefone
+          </label>
+
+          <input
+            type="text"
+            id="ap-phone"
+            placeholder="(00) 00000-0000"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Placa
+          </label>
+
+          <input
+            type="text"
+            id="ap-plate"
+            placeholder="ABC1D23"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Veículo
+        </label>
+
+        <input
+          type="text"
+          id="ap-vehicle"
+          placeholder="Modelo / cor"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Serviço
+        </label>
+
+        <select
+          id="ap-service"
+          required
+        ></select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Valor (R$)
+        </label>
+
+        <input
+          type="number"
+          id="ap-price"
+          step="0.01"
+          min="0"
+          required
+        >
+
+      </div>
+
+
       <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="btn-cancel-expense">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar</button>
+
+        <button
+          type="button"
+          class="btn btn-ghost"
+          id="btn-cancel-appointment"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          id="appointment-submit-btn"
+        >
+          Agendar
+        </button>
+
       </div>
+
     </form>
+
   </div>
+
 </div>
 
-<!-- Área de impressão (recibo ou fechamento do dia) — só aparece ao imprimir -->
+
+<!-- =========================================================
+     MODAL: NOVO SERVIÇO
+     ========================================================= -->
+
+<div
+  class="overlay"
+  id="overlay-service"
+>
+
+  <div class="modal">
+
+    <h3>
+      Novo serviço
+    </h3>
+
+
+    <form id="form-service">
+
+      <div class="field">
+
+        <label>
+          Nome
+        </label>
+
+        <input
+          type="text"
+          id="sv-name"
+          required
+        >
+
+      </div>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            Preço (R$)
+          </label>
+
+          <input
+            type="number"
+            id="sv-price"
+            step="0.01"
+            min="0"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Duração (min)
+          </label>
+
+          <input
+            type="number"
+            id="sv-duration"
+            min="0"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-ghost"
+          id="btn-cancel-service"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          Salvar
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     MODAL: NOVA DESPESA
+     ========================================================= -->
+
+<div
+  class="overlay"
+  id="overlay-expense"
+>
+
+  <div class="modal">
+
+    <h3>
+      Nova despesa
+    </h3>
+
+
+    <form id="form-expense">
+
+      <div class="field">
+
+        <label>
+          Descrição
+        </label>
+
+        <input
+          type="text"
+          id="ex-desc"
+          placeholder="Ex: Compra de shampoo automotivo"
+          required
+        >
+
+      </div>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            Categoria
+          </label>
+
+          <select id="ex-category">
+
+            <option>
+              Produtos de limpeza
+            </option>
+
+            <option>
+              Água
+            </option>
+
+            <option>
+              Energia
+            </option>
+
+            <option>
+              Manutenção de equipamentos
+            </option>
+
+            <option>
+              Salários
+            </option>
+
+            <option>
+              Aluguel
+            </option>
+
+            <option>
+              Outros
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Data
+          </label>
+
+          <input
+            type="date"
+            id="ex-date"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Valor (R$)
+        </label>
+
+        <input
+          type="number"
+          id="ex-value"
+          step="0.01"
+          min="0"
+          required
+        >
+
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-ghost"
+          id="btn-cancel-expense"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          Salvar
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     ÁREA DE IMPRESSÃO
+     ========================================================= -->
+
 <div id="print-area"></div>
 
+
+<!-- =========================================================
+     JAVASCRIPT PRINCIPAL
+     ========================================================= -->
+
 <script src="/js/app.js"></script>
+
+
+<!-- =========================================================
+     CONTROLE DA SIDEBAR
+     ========================================================= -->
+
+<script>
+
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+
+  /*
+   * Abre o menu no celular
+   */
+
+  if (mobileMenuBtn && sidebar) {
+
+    mobileMenuBtn.addEventListener('click', () => {
+
+      sidebar.classList.add('mobile-open');
+
+      if (sidebarOverlay) {
+        sidebarOverlay.classList.add('active');
+      }
+
+    });
+
+  }
+
+
+  /*
+   * Fecha o menu clicando no fundo
+   */
+
+  if (sidebarOverlay && sidebar) {
+
+    sidebarOverlay.addEventListener('click', () => {
+
+      sidebar.classList.remove('mobile-open');
+
+      sidebarOverlay.classList.remove('active');
+
+    });
+
+  }
+
+
+  /*
+   * Recolhe / expande a sidebar no computador
+   */
+
+  if (sidebarToggle && sidebar) {
+
+    sidebarToggle.addEventListener('click', () => {
+
+      /*
+       * No celular, apenas fecha o menu
+       */
+
+      if (window.innerWidth <= 760) {
+
+        sidebar.classList.remove('mobile-open');
+
+        if (sidebarOverlay) {
+          sidebarOverlay.classList.remove('active');
+        }
+
+        return;
+      }
+
+
+      /*
+       * No computador, recolhe a sidebar
+       */
+
+      sidebar.classList.toggle('collapsed');
+
+
+      /*
+       * Salva a preferência
+       */
+
+      localStorage.setItem(
+        'lavajato-sidebar-collapsed',
+        sidebar.classList.contains('collapsed')
+      );
+
+    });
+
+  }
+
+
+  /*
+   * Recupera a preferência salva
+   */
+
+  if (
+    sidebar &&
+    window.innerWidth > 760 &&
+    localStorage.getItem('lavajato-sidebar-collapsed') === 'true'
+  ) {
+
+    sidebar.classList.add('collapsed');
+
+  }
+
+
+  /*
+   * Fecha o menu mobile quando clicar em uma opção
+   */
+
+  document
+    .querySelectorAll('.sidebar .nav-btn')
+    .forEach(button => {
+
+      button.addEventListener('click', () => {
+
+        if (window.innerWidth <= 760) {
+
+          sidebar.classList.remove('mobile-open');
+
+          if (sidebarOverlay) {
+            sidebarOverlay.classList.remove('active');
+          }
+
+        }
+
+      });
+
+    });
+
+
+  /*
+   * Ajusta o menu quando a janela muda de tamanho
+   */
+
+  window.addEventListener('resize', () => {
+
+    if (window.innerWidth > 760) {
+
+      sidebar?.classList.remove('mobile-open');
+
+      sidebarOverlay?.classList.remove('active');
+
+    }
+
+  });
+
+</script>
+
 </body>
 </html>

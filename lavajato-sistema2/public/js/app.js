@@ -808,4 +808,103 @@
     await refreshSideStats();
   })();
 
+  /* =========================================================
+   SIDEBAR / MENU
+   ========================================================= */
+
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+if (sidebar && sidebarToggle) {
+
+  sidebarToggle.addEventListener('click', () => {
+
+    if (window.innerWidth <= 760) {
+      sidebar.classList.remove('mobile-open');
+      sidebarOverlay?.classList.remove('active');
+      return;
+    }
+
+    sidebar.classList.toggle('collapsed');
+
+    localStorage.setItem(
+      'lavajato-sidebar-collapsed',
+      sidebar.classList.contains('collapsed')
+    );
+
+  });
+
+}
+
+
+if (mobileMenuBtn && sidebar) {
+
+  mobileMenuBtn.addEventListener('click', () => {
+
+    sidebar.classList.add('mobile-open');
+    sidebarOverlay?.classList.add('active');
+
+  });
+
+}
+
+
+if (sidebarOverlay && sidebar) {
+
+  sidebarOverlay.addEventListener('click', () => {
+
+    sidebar.classList.remove('mobile-open');
+    sidebarOverlay.classList.remove('active');
+
+  });
+
+}
+
+
+/* Fecha o menu ao selecionar uma opção no celular */
+
+document.querySelectorAll('.sidebar .nav-btn').forEach(button => {
+
+  button.addEventListener('click', () => {
+
+    if (window.innerWidth <= 760) {
+
+      sidebar.classList.remove('mobile-open');
+      sidebarOverlay?.classList.remove('active');
+
+    }
+
+  });
+
+});
+
+
+/* Recupera estado da sidebar no computador */
+
+if (
+  sidebar &&
+  window.innerWidth > 760 &&
+  localStorage.getItem('lavajato-sidebar-collapsed') === 'true'
+) {
+
+  sidebar.classList.add('collapsed');
+
+}
+
+
+/* Corrige estado ao mudar tamanho da tela */
+
+window.addEventListener('resize', () => {
+
+  if (window.innerWidth > 760) {
+
+    sidebar?.classList.remove('mobile-open');
+    sidebarOverlay?.classList.remove('active');
+
+  }
+
+});
+
 })();
