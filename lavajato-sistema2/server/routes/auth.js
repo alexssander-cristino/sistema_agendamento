@@ -40,8 +40,12 @@ router.post('/cadastro', async (req, res) => {
   try {
     await client.query('BEGIN');
 
+    // ==========================================================
+    // Verifica se a empresa já existe
+    // ==========================================================
+
     const empresaExistente = await client.query(
-      'SELECT id FROM empresas WHERE email = $1',
+      'SELECT id FROM empresas WHERE LOWER(email) = LOWER($1)',
       [email_empresa]
     );
 
@@ -53,8 +57,12 @@ router.post('/cadastro', async (req, res) => {
       });
     }
 
+    // ==========================================================
+    // Verifica se o usuário já existe
+    // ==========================================================
+
     const usuarioExistente = await client.query(
-      'SELECT id FROM usuarios WHERE email = $1',
+      'SELECT id FROM usuarios WHERE LOWER(email) = LOWER($1)',
       [email]
     );
 
@@ -65,6 +73,10 @@ router.post('/cadastro', async (req, res) => {
         erro: 'Já existe um usuário cadastrado com esse e-mail.'
       });
     }
+
+    // ==========================================================
+    // Cria a empresa
+    // ==========================================================
 
     const empresaResult = await client.query(
       `INSERT INTO empresas
@@ -80,13 +92,40 @@ router.post('/cadastro', async (req, res) => {
 
     const novaEmpresa = empresaResult.rows[0];
 
+    // ==========================================================
+    // Cria senha criptografada
+    // ==========================================================
+
     const senhaHash = await bcrypt.hash(senha, 12);
+
+    // ==========================================================
+    // Cria o primeiro usuário como ADMINISTRADOR
+    // ==========================================================
 
     const usuarioResult = await client.query(
       `INSERT INTO usuarios
-        (empresa_id, nome, email, senha)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, empresa_id, nome, email, ativo`,
+        (
+          empresa_id,
+          nome,
+          email,
+          senha,
+          perfil
+        )
+       VALUES
+        (
+          $1,
+          $2,
+          $3,
+          $4,
+          'administrador'
+        )
+       RETURNING
+          id,
+          empresa_id,
+          nome,
+          email,
+          perfil,
+          ativo`,
       [
         novaEmpresa.id,
         nome,
@@ -99,12 +138,17 @@ router.post('/cadastro', async (req, res) => {
 
     await client.query('COMMIT');
 
+    // ==========================================================
+    // Cria token
+    // ==========================================================
+
     const token = jwt.sign(
       {
         id: usuario.id,
         empresa_id: usuario.empresa_id,
         nome: usuario.nome,
-        email: usuario.email
+        email: usuario.email,
+        perfil: usuario.perfil
       },
       JWT_SECRET,
       {
@@ -112,14 +156,21 @@ router.post('/cadastro', async (req, res) => {
       }
     );
 
+    // ==========================================================
+    // Resposta
+    // ==========================================================
+
     res.status(201).json({
       mensagem: 'Empresa cadastrada com sucesso.',
       token,
+
       usuario: {
         id: usuario.id,
         nome: usuario.nome,
-        email: usuario.email
+        email: usuario.email,
+        perfil: usuario.perfil
       },
+
       empresa: novaEmpresa
     });
 
@@ -158,13 +209,20 @@ router.post('/login', async (req, res) => {
           u.nome,
           u.email,
           u.senha,
+          u.perfil,
           u.ativo,
+
           e.nome AS empresa_nome,
           e.email AS empresa_email,
           e.telefone AS empresa_telefone
+
        FROM usuarios u
-       INNER JOIN empresas e ON e.id = u.empresa_id
+
+       INNER JOIN empresas e
+         ON e.id = u.empresa_id
+
        WHERE LOWER(u.email) = LOWER($1)
+
        LIMIT 1`,
       [email]
     );
@@ -177,11 +235,19 @@ router.post('/login', async (req, res) => {
 
     const usuario = rows[0];
 
+    // ==========================================================
+    // Usuário desativado
+    // ==========================================================
+
     if (!usuario.ativo) {
       return res.status(403).json({
         erro: 'Este usuário está desativado.'
       });
     }
+
+    // ==========================================================
+    // Verifica senha
+    // ==========================================================
 
     const senhaValida = await bcrypt.compare(
       senha,
@@ -194,12 +260,17 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // ==========================================================
+    // Cria token
+    // ==========================================================
+
     const token = jwt.sign(
       {
         id: usuario.id,
         empresa_id: usuario.empresa_id,
         nome: usuario.nome,
-        email: usuario.email
+        email: usuario.email,
+        perfil: usuario.perfil
       },
       JWT_SECRET,
       {
@@ -207,14 +278,22 @@ router.post('/login', async (req, res) => {
       }
     );
 
+    // ==========================================================
+    // Resposta
+    // ==========================================================
+
     res.json({
       mensagem: 'Login realizado com sucesso.',
+
       token,
+
       usuario: {
         id: usuario.id,
         nome: usuario.nome,
-        email: usuario.email
+        email: usuario.email,
+        perfil: usuario.perfil
       },
+
       empresa: {
         id: usuario.empresa_id,
         nome: usuario.empresa_nome,
@@ -244,15 +323,22 @@ router.get('/me', autenticar, async (req, res) => {
           u.id,
           u.nome,
           u.email,
+          u.perfil,
           u.ativo,
+
           e.id AS empresa_id,
           e.nome AS empresa_nome,
           e.email AS empresa_email,
           e.telefone AS empresa_telefone
+
        FROM usuarios u
-       INNER JOIN empresas e ON e.id = u.empresa_id
+
+       INNER JOIN empresas e
+         ON e.id = u.empresa_id
+
        WHERE u.id = $1
          AND u.empresa_id = $2
+
        LIMIT 1`,
       [
         req.usuario.id,
@@ -273,8 +359,10 @@ router.get('/me', autenticar, async (req, res) => {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
+        perfil: usuario.perfil,
         ativo: usuario.ativo
       },
+
       empresa: {
         id: usuario.empresa_id,
         nome: usuario.empresa_nome,

@@ -9,6 +9,9 @@
     appointments: []
   };
 
+  let usuarioLogado = null;
+  let empresaLogada = null;
+
   let allDoneCache = [];
   let allExpensesCache = [];
   let currentAgendaItems = [];
@@ -128,6 +131,9 @@
           AUTH_TOKEN_KEY
         );
 
+        usuarioLogado = null;
+        empresaLogada = null;
+
         showAuthScreen();
 
         throw new Error(
@@ -239,6 +245,84 @@
 
     element.textContent = '';
     element.style.display = 'none';
+  }
+
+
+  // ============================================================
+  // SIDEBAR - USUÁRIO E EMPRESA
+  // ============================================================
+
+  function atualizarSidebarUsuario(){
+
+    const empresaElement =
+      document.getElementById(
+        'sidebar-company'
+      );
+
+    const nomeElement =
+      document.getElementById(
+        'sidebar-user-name'
+      );
+
+    const perfilElement =
+      document.getElementById(
+        'sidebar-user-profile'
+      );
+
+    const avatarElement =
+      document.getElementById(
+        'sidebar-user-avatar'
+      );
+
+
+    if(
+      empresaElement &&
+      empresaLogada
+    ){
+
+      empresaElement.textContent =
+        empresaLogada.nome ||
+        'Minha empresa';
+    }
+
+
+    if(
+      nomeElement &&
+      usuarioLogado
+    ){
+
+      nomeElement.textContent =
+        usuarioLogado.nome ||
+        'Usuário';
+    }
+
+
+    if(
+      perfilElement &&
+      usuarioLogado
+    ){
+
+      perfilElement.textContent =
+        usuarioLogado.perfil === 'administrador'
+          ? 'Administrador'
+          : 'Funcionário';
+    }
+
+
+    if(
+      avatarElement &&
+      usuarioLogado
+    ){
+
+      const nome =
+        usuarioLogado.nome ||
+        'U';
+
+      avatarElement.textContent =
+        nome
+          .charAt(0)
+          .toUpperCase();
+    }
   }
 
 
@@ -357,6 +441,15 @@
         );
 
 
+        usuarioLogado =
+          resposta.usuario || null;
+
+        empresaLogada =
+          resposta.empresa || null;
+
+
+        atualizarSidebarUsuario();
+
         hideAuthScreen();
 
         await iniciarSistema();
@@ -459,6 +552,15 @@
         );
 
 
+        usuarioLogado =
+          resposta.usuario || null;
+
+        empresaLogada =
+          resposta.empresa || null;
+
+
+        atualizarSidebarUsuario();
+
         hideAuthScreen();
 
         await iniciarSistema();
@@ -501,6 +603,9 @@
 
     if(!token){
 
+      usuarioLogado = null;
+      empresaLogada = null;
+
       showAuthScreen();
 
       return false;
@@ -509,7 +614,18 @@
 
     try{
 
-      await api('/auth/me');
+      const resposta =
+        await api('/auth/me');
+
+
+      usuarioLogado =
+        resposta.usuario || null;
+
+      empresaLogada =
+        resposta.empresa || null;
+
+
+      atualizarSidebarUsuario();
 
       hideAuthScreen();
 
@@ -521,6 +637,9 @@
       localStorage.removeItem(
         AUTH_TOKEN_KEY
       );
+
+      usuarioLogado = null;
+      empresaLogada = null;
 
       showAuthScreen();
 
@@ -4020,6 +4139,9 @@
     );
 
 
+    atualizarSidebarUsuario();
+
+
     try{
 
       await loadServices();
@@ -4083,6 +4205,10 @@
         localStorage.removeItem(
           AUTH_TOKEN_KEY
         );
+
+
+        usuarioLogado = null;
+        empresaLogada = null;
 
 
         window.location.reload();

@@ -717,6 +717,150 @@ nav{
 
 }
 
+/* =========================================================
+   USUÁRIO / EMPRESA NA SIDEBAR
+   ========================================================= */
+
+.sidebar-user {
+  margin: 0 14px 18px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+}
+
+.sidebar-company {
+  color: var(--side-ink);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+.sidebar-user-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.sidebar-user-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sidebar-user-data {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.sidebar-user-data strong {
+  color: var(--side-ink);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-data span {
+  color: var(--side-ink-dim);
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   BOTÃO SAIR
+   ========================================================= */
+
+.sidebar-logout {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--side-ink-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition: 150ms ease;
+}
+
+.sidebar-logout svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-logout:hover {
+  background: rgba(255,255,255,.07);
+  color: #fff;
+}
+
+
+/* =========================================================
+   SIDEBAR RECOLHIDA
+   ========================================================= */
+
+.sidebar.collapsed .sidebar-user {
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 8px;
+}
+
+.sidebar.collapsed .sidebar-company,
+.sidebar.collapsed .sidebar-user-data {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-user-info {
+  justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-user-avatar {
+  margin: 0 auto;
+}
+
+.sidebar.collapsed .sidebar-logout {
+  justify-content: center;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.sidebar.collapsed .sidebar-logout .nav-text {
+  display: none;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .sidebar-user {
+    margin-top: 4px;
+  }
+
+}
+
 
 /* ---------- BOTTOM NAV (mobile) ---------- */
 

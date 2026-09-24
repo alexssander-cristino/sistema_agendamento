@@ -9,6 +9,7 @@ const servicosRouter = require('./routes/servicos');
 const agendamentosRouter = require('./routes/agendamentos');
 const despesasRouter = require('./routes/despesas');
 const authRouter = require('./routes/auth');
+const usuariosRouter = require('./routes/usuarios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/servicos', servicosRouter);
 app.use('/api/agendamentos', agendamentosRouter);
 app.use('/api/despesas', despesasRouter);
+app.use('/api/usuarios', usuariosRouter);
 
 // ============================================================
 // STATUS
