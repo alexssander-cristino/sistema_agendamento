@@ -19,6 +19,9 @@
   let selectedDate = todayISO();
   let editingServiceId = null;
   let editingAppointmentId = null;
+  let editingUserId = null;
+
+  let connectionInterval = null;
 
 
   // ============================================================
@@ -82,6 +85,14 @@
         '"':'&quot;',
         "'":'&#39;'
       }[c])
+    );
+  }
+
+
+  function isAdministrador(){
+    return (
+      usuarioLogado &&
+      usuarioLogado.perfil === 'administrador'
     );
   }
 
@@ -322,6 +333,42 @@
         nome
           .charAt(0)
           .toUpperCase();
+    }
+
+
+    atualizarAcessoUsuarios();
+  }
+
+
+  // ============================================================
+  // ACESSO À ÁREA DE USUÁRIOS
+  // ============================================================
+
+  function atualizarAcessoUsuarios(){
+
+    const btn =
+      document.getElementById(
+        'nav-usuarios'
+      );
+
+    if(!btn){
+      return;
+    }
+
+
+    if(isAdministrador()){
+
+      btn.style.display = '';
+
+    }else{
+
+      btn.style.display = 'none';
+
+
+      if(activeTab === 'usuarios'){
+
+        goToTab('agenda');
+      }
     }
   }
 
@@ -606,6 +653,7 @@
       usuarioLogado = null;
       empresaLogada = null;
 
+      atualizarAcessoUsuarios();
       showAuthScreen();
 
       return false;
@@ -640,6 +688,8 @@
 
       usuarioLogado = null;
       empresaLogada = null;
+
+      atualizarAcessoUsuarios();
 
       showAuthScreen();
 
@@ -690,6 +740,15 @@
   // ============================================================
 
   function goToTab(tab){
+
+    if(
+      tab === 'usuarios' &&
+      !isAdministrador()
+    ){
+
+      return;
+    }
+
 
     activeTab = tab;
 
@@ -777,6 +836,13 @@
 
     if(tab === 'despesas'){
       await refreshDespesas();
+    }
+
+    if(tab === 'usuarios'){
+
+      if(isAdministrador()){
+        await refreshUsuarios();
+      }
     }
   }
 
@@ -1866,7 +1932,8 @@
       allDoneCache =
         range.filter(
           a =>
-            a.status === 'concluido'
+            a.status ===
+            'concluido'
         );
 
 
@@ -4097,6 +4164,1121 @@
 
 
   // ============================================================
+  // USUÁRIOS
+  // ============================================================
+
+  const overlayUser =
+    document.getElementById(
+      'overlay-user'
+    );
+
+
+  const formUser =
+    document.getElementById(
+      'form-user'
+    );
+
+
+  // ------------------------------------------------------------
+  // ABRIR NOVO USUÁRIO
+  // ------------------------------------------------------------
+
+  document
+    .getElementById(
+      'btn-new-user'
+    )
+    ?.addEventListener(
+      'click',
+      openNewUser
+    );
+
+
+  function openNewUser(){
+
+    if(!isAdministrador()){
+
+      alert(
+        'Apenas administradores podem gerenciar usuários.'
+      );
+
+      return;
+    }
+
+
+    editingUserId = null;
+
+
+    const title =
+      document.getElementById(
+        'user-modal-title'
+      );
+
+    if(title){
+      title.textContent =
+        'Novo usuário';
+    }
+
+
+    const submit =
+      document.getElementById(
+        'user-submit-btn'
+      );
+
+    if(submit){
+      submit.textContent =
+        'Criar usuário';
+    }
+
+
+    const name =
+      document.getElementById(
+        'user-name'
+      );
+
+    const email =
+      document.getElementById(
+        'user-email'
+      );
+
+    const profile =
+      document.getElementById(
+        'user-profile'
+      );
+
+    const password =
+      document.getElementById(
+        'user-password'
+      );
+
+    const passwordField =
+      document.getElementById(
+        'user-password-field'
+      );
+
+    const activeField =
+      document.getElementById(
+        'user-active-field'
+      );
+
+
+    if(name){
+      name.value = '';
+    }
+
+
+    if(email){
+      email.value = '';
+    }
+
+
+    if(profile){
+      profile.value =
+        'funcionario';
+    }
+
+
+    if(password){
+      password.value = '';
+      password.required = true;
+    }
+
+
+    if(passwordField){
+      passwordField.style.display = '';
+    }
+
+
+    if(activeField){
+      activeField.style.display =
+        'none';
+    }
+
+
+    overlayUser?.classList.add(
+      'active'
+    );
+
+
+    name?.focus();
+  }
+
+
+  // ------------------------------------------------------------
+  // CANCELAR USUÁRIO
+  // ------------------------------------------------------------
+
+  document
+    .getElementById(
+      'btn-cancel-user'
+    )
+    ?.addEventListener(
+      'click',
+      closeUserModal
+    );
+
+
+  overlayUser?.addEventListener(
+    'click',
+    e => {
+
+      if(
+        e.target ===
+        overlayUser
+      ){
+
+        closeUserModal();
+      }
+
+    }
+  );
+
+
+  function closeUserModal(){
+
+    overlayUser?.classList.remove(
+      'active'
+    );
+
+    editingUserId = null;
+  }
+
+
+  // ------------------------------------------------------------
+  // FORMULÁRIO USUÁRIO
+  // ------------------------------------------------------------
+
+  formUser?.addEventListener(
+    'submit',
+    async e => {
+
+      e.preventDefault();
+
+
+      if(!isAdministrador()){
+
+        alert(
+          'Apenas administradores podem realizar esta operação.'
+        );
+
+        return;
+      }
+
+
+      const nome =
+        document.getElementById(
+          'user-name'
+        )?.value.trim();
+
+
+      const email =
+        document.getElementById(
+          'user-email'
+        )?.value.trim();
+
+
+      const perfil =
+        document.getElementById(
+          'user-profile'
+        )?.value;
+
+
+      const senha =
+        document.getElementById(
+          'user-password'
+        )?.value;
+
+
+      if(!nome || !email){
+
+        alert(
+          'Informe nome e e-mail.'
+        );
+
+        return;
+      }
+
+
+      const submit =
+        document.getElementById(
+          'user-submit-btn'
+        );
+
+
+      if(submit){
+
+        submit.disabled = true;
+        submit.textContent =
+          editingUserId
+            ? 'Salvando...'
+            : 'Criando...';
+      }
+
+
+      try{
+
+        if(editingUserId){
+
+          const ativoSelect =
+            document.getElementById(
+              'user-active'
+            );
+
+
+          const ativo =
+            ativoSelect
+              ? ativoSelect.value === 'true'
+              : true;
+
+
+          await api(
+            '/usuarios/' +
+            editingUserId,
+            {
+              method:'PUT',
+
+              body:
+                JSON.stringify({
+                  nome,
+                  email,
+                  perfil,
+                  ativo
+                })
+            }
+          );
+
+
+          if(
+            senha &&
+            senha.trim().length > 0
+          ){
+
+            await api(
+              '/usuarios/' +
+              editingUserId +
+              '/senha',
+              {
+                method:'PATCH',
+
+                body:
+                  JSON.stringify({
+                    senha
+                  })
+              }
+            );
+          }
+
+
+        }else{
+
+          if(!senha){
+
+            alert(
+              'Informe uma senha para o novo usuário.'
+            );
+
+            return;
+          }
+
+
+          await api(
+            '/usuarios',
+            {
+              method:'POST',
+
+              body:
+                JSON.stringify({
+                  nome,
+                  email,
+                  senha,
+                  perfil
+                })
+            }
+          );
+        }
+
+
+        closeUserModal();
+
+        await refreshUsuarios();
+
+
+      }catch(err){
+
+        alert(
+          'Não foi possível salvar o usuário: ' +
+          err.message
+        );
+
+
+      }finally{
+
+        if(submit){
+
+          submit.disabled = false;
+
+          submit.textContent =
+            editingUserId
+              ? 'Salvar alterações'
+              : 'Criar usuário';
+        }
+      }
+
+    }
+  );
+
+
+  // ------------------------------------------------------------
+  // LISTAR USUÁRIOS
+  // ------------------------------------------------------------
+
+  async function refreshUsuarios(){
+
+    if(!isAdministrador()){
+
+      atualizarAcessoUsuarios();
+
+      return;
+    }
+
+
+    const list =
+      document.getElementById(
+        'usuarios-list'
+      );
+
+
+    if(!list){
+      return;
+    }
+
+
+    list.innerHTML =
+      '<div class="empty">Carregando usuários…</div>';
+
+
+    try{
+
+      const usuarios =
+        await api('/usuarios');
+
+
+      renderUsuarios(
+        usuarios
+      );
+
+
+    }catch(error){
+
+      list.innerHTML =
+        '<div class="empty">' +
+          '<strong>Não foi possível carregar os usuários</strong>' +
+          escapeHtml(error.message) +
+        '</div>';
+    }
+  }
+
+
+  // ------------------------------------------------------------
+  // RENDERIZAR USUÁRIOS
+  // ------------------------------------------------------------
+
+  function renderUsuarios(usuarios){
+
+    const list =
+      document.getElementById(
+        'usuarios-list'
+      );
+
+
+    if(!list){
+      return;
+    }
+
+
+    const total =
+      document.getElementById(
+        'usuarios-total'
+      );
+
+
+    const admins =
+      document.getElementById(
+        'usuarios-admins'
+      );
+
+
+    const funcionarios =
+      document.getElementById(
+        'usuarios-funcionarios'
+      );
+
+
+    const qtdAdmins =
+      usuarios.filter(
+        u =>
+          u.perfil ===
+          'administrador'
+      ).length;
+
+
+    const qtdFuncionarios =
+      usuarios.filter(
+        u =>
+          u.perfil ===
+          'funcionario'
+      ).length;
+
+
+    if(total){
+      total.textContent =
+        usuarios.length;
+    }
+
+
+    if(admins){
+      admins.textContent =
+        qtdAdmins;
+    }
+
+
+    if(funcionarios){
+      funcionarios.textContent =
+        qtdFuncionarios;
+    }
+
+
+    if(usuarios.length === 0){
+
+      list.innerHTML =
+        '<div class="empty">' +
+          '<strong>Nenhum usuário cadastrado</strong>' +
+          'Clique em "Novo usuário" para adicionar alguém à sua empresa.' +
+        '</div>';
+
+      return;
+    }
+
+
+    list.innerHTML =
+      usuarios.map(
+        usuario =>
+          renderUsuario(usuario, usuarios)
+      ).join('');
+  }
+
+
+  // ------------------------------------------------------------
+  // RENDERIZAR UM USUÁRIO
+  // ------------------------------------------------------------
+
+  function renderUsuario(
+    usuario,
+    todosUsuarios
+  ){
+
+    const nome =
+      escapeHtml(
+        usuario.nome
+      );
+
+
+    const email =
+      escapeHtml(
+        usuario.email
+      );
+
+
+    const inicial =
+      (usuario.nome || 'U')
+        .charAt(0)
+        .toUpperCase();
+
+
+    const isCurrentUser =
+      Number(usuario.id) ===
+      Number(usuarioLogado?.id);
+
+
+    const perfilLabel =
+      usuario.perfil ===
+      'administrador'
+        ? 'Administrador'
+        : 'Funcionário';
+
+
+    const statusLabel =
+      usuario.ativo
+        ? 'Ativo'
+        : 'Bloqueado';
+
+
+    const adminCount =
+      todosUsuarios.filter(
+        u =>
+          u.perfil ===
+          'administrador'
+      ).length;
+
+
+    const isLastAdmin =
+      usuario.perfil ===
+        'administrador' &&
+      adminCount <= 1;
+
+
+    let actions = '';
+
+
+    // ----------------------------------------------------------
+    // BOTÃO EDITAR
+    // ----------------------------------------------------------
+
+    actions +=
+      `<button
+        class="btn btn-small btn-ghost"
+        onclick="App.editUser('${usuario.id}')"
+      >
+        Editar
+      </button>`;
+
+
+    // ----------------------------------------------------------
+    // PROMOVER / REBAIXAR
+    // ----------------------------------------------------------
+
+    if(!isCurrentUser){
+
+      if(
+        usuario.perfil ===
+        'funcionario'
+      ){
+
+        actions +=
+          `<button
+            class="btn btn-small btn-ghost"
+            onclick="App.changeUserProfile('${usuario.id}','administrador')"
+          >
+            Tornar administrador
+          </button>`;
+
+      }else{
+
+        if(!isLastAdmin){
+
+          actions +=
+            `<button
+              class="btn btn-small btn-ghost"
+              onclick="App.changeUserProfile('${usuario.id}','funcionario')"
+            >
+              Rebaixar
+            </button>`;
+        }
+      }
+    }
+
+
+    // ----------------------------------------------------------
+    // BLOQUEAR / ATIVAR
+    // ----------------------------------------------------------
+
+    if(!isCurrentUser){
+
+      actions +=
+        `<button
+          class="btn btn-small btn-ghost"
+          onclick="App.toggleUserStatus('${usuario.id}',${usuario.ativo ? 'false' : 'true'})"
+        >
+          ${
+            usuario.ativo
+              ? 'Bloquear'
+              : 'Ativar'
+          }
+        </button>`;
+    }
+
+
+    // ----------------------------------------------------------
+    // EXCLUIR
+    // ----------------------------------------------------------
+
+    if(!isCurrentUser){
+
+      actions +=
+        `<button
+          class="btn btn-small btn-ghost"
+          onclick="App.deleteUser('${usuario.id}')"
+        >
+          Excluir
+        </button>`;
+    }
+
+
+    return `
+      <div
+        class="ticket"
+        style="
+          align-items:center;
+          opacity:${usuario.ativo ? '1' : '.65'};
+        "
+      >
+
+        <div
+          class="sidebar-user-avatar"
+          style="
+            width:40px;
+            height:40px;
+            min-width:40px;
+            font-size:14px;
+          "
+        >
+          ${escapeHtml(inicial)}
+        </div>
+
+
+        <div
+          class="ticket-body"
+          style="min-width:0;"
+        >
+
+          <div class="client">
+            ${nome}
+
+            ${
+              isCurrentUser
+                ? `<span
+                    class="badge badge-pago"
+                    style="margin-left:6px;"
+                  >
+                    Você
+                  </span>`
+                : ''
+            }
+
+          </div>
+
+
+          <div class="meta">
+
+            <span>
+              ${email}
+            </span>
+
+            <span>
+              ${perfilLabel}
+            </span>
+
+            <span>
+              ${statusLabel}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="ticket-actions"
+          style="
+            flex-wrap:wrap;
+            justify-content:flex-end;
+          "
+        >
+
+          ${actions}
+
+        </div>
+
+      </div>
+    `;
+  }
+
+
+  // ------------------------------------------------------------
+  // EDITAR USUÁRIO
+  // ------------------------------------------------------------
+
+  async function editUser(id){
+
+    if(!isAdministrador()){
+
+      alert(
+        'Apenas administradores podem editar usuários.'
+      );
+
+      return;
+    }
+
+
+    try{
+
+      const usuarios =
+        await api('/usuarios');
+
+
+      const usuario =
+        usuarios.find(
+          u =>
+            String(u.id) ===
+            String(id)
+        );
+
+
+      if(!usuario){
+
+        alert(
+          'Usuário não encontrado.'
+        );
+
+        return;
+      }
+
+
+      editingUserId =
+        id;
+
+
+      const title =
+        document.getElementById(
+          'user-modal-title'
+        );
+
+
+      if(title){
+
+        title.textContent =
+          'Editar usuário';
+      }
+
+
+      const submit =
+        document.getElementById(
+          'user-submit-btn'
+        );
+
+
+      if(submit){
+
+        submit.textContent =
+          'Salvar alterações';
+      }
+
+
+      const name =
+        document.getElementById(
+          'user-name'
+        );
+
+
+      const email =
+        document.getElementById(
+          'user-email'
+        );
+
+
+      const profile =
+        document.getElementById(
+          'user-profile'
+        );
+
+
+      const password =
+        document.getElementById(
+          'user-password'
+        );
+
+
+      const passwordField =
+        document.getElementById(
+          'user-password-field'
+        );
+
+
+      const activeField =
+        document.getElementById(
+          'user-active-field'
+        );
+
+
+      const active =
+        document.getElementById(
+          'user-active'
+        );
+
+
+      if(name){
+        name.value =
+          usuario.nome || '';
+      }
+
+
+      if(email){
+        email.value =
+          usuario.email || '';
+      }
+
+
+      if(profile){
+        profile.value =
+          usuario.perfil ||
+          'funcionario';
+      }
+
+
+      if(password){
+
+        password.value = '';
+
+        password.required = false;
+
+        password.placeholder =
+          'Deixe vazio para manter a atual';
+      }
+
+
+      if(passwordField){
+
+        passwordField.style.display =
+          '';
+      }
+
+
+      if(activeField){
+
+        activeField.style.display =
+          '';
+      }
+
+
+      if(active){
+
+        active.value =
+          usuario.ativo
+            ? 'true'
+            : 'false';
+      }
+
+
+      overlayUser?.classList.add(
+        'active'
+      );
+
+
+      name?.focus();
+
+
+    }catch(error){
+
+      alert(
+        'Não foi possível carregar o usuário: ' +
+        error.message
+      );
+    }
+  }
+
+
+  // ------------------------------------------------------------
+  // ALTERAR PERFIL
+  // ------------------------------------------------------------
+
+  async function changeUserProfile(
+    id,
+    novoPerfil
+  ){
+
+    if(!isAdministrador()){
+
+      alert(
+        'Apenas administradores podem alterar cargos.'
+      );
+
+      return;
+    }
+
+
+    const nomePerfil =
+      novoPerfil ===
+        'administrador'
+        ? 'administrador'
+        : 'funcionário';
+
+
+    if(
+      !confirm(
+        `Deseja alterar este usuário para ${nomePerfil}?`
+      )
+    ){
+
+      return;
+    }
+
+
+    try{
+
+      await api(
+        '/usuarios/' + id,
+        {
+          method:'PUT',
+
+          body:
+            JSON.stringify({
+              perfil: novoPerfil
+            })
+        }
+      );
+
+
+      await refreshUsuarios();
+
+
+    }catch(error){
+
+      alert(
+        'Não foi possível alterar o cargo: ' +
+        error.message
+      );
+    }
+  }
+
+
+  // ------------------------------------------------------------
+  // ATIVAR / BLOQUEAR
+  // ------------------------------------------------------------
+
+  async function toggleUserStatus(
+    id,
+    ativo
+  ){
+
+    if(!isAdministrador()){
+
+      alert(
+        'Apenas administradores podem bloquear usuários.'
+      );
+
+      return;
+    }
+
+
+    if(
+      Number(id) ===
+      Number(usuarioLogado?.id)
+    ){
+
+      alert(
+        'Você não pode bloquear o próprio usuário.'
+      );
+
+      return;
+    }
+
+
+    const acao =
+      ativo
+        ? 'ativar'
+        : 'bloquear';
+
+
+    if(
+      !confirm(
+        `Deseja ${acao} este usuário?`
+      )
+    ){
+
+      return;
+    }
+
+
+    try{
+
+      await api(
+        '/usuarios/' + id,
+        {
+          method:'PUT',
+
+          body:
+            JSON.stringify({
+              ativo
+            })
+        }
+      );
+
+
+      await refreshUsuarios();
+
+
+    }catch(error){
+
+      alert(
+        `Não foi possível ${acao} o usuário: ` +
+        error.message
+      );
+    }
+  }
+
+
+  // ------------------------------------------------------------
+  // EXCLUIR USUÁRIO
+  // ------------------------------------------------------------
+
+  async function deleteUser(id){
+
+    if(!isAdministrador()){
+
+      alert(
+        'Apenas administradores podem excluir usuários.'
+      );
+
+      return;
+    }
+
+
+    if(
+      Number(id) ===
+      Number(usuarioLogado?.id)
+    ){
+
+      alert(
+        'Você não pode excluir o próprio usuário.'
+      );
+
+      return;
+    }
+
+
+    if(
+      !confirm(
+        'Deseja excluir este usuário definitivamente?'
+      )
+    ){
+
+      return;
+    }
+
+
+    try{
+
+      await api(
+        '/usuarios/' + id,
+        {
+          method:'DELETE'
+        }
+      );
+
+
+      await refreshUsuarios();
+
+
+    }catch(error){
+
+      alert(
+        'Não foi possível excluir o usuário: ' +
+        error.message
+      );
+    }
+  }
+
+
+  // ============================================================
   // APP GLOBAL
   // ============================================================
 
@@ -4120,7 +5302,17 @@
 
     openEditAppointment,
 
-    removeExpense
+    removeExpense,
+
+    editUser,
+
+    changeUserProfile,
+
+    toggleUserStatus,
+
+    deleteUser,
+
+    refreshUsuarios
 
   };
 
@@ -4133,10 +5325,15 @@
 
     checkConnection();
 
-    setInterval(
-      checkConnection,
-      30000
-    );
+
+    if(!connectionInterval){
+
+      connectionInterval =
+        setInterval(
+          checkConnection,
+          30000
+        );
+    }
 
 
     atualizarSidebarUsuario();
@@ -4149,6 +5346,25 @@
       await refreshAgenda();
 
       await refreshSideStats();
+
+
+      if(isAdministrador()){
+
+        const navUsuarios =
+          document.getElementById(
+            'nav-usuarios'
+          );
+
+
+        if(
+          navUsuarios &&
+          navUsuarios.style.display !== 'none'
+        ){
+
+          // Usuários será carregado
+          // somente quando a aba for aberta.
+        }
+      }
 
 
     }catch(error){
