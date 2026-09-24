@@ -199,6 +199,7 @@
 
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
 
       transition: 150ms ease;
@@ -207,6 +208,12 @@
     .primary-button:hover {
       background: var(--primary-2);
       transform: translateY(-1px);
+    }
+
+    .primary-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .primary-button svg {
@@ -253,7 +260,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 760px;
+      min-width: 800px;
     }
 
     th {
@@ -354,6 +361,24 @@
     .badge-inactive {
       background: var(--warn-soft);
       color: var(--warn);
+    }
+
+    .permissions-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .permission-count {
+      color: var(--ink-soft);
+      font-size: 11px;
+    }
+
+    .permission-full {
+      color: var(--primary-2);
+      font-size: 11px;
+      font-weight: 700;
     }
 
     .actions {
@@ -757,19 +782,6 @@
       background: var(--bg);
     }
 
-    .danger-button {
-      border: 0;
-      border-radius: 8px;
-
-      padding: 10px 16px;
-
-      background: var(--warn);
-      color: #fff;
-
-      font-size: 13px;
-      font-weight: 600;
-    }
-
     /* ==========================================================
        LOADING
        ========================================================== */
@@ -862,7 +874,6 @@
 
       .primary-button {
         width: 100%;
-        justify-content: center;
       }
 
       .form-grid {
@@ -929,12 +940,8 @@
           stroke="currentColor"
           stroke-width="2"
         >
-          <path
-            d="M19 12H5"
-          />
-          <path
-            d="M12 19l-7-7 7-7"
-          />
+          <path d="M19 12H5" />
+          <path d="M12 19l-7-7 7-7" />
         </svg>
       </button>
 
@@ -963,6 +970,7 @@
 
       <div class="page-header-text">
         <h2>Usuários da empresa</h2>
+
         <p>
           Gerencie cargos, acesso e permissões dos usuários.
         </p>
@@ -996,13 +1004,18 @@
     <section class="card">
 
       <div class="card-header">
-        <strong>Usuários cadastrados</strong>
+
+        <strong>
+          Usuários cadastrados
+        </strong>
+
         <span
           class="user-count"
           id="user-count"
         >
           0 usuários
         </span>
+
       </div>
 
       <div class="table-wrapper">
@@ -1010,6 +1023,7 @@
         <table>
 
           <thead>
+
             <tr>
               <th>Usuário</th>
               <th>Cargo</th>
@@ -1017,15 +1031,18 @@
               <th>Permissões</th>
               <th>Ações</th>
             </tr>
+
           </thead>
 
           <tbody id="usuarios-body">
 
             <tr>
               <td colspan="5">
+
                 <div class="loading">
                   Carregando usuários...
                 </div>
+
               </td>
             </tr>
 
@@ -1041,7 +1058,7 @@
 
 
   <!-- ==========================================================
-       MODAL
+       MODAL USUÁRIO
        ========================================================== -->
 
   <div
@@ -1061,6 +1078,7 @@
           type="button"
           class="modal-close"
           id="btn-fechar-modal"
+          title="Fechar"
         >
           <svg
             viewBox="0 0 24 24"
@@ -1192,10 +1210,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Agenda</strong>
+
+                  <strong>
+                    Agenda
+                  </strong>
+
                   <span>
                     Agendamentos
                   </span>
+
                 </div>
 
               </label>
@@ -1210,10 +1233,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Faturamento</strong>
+
+                  <strong>
+                    Faturamento
+                  </strong>
+
                   <span>
                     Faturamento e recebimentos
                   </span>
+
                 </div>
 
               </label>
@@ -1228,10 +1256,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Financeiro</strong>
+
+                  <strong>
+                    Financeiro
+                  </strong>
+
                   <span>
                     Informações financeiras
                   </span>
+
                 </div>
 
               </label>
@@ -1246,10 +1279,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Serviços</strong>
+
+                  <strong>
+                    Serviços
+                  </strong>
+
                   <span>
                     Cadastro de serviços
                   </span>
+
                 </div>
 
               </label>
@@ -1264,10 +1302,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Clientes</strong>
+
+                  <strong>
+                    Clientes
+                  </strong>
+
                   <span>
                     Cadastro de clientes
                   </span>
+
                 </div>
 
               </label>
@@ -1282,10 +1325,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Despesas</strong>
+
+                  <strong>
+                    Despesas
+                  </strong>
+
                   <span>
                     Controle de despesas
                   </span>
+
                 </div>
 
               </label>
@@ -1300,28 +1348,15 @@
                 >
 
                 <div class="permission-item-content">
-                  <strong>Usuários</strong>
+
+                  <strong>
+                    Usuários
+                  </strong>
+
                   <span>
                     Gerenciamento de usuários
                   </span>
-                </div>
 
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="configuracoes"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-                  <strong>Configurações</strong>
-                  <span>
-                    Configurações da empresa
-                  </span>
                 </div>
 
               </label>
@@ -1417,10 +1452,14 @@
 
 
   <script>
-    const AUTH_TOKEN_KEY = 'lavajato_auth_token';
 
-    let usuarios = [];
-    let usuarioEditando = null;
+    // ==========================================================
+    // CONFIGURAÇÃO
+    // ==========================================================
+
+    const AUTH_TOKEN_KEY =
+      'lavajato_auth_token';
+
 
     const PERMISSOES = [
       'agenda',
@@ -1429,51 +1468,88 @@
       'servicos',
       'clientes',
       'despesas',
-      'usuarios',
-      'configuracoes'
+      'usuarios'
     ];
 
+
+    let usuarios = [];
+
+    let usuarioEditando = null;
+
+
+    // ==========================================================
+    // ELEMENTOS
+    // ==========================================================
+
     const modalOverlay =
-      document.getElementById('modal-overlay');
+      document.getElementById(
+        'modal-overlay'
+      );
 
     const usuarioForm =
-      document.getElementById('usuario-form');
+      document.getElementById(
+        'usuario-form'
+      );
 
     const usuarioId =
-      document.getElementById('usuario-id');
+      document.getElementById(
+        'usuario-id'
+      );
 
     const usuarioNome =
-      document.getElementById('usuario-nome');
+      document.getElementById(
+        'usuario-nome'
+      );
 
     const usuarioEmail =
-      document.getElementById('usuario-email');
+      document.getElementById(
+        'usuario-email'
+      );
 
     const usuarioSenha =
-      document.getElementById('usuario-senha');
+      document.getElementById(
+        'usuario-senha'
+      );
 
     const usuarioPerfil =
-      document.getElementById('usuario-perfil');
+      document.getElementById(
+        'usuario-perfil'
+      );
 
     const usuarioAtivo =
-      document.getElementById('usuario-ativo');
+      document.getElementById(
+        'usuario-ativo'
+      );
 
     const senhaGroup =
-      document.getElementById('senha-group');
+      document.getElementById(
+        'senha-group'
+      );
 
     const permissionsGrid =
-      document.getElementById('permissions-grid');
+      document.getElementById(
+        'permissions-grid'
+      );
 
     const adminNotice =
-      document.getElementById('admin-notice');
+      document.getElementById(
+        'admin-notice'
+      );
 
     const usuariosBody =
-      document.getElementById('usuarios-body');
+      document.getElementById(
+        'usuarios-body'
+      );
 
     const userCount =
-      document.getElementById('user-count');
+      document.getElementById(
+        'user-count'
+      );
 
     const modalTitle =
-      document.getElementById('modal-title');
+      document.getElementById(
+        'modal-title'
+      );
 
 
     // ==========================================================
@@ -1481,9 +1557,11 @@
     // ==========================================================
 
     function getToken() {
+
       return localStorage.getItem(
         AUTH_TOKEN_KEY
       );
+
     }
 
 
@@ -1495,56 +1573,81 @@
       endpoint,
       options = {}
     ) {
-      const token = getToken();
+
+      const token =
+        getToken();
 
       const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type':
+          'application/json',
+
         ...(options.headers || {})
       };
 
+
       if (token) {
+
         headers.Authorization =
           `Bearer ${token}`;
+
       }
 
-      const resposta = await fetch(
-        `/api${endpoint}`,
-        {
-          ...options,
-          headers
-        }
-      );
+
+      const resposta =
+        await fetch(
+          `/api${endpoint}`,
+          {
+            ...options,
+            headers
+          }
+        );
+
 
       let dados = null;
 
+
       try {
-        dados = await resposta.json();
+
+        dados =
+          await resposta.json();
+
       } catch {
+
         dados = null;
+
       }
+
 
       if (
         resposta.status === 401
       ) {
+
         localStorage.removeItem(
           AUTH_TOKEN_KEY
         );
 
-        window.location.href = '/';
+        window.location.href =
+          '/';
 
         throw new Error(
           'Sessão expirada.'
         );
+
       }
 
+
       if (!resposta.ok) {
+
         throw new Error(
           dados?.erro ||
           'Não foi possível realizar a operação.'
         );
+
       }
 
+
       return dados;
+
     }
 
 
@@ -1556,25 +1659,38 @@
       mensagem,
       tipo = 'success'
     ) {
+
       const container =
         document.getElementById(
           'toast-container'
         );
 
+
       const toast =
-        document.createElement('div');
+        document.createElement(
+          'div'
+        );
+
 
       toast.className =
         `toast ${tipo}`;
 
+
       toast.textContent =
         mensagem;
 
-      container.appendChild(toast);
+
+      container.appendChild(
+        toast
+      );
+
 
       setTimeout(() => {
+
         toast.remove();
+
       }, 3500);
+
     }
 
 
@@ -1583,27 +1699,43 @@
     // ==========================================================
 
     async function verificarSessao() {
+
       if (!getToken()) {
-        window.location.href = '/';
+
+        window.location.href =
+          '/';
+
         return false;
+
       }
 
+
       try {
+
         const resposta =
-          await api('/auth/me');
+          await api(
+            '/auth/me'
+          );
+
 
         if (
           resposta.usuario?.perfil !==
           'administrador'
         ) {
+
           alert(
             'Acesso permitido somente para administradores.'
           );
 
-          window.location.href = '/';
+
+          window.location.href =
+            '/';
+
 
           return false;
+
         }
+
 
         document.getElementById(
           'company-name'
@@ -1611,18 +1743,23 @@
           resposta.empresa?.nome ||
           'Empresa';
 
+
         document.getElementById(
           'logged-user'
         ).textContent =
           `${resposta.usuario?.nome || 'Usuário'} · Administrador`;
 
+
         return true;
 
       } catch (err) {
+
         console.error(err);
 
         return false;
+
       }
+
     }
 
 
@@ -1631,6 +1768,7 @@
     // ==========================================================
 
     async function carregarUsuarios() {
+
       usuariosBody.innerHTML = `
         <tr>
           <td colspan="5">
@@ -1641,26 +1779,44 @@
         </tr>
       `;
 
+
       try {
+
         usuarios =
-          await api('/usuarios');
+          await api(
+            '/usuarios'
+          );
+
 
         renderizarUsuarios();
 
       } catch (err) {
+
         console.error(err);
+
 
         usuariosBody.innerHTML = `
           <tr>
             <td colspan="5">
               <div class="empty-state">
-                <strong>Não foi possível carregar os usuários.</strong>
-                <span>${escaparHtml(err.message)}</span>
+
+                <strong>
+                  Não foi possível carregar os usuários.
+                </strong>
+
+                <span>
+                  ${escaparHtml(
+                    err.message
+                  )}
+                </span>
+
               </div>
             </td>
           </tr>
         `;
+
       }
+
     }
 
 
@@ -1669,6 +1825,7 @@
     // ==========================================================
 
     function renderizarUsuarios() {
+
       userCount.textContent =
         `${usuarios.length} ${
           usuarios.length === 1
@@ -1676,232 +1833,328 @@
             : 'usuários'
         }`;
 
-      if (usuarios.length === 0) {
+
+      if (
+        usuarios.length === 0
+      ) {
+
         usuariosBody.innerHTML = `
           <tr>
             <td colspan="5">
+
               <div class="empty-state">
-                <strong>Nenhum usuário cadastrado.</strong>
-                <span>Crie o primeiro usuário da empresa.</span>
+
+                <strong>
+                  Nenhum usuário cadastrado.
+                </strong>
+
+                <span>
+                  Crie o primeiro usuário da empresa.
+                </span>
+
               </div>
+
             </td>
           </tr>
         `;
 
         return;
+
       }
+
 
       usuariosBody.innerHTML =
         usuarios
-          .map(usuario => {
-            const iniciais =
-              obterIniciais(
-                usuario.nome
-              );
+          .map(
+            usuario => {
 
-            const cargo =
-              usuario.perfil ===
-              'administrador'
-                ? `
-                  <span class="badge badge-admin">
-                    Administrador
-                  </span>
-                `
-                : `
-                  <span class="badge badge-funcionario">
-                    Funcionário
-                  </span>
-                `;
+              const iniciais =
+                obterIniciais(
+                  usuario.nome
+                );
 
-            const status =
-              usuario.ativo
-                ? `
-                  <span class="badge badge-active">
-                    Ativo
-                  </span>
-                `
-                : `
-                  <span class="badge badge-inactive">
-                    Inativo
-                  </span>
-                `;
 
-            const quantidadePermissoes =
-              usuario.perfil ===
-              'administrador'
-                ? 'Acesso total'
-                : `${usuario.permissoes?.length || 0} permissões`;
+              const cargo =
+                usuario.perfil ===
+                'administrador'
 
-            return `
-              <tr>
+                  ? `
+                    <span class="badge badge-admin">
+                      Administrador
+                    </span>
+                  `
 
-                <td>
-                  <div class="user-name">
+                  : `
+                    <span class="badge badge-funcionario">
+                      Funcionário
+                    </span>
+                  `;
 
-                    <div class="avatar">
-                      ${escaparHtml(iniciais)}
+
+              const status =
+                usuario.ativo
+
+                  ? `
+                    <span class="badge badge-active">
+                      Ativo
+                    </span>
+                  `
+
+                  : `
+                    <span class="badge badge-inactive">
+                      Inativo
+                    </span>
+                  `;
+
+
+              const quantidadePermissoes =
+                usuario.perfil ===
+                'administrador'
+
+                  ? `
+                    <span class="permission-full">
+                      Acesso total
+                    </span>
+                  `
+
+                  : `
+                    <span class="permission-count">
+                      ${
+                        usuario.permissoes?.length ||
+                        0
+                      }
+                      ${
+                        (
+                          usuario.permissoes?.length ||
+                          0
+                        ) === 1
+                          ? 'permissão'
+                          : 'permissões'
+                      }
+                    </span>
+                  `;
+
+
+              return `
+                <tr>
+
+                  <td>
+
+                    <div class="user-name">
+
+                      <div class="avatar">
+                        ${escaparHtml(
+                          iniciais
+                        )}
+                      </div>
+
+                      <div class="user-name-data">
+
+                        <strong>
+                          ${escaparHtml(
+                            usuario.nome
+                          )}
+                        </strong>
+
+                        <span>
+                          ${escaparHtml(
+                            usuario.email
+                          )}
+                        </span>
+
+                      </div>
+
                     </div>
 
-                    <div class="user-name-data">
+                  </td>
 
-                      <strong>
-                        ${escaparHtml(usuario.nome)}
-                      </strong>
 
-                      <span>
-                        ${escaparHtml(usuario.email)}
-                      </span>
+                  <td>
+                    ${cargo}
+                  </td>
 
+
+                  <td>
+                    ${status}
+                  </td>
+
+
+                  <td>
+                    <div class="permissions-summary">
+                      ${quantidadePermissoes}
                     </div>
+                  </td>
 
-                  </div>
-                </td>
 
-                <td>
-                  ${cargo}
-                </td>
+                  <td>
 
-                <td>
-                  ${status}
-                </td>
+                    <div class="actions">
 
-                <td>
-                  ${quantidadePermissoes}
-                </td>
-
-                <td>
-
-                  <div class="actions">
-
-                    <button
-                      type="button"
-                      class="action-button"
-                      title="Editar usuário"
-                      onclick="editarUsuario(${usuario.id})"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
+                      <button
+                        type="button"
+                        class="action-button"
+                        title="Editar usuário"
+                        onclick="editarUsuario(${usuario.id})"
                       >
-                        <path
-                          d="M12 20h9"
-                        />
-                        <path
-                          d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"
-                        />
-                      </svg>
-                    </button>
+
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+
+                          <path
+                            d="M12 20h9"
+                          />
+
+                          <path
+                            d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"
+                          />
+
+                        </svg>
+
+                      </button>
 
 
-                    <button
-                      type="button"
-                      class="action-button"
-                      title="${
-                        usuario.ativo
-                          ? 'Desativar usuário'
-                          : 'Ativar usuário'
-                      }"
-                      onclick="alternarStatus(${usuario.id})"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        ${
+                      <button
+                        type="button"
+                        class="action-button"
+                        title="${
                           usuario.ativo
-                            ? `
-                              <path d="M18 8A6 6 0 0 0 6 8v4a6 6 0 0 0 12 0Z"/>
-                              <path d="M12 2v6"/>
-                            `
-                            : `
-                              <path d="M18 8A6 6 0 0 0 6 8v4a6 6 0 0 0 12 0Z"/>
-                              <path d="M8 21h8"/>
-                            `
-                        }
-                      </svg>
-                    </button>
-
-
-                    <button
-                      type="button"
-                      class="action-button danger"
-                      title="Excluir usuário"
-                      onclick="excluirUsuario(${usuario.id})"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
+                            ? 'Desativar usuário'
+                            : 'Ativar usuário'
+                        }"
+                        onclick="alternarStatus(${usuario.id})"
                       >
-                        <path
-                          d="M3 6h18"
-                        />
-                        <path
-                          d="M8 6V4h8v2"
-                        />
-                        <path
-                          d="M19 6l-1 14H6L5 6"
-                        />
-                        <path
-                          d="M10 11v5"
-                        />
-                        <path
-                          d="M14 11v5"
-                        />
-                      </svg>
-                    </button>
 
-                  </div>
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
 
-                </td>
+                          ${
+                            usuario.ativo
 
-              </tr>
-            `;
-          })
+                              ? `
+                                <path d="M18 8A6 6 0 0 0 6 8v4a6 6 0 0 0 12 0Z"/>
+                                <path d="M12 2v6"/>
+                              `
+
+                              : `
+                                <path d="M18 8A6 6 0 0 0 6 8v4a6 6 0 0 0 12 0Z"/>
+                                <path d="M8 21h8"/>
+                              `
+                          }
+
+                        </svg>
+
+                      </button>
+
+
+                      <button
+                        type="button"
+                        class="action-button danger"
+                        title="Excluir usuário"
+                        onclick="excluirUsuario(${usuario.id})"
+                      >
+
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+
+                          <path d="M3 6h18" />
+
+                          <path
+                            d="M8 6V4h8v2"
+                          />
+
+                          <path
+                            d="M19 6l-1 14H6L5 6"
+                          />
+
+                          <path
+                            d="M10 11v5"
+                          />
+
+                          <path
+                            d="M14 11v5"
+                          />
+
+                        </svg>
+
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+              `;
+
+            }
+          )
           .join('');
+
     }
 
 
     // ==========================================================
-    // ABRIR NOVO USUÁRIO
+    // NOVO USUÁRIO
     // ==========================================================
 
     function novoUsuario() {
-      usuarioEditando = null;
+
+      usuarioEditando =
+        null;
+
 
       usuarioForm.reset();
 
-      usuarioId.value = '';
+
+      usuarioId.value =
+        '';
+
 
       usuarioPerfil.value =
         'funcionario';
 
+
       usuarioAtivo.checked =
         true;
 
-      usuarioSenha.value = '';
+
+      usuarioSenha.value =
+        '';
+
 
       modalTitle.textContent =
         'Novo usuário';
+
 
       document.getElementById(
         'btn-salvar'
       ).textContent =
         'Salvar usuário';
 
+
       senhaGroup.style.display =
         'flex';
 
+
       limparPermissoes();
+
 
       atualizarPermissoesVisual();
 
+
       abrirModal();
+
     }
 
 
@@ -1910,6 +2163,7 @@
     // ==========================================================
 
     async function editarUsuario(id) {
+
       const usuario =
         usuarios.find(
           item =>
@@ -1917,66 +2171,168 @@
             Number(id)
         );
 
+
       if (!usuario) {
         return;
       }
 
+
       usuarioEditando =
         usuario;
+
 
       usuarioId.value =
         usuario.id;
 
+
       usuarioNome.value =
         usuario.nome;
+
 
       usuarioEmail.value =
         usuario.email;
 
+
       usuarioPerfil.value =
         usuario.perfil;
+
 
       usuarioAtivo.checked =
         usuario.ativo;
 
-      usuarioSenha.value = '';
+
+      usuarioSenha.value =
+        '';
+
 
       modalTitle.textContent =
         'Editar usuário';
+
 
       document.getElementById(
         'btn-salvar'
       ).textContent =
         'Salvar alterações';
 
+
       senhaGroup.style.display =
         'none';
 
+
       limparPermissoes();
 
-      const permissoes =
+
+      /*
+       * ========================================================
+       * ADMINISTRADOR
+       * ========================================================
+       *
+       * Administradores possuem acesso total.
+       */
+
+      if (
         usuario.perfil ===
         'administrador'
-          ? PERMISSOES
-          : (
-              usuario.permissoes ||
-              []
-            );
+      ) {
 
-      document
-        .querySelectorAll(
-          '[data-permission]'
-        )
-        .forEach(checkbox => {
-          checkbox.checked =
-            permissoes.includes(
-              checkbox.value
-            );
-        });
+        PERMISSOES.forEach(
+          permissao => {
+
+            const checkbox =
+              document.querySelector(
+                `[data-permission][value="${permissao}"]`
+              );
+
+
+            if (checkbox) {
+              checkbox.checked =
+                true;
+            }
+
+          }
+        );
+
+
+        atualizarPermissoesVisual();
+
+
+        abrirModal();
+
+
+        return;
+      }
+
+
+      /*
+       * ========================================================
+       * FUNCIONÁRIO
+       * ========================================================
+       *
+       * Aqui está a correção principal.
+       *
+       * Buscamos as permissões diretamente no backend.
+       */
+
+      try {
+
+        const respostaPermissoes =
+          await api(
+            `/usuarios/${usuario.id}/permissoes`
+          );
+
+
+        const permissoes =
+          Array.isArray(
+            respostaPermissoes?.permissoes
+          )
+            ? respostaPermissoes.permissoes
+            : [];
+
+
+        document
+          .querySelectorAll(
+            '[data-permission]'
+          )
+          .forEach(
+            checkbox => {
+
+              checkbox.checked =
+                permissoes.includes(
+                  checkbox.value
+                );
+
+            }
+          );
+
+
+      } catch (err) {
+
+        console.error(
+          'Erro ao carregar permissões:',
+          err
+        );
+
+
+        mostrarToast(
+          'Não foi possível carregar as permissões do usuário.',
+          'error'
+        );
+
+
+        usuarioEditando =
+          null;
+
+
+        return;
+
+      }
+
 
       atualizarPermissoesVisual();
 
+
       abrirModal();
+
     }
 
 
@@ -1985,72 +2341,99 @@
     // ==========================================================
 
     async function salvarUsuario() {
+
       const nome =
         usuarioNome.value.trim();
+
 
       const email =
         usuarioEmail.value.trim();
 
+
       const senha =
         usuarioSenha.value;
+
 
       const perfil =
         usuarioPerfil.value;
 
+
       const ativo =
         usuarioAtivo.checked;
 
+
       if (!nome) {
+
         mostrarToast(
           'Informe o nome do usuário.',
           'error'
         );
 
         return;
+
       }
 
+
       if (!email) {
+
         mostrarToast(
           'Informe o e-mail.',
           'error'
         );
 
         return;
+
       }
 
-      if (!usuarioEditando && !senha) {
+
+      if (
+        !usuarioEditando &&
+        !senha
+      ) {
+
         mostrarToast(
           'Informe uma senha.',
           'error'
         );
 
         return;
+
       }
+
 
       if (
         !usuarioEditando &&
         senha.length < 6
       ) {
+
         mostrarToast(
           'A senha deve possuir pelo menos 6 caracteres.',
           'error'
         );
 
         return;
+
       }
+
 
       const botao =
         document.getElementById(
           'btn-salvar'
         );
 
-      botao.disabled = true;
+
+      botao.disabled =
+        true;
+
+
       botao.textContent =
         'Salvando...';
+
 
       try {
 
         let usuarioSalvo;
+
 
         // ======================================================
         // CRIAR
@@ -2064,19 +2447,22 @@
               {
                 method: 'POST',
 
-                body: JSON.stringify({
-                  nome,
-                  email,
-                  senha,
-                  perfil
-                })
+                body:
+                  JSON.stringify({
+                    nome,
+                    email,
+                    senha,
+                    perfil
+                  })
               }
             );
+
 
           usuarioSalvo =
             resposta.usuario;
 
         }
+
 
         // ======================================================
         // EDITAR
@@ -2090,25 +2476,30 @@
               {
                 method: 'PUT',
 
-                body: JSON.stringify({
-                  nome,
-                  email,
-                  perfil,
-                  ativo
-                })
+                body:
+                  JSON.stringify({
+                    nome,
+                    email,
+                    perfil,
+                    ativo
+                  })
               }
             );
 
+
           usuarioSalvo =
             resposta.usuario;
+
         }
 
+
         // ======================================================
-        // PERMISSÕES
+        // SALVAR PERMISSÕES
         // ======================================================
 
         if (
-          perfil === 'funcionario'
+          perfil ===
+          'funcionario'
         ) {
 
           const permissoes =
@@ -2122,17 +2513,25 @@
                   checkbox.value
               );
 
+
           await api(
             `/usuarios/${usuarioSalvo.id}/permissoes`,
             {
               method: 'PATCH',
 
-              body: JSON.stringify({
-                permissoes
-              })
+              body:
+                JSON.stringify({
+                  permissoes
+                })
             }
           );
+
         }
+
+
+        // ======================================================
+        // SUCESSO
+        // ======================================================
 
         mostrarToast(
           usuarioEditando
@@ -2140,26 +2539,37 @@
             : 'Usuário criado com sucesso.'
         );
 
+
         fecharModal();
+
 
         await carregarUsuarios();
 
+
       } catch (err) {
+
         console.error(err);
+
 
         mostrarToast(
           err.message,
           'error'
         );
 
+
       } finally {
-        botao.disabled = false;
+
+        botao.disabled =
+          false;
+
 
         botao.textContent =
           usuarioEditando
             ? 'Salvar alterações'
             : 'Salvar usuário';
+
       }
+
     }
 
 
@@ -2168,6 +2578,7 @@
     // ==========================================================
 
     async function alternarStatus(id) {
+
       const usuario =
         usuarios.find(
           item =>
@@ -2175,25 +2586,32 @@
             Number(id)
         );
 
+
       if (!usuario) {
         return;
       }
 
+
       const novoStatus =
         !usuario.ativo;
+
 
       const acao =
         novoStatus
           ? 'ativar'
           : 'desativar';
 
+
       if (
         !confirm(
           `Deseja ${acao} o usuário "${usuario.nome}"?`
         )
       ) {
+
         return;
+
       }
+
 
       try {
 
@@ -2202,11 +2620,14 @@
           {
             method: 'PATCH',
 
-            body: JSON.stringify({
-              ativo: novoStatus
-            })
+            body:
+              JSON.stringify({
+                ativo:
+                  novoStatus
+              })
           }
         );
+
 
         mostrarToast(
           novoStatus
@@ -2214,24 +2635,31 @@
             : 'Usuário desativado com sucesso.'
         );
 
+
         await carregarUsuarios();
 
+
       } catch (err) {
+
         console.error(err);
+
 
         mostrarToast(
           err.message,
           'error'
         );
+
       }
+
     }
 
 
     // ==========================================================
-    // EXCLUIR
+    // EXCLUIR USUÁRIO
     // ==========================================================
 
     async function excluirUsuario(id) {
+
       const usuario =
         usuarios.find(
           item =>
@@ -2239,17 +2667,22 @@
             Number(id)
         );
 
+
       if (!usuario) {
         return;
       }
+
 
       if (
         !confirm(
           `Deseja realmente excluir o usuário "${usuario.nome}"?\n\nEssa ação não poderá ser desfeita.`
         )
       ) {
+
         return;
+
       }
+
 
       try {
 
@@ -2260,20 +2693,27 @@
           }
         );
 
+
         mostrarToast(
           'Usuário excluído com sucesso.'
         );
 
+
         await carregarUsuarios();
 
+
       } catch (err) {
+
         console.error(err);
+
 
         mostrarToast(
           err.message,
           'error'
         );
+
       }
+
     }
 
 
@@ -2282,22 +2722,29 @@
     // ==========================================================
 
     function limparPermissoes() {
+
       document
         .querySelectorAll(
           '[data-permission]'
         )
         .forEach(
           checkbox => {
-            checkbox.checked = false;
+
+            checkbox.checked =
+              false;
+
           }
         );
+
     }
 
 
     function atualizarPermissoesVisual() {
+
       const administrador =
         usuarioPerfil.value ===
         'administrador';
+
 
       document
         .querySelectorAll(
@@ -2305,59 +2752,84 @@
         )
         .forEach(
           checkbox => {
-            checkbox.checked =
-              administrador
-                ? true
-                : checkbox.checked;
 
-            checkbox.disabled =
-              administrador;
+            if (administrador) {
+
+              checkbox.checked =
+                true;
+
+              checkbox.disabled =
+                true;
+
+            } else {
+
+              checkbox.disabled =
+                false;
+
+            }
+
           }
         );
+
 
       permissionsGrid.classList.toggle(
         'permissions-disabled',
         administrador
       );
 
+
       adminNotice.classList.toggle(
         'active',
         administrador
       );
+
     }
 
 
     // ==========================================================
-    // MODAL
+    // ABRIR MODAL
     // ==========================================================
 
     function abrirModal() {
+
       modalOverlay.classList.add(
         'active'
       );
 
+
       document.body.style.overflow =
         'hidden';
+
     }
 
 
+    // ==========================================================
+    // FECHAR MODAL
+    // ==========================================================
+
     function fecharModal() {
+
       modalOverlay.classList.remove(
         'active'
       );
 
+
       document.body.style.overflow =
         '';
 
-      usuarioEditando = null;
+
+      usuarioEditando =
+        null;
+
     }
 
 
     // ==========================================================
-    // AUXILIARES
+    // INICIAIS
     // ==========================================================
 
     function obterIniciais(nome) {
+
       return nome
         .trim()
         .split(/\s+/)
@@ -2369,16 +2841,40 @@
               .toUpperCase()
         )
         .join('');
+
     }
 
 
+    // ==========================================================
+    // ESCAPAR HTML
+    // ==========================================================
+
     function escaparHtml(valor) {
-      return String(valor ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+
+      return String(
+        valor ?? ''
+      )
+        .replaceAll(
+          '&',
+          '&amp;'
+        )
+        .replaceAll(
+          '<',
+          '&lt;'
+        )
+        .replaceAll(
+          '>',
+          '&gt;'
+        )
+        .replaceAll(
+          '"',
+          '&quot;'
+        )
+        .replaceAll(
+          "'",
+          '&#039;'
+        );
+
     }
 
 
@@ -2433,7 +2929,10 @@
       .addEventListener(
         'click',
         () => {
-          window.location.href = '/';
+
+          window.location.href =
+            '/';
+
         }
       );
 
@@ -2442,7 +2941,9 @@
       .addEventListener(
         'change',
         () => {
+
           atualizarPermissoesVisual();
+
         }
       );
 
@@ -2451,12 +2952,16 @@
       .addEventListener(
         'click',
         event => {
+
           if (
             event.target ===
             modalOverlay
           ) {
+
             fecharModal();
+
           }
+
         }
       );
 
@@ -2468,14 +2973,18 @@
     document.addEventListener(
       'keydown',
       event => {
+
         if (
           event.key === 'Escape' &&
           modalOverlay.classList.contains(
             'active'
           )
         ) {
+
           fecharModal();
+
         }
+
       }
     );
 
@@ -2485,17 +2994,23 @@
     // ==========================================================
 
     async function iniciar() {
+
       const autenticado =
         await verificarSessao();
+
 
       if (!autenticado) {
         return;
       }
 
+
       await carregarUsuarios();
+
     }
 
+
     iniciar();
+
   </script>
 
 </body>
