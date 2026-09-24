@@ -20,6 +20,7 @@
   let editingServiceId = null;
   let editingAppointmentId = null;
   let editingUserId = null;
+
   let connectionInterval = null;
 
 
@@ -27,105 +28,72 @@
   // UTILITÁRIOS
   // ============================================================
 
-  function $(selector){
-    return document.querySelector(selector);
-  }
-
-
-  function $$(selector){
-    return Array.from(
-      document.querySelectorAll(selector)
-    );
-  }
-
-
-  function escapeHtml(value){
-    return String(value ?? '')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#039;');
-  }
-
-
-  function money(value){
-    return Number(value || 0).toLocaleString(
-      'pt-BR',
-      {
-        style:'currency',
-        currency:'BRL'
-      }
-    );
-  }
-
-
   function todayISO(){
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off * 60000);
 
-    const now =
-      new Date();
-
-    const year =
-      now.getFullYear();
-
-    const month =
-      String(
-        now.getMonth() + 1
-      ).padStart(2,'0');
-
-    const day =
-      String(
-        now.getDate()
-      ).padStart(2,'0');
-
-    return `${year}-${month}-${day}`;
+    return local.toISOString().slice(0,10);
   }
 
 
-  function formatDateBR(value){
-
-    if(!value){
-      return '';
-    }
-
-    const parts =
-      String(value).slice(0,10).split('-');
-
-    if(parts.length !== 3){
-      return value;
-    }
-
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  function uid(){
+    return 'tmp-' +
+      Date.now().toString(36) +
+      Math.random().toString(36).slice(2,6);
   }
 
 
-  function formatTime(value){
+  function money(n){
+    return 'R$ ' +
+      (Number(n) || 0).toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+  }
 
-    if(!value){
-      return '';
-    }
 
-    return String(value).slice(0,5);
+  function fmtDatePretty(iso){
+    const [y,m,d] = iso.split('-');
+
+    const date = new Date(
+      Number(y),
+      Number(m) - 1,
+      Number(d)
+    );
+
+    return date.toLocaleDateString('pt-BR', {
+      weekday:'long',
+      day:'numeric',
+      month:'long'
+    });
+  }
+
+
+  function capitalize(s){
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+
+  function escapeHtml(s){
+    return String(s || '').replace(
+      /[&<>"']/g,
+      c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      }[c])
+    );
   }
 
 
   function isAdministrador(){
-
     return (
-      usuarioLogado?.perfil ===
-      'administrador'
+      usuarioLogado &&
+      usuarioLogado.perfil === 'administrador'
     );
-
-  }
-
-
-  function isFuncionario(){
-
-    return (
-      usuarioLogado?.perfil ===
-      'funcionario'
-    );
-
   }
 
 
@@ -133,77 +101,41 @@
   // API
   // ============================================================
 
-  async function api(
-    endpoint,
-    options = {}
-  ){
-
-    const headers = {
-      'Content-Type':'application/json',
-      ...(options.headers || {})
-    };
-
+  async function api(path, options = {}){
 
     const token =
-      localStorage.getItem(
-        AUTH_TOKEN_KEY
-      );
+      localStorage.getItem(AUTH_TOKEN_KEY);
 
+    const headers = Object.assign(
+      {
+        'Content-Type':'application/json'
+      },
+      options.headers || {}
+    );
 
     if(token){
-
       headers.Authorization =
-        'Bearer ' + token;
-
+        `Bearer ${token}`;
     }
 
+    const requestOptions =
+      Object.assign({}, options, {
+        headers
+      });
 
-    const response =
-      await fetch(
-        API + endpoint,
-        {
-          ...options,
-          headers
-        }
-      );
+    const res =
+      await fetch(API + path, requestOptions);
 
 
-    let data = null;
+    // ----------------------------------------------------------
+    // TOKEN EXPIRADO / NÃO AUTORIZADO
+    // ----------------------------------------------------------
 
-    const contentType =
-      response.headers.get(
-        'content-type'
-      ) || '';
-
-
-    if(
-      contentType.includes(
-        'application/json'
-      )
-    ){
-
-      data =
-        await response.json();
-
-    }else{
-
-      const text =
-        await response.text();
-
-      data =
-        text
-          ? { mensagem:text }
-          : null;
-
-    }
-
-
-    if(!response.ok){
+    if(res.status === 401){
 
       if(
-        response.status === 401 &&
-        endpoint !== '/auth/login' &&
-        endpoint !== '/auth/register'
+        path !== '/auth/login' &&
+        path !== '/auth/cadastro'
       ){
 
         localStorage.removeItem(
@@ -213,138 +145,92 @@
         usuarioLogado = null;
         empresaLogada = null;
 
-        showAuth();
+        showAuthScreen();
 
+        throw new Error(
+          'Sessão expirada. Faça login novamente.'
+        );
       }
-
-
-      const message =
-        data?.erro ||
-        data?.message ||
-        data?.mensagem ||
-        `Erro HTTP ${response.status}`;
-
-
-      throw new Error(
-        message
-      );
-
     }
 
 
-    return data;
+    if(!res.ok){
+
+      let msg =
+        'Erro na requisição';
+
+      try{
+
+        const j =
+          await res.json();
+
+        msg =
+          j.erro || msg;
+
+      }catch(e){}
+
+      throw new Error(msg);
+    }
+
+
+    if(res.status === 204){
+      return null;
+    }
+
+
+    return res.json();
   }
-
-
-  // ============================================================
-  // ELEMENTOS DE AUTENTICAÇÃO
-  // ============================================================
-
-  const authScreen =
-    document.getElementById(
-      'auth-screen'
-    );
-
-
-  const appScreen =
-    document.getElementById(
-      'app-screen'
-    );
-
-
-  const loginForm =
-    document.getElementById(
-      'login-form'
-    );
-
-
-  const registerForm =
-    document.getElementById(
-      'register-form'
-    );
-
-
-  const loginError =
-    document.getElementById(
-      'login-error'
-    );
-
-
-  const registerError =
-    document.getElementById(
-      'register-error'
-    );
-
-
-  const loginSubmit =
-    document.getElementById(
-      'login-submit'
-    );
-
-
-  const registerSubmit =
-    document.getElementById(
-      'register-submit'
-    );
-
-
-  const showRegisterBtn =
-    document.getElementById(
-      'show-register'
-    );
-
-
-  const showLoginBtn =
-    document.getElementById(
-      'show-login'
-    );
 
 
   // ============================================================
   // AUTENTICAÇÃO
   // ============================================================
 
-  function showAuth(){
+  const authScreen =
+    document.getElementById('auth-screen');
 
-    if(authScreen){
-      authScreen.style.display =
-        'flex';
-    }
+  const loginForm =
+    document.getElementById('login-form');
 
-    if(appScreen){
-      appScreen.style.display =
-        'none';
-    }
+  const registerForm =
+    document.getElementById('register-form');
 
-  }
+  const loginError =
+    document.getElementById('login-error');
 
+  const registerError =
+    document.getElementById('register-error');
 
-  function showApp(){
+  const loginSubmit =
+    document.getElementById('login-submit');
 
-    if(authScreen){
-      authScreen.style.display =
-        'none';
-    }
+  const registerSubmit =
+    document.getElementById('register-submit');
 
-    if(appScreen){
-      appScreen.style.display =
-        '';
-    }
+  const showRegisterBtn =
+    document.getElementById('show-register');
 
-  }
+  const showLoginBtn =
+    document.getElementById('show-login');
 
 
-  function clearAuthError(element){
+  function showAuthScreen(){
 
-    if(!element){
+    if(!authScreen){
       return;
     }
 
-    element.textContent = '';
-    element.classList.remove(
-      'active'
-    );
+    authScreen.style.display = 'flex';
+  }
 
+
+  function hideAuthScreen(){
+
+    if(!authScreen){
+      return;
+    }
+
+    authScreen.style.display = 'none';
   }
 
 
@@ -357,103 +243,42 @@
       return;
     }
 
-    element.textContent =
-      message || '';
-
-    element.classList.toggle(
-      'active',
-      Boolean(message)
-    );
-
+    element.textContent = message;
+    element.style.display = 'block';
   }
 
 
-  async function carregarSessao(){
+  function clearAuthError(element){
 
-    const token =
-      localStorage.getItem(
-        AUTH_TOKEN_KEY
-      );
-
-
-    if(!token){
-
-      showAuth();
-
-      return false;
-
+    if(!element){
+      return;
     }
 
-
-    try{
-
-      const resposta =
-        await api(
-          '/auth/me'
-        );
-
-
-      usuarioLogado =
-        resposta.usuario ||
-        resposta;
-
-
-      empresaLogada =
-        resposta.empresa ||
-        usuarioLogado?.empresa ||
-        null;
-
-
-      showApp();
-
-      atualizarDadosUsuario();
-
-      await inicializarAplicacao();
-
-      return true;
-
-
-    }catch(error){
-
-      localStorage.removeItem(
-        AUTH_TOKEN_KEY
-      );
-
-      usuarioLogado = null;
-      empresaLogada = null;
-
-      showAuth();
-
-      return false;
-
-    }
-
+    element.textContent = '';
+    element.style.display = 'none';
   }
 
 
   // ============================================================
-  // DADOS DO USUÁRIO
+  // SIDEBAR - USUÁRIO E EMPRESA
   // ============================================================
 
-  function atualizarDadosUsuario(){
+  function atualizarSidebarUsuario(){
 
     const empresaElement =
       document.getElementById(
         'sidebar-company'
       );
 
-
     const nomeElement =
       document.getElementById(
         'sidebar-user-name'
       );
 
-
     const perfilElement =
       document.getElementById(
         'sidebar-user-profile'
       );
-
 
     const avatarElement =
       document.getElementById(
@@ -469,7 +294,6 @@
       empresaElement.textContent =
         empresaLogada.nome ||
         'Minha empresa';
-
     }
 
 
@@ -481,7 +305,6 @@
       nomeElement.textContent =
         usuarioLogado.nome ||
         'Usuário';
-
     }
 
 
@@ -491,11 +314,9 @@
     ){
 
       perfilElement.textContent =
-        usuarioLogado.perfil ===
-        'administrador'
+        usuarioLogado.perfil === 'administrador'
           ? 'Administrador'
           : 'Funcionário';
-
     }
 
 
@@ -508,17 +329,14 @@
         usuarioLogado.nome ||
         'U';
 
-
       avatarElement.textContent =
         nome
           .charAt(0)
           .toUpperCase();
-
     }
 
 
     atualizarAcessoUsuarios();
-
   }
 
 
@@ -533,7 +351,6 @@
         'nav-usuarios'
       );
 
-
     if(!btn){
       return;
     }
@@ -541,28 +358,18 @@
 
     if(isAdministrador()){
 
-      btn.style.display =
-        '';
+      btn.style.display = '';
 
     }else{
 
-      btn.style.display =
-        'none';
+      btn.style.display = 'none';
 
 
-      if(
-        activeTab ===
-        'usuarios'
-      ){
+      if(activeTab === 'usuarios'){
 
-        goToTab(
-          'agenda'
-        );
-
+        goToTab('agenda');
       }
-
     }
-
   }
 
 
@@ -575,40 +382,26 @@
     () => {
 
       if(loginForm){
-        loginForm.style.display =
-          'none';
+        loginForm.style.display = 'none';
       }
-
 
       if(registerForm){
-        registerForm.style.display =
-          'flex';
+        registerForm.style.display = 'flex';
       }
 
-
-      clearAuthError(
-        loginError
-      );
-
-
-      clearAuthError(
-        registerError
-      );
-
+      clearAuthError(loginError);
+      clearAuthError(registerError);
 
       const subtitle =
         document.getElementById(
           'auth-subtitle'
         );
 
-
       if(subtitle){
 
         subtitle.textContent =
           'Crie sua conta e sua lavação';
-
       }
-
     }
   );
 
@@ -622,40 +415,26 @@
     () => {
 
       if(registerForm){
-        registerForm.style.display =
-          'none';
+        registerForm.style.display = 'none';
       }
-
 
       if(loginForm){
-        loginForm.style.display =
-          'flex';
+        loginForm.style.display = 'flex';
       }
 
-
-      clearAuthError(
-        loginError
-      );
-
-
-      clearAuthError(
-        registerError
-      );
-
+      clearAuthError(loginError);
+      clearAuthError(registerError);
 
       const subtitle =
         document.getElementById(
           'auth-subtitle'
         );
 
-
       if(subtitle){
 
         subtitle.textContent =
           'Entre na sua conta para continuar';
-
       }
-
     }
   );
 
@@ -670,27 +449,19 @@
 
       event.preventDefault();
 
-      clearAuthError(
-        loginError
-      );
-
+      clearAuthError(loginError);
 
       if(loginSubmit){
 
-        loginSubmit.disabled =
-          true;
-
+        loginSubmit.disabled = true;
         loginSubmit.textContent =
           'Entrando...';
-
       }
-
 
       const email =
         document.getElementById(
           'login-email'
         )?.value.trim();
-
 
       const senha =
         document.getElementById(
@@ -701,18 +472,14 @@
       try{
 
         const resposta =
-          await api(
-            '/auth/login',
-            {
-              method:'POST',
+          await api('/auth/login', {
+            method:'POST',
 
-              body:
-                JSON.stringify({
-                  email,
-                  senha
-                })
-            }
-          );
+            body:JSON.stringify({
+              email,
+              senha
+            })
+          });
 
 
         localStorage.setItem(
@@ -722,28 +489,25 @@
 
 
         usuarioLogado =
-          resposta.usuario ||
-          null;
-
+          resposta.usuario || null;
 
         empresaLogada =
-          resposta.empresa ||
-          usuarioLogado?.empresa ||
-          null;
+          resposta.empresa || null;
 
 
-        showApp();
+        atualizarSidebarUsuario();
 
-        atualizarDadosUsuario();
+        hideAuthScreen();
 
-        await inicializarAplicacao();
+        await iniciarSistema();
 
 
       }catch(error){
 
         showAuthError(
           loginError,
-          error.message
+          error.message ||
+          'Não foi possível realizar o login.'
         );
 
 
@@ -751,14 +515,10 @@
 
         if(loginSubmit){
 
-          loginSubmit.disabled =
-            false;
-
+          loginSubmit.disabled = false;
           loginSubmit.textContent =
             'Entrar';
-
         }
-
       }
 
     }
@@ -775,39 +535,40 @@
 
       event.preventDefault();
 
-      clearAuthError(
-        registerError
-      );
-
+      clearAuthError(registerError);
 
       if(registerSubmit){
 
-        registerSubmit.disabled =
-          true;
-
+        registerSubmit.disabled = true;
         registerSubmit.textContent =
-          'Criando...';
-
+          'Criando conta...';
       }
 
 
-      const empresaNome =
+      const empresa =
         document.getElementById(
           'register-company'
         )?.value.trim();
 
+      const email_empresa =
+        document.getElementById(
+          'register-company-email'
+        )?.value.trim();
+
+      const telefone =
+        document.getElementById(
+          'register-phone'
+        )?.value.trim();
 
       const nome =
         document.getElementById(
           'register-name'
         )?.value.trim();
 
-
       const email =
         document.getElementById(
           'register-email'
         )?.value.trim();
-
 
       const senha =
         document.getElementById(
@@ -818,20 +579,18 @@
       try{
 
         const resposta =
-          await api(
-            '/auth/register',
-            {
-              method:'POST',
+          await api('/auth/cadastro', {
+            method:'POST',
 
-              body:
-                JSON.stringify({
-                  empresaNome,
-                  nome,
-                  email,
-                  senha
-                })
-            }
-          );
+            body:JSON.stringify({
+              empresa,
+              email_empresa,
+              telefone,
+              nome,
+              email,
+              senha
+            })
+          });
 
 
         localStorage.setItem(
@@ -841,27 +600,25 @@
 
 
         usuarioLogado =
-          resposta.usuario ||
-          null;
-
+          resposta.usuario || null;
 
         empresaLogada =
-          resposta.empresa ||
-          null;
+          resposta.empresa || null;
 
 
-        showApp();
+        atualizarSidebarUsuario();
 
-        atualizarDadosUsuario();
+        hideAuthScreen();
 
-        await inicializarAplicacao();
+        await iniciarSistema();
 
 
       }catch(error){
 
         showAuthError(
           registerError,
-          error.message
+          error.message ||
+          'Não foi possível criar a conta.'
         );
 
 
@@ -869,216 +626,367 @@
 
         if(registerSubmit){
 
-          registerSubmit.disabled =
-            false;
-
+          registerSubmit.disabled = false;
           registerSubmit.textContent =
             'Criar conta';
-
         }
-
       }
 
     }
   );
 
 
-  // ============================================================
-  // LOGOUT
-  // ============================================================
+  // ------------------------------------------------------------
+  // VERIFICAR SESSÃO
+  // ------------------------------------------------------------
 
-  document
-    .getElementById(
-      'btn-logout'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
+  async function verificarSessao(){
 
-        localStorage.removeItem(
-          AUTH_TOKEN_KEY
-        );
-
-        usuarioLogado = null;
-        empresaLogada = null;
-
-        showAuth();
-
-      }
-    );
+    const token =
+      localStorage.getItem(
+        AUTH_TOKEN_KEY
+      );
 
 
-  // ============================================================
-  // SIDEBAR / NAVEGAÇÃO
-  // ============================================================
+    if(!token){
 
-  function goToTab(
-    tab
-  ){
+      usuarioLogado = null;
+      empresaLogada = null;
 
-    activeTab =
-      tab;
+      atualizarAcessoUsuarios();
+      showAuthScreen();
 
-
-    $$('.nav-item').forEach(
-      item => {
-
-        item.classList.toggle(
-          'active',
-          item.dataset.tab ===
-          tab
-        );
-
-      }
-    );
-
-
-    $$('.tab-panel').forEach(
-      panel => {
-
-        panel.classList.toggle(
-          'active',
-          panel.id ===
-          `tab-${tab}`
-        );
-
-      }
-    );
-
-
-    switch(tab){
-
-      case 'agenda':
-        refreshAgenda();
-        break;
-
-      case 'faturamento':
-        refreshFaturamento();
-        break;
-
-      case 'financeiro':
-        refreshFinanceiro();
-        break;
-
-      case 'servicos':
-        refreshServices();
-        break;
-
-      case 'clientes':
-        refreshClientes();
-        break;
-
-      case 'despesas':
-        refreshDespesas();
-        break;
-
-      case 'usuarios':
-        refreshUsuarios();
-        break;
-
+      return false;
     }
 
+
+    try{
+
+      const resposta =
+        await api('/auth/me');
+
+
+      usuarioLogado =
+        resposta.usuario || null;
+
+      empresaLogada =
+        resposta.empresa || null;
+
+
+      atualizarSidebarUsuario();
+
+      hideAuthScreen();
+
+      return true;
+
+
+    }catch(error){
+
+      localStorage.removeItem(
+        AUTH_TOKEN_KEY
+      );
+
+      usuarioLogado = null;
+      empresaLogada = null;
+
+      atualizarAcessoUsuarios();
+
+      showAuthScreen();
+
+      return false;
+    }
   }
 
 
-  $$('.nav-item').forEach(
-    item => {
+  // ============================================================
+  // CONEXÃO
+  // ============================================================
 
-      item.addEventListener(
-        'click',
-        () => {
+  async function checkConnection(){
 
-          const tab =
-            item.dataset.tab;
-
-
-          if(
-            tab === 'usuarios' &&
-            !isAdministrador()
-          ){
-
-            alert(
-              'Apenas administradores podem acessar esta área.'
-            );
-
-            return;
-
-          }
-
-
-          goToTab(
-            tab
-          );
-
-        }
+    const badge =
+      document.getElementById(
+        'conn-badge'
       );
 
+    if(!badge){
+      return;
     }
-  );
+
+    try{
+
+      await api('/status');
+
+      badge.textContent =
+        'conectado';
+
+      badge.className =
+        'ok';
+
+
+    }catch(e){
+
+      badge.textContent =
+        'sem conexão';
+
+      badge.className =
+        'fail';
+    }
+  }
+
+
+  // ============================================================
+  // TAB SWITCHING
+  // ============================================================
+
+  function goToTab(tab){
+
+    if(
+      tab === 'usuarios' &&
+      !isAdministrador()
+    ){
+
+      return;
+    }
+
+
+    activeTab = tab;
+
+    document
+      .querySelectorAll('.nav-btn')
+      .forEach(b =>
+        b.classList.toggle(
+          'active',
+          b.dataset.tab === tab
+        )
+      );
+
+
+    document
+      .querySelectorAll('.bn-btn')
+      .forEach(b =>
+        b.classList.toggle(
+          'active',
+          b.dataset.tab === tab
+        )
+      );
+
+
+    document
+      .querySelectorAll('.panel')
+      .forEach(p =>
+        p.classList.remove('active')
+      );
+
+
+    const panel =
+      document.getElementById(
+        'panel-' + tab
+      );
+
+    if(panel){
+      panel.classList.add('active');
+    }
+
+
+    loadTabData(tab);
+  }
+
+
+  document
+    .querySelectorAll('.nav-btn, .bn-btn')
+    .forEach(btn => {
+
+      btn.addEventListener(
+        'click',
+        () => goToTab(
+          btn.dataset.tab
+        )
+      );
+
+    });
+
+
+  async function loadTabData(tab){
+
+    if(tab === 'agenda'){
+      await refreshAgenda();
+    }
+
+    if(tab === 'faturamento'){
+      await refreshFaturamento();
+    }
+
+    if(tab === 'financeiro'){
+      await refreshFinanceiro();
+    }
+
+    if(tab === 'servicos'){
+      await refreshServicos();
+    }
+
+    if(tab === 'clientes'){
+
+      document
+        .getElementById(
+          'cli-search-input'
+        )
+        ?.focus();
+    }
+
+    if(tab === 'despesas'){
+      await refreshDespesas();
+    }
+
+    if(tab === 'usuarios'){
+
+      if(isAdministrador()){
+        await refreshUsuarios();
+      }
+    }
+  }
+
+
+  // ============================================================
+  // SERVIÇOS
+  // ============================================================
+
+  async function loadServices(){
+
+    state.services =
+      await api('/servicos');
+  }
+
+
+  function serviceName(id){
+
+    const s =
+      state.services.find(
+        x => String(x.id) === String(id)
+      );
+
+    return s
+      ? s.nome
+      : 'Serviço removido';
+  }
 
 
   // ============================================================
   // AGENDA
   // ============================================================
 
-  async function refreshAgenda(){
-
-    try{
-
-      const items =
-        await api(
-          `/agendamentos?data=${selectedDate}`
-        );
+  const dateInput =
+    document.getElementById(
+      'agenda-date-input'
+    );
 
 
-      currentAgendaItems =
-        Array.isArray(items)
-          ? items
-          : [];
+  if(dateInput){
+
+    dateInput.value =
+      selectedDate;
 
 
-      renderAgenda(
-        currentAgendaItems
-      );
+    dateInput.addEventListener(
+      'change',
+      () => {
 
+        selectedDate =
+          dateInput.value ||
+          todayISO();
 
-      atualizarResumoAgenda(
-        currentAgendaItems
-      );
-
-
-    }catch(error){
-
-      const list =
-        document.getElementById(
-          'agenda-list'
-        );
-
-
-      if(list){
-
-        list.innerHTML =
-          '<div class="empty">' +
-            '<strong>Não foi possível carregar a agenda</strong>' +
-            escapeHtml(error.message) +
-          '</div>';
-
+        refreshAgenda();
       }
-
-    }
-
+    );
   }
 
 
-  function renderAgenda(
-    items
-  ){
+  document
+    .getElementById('btn-today')
+    ?.addEventListener(
+      'click',
+      () => {
+
+        selectedDate =
+          todayISO();
+
+        if(dateInput){
+          dateInput.value =
+            selectedDate;
+        }
+
+        refreshAgenda();
+      }
+    );
+
+
+  async function refreshAgenda(){
+
+    const label =
+      document.getElementById(
+        'agenda-date-label'
+      );
+
+    if(label){
+
+      label.textContent =
+        capitalize(
+          fmtDatePretty(
+            selectedDate
+          )
+        );
+    }
+
 
     const list =
       document.getElementById(
         'agenda-list'
       );
 
+    if(!list){
+      return;
+    }
+
+
+    list.innerHTML =
+      '<div class="empty">Carregando…</div>';
+
+
+    try{
+
+      const items =
+        await api(
+          '/agendamentos?data=' +
+          selectedDate
+        );
+
+
+      currentAgendaItems =
+        items;
+
+
+      renderAgendaList(items);
+
+      updateSideStats();
+
+
+    }catch(e){
+
+      list.innerHTML =
+        '<div class="empty">' +
+          '<strong>Não foi possível carregar a agenda</strong>' +
+          'Verifique a conexão com o banco de dados.' +
+        '</div>';
+    }
+  }
+
+
+  function renderAgendaList(items){
+
+    const list =
+      document.getElementById(
+        'agenda-list'
+      );
 
     if(!list){
       return;
@@ -1119,311 +1027,123 @@
             `<button class="btn btn-small btn-ghost" onclick="App.openEditAppointment('${ap.id}')">Editar</button>`;
 
 
-          if(
-            ap.status !==
-            'concluido'
+          if(ap.status === 'agendado'){
+
+            actions +=
+              `<button class="btn btn-small btn-accent" onclick="App.setStatus('${ap.id}','em_andamento')">Iniciar</button>`;
+
+            actions +=
+              `<button class="btn btn-small btn-ghost" onclick="App.setStatus('${ap.id}','cancelado')">Cancelar</button>`;
+
+          }else if(
+            ap.status === 'em_andamento'
           ){
 
             actions +=
-              `<button class="btn btn-small btn-primary" onclick="App.finishAppointment('${ap.id}')">Concluir</button>`;
+              `<button class="btn btn-small btn-primary" onclick="App.setStatus('${ap.id}','concluido')">Concluir</button>`;
 
+            actions +=
+              `<button class="btn btn-small btn-ghost" onclick="App.setStatus('${ap.id}','cancelado')">Cancelar</button>`;
+
+          }else if(
+            ap.status === 'cancelado'
+          ){
+
+            actions +=
+              `<button class="btn btn-small btn-ghost" onclick="App.deleteAppointment('${ap.id}')">Remover</button>`;
+
+          }else if(
+            ap.status === 'concluido'
+          ){
+
+            actions +=
+              `<span class="badge badge-${ap.status_pagamento}">` +
+              `${ap.status_pagamento === 'pago' ? 'Pago' : 'A receber'}` +
+              `</span>`;
           }
 
 
+          const statusLabel = {
+            agendado:'agendado',
+            em_andamento:'em lavagem',
+            concluido:'concluído',
+            cancelado:'cancelado'
+          }[ap.status];
+
+
           return `
-            <div class="appointment-row">
+          <div class="ticket status-${ap.status}">
 
-              <div class="appointment-time">
-                ${h}:${m}
+            <div class="ticket-time">
+              ${h}:${m}
+              <small>${statusLabel}</small>
+            </div>
+
+            <div class="ticket-body">
+
+              <div class="client">
+                ${escapeHtml(ap.cliente)}
               </div>
 
-              <div class="appointment-main">
+              <div class="meta">
 
-                <div class="client">
+                <span>
                   ${escapeHtml(
-                    ap.cliente_nome ||
-                    ap.cliente ||
-                    'Cliente'
-                  )}
-                </div>
-
-                <div class="meta">
-
-                  ${escapeHtml(
-                    ap.veiculo ||
-                    ''
-                  )}
-
-                  ${
-                    ap.placa
-                      ? ' · ' +
-                        escapeHtml(
-                          ap.placa
-                        )
-                      : ''
-                  }
-
-                  ${
-                    ap.servico_nome
-                      ? ' · ' +
-                        escapeHtml(
-                          ap.servico_nome
-                        )
-                      : ''
-                  }
-
-                </div>
-
-              </div>
-
-              <div class="appointment-value">
-                ${money(ap.valor)}
-              </div>
-
-              <div class="ticket-actions">
-
-                <span class="status-badge status-${escapeHtml(ap.status || '')}">
-                  ${escapeHtml(
-                    ap.status ||
-                    'pendente'
+                    ap.servico_nome ||
+                    serviceName(ap.servico_id)
                   )}
                 </span>
 
-                ${actions}
+                ${
+                  ap.veiculo
+                    ? `<span>${escapeHtml(ap.veiculo)}</span>`
+                    : ''
+                }
+
+                ${
+                  ap.placa
+                    ? `<span>${escapeHtml(ap.placa.toUpperCase())}</span>`
+                    : ''
+                }
 
               </div>
 
             </div>
+
+            <div class="ticket-actions">
+
+              <span class="price-tag">
+                ${money(ap.valor)}
+              </span>
+
+              ${actions}
+
+            </div>
+
+          </div>
           `;
 
         }).join('');
-
     }
 
+
+    const navCount =
+      document.getElementById(
+        'nav-count-agenda'
+      );
+
+    if(navCount){
+
+      navCount.textContent =
+        items.filter(
+          a => a.status !== 'cancelado'
+        ).length || '';
+    }
   }
-
-
-  function atualizarResumoAgenda(
-    items
-  ){
-
-    const total =
-      items.length;
-
-
-    const concluidos =
-      items.filter(
-        item =>
-          item.status ===
-          'concluido'
-      ).length;
-
-
-    const pendentes =
-      total -
-      concluidos;
-
-
-    const faturado =
-      items
-        .filter(
-          item =>
-            item.status ===
-            'concluido'
-        )
-        .reduce(
-          (sum,item) =>
-            sum +
-            Number(
-              item.valor || 0
-            ),
-          0
-        );
-
-
-    const totalElement =
-      document.getElementById(
-        'agenda-total'
-      );
-
-
-    const concluidosElement =
-      document.getElementById(
-        'agenda-concluidos'
-      );
-
-
-    const pendentesElement =
-      document.getElementById(
-        'agenda-pendentes'
-      );
-
-
-    const faturadoElement =
-      document.getElementById(
-        'agenda-faturado'
-      );
-
-
-    if(totalElement){
-      totalElement.textContent =
-        total;
-    }
-
-
-    if(concluidosElement){
-      concluidosElement.textContent =
-        concluidos;
-    }
-
-
-    if(pendentesElement){
-      pendentesElement.textContent =
-        pendentes;
-    }
-
-
-    if(faturadoElement){
-      faturadoElement.textContent =
-        money(faturado);
-    }
-
-  }
-
-
-  // ------------------------------------------------------------
-  // DATA DA AGENDA
-  // ------------------------------------------------------------
-
-  const agendaDate =
-    document.getElementById(
-      'agenda-date'
-    );
-
-
-  agendaDate?.addEventListener(
-    'change',
-    () => {
-
-      selectedDate =
-        agendaDate.value ||
-        todayISO();
-
-
-      refreshAgenda();
-
-    }
-  );
-
-
-  document
-    .getElementById(
-      'agenda-prev'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        const date =
-          new Date(
-            selectedDate +
-            'T00:00:00'
-          );
-
-
-        date.setDate(
-          date.getDate() - 1
-        );
-
-
-        selectedDate =
-          date
-            .toISOString()
-            .slice(0,10);
-
-
-        if(agendaDate){
-
-          agendaDate.value =
-            selectedDate;
-
-        }
-
-
-        refreshAgenda();
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'agenda-next'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        const date =
-          new Date(
-            selectedDate +
-            'T00:00:00'
-          );
-
-
-        date.setDate(
-          date.getDate() + 1
-        );
-
-
-        selectedDate =
-          date
-            .toISOString()
-            .slice(0,10);
-
-
-        if(agendaDate){
-
-          agendaDate.value =
-            selectedDate;
-
-        }
-
-
-        refreshAgenda();
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'agenda-today'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        selectedDate =
-          todayISO();
-
-
-        if(agendaDate){
-
-          agendaDate.value =
-            selectedDate;
-
-        }
-
-
-        refreshAgenda();
-
-      }
-    );
 
 
   // ============================================================
-  // MODAL DE AGENDAMENTO
+  // NOVO AGENDAMENTO
   // ============================================================
 
   const overlayAppointment =
@@ -1432,22 +1152,81 @@
     );
 
 
-  const formAppointment =
-    document.getElementById(
-      'form-appointment'
+  document
+    .getElementById(
+      'btn-new-appointment'
+    )
+    ?.addEventListener(
+      'click',
+      async () => {
+
+        editingAppointmentId = null;
+
+
+        document.getElementById(
+          'appointment-modal-title'
+        ).textContent =
+          'Novo agendamento';
+
+
+        document.getElementById(
+          'appointment-submit-btn'
+        ).textContent =
+          'Agendar';
+
+
+        document.getElementById(
+          'ap-date'
+        ).value =
+          selectedDate;
+
+
+        document.getElementById(
+          'ap-time'
+        ).value = '';
+
+
+        document.getElementById(
+          'ap-client'
+        ).value = '';
+
+
+        document.getElementById(
+          'ap-phone'
+        ).value = '';
+
+
+        document.getElementById(
+          'ap-plate'
+        ).value = '';
+
+
+        document.getElementById(
+          'ap-vehicle'
+        ).value = '';
+
+
+        if(state.services.length === 0){
+          await loadServices();
+        }
+
+
+        fillServiceSelect();
+
+        updatePriceFromService();
+
+
+        overlayAppointment?.classList.add(
+          'active'
+        );
+
+
+        document.getElementById(
+          'ap-client'
+        )?.focus();
+
+      }
     );
-
-
-  function closeAppointmentModal(){
-
-    overlayAppointment?.classList.remove(
-      'active'
-    );
-
-    editingAppointmentId =
-      null;
-
-  }
 
 
   document
@@ -1456,1107 +1235,670 @@
     )
     ?.addEventListener(
       'click',
-      closeAppointmentModal
+      () => {
+
+        overlayAppointment?.classList.remove(
+          'active'
+        );
+
+      }
     );
 
 
   overlayAppointment?.addEventListener(
     'click',
-    event => {
+    e => {
 
       if(
-        event.target ===
+        e.target ===
         overlayAppointment
       ){
 
-        closeAppointmentModal();
-
+        overlayAppointment.classList.remove(
+          'active'
+        );
       }
 
     }
   );
 
 
-  document
-    .getElementById(
-      'btn-new-appointment'
-    )
-    ?.addEventListener(
-      'click',
-      openNewAppointment
-    );
+  async function openEditAppointment(id){
+
+    const ap =
+      currentAgendaItems.find(
+        a =>
+          String(a.id) ===
+          String(id)
+      );
 
 
-  function openNewAppointment(){
+    if(!ap){
+      return;
+    }
+
 
     editingAppointmentId =
-      null;
+      id;
 
 
-    const title =
-      document.getElementById(
-        'appointment-modal-title'
-      );
+    document.getElementById(
+      'appointment-modal-title'
+    ).textContent =
+      'Editar agendamento';
 
 
-    if(title){
+    document.getElementById(
+      'appointment-submit-btn'
+    ).textContent =
+      'Salvar alterações';
 
-      title.textContent =
-        'Novo agendamento';
 
+    if(state.services.length === 0){
+      await loadServices();
     }
 
 
-    const submit =
-      document.getElementById(
-        'appointment-submit-btn'
-      );
+    fillServiceSelect();
 
 
-    if(submit){
-
-      submit.textContent =
-        'Criar agendamento';
-
-    }
+    document.getElementById(
+      'ap-date'
+    ).value =
+      ap.data;
 
 
-    formAppointment?.reset();
+    document.getElementById(
+      'ap-time'
+    ).value =
+      ap.hora.slice(0,5);
 
 
-    const date =
-      document.getElementById(
-        'appointment-date'
-      );
+    document.getElementById(
+      'ap-client'
+    ).value =
+      ap.cliente;
 
 
-    if(date){
+    document.getElementById(
+      'ap-phone'
+    ).value =
+      ap.telefone || '';
 
-      date.value =
-        selectedDate;
 
-    }
+    document.getElementById(
+      'ap-plate'
+    ).value =
+      ap.placa || '';
+
+
+    document.getElementById(
+      'ap-vehicle'
+    ).value =
+      ap.veiculo || '';
+
+
+    document.getElementById(
+      'ap-service'
+    ).value =
+      ap.servico_id;
+
+
+    document.getElementById(
+      'ap-price'
+    ).value =
+      ap.valor;
 
 
     overlayAppointment?.classList.add(
       'active'
     );
-
   }
 
 
-  window.openEditAppointment =
-    async function(id){
+  function fillServiceSelect(){
 
-      editingAppointmentId =
-        id;
-
-
-      try{
-
-        const appointments =
-          await api(
-            `/agendamentos?de=${selectedDate}&ate=${selectedDate}`
-          );
-
-
-        const appointment =
-          appointments.find(
-            item =>
-              String(item.id) ===
-              String(id)
-          );
-
-
-        if(!appointment){
-
-          alert(
-            'Agendamento não encontrado.'
-          );
-
-          return;
-
-        }
-
-
-        const title =
-          document.getElementById(
-            'appointment-modal-title'
-          );
-
-
-        if(title){
-
-          title.textContent =
-            'Editar agendamento';
-
-        }
-
-
-        const submit =
-          document.getElementById(
-            'appointment-submit-btn'
-          );
-
-
-        if(submit){
-
-          submit.textContent =
-            'Salvar alterações';
-
-        }
-
-
-        setValue(
-          'appointment-client',
-          appointment.cliente_nome ||
-          appointment.cliente_id
-        );
-
-
-        setValue(
-          'appointment-date',
-          appointment.data
-        );
-
-
-        setValue(
-          'appointment-time',
-          formatTime(
-            appointment.hora
-          )
-        );
-
-
-        setValue(
-          'appointment-vehicle',
-          appointment.veiculo
-        );
-
-
-        setValue(
-          'appointment-plate',
-          appointment.placa
-        );
-
-
-        setValue(
-          'appointment-service',
-          appointment.servico_id
-        );
-
-
-        setValue(
-          'appointment-value',
-          appointment.valor
-        );
-
-
-        setValue(
-          'appointment-status',
-          appointment.status
-        );
-
-
-        overlayAppointment?.classList.add(
-          'active'
-        );
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível carregar o agendamento: ' +
-          error.message
-        );
-
-      }
-
-    };
-
-
-  function setValue(
-    id,
-    value
-  ){
-
-    const element =
+    const sel =
       document.getElementById(
-        id
+        'ap-service'
       );
 
 
-    if(element){
-
-      element.value =
-        value ?? '';
-
+    if(!sel){
+      return;
     }
 
+
+    sel.innerHTML =
+      state.services
+        .map(
+          s =>
+            `<option value="${s.id}">` +
+            `${escapeHtml(s.nome)} — ${money(s.preco)}` +
+            `</option>`
+        )
+        .join('');
   }
 
 
-  formAppointment?.addEventListener(
-    'submit',
-    async event => {
+  document
+    .getElementById(
+      'ap-service'
+    )
+    ?.addEventListener(
+      'change',
+      updatePriceFromService
+    );
 
-      event.preventDefault();
+
+  function updatePriceFromService(){
+
+    const sel =
+      document.getElementById(
+        'ap-service'
+      );
 
 
-      const clienteId =
+    if(!sel){
+      return;
+    }
+
+
+    const s =
+      state.services.find(
+        x =>
+          String(x.id) ===
+          String(sel.value)
+      );
+
+
+    if(s){
+
+      const price =
         document.getElementById(
-          'appointment-client'
-        )?.value;
+          'ap-price'
+        );
+
+      if(price){
+        price.value =
+          s.preco;
+      }
+    }
+  }
 
 
-      const data =
-        document.getElementById(
-          'appointment-date'
-        )?.value;
+  // ============================================================
+  // ESTATÍSTICAS
+  // ============================================================
+
+  async function refreshSideStats(){
+
+    try{
+
+      const range =
+        await fetchWideRange();
 
 
-      const hora =
-        document.getElementById(
-          'appointment-time'
-        )?.value;
+      allDoneCache =
+        range.filter(
+          a =>
+            a.status === 'concluido'
+        );
 
 
-      const veiculo =
-        document.getElementById(
-          'appointment-vehicle'
-        )?.value.trim();
+      updateSideStats();
 
 
-      const placa =
-        document.getElementById(
-          'appointment-plate'
-        )?.value.trim();
+    }catch(e){
+
+      // mantém os últimos valores
+    }
+  }
 
 
-      const servicoId =
-        document.getElementById(
-          'appointment-service'
-        )?.value;
+  // ============================================================
+  // CONFLITO DE HORÁRIO
+  // ============================================================
+
+  function timeToMinutes(t){
+
+    const [h,m] =
+      t.split(':').map(Number);
+
+    return h * 60 + m;
+  }
 
 
-      const valor =
-        document.getElementById(
-          'appointment-value'
-        )?.value;
+  function serviceDuration(servico_id){
+
+    const s =
+      state.services.find(
+        x =>
+          String(x.id) ===
+          String(servico_id)
+      );
 
 
-      const status =
-        document.getElementById(
-          'appointment-status'
-        )?.value ||
-        'agendado';
+    return s
+      ? Number(s.duracao_min) || 30
+      : 30;
+  }
+
+
+  async function findConflict(
+    data,
+    hora,
+    servico_id,
+    excludeId
+  ){
+
+    let items;
+
+
+    try{
+
+      items =
+        await api(
+          '/agendamentos?data=' +
+          data
+        );
+
+    }catch(e){
+
+      return null;
+    }
+
+
+    const novoInicio =
+      timeToMinutes(hora);
+
+
+    const novoFim =
+      novoInicio +
+      serviceDuration(
+        servico_id
+      );
+
+
+    for(const ap of items){
+
+      if(
+        ap.status ===
+        'cancelado'
+      ){
+        continue;
+      }
 
 
       if(
-        !clienteId ||
-        !data ||
-        !hora ||
-        !servicoId
+        excludeId &&
+        String(ap.id) ===
+        String(excludeId)
+      ){
+        continue;
+      }
+
+
+      const inicio =
+        timeToMinutes(
+          ap.hora.slice(0,5)
+        );
+
+
+      const fim =
+        inicio +
+        serviceDuration(
+          ap.servico_id
+        );
+
+
+      if(
+        novoInicio < fim &&
+        inicio < novoFim
       ){
 
-        alert(
-          'Preencha os campos obrigatórios.'
-        );
-
-        return;
-
+        return ap;
       }
+    }
 
 
-      const payload = {
-        cliente_id:
-          clienteId,
-
-        data,
-
-        hora,
-
-        veiculo,
-
-        placa,
-
-        servico_id:
-          servicoId,
-
-        valor:
-          Number(valor || 0),
-
-        status
-      };
+    return null;
+  }
 
 
-      const submit =
-        document.getElementById(
-          'appointment-submit-btn'
-        );
+  // ============================================================
+  // FORMULÁRIO AGENDAMENTO
+  // ============================================================
+
+  document
+    .getElementById(
+      'form-appointment'
+    )
+    ?.addEventListener(
+      'submit',
+      async e => {
+
+        e.preventDefault();
 
 
-      if(submit){
+        const payload = {
 
-        submit.disabled =
-          true;
+          data:
+            document.getElementById(
+              'ap-date'
+            ).value,
 
-        submit.textContent =
-          editingAppointmentId
-            ? 'Salvando...'
-            : 'Criando...';
+          hora:
+            document.getElementById(
+              'ap-time'
+            ).value,
 
-      }
+          cliente:
+            document.getElementById(
+              'ap-client'
+            ).value.trim(),
 
+          telefone:
+            document.getElementById(
+              'ap-phone'
+            ).value.trim(),
 
-      try{
+          placa:
+            document.getElementById(
+              'ap-plate'
+            ).value.trim(),
 
-        if(editingAppointmentId){
+          veiculo:
+            document.getElementById(
+              'ap-vehicle'
+            ).value.trim(),
 
-          await api(
-            '/agendamentos/' +
-            editingAppointmentId,
-            {
-              method:'PUT',
+          servico_id:
+            document.getElementById(
+              'ap-service'
+            ).value,
 
-              body:
-                JSON.stringify(
-                  payload
-                )
-            }
-          );
+          valor:
+            parseFloat(
+              document.getElementById(
+                'ap-price'
+              ).value
+            ) || 0
 
-        }else{
-
-          await api(
-            '/agendamentos',
-            {
-              method:'POST',
-
-              body:
-                JSON.stringify(
-                  payload
-                )
-            }
-          );
-
-        }
-
-
-        closeAppointmentModal();
-
-        await refreshAgenda();
+        };
 
 
-      }catch(error){
-
-        alert(
-          'Não foi possível salvar o agendamento: ' +
-          error.message
-        );
-
-
-      }finally{
-
-        if(submit){
-
-          submit.disabled =
-            false;
-
-          submit.textContent =
+        const conflito =
+          await findConflict(
+            payload.data,
+            payload.hora,
+            payload.servico_id,
             editingAppointmentId
-              ? 'Salvar alterações'
-              : 'Criar agendamento';
+          );
 
+
+        if(conflito){
+
+          const nomeServico =
+            conflito.servico_nome ||
+            serviceName(
+              conflito.servico_id
+            );
+
+
+          const seguir =
+            confirm(
+              `Esse horário conflita com o agendamento de ${conflito.cliente} às ${conflito.hora.slice(0,5)} (${nomeServico}).\n\nAgendar mesmo assim?`
+            );
+
+
+          if(!seguir){
+            return;
+          }
         }
 
-      }
 
-    }
-  );
+        try{
 
+          if(editingAppointmentId){
 
-  // ============================================================
-  // CONCLUIR AGENDAMENTO
-  // ============================================================
+            await api(
+              '/agendamentos/' +
+              editingAppointmentId,
+              {
+                method:'PATCH',
 
-  window.finishAppointment =
-    async function(id){
+                body:
+                  JSON.stringify(
+                    payload
+                  )
+              }
+            );
 
-      if(
-        !confirm(
-          'Marcar este agendamento como concluído?'
-        )
-      ){
+          }else{
 
-        return;
+            await api(
+              '/agendamentos',
+              {
+                method:'POST',
 
-      }
-
-
-      try{
-
-        await api(
-          '/agendamentos/' +
-          id,
-          {
-            method:'PUT',
-
-            body:
-              JSON.stringify({
-                status:'concluido'
-              })
+                body:
+                  JSON.stringify(
+                    payload
+                  )
+              }
+            );
           }
-        );
 
 
-        await refreshAgenda();
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível concluir: ' +
-          error.message
-        );
-
-      }
-
-    };
-
-
-  // ============================================================
-  // SERVIÇOS
-  // ============================================================
-
-  async function refreshServices(){
-
-    const list =
-      document.getElementById(
-        'services-list'
-      );
-
-
-    if(!list){
-      return;
-    }
-
-
-    list.innerHTML =
-      '<div class="empty">Carregando…</div>';
-
-
-    try{
-
-      const services =
-        await api(
-          '/servicos'
-        );
-
-
-      state.services =
-        Array.isArray(services)
-          ? services
-          : [];
-
-
-      renderServices(
-        state.services
-      );
-
-
-    }catch(error){
-
-      list.innerHTML =
-        '<div class="empty">' +
-          '<strong>Não foi possível carregar os serviços</strong>' +
-          escapeHtml(error.message) +
-        '</div>';
-
-    }
-
-  }
-
-
-  function renderServices(
-    services
-  ){
-
-    const list =
-      document.getElementById(
-        'services-list'
-      );
-
-
-    if(!list){
-      return;
-    }
-
-
-    if(services.length === 0){
-
-      list.innerHTML =
-        '<div class="empty">' +
-          '<strong>Nenhum serviço cadastrado</strong>' +
-          'Clique em "Novo serviço" para adicionar.' +
-        '</div>';
-
-      return;
-
-    }
-
-
-    list.innerHTML =
-      services.map(
-        service => `
-
-          <div class="service-row">
-
-            <div>
-
-              <div class="client">
-                ${escapeHtml(
-                  service.nome
-                )}
-              </div>
-
-              <div class="meta">
-                ${escapeHtml(
-                  service.descricao ||
-                  ''
-                )}
-              </div>
-
-            </div>
-
-            <div class="price-tag">
-              ${money(
-                service.preco
-              )}
-            </div>
-
-            <div class="ticket-actions">
-
-              <button
-                class="btn btn-small btn-ghost"
-                onclick="App.editService('${service.id}')"
-              >
-                Editar
-              </button>
-
-              <button
-                class="btn btn-small btn-ghost"
-                onclick="App.removeService('${service.id}')"
-              >
-                Remover
-              </button>
-
-            </div>
-
-          </div>
-
-        `
-      ).join('');
-
-  }
-
-
-  // ============================================================
-  // MODAL SERVIÇO
-  // ============================================================
-
-  const overlayService =
-    document.getElementById(
-      'overlay-service'
-    );
-
-
-  const formService =
-    document.getElementById(
-      'form-service'
-    );
-
-
-  function closeServiceModal(){
-
-    overlayService?.classList.remove(
-      'active'
-    );
-
-    editingServiceId =
-      null;
-
-  }
-
-
-  document
-    .getElementById(
-      'btn-cancel-service'
-    )
-    ?.addEventListener(
-      'click',
-      closeServiceModal
-    );
-
-
-  overlayService?.addEventListener(
-    'click',
-    event => {
-
-      if(
-        event.target ===
-        overlayService
-      ){
-
-        closeServiceModal();
-
-      }
-
-    }
-  );
-
-
-  document
-    .getElementById(
-      'btn-new-service'
-    )
-    ?.addEventListener(
-      'click',
-      openNewService
-    );
-
-
-  function openNewService(){
-
-    editingServiceId =
-      null;
-
-
-    const title =
-      document.getElementById(
-        'service-modal-title'
-      );
-
-
-    if(title){
-
-      title.textContent =
-        'Novo serviço';
-
-    }
-
-
-    const submit =
-      document.getElementById(
-        'service-submit-btn'
-      );
-
-
-    if(submit){
-
-      submit.textContent =
-        'Criar serviço';
-
-    }
-
-
-    formService?.reset();
-
-
-    overlayService?.classList.add(
-      'active'
-    );
-
-  }
-
-
-  window.editService =
-    async function(id){
-
-      try{
-
-        const services =
-          await api(
-            '/servicos'
+          overlayAppointment?.classList.remove(
+            'active'
           );
 
 
-        const service =
-          services.find(
-            item =>
-              String(item.id) ===
-              String(id)
-          );
+          selectedDate =
+            payload.data;
 
 
-        if(!service){
+          if(dateInput){
+            dateInput.value =
+              selectedDate;
+          }
+
+
+          await refreshAgenda();
+          await refreshSideStats();
+
+
+        }catch(err){
 
           alert(
-            'Serviço não encontrado.'
+            'Não foi possível salvar: ' +
+            err.message
           );
-
-          return;
-
-        }
-
-
-        editingServiceId =
-          id;
-
-
-        const title =
-          document.getElementById(
-            'service-modal-title'
-          );
-
-
-        if(title){
-
-          title.textContent =
-            'Editar serviço';
-
-        }
-
-
-        const submit =
-          document.getElementById(
-            'service-submit-btn'
-          );
-
-
-        if(submit){
-
-          submit.textContent =
-            'Salvar alterações';
-
-        }
-
-
-        setValue(
-          'service-name',
-          service.nome
-        );
-
-
-        setValue(
-          'service-description',
-          service.descricao
-        );
-
-
-        setValue(
-          'service-price',
-          service.preco
-        );
-
-
-        overlayService?.classList.add(
-          'active'
-        );
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível carregar o serviço: ' +
-          error.message
-        );
-
-      }
-
-    };
-
-
-  formService?.addEventListener(
-    'submit',
-    async event => {
-
-      event.preventDefault();
-
-
-      const nome =
-        document.getElementById(
-          'service-name'
-        )?.value.trim();
-
-
-      const descricao =
-        document.getElementById(
-          'service-description'
-        )?.value.trim();
-
-
-      const preco =
-        document.getElementById(
-          'service-price'
-        )?.value;
-
-
-      if(!nome){
-
-        alert(
-          'Informe o nome do serviço.'
-        );
-
-        return;
-
-      }
-
-
-      const payload = {
-
-        nome,
-
-        descricao,
-
-        preco:
-          Number(preco || 0)
-
-      };
-
-
-      const submit =
-        document.getElementById(
-          'service-submit-btn'
-        );
-
-
-      if(submit){
-
-        submit.disabled =
-          true;
-
-        submit.textContent =
-          editingServiceId
-            ? 'Salvando...'
-            : 'Criando...';
-
-      }
-
-
-      try{
-
-        if(editingServiceId){
-
-          await api(
-            '/servicos/' +
-            editingServiceId,
-            {
-              method:'PUT',
-
-              body:
-                JSON.stringify(
-                  payload
-                )
-            }
-          );
-
-        }else{
-
-          await api(
-            '/servicos',
-            {
-              method:'POST',
-
-              body:
-                JSON.stringify(
-                  payload
-                )
-            }
-          );
-
-        }
-
-
-        closeServiceModal();
-
-        await refreshServices();
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível salvar o serviço: ' +
-          error.message
-        );
-
-
-      }finally{
-
-        if(submit){
-
-          submit.disabled =
-            false;
-
-          submit.textContent =
-            editingServiceId
-              ? 'Salvar alterações'
-              : 'Criar serviço';
-
         }
 
       }
-
-    }
-  );
-
-
-  window.removeService =
-    async function(id){
-
-      if(
-        !confirm(
-          'Remover este serviço?'
-        )
-      ){
-
-        return;
-
-      }
-
-
-      try{
-
-        await api(
-          '/servicos/' +
-          id,
-          {
-            method:'DELETE'
-          }
-        );
-
-
-        await refreshServices();
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível remover: ' +
-          error.message
-        );
-
-      }
-
-    };
+    );
 
 
   // ============================================================
-  // CLIENTES
+  // STATUS / PAGAMENTO
   // ============================================================
 
-  async function refreshClientes(){
+  async function setStatus(
+    id,
+    status
+  ){
 
-    const list =
-      document.getElementById(
-        'clientes-list'
+    try{
+
+      await api(
+        '/agendamentos/' + id,
+        {
+          method:'PATCH',
+
+          body:
+            JSON.stringify({
+              status
+            })
+        }
       );
 
 
-    if(!list){
+      await refreshCurrentTab();
+
+
+    }catch(e){
+
+      alert(
+        'Erro ao atualizar status: ' +
+        e.message
+      );
+    }
+  }
+
+
+  async function deleteAppointment(id){
+
+    if(
+      !confirm(
+        'Remover este agendamento definitivamente?'
+      )
+    ){
       return;
     }
-
-
-    list.innerHTML =
-      '<div class="empty">Carregando…</div>';
 
 
     try{
 
-      const clientes =
-        await api(
-          '/clientes'
-        );
-
-
-      renderClientes(
-        clientes
+      await api(
+        '/agendamentos/' + id,
+        {
+          method:'DELETE'
+        }
       );
 
 
-    }catch(error){
+      await refreshCurrentTab();
 
-      list.innerHTML =
-        '<div class="empty">' +
-          '<strong>Não foi possível carregar os clientes</strong>' +
-          escapeHtml(error.message) +
-        '</div>';
 
+    }catch(e){
+
+      alert(
+        'Erro ao remover: ' +
+        e.message
+      );
     }
-
   }
 
 
-  function renderClientes(
-    clientes
+  async function setPayment(
+    id,
+    status_pagamento
   ){
 
-    const list =
-      document.getElementById(
-        'clientes-list'
+    try{
+
+      await api(
+        '/agendamentos/' + id,
+        {
+          method:'PATCH',
+
+          body:
+            JSON.stringify({
+              status_pagamento
+            })
+        }
       );
 
 
-    if(!list){
+      await refreshCurrentTab();
+
+
+    }catch(e){
+
+      alert(
+        'Erro ao atualizar pagamento: ' +
+        e.message
+      );
+    }
+  }
+
+
+  async function setPaymentMethod(
+    id,
+    forma_pagamento
+  ){
+
+    try{
+
+      await api(
+        '/agendamentos/' + id,
+        {
+          method:'PATCH',
+
+          body:
+            JSON.stringify({
+              forma_pagamento
+            })
+        }
+      );
+
+    }catch(e){
+
+      console.error(e);
+    }
+  }
+
+
+  async function undoPayment(id){
+
+    if(
+      !confirm(
+        'Desfazer a confirmação de pagamento? Você poderá trocar a forma de pagamento novamente depois.'
+      )
+    ){
       return;
     }
 
 
-    if(!clientes.length){
+    try{
 
-      list.innerHTML =
-        '<div class="empty">' +
-          '<strong>Nenhum cliente cadastrado</strong>' +
-        '</div>';
+      await api(
+        '/agendamentos/' + id,
+        {
+          method:'PATCH',
 
-      return;
+          body:
+            JSON.stringify({
+              status_pagamento:
+                'pendente'
+            })
+        }
+      );
 
+
+      await refreshCurrentTab();
+
+
+    }catch(e){
+
+      alert(
+        'Erro ao desfazer: ' +
+        e.message
+      );
     }
+  }
 
 
-    list.innerHTML =
-      clientes.map(
-        cliente => `
+  async function refreshCurrentTab(){
 
-          <div class="client-row">
+    await loadTabData(
+      activeTab
+    );
 
-            <div>
-
-              <div class="client">
-                ${escapeHtml(
-                  cliente.nome
-                )}
-              </div>
-
-              <div class="meta">
-
-                ${
-                  cliente.telefone
-                    ? escapeHtml(
-                        cliente.telefone
-                      )
-                    : ''
-                }
-
-                ${
-                  cliente.email
-                    ? ' · ' +
-                      escapeHtml(
-                        cliente.email
-                      )
-                    : ''
-                }
-
-              </div>
-
-            </div>
-
-          </div>
-
-        `
-      ).join('');
-
+    await refreshSideStats();
   }
 
 
@@ -2566,98 +1908,127 @@
 
   async function refreshFaturamento(){
 
+    const container =
+      document.getElementById(
+        'fat-list'
+      );
+
+
+    if(!container){
+      return;
+    }
+
+
+    container.innerHTML =
+      '<div class="empty">Carregando…</div>';
+
+
     try{
 
       const range =
         await fetchWideRange();
 
 
-      const done =
+      allDoneCache =
         range.filter(
-          item =>
-            item.status ===
+          a =>
+            a.status ===
             'concluido'
         );
 
 
-      const total =
-        done.reduce(
-          (sum,item) =>
-            sum +
-            Number(
-              item.valor || 0
-            ),
+      renderFaturamento();
+
+
+    }catch(e){
+
+      container.innerHTML =
+        '<div class="empty">' +
+          '<strong>Não foi possível carregar o faturamento</strong>' +
+          'Verifique a conexão com o banco de dados.' +
+        '</div>';
+    }
+  }
+
+
+  function renderFaturamento(){
+
+    const done =
+      allDoneCache
+        .slice()
+        .sort(
+          (a,b) =>
+            (b.data + b.hora)
+              .localeCompare(
+                a.data + a.hora
+              )
+        );
+
+
+    const total =
+      done.reduce(
+        (s,a) =>
+          s + Number(a.valor),
+        0
+      );
+
+
+    const pago =
+      done
+        .filter(
+          a =>
+            a.status_pagamento ===
+            'pago'
+        )
+        .reduce(
+          (s,a) =>
+            s + Number(a.valor),
           0
         );
 
 
-      const count =
-        done.length;
+    const pendente =
+      total - pago;
 
 
-      const totalElement =
-        document.getElementById(
-          'fat-total'
-        );
+    document.getElementById(
+      'fat-total'
+    ).textContent =
+      money(total);
 
 
-      const countElement =
-        document.getElementById(
-          'fat-count'
-        );
+    document.getElementById(
+      'fat-pago'
+    ).textContent =
+      money(pago);
 
 
-      if(totalElement){
-
-        totalElement.textContent =
-          money(total);
-
-      }
+    document.getElementById(
+      'fat-pendente'
+    ).textContent =
+      money(pendente);
 
 
-      if(countElement){
-
-        countElement.textContent =
-          count;
-
-      }
-
-
-      renderFaturamento(
-        done
+    const navCount =
+      document.getElementById(
+        'nav-count-fat'
       );
 
 
-    }catch(error){
+    if(navCount){
 
-      const list =
-        document.getElementById(
-          'faturamento-list'
-        );
-
-
-      if(list){
-
-        list.innerHTML =
-          '<div class="empty">' +
-            '<strong>Não foi possível carregar o faturamento</strong>' +
-            escapeHtml(error.message) +
-          '</div>';
-
-      }
-
+      navCount.textContent =
+        done.filter(
+          a =>
+            a.status_pagamento ===
+            'pendente'
+        ).length || '';
     }
 
-  }
-
-
-  function renderFaturamento(
-    items
-  ){
 
     const list =
       document.getElementById(
-        'faturamento-list'
+        'fat-list'
       );
 
 
@@ -2666,128 +2037,288 @@
     }
 
 
-    if(!items.length){
+    if(done.length === 0){
 
       list.innerHTML =
         '<div class="empty">' +
-          '<strong>Nenhum faturamento encontrado</strong>' +
+          '<strong>Nenhum serviço concluído ainda</strong>' +
+          'Conclua um agendamento na Agenda para ele aparecer aqui.' +
         '</div>';
 
       return;
-
     }
 
 
     list.innerHTML =
-      items.map(
-        item => `
+      done.map(ap => `
 
-          <div class="invoice-row">
+        <div class="invoice-row">
 
-            <div>
+          <div>
 
-              <div class="client">
-                ${escapeHtml(
-                  item.cliente_nome ||
-                  item.cliente ||
-                  'Cliente'
-                )}
-              </div>
+            <div class="client">
+              ${escapeHtml(ap.cliente)}
+            </div>
 
-              <div class="meta">
+            <div class="meta">
 
-                ${formatDateBR(
-                  item.data
-                )}
+              ${new Date(
+                ap.data + 'T00:00:00'
+              ).toLocaleDateString('pt-BR')}
 
-                ${
-                  item.servico_nome
-                    ? ' · ' +
-                      escapeHtml(
-                        item.servico_nome
-                      )
-                    : ''
-                }
+              ·
 
-              </div>
+              ${escapeHtml(
+                ap.servico_nome ||
+                serviceName(ap.servico_id)
+              )}
+
+              ${
+                ap.veiculo
+                  ? ' · ' +
+                    escapeHtml(
+                      ap.veiculo
+                    )
+                  : ''
+              }
 
             </div>
 
-            <span class="price-tag">
-              ${money(
-                item.valor
-              )}
-            </span>
+          </div>
+
+
+          <span class="price-tag">
+            ${money(ap.valor)}
+          </span>
+
+
+          ${
+            ap.status_pagamento === 'pago'
+
+              ? `<div class="pay-method-locked">
+                  ${
+                    ap.forma_pagamento
+                      ? escapeHtml(
+                          ap.forma_pagamento
+                        )
+                      : 'Forma não informada'
+                  }
+                </div>`
+
+              : `<select
+                  class="pay-method"
+                  onchange="App.setPaymentMethod('${ap.id}', this.value)"
+                >
+
+                  <option
+                    value=""
+                    ${!ap.forma_pagamento ? 'selected' : ''}
+                  >
+                    Forma de pagamento
+                  </option>
+
+                  <option
+                    value="Dinheiro"
+                    ${ap.forma_pagamento === 'Dinheiro' ? 'selected' : ''}
+                  >
+                    Dinheiro
+                  </option>
+
+                  <option
+                    value="Pix"
+                    ${ap.forma_pagamento === 'Pix' ? 'selected' : ''}
+                  >
+                    Pix
+                  </option>
+
+                  <option
+                    value="Cartão de débito"
+                    ${ap.forma_pagamento === 'Cartão de débito' ? 'selected' : ''}
+                  >
+                    Cartão de débito
+                  </option>
+
+                  <option
+                    value="Cartão de crédito"
+                    ${ap.forma_pagamento === 'Cartão de crédito' ? 'selected' : ''}
+                  >
+                    Cartão de crédito
+                  </option>
+
+                </select>`
+          }
+
+
+          <div class="ticket-actions">
+
+            ${
+              ap.status_pagamento === 'pago'
+
+                ? `<span
+                    class="badge badge-pago"
+                    title="Toque para desfazer o pagamento"
+                    onclick="App.undoPayment('${ap.id}')"
+                  >
+                    Pago
+                  </span>`
+
+                : `<button
+                    class="btn btn-small btn-primary"
+                    onclick="App.setPayment('${ap.id}','pago')"
+                  >
+                    Marcar pago
+                  </button>`
+            }
+
+
+            <button
+              class="btn btn-small btn-ghost"
+              onclick="App.printReceipt('${ap.id}')"
+            >
+              Recibo
+            </button>
 
           </div>
 
-        `
-      ).join('');
+        </div>
 
+      `).join('');
   }
 
 
-  // ============================================================
-  // DESPESAS
-  // ============================================================
+  function printReceipt(id){
 
-  async function removeExpense(
-    id
-  ){
-
-    if(
-      !confirm(
-        'Remover esta despesa?'
-      )
-    ){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/despesas/' +
-        id,
-        {
-          method:'DELETE'
-        }
+    const ap =
+      allDoneCache.find(
+        a =>
+          String(a.id) ===
+          String(id)
       );
 
 
-      await refreshDespesas();
-
-
-    }catch(e){
-
-      alert(
-        'Erro ao remover: ' +
-        e.message
-      );
-
-    }
-
-  }
-
-
-  async function refreshDespesas(){
-
-    const listEl =
-      document.getElementById(
-        'desp-list'
-      );
-
-
-    if(!listEl){
+    if(!ap){
       return;
     }
 
 
-    listEl.innerHTML =
-      '<div class="empty">Carregando…</div>';
+    const dataHora =
+      new Date(
+        ap.data + 'T00:00:00'
+      ).toLocaleDateString('pt-BR') +
+      ' às ' +
+      ap.hora.slice(0,5);
 
+
+    document.getElementById(
+      'print-area'
+    ).innerHTML = `
+
+      <div class="recibo-header">
+
+        <h2>
+          Lavajato — Recibo
+        </h2>
+
+        <div>
+          ${dataHora}
+        </div>
+
+      </div>
+
+
+      <div class="recibo-row">
+        <span>Cliente</span>
+        <span>
+          ${escapeHtml(ap.cliente)}
+        </span>
+      </div>
+
+
+      ${
+        ap.veiculo
+          ? `<div class="recibo-row">
+              <span>Veículo</span>
+              <span>
+                ${escapeHtml(ap.veiculo)}
+              </span>
+            </div>`
+          : ''
+      }
+
+
+      ${
+        ap.placa
+          ? `<div class="recibo-row">
+              <span>Placa</span>
+              <span>
+                ${escapeHtml(
+                  ap.placa.toUpperCase()
+                )}
+              </span>
+            </div>`
+          : ''
+      }
+
+
+      <div class="recibo-row">
+
+        <span>Serviço</span>
+
+        <span>
+          ${escapeHtml(
+            ap.servico_nome ||
+            serviceName(ap.servico_id)
+          )}
+        </span>
+
+      </div>
+
+
+      <div class="recibo-row">
+
+        <span>
+          Forma de pagamento
+        </span>
+
+        <span>
+          ${ap.forma_pagamento || '—'}
+        </span>
+
+      </div>
+
+
+      <div class="recibo-total">
+
+        <span>Total</span>
+
+        <span>
+          ${money(ap.valor)}
+        </span>
+
+      </div>
+
+    `;
+
+
+    window.print();
+  }
+
+
+  // ============================================================
+  // FECHAMENTO DO DIA
+  // ============================================================
+
+  document
+    .getElementById(
+      'btn-closing'
+    )
+    ?.addEventListener(
+      'click',
+      printClosing
+    );
+
+
+  async function printClosing(){
 
     let items;
 
@@ -2795,1605 +2326,256 @@
     try{
 
       items =
-        await fetchWideRangeExpenses();
-
+        await api(
+          '/agendamentos?data=' +
+          selectedDate
+        );
 
     }catch(e){
 
-      listEl.innerHTML =
-        '<div class="empty">' +
-          '<strong>Não foi possível carregar as despesas</strong>' +
-          'Verifique a conexão com o banco de dados.' +
-        '</div>';
+      alert(
+        'Não foi possível carregar os dados do fechamento.'
+      );
 
       return;
-
     }
 
 
-    allExpensesCache =
-      items;
+    const done =
+      items
+        .filter(
+          a =>
+            a.status === 'concluido'
+        )
+        .sort(
+          (a,b) =>
+            a.hora.localeCompare(
+              b.hora
+            )
+        );
 
 
     const total =
-      items.reduce(
-        (s,d) =>
-          s +
-          Number(d.valor),
+      done.reduce(
+        (s,a) =>
+          s + Number(a.valor),
         0
       );
 
 
-    document.getElementById(
-      'desp-total'
-    ).textContent =
-      money(total);
+    const pago =
+      done
+        .filter(
+          a =>
+            a.status_pagamento ===
+            'pago'
+        )
+        .reduce(
+          (s,a) =>
+            s + Number(a.valor),
+          0
+        );
 
 
-    document.getElementById(
-      'desp-count'
-    ).textContent =
-      items.length;
+    const pendente =
+      total - pago;
 
 
-    if(items.length === 0){
+    const porForma = {};
 
-      listEl.innerHTML =
-        '<div class="empty">' +
-          '<strong>Nenhuma despesa nos últimos 90 dias</strong>' +
-          'Toque em "Nova despesa" para lançar produtos, água, luz, manutenção etc.' +
+
+    done
+      .filter(
+        a =>
+          a.status_pagamento ===
+          'pago'
+      )
+      .forEach(a => {
+
+        const f =
+          a.forma_pagamento ||
+          'Não informado';
+
+
+        porForma[f] =
+          (porForma[f] || 0) +
+          Number(a.valor);
+
+      });
+
+
+    const formaLinhas =
+      Object.entries(porForma)
+        .map(
+          ([f,v]) =>
+            `<div class="recibo-row">
+              <span>${escapeHtml(f)}</span>
+              <span>${money(v)}</span>
+            </div>`
+        )
+        .join('') ||
+
+        '<div class="recibo-row">' +
+          '<span>Nenhum pagamento confirmado</span>' +
+          '<span></span>' +
         '</div>';
 
-      return;
 
-    }
-
-
-    listEl.innerHTML =
-      items.map(
-        d =>
-
-          `<div
-            class="invoice-row"
-            style="grid-template-columns:1fr auto auto;"
-          >
-
-            <div>
-
-              <div class="client">
+    const linhas =
+      done.map(
+        a =>
+          `<div class="recibo-row">
+            <span>
+              ${a.hora.slice(0,5)}
+              —
+              ${escapeHtml(a.cliente)}
+              (
                 ${escapeHtml(
-                  d.descricao
-                )}
-              </div>
-
-              <div class="meta">
-
-                ${
-                  new Date(
-                    d.data +
-                    'T00:00:00'
-                  ).toLocaleDateString(
-                    'pt-BR'
+                  a.servico_nome ||
+                  serviceName(
+                    a.servico_id
                   )
-                }
-
-                ·
-
-                ${escapeHtml(
-                  d.categoria
                 )}
-
-              </div>
-
-            </div>
-
-
-            <span
-              class="price-tag"
-              style="color:var(--warn);"
-            >
-              ${money(d.valor)}
+              )
             </span>
 
-
-            <div class="ticket-actions">
-
-              <button
-                class="btn btn-small btn-ghost"
-                onclick="App.removeExpense('${d.id}')"
-              >
-                Remover
-              </button>
-
-            </div>
+            <span>
+              ${money(a.valor)}
+            </span>
 
           </div>`
-
-      ).join('');
-
-  }
-
-
-  // ============================================================
-  // USUÁRIOS
-  // ============================================================
-
-  const overlayUser =
-    document.getElementById(
-      'overlay-user'
-    );
-
-
-  const formUser =
-    document.getElementById(
-      'form-user'
-    );
-
-
-  // ------------------------------------------------------------
-  // ABRIR NOVO USUÁRIO
-  // ------------------------------------------------------------
-
-  document
-    .getElementById(
-      'btn-new-user'
-    )
-    ?.addEventListener(
-      'click',
-      openNewUser
-    );
-
-
-  function openNewUser(){
-
-    if(!isAdministrador()){
-
-      alert(
-        'Apenas administradores podem gerenciar usuários.'
-      );
-
-      return;
-
-    }
-
-
-    editingUserId =
-      null;
-
-
-    const title =
-      document.getElementById(
-        'user-modal-title'
-      );
-
-
-    if(title){
-
-      title.textContent =
-        'Novo usuário';
-
-    }
-
-
-    const submit =
-      document.getElementById(
-        'user-submit-btn'
-      );
-
-
-    if(submit){
-
-      submit.textContent =
-        'Criar usuário';
-
-    }
-
-
-    const name =
-      document.getElementById(
-        'user-name'
-      );
-
-
-    const email =
-      document.getElementById(
-        'user-email'
-      );
-
-
-    const profile =
-      document.getElementById(
-        'user-profile'
-      );
-
-
-    const password =
-      document.getElementById(
-        'user-password'
-      );
-
-
-    const passwordField =
-      document.getElementById(
-        'user-password-field'
-      );
-
-
-    const activeField =
-      document.getElementById(
-        'user-active-field'
-      );
-
-
-    if(name){
-
-      name.value = '';
-
-    }
-
-
-    if(email){
-
-      email.value = '';
-
-    }
-
-
-    if(profile){
-
-      profile.value =
-        'funcionario';
-
-    }
-
-
-    if(password){
-
-      password.value = '';
-
-      password.required =
-        true;
-
-    }
-
-
-    if(passwordField){
-
-      passwordField.style.display =
-        '';
-
-    }
-
-
-    if(activeField){
-
-      activeField.style.display =
-        'none';
-
-    }
-
-
-    // ----------------------------------------------------------
-    // LIMPAR PERMISSÕES DO MODAL
-    // ----------------------------------------------------------
-
-    setSelectedPermissions([]);
-
-    updatePermissionsVisibility();
-
-
-    overlayUser?.classList.add(
-      'active'
-    );
-
-
-    name?.focus();
-
-  }
-
-
-  // ------------------------------------------------------------
-  // CANCELAR USUÁRIO
-  // ------------------------------------------------------------
-
-  document
-    .getElementById(
-      'btn-cancel-user'
-    )
-    ?.addEventListener(
-      'click',
-      closeUserModal
-    );
-
-
-  overlayUser?.addEventListener(
-    'click',
-    e => {
-
-      if(
-        e.target ===
-        overlayUser
-      ){
-
-        closeUserModal();
-
-      }
-
-    }
-  );
-
-
-  function closeUserModal(){
-
-    overlayUser?.classList.remove(
-      'active'
-    );
-
-    editingUserId =
-      null;
-
-  }
-
-
-  // ------------------------------------------------------------
-  // PERMISSÕES DO USUÁRIO
-  // ------------------------------------------------------------
-
-  function getSelectedPermissions(){
-
-    return Array.from(
-      document.querySelectorAll(
-        '#user-permissions-grid input[data-permission]:checked'
-      )
-    ).map(
-      checkbox =>
-        checkbox.dataset.permission
-    );
-
-  }
-
-
-  function setSelectedPermissions(
-    permissoes = []
-  ){
-
-    const permissoesSet =
-      new Set(
-        Array.isArray(permissoes)
-          ? permissoes
-          : []
-      );
-
-
-    document
-      .querySelectorAll(
-        '#user-permissions-grid input[data-permission]'
-      )
-      .forEach(
-        checkbox => {
-
-          checkbox.checked =
-            permissoesSet.has(
-              checkbox.dataset.permission
-            );
-
-        }
-      );
-
-  }
-
-
-  async function loadUserPermissions(
-    id
-  ){
-
-    const response =
-      await api(
-        '/usuarios/' +
-        id +
-        '/permissoes'
-      );
-
-
-    const permissoes =
-      response?.permissoes ||
-      [];
-
-
-    setSelectedPermissions(
-      permissoes
-    );
-
-
-    return permissoes;
-
-  }
-
-
-  function updatePermissionsVisibility(){
-
-    const section =
-      document.getElementById(
-        'user-permissions-section'
-      );
-
-
-    const notice =
-      document.getElementById(
-        'admin-permission-notice'
-      );
-
-
-    const profile =
-      document.getElementById(
-        'user-profile'
-      )?.value;
-
-
-    if(!section){
-
-      return;
-
-    }
-
-
-    const administrador =
-      profile ===
-      'administrador';
-
-
-    if(notice){
-
-      notice.style.display =
-        administrador
-          ? 'block'
-          : 'none';
-
-    }
-
-
-    section.classList.toggle(
-      'permissions-disabled',
-      administrador
-    );
-
-
-    const checkboxes =
-      section.querySelectorAll(
-        'input[data-permission]'
-      );
-
-
-    checkboxes.forEach(
-      checkbox => {
-
-        checkbox.disabled =
-          administrador;
-
-      }
-    );
-
-  }
-
-
-  document
-    .getElementById(
-      'user-profile'
-    )
-    ?.addEventListener(
-      'change',
-      updatePermissionsVisibility
-    );
-
-
-  // ------------------------------------------------------------
-  // EDITAR USUÁRIO
-  // ------------------------------------------------------------
-
-  window.editUser =
-    async function(id){
-
-      if(!isAdministrador()){
-
-        alert(
-          'Apenas administradores podem editar usuários.'
-        );
-
-        return;
-
-      }
-
-
-      try{
-
-        const usuarios =
-          await api(
-            '/usuarios'
-          );
-
-
-        const usuario =
-          usuarios.find(
-            u =>
-              String(u.id) ===
-              String(id)
-          );
-
-
-        if(!usuario){
-
-          alert(
-            'Usuário não encontrado.'
-          );
-
-          return;
-
-        }
-
-
-        editingUserId =
-          id;
-
-
-        const title =
-          document.getElementById(
-            'user-modal-title'
-          );
-
-
-        if(title){
-
-          title.textContent =
-            'Editar usuário';
-
-        }
-
-
-        const submit =
-          document.getElementById(
-            'user-submit-btn'
-          );
-
-
-        if(submit){
-
-          submit.textContent =
-            'Salvar alterações';
-
-        }
-
-
-        const name =
-          document.getElementById(
-            'user-name'
-          );
-
-
-        const email =
-          document.getElementById(
-            'user-email'
-          );
-
-
-        const profile =
-          document.getElementById(
-            'user-profile'
-          );
-
-
-        const password =
-          document.getElementById(
-            'user-password'
-          );
-
-
-        const passwordField =
-          document.getElementById(
-            'user-password-field'
-          );
-
-
-        const activeField =
-          document.getElementById(
-            'user-active-field'
-          );
-
-
-        const active =
-          document.getElementById(
-            'user-active'
-          );
-
-
-        if(name){
-
-          name.value =
-            usuario.nome ||
-            '';
-
-        }
-
-
-        if(email){
-
-          email.value =
-            usuario.email ||
-            '';
-
-        }
-
-
-        if(profile){
-
-          profile.value =
-            usuario.perfil ||
-            'funcionario';
-
-        }
-
-
-        if(password){
-
-          password.value =
-            '';
-
-          password.required =
-            false;
-
-          password.placeholder =
-            'Deixe vazio para manter a atual';
-
-        }
-
-
-        if(passwordField){
-
-          passwordField.style.display =
-            '';
-
-        }
-
-
-        if(activeField){
-
-          activeField.style.display =
-            '';
-
-        }
-
-
-        if(active){
-
-          active.value =
-            usuario.ativo
-              ? 'true'
-              : 'false';
-
-        }
-
-
-        // --------------------------------------------------------
-        // CARREGAR PERMISSÕES DO BANCO
-        // --------------------------------------------------------
-
-        if(
-          usuario.perfil ===
-          'administrador'
-        ){
-
-          setSelectedPermissions([]);
-
-        }else{
-
-          await loadUserPermissions(
-            id
-          );
-
-        }
-
-
-        updatePermissionsVisibility();
-
-
-        overlayUser?.classList.add(
-          'active'
-        );
-
-
-        name?.focus();
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível carregar o usuário: ' +
-          error.message
-        );
-
-      }
-
-    };
-
-
-  // ------------------------------------------------------------
-  // FORMULÁRIO USUÁRIO
-  // ------------------------------------------------------------
-
-  formUser?.addEventListener(
-    'submit',
-    async e => {
-
-      e.preventDefault();
-
-
-      if(!isAdministrador()){
-
-        alert(
-          'Apenas administradores podem realizar esta operação.'
-        );
-
-        return;
-
-      }
-
-
-      const nome =
-        document.getElementById(
-          'user-name'
-        )?.value.trim();
-
-
-      const email =
-        document.getElementById(
-          'user-email'
-        )?.value.trim();
-
-
-      const perfil =
-        document.getElementById(
-          'user-profile'
-        )?.value;
-
-
-      const senha =
-        document.getElementById(
-          'user-password'
-        )?.value;
-
-
-      if(!nome || !email){
-
-        alert(
-          'Informe nome e e-mail.'
-        );
-
-        return;
-
-      }
-
-
-      const submit =
-        document.getElementById(
-          'user-submit-btn'
-        );
-
-
-      if(submit){
-
-        submit.disabled =
-          true;
-
-        submit.textContent =
-          editingUserId
-            ? 'Salvando...'
-            : 'Criando...';
-
-      }
-
-
-      try{
-
-        if(editingUserId){
-
-          const ativoSelect =
-            document.getElementById(
-              'user-active'
-            );
-
-
-          const ativo =
-            ativoSelect
-              ? ativoSelect.value ===
-                'true'
-              : true;
-
-
-          // ------------------------------------------------------
-          // SALVAR DADOS DO USUÁRIO
-          // ------------------------------------------------------
-
-          await api(
-            '/usuarios/' +
-            editingUserId,
-            {
-              method:'PUT',
-
-              body:
-                JSON.stringify({
-                  nome,
-                  email,
-                  perfil,
-                  ativo
-                })
-            }
-          );
-
-
-          // ------------------------------------------------------
-          // ALTERAR SENHA SE INFORMADA
-          // ------------------------------------------------------
-
-          if(
-            senha &&
-            senha.trim().length > 0
-          ){
-
-            await api(
-              '/usuarios/' +
-              editingUserId +
-              '/senha',
-              {
-                method:'PATCH',
-
-                body:
-                  JSON.stringify({
-                    senha
-                  })
-              }
-            );
-
-          }
-
-
-          // ------------------------------------------------------
-          // SALVAR PERMISSÕES
-          // ------------------------------------------------------
-
-          const permissoes =
-            perfil ===
-            'administrador'
-              ? []
-              : getSelectedPermissions();
-
-
-          await api(
-            '/usuarios/' +
-            editingUserId +
-            '/permissoes',
-            {
-              method:'PATCH',
-
-              body:
-                JSON.stringify({
-                  permissoes
-                })
-            }
-          );
-
-
-        }else{
-
-          if(!senha){
-
-            alert(
-              'Informe uma senha para o novo usuário.'
-            );
-
-            return;
-
-          }
-
-
-          // ------------------------------------------------------
-          // CRIAR USUÁRIO
-          // ------------------------------------------------------
-
-          const novoUsuario =
-            await api(
-              '/usuarios',
-              {
-                method:'POST',
-
-                body:
-                  JSON.stringify({
-                    nome,
-                    email,
-                    senha,
-                    perfil
-                  })
-              }
-            );
-
-
-          // ------------------------------------------------------
-          // SALVAR PERMISSÕES DO NOVO FUNCIONÁRIO
-          // ------------------------------------------------------
-
-          if(
-            perfil ===
-            'funcionario'
-          ){
-
-            const novoId =
-              novoUsuario?.id ||
-              novoUsuario?.usuario?.id;
-
-
-            if(novoId){
-
-              const permissoes =
-                getSelectedPermissions();
-
-
-              await api(
-                '/usuarios/' +
-                novoId +
-                '/permissoes',
-                {
-                  method:'PATCH',
-
-                  body:
-                    JSON.stringify({
-                      permissoes
-                    })
-                }
-              );
-
-            }
-
-          }
-
-        }
-
-
-        closeUserModal();
-
-        await refreshUsuarios();
-
-
-      }catch(err){
-
-        alert(
-          'Não foi possível salvar o usuário: ' +
-          err.message
-        );
-
-
-      }finally{
-
-        if(submit){
-
-          submit.disabled =
-            false;
-
-          submit.textContent =
-            editingUserId
-              ? 'Salvar alterações'
-              : 'Criar usuário';
-
-        }
-
-      }
-
-    }
-  );
-
-
-  // ------------------------------------------------------------
-  // LISTAR USUÁRIOS
-  // ------------------------------------------------------------
-
-  async function refreshUsuarios(){
-
-    if(!isAdministrador()){
-
-      atualizarAcessoUsuarios();
-
-      return;
-
-    }
-
-
-    const list =
-      document.getElementById(
-        'usuarios-list'
-      );
-
-
-    if(!list){
-
-      return;
-
-    }
-
-
-    list.innerHTML =
-      '<div class="empty">Carregando usuários…</div>';
-
-
-    try{
-
-      const usuarios =
-        await api(
-          '/usuarios'
-        );
-
-
-      renderUsuarios(
-        usuarios
-      );
-
-
-    }catch(error){
-
-      list.innerHTML =
-        '<div class="empty">' +
-          '<strong>Não foi possível carregar os usuários</strong>' +
-          escapeHtml(error.message) +
-        '</div>';
-
-    }
-
-  }
-
-
-  // ------------------------------------------------------------
-  // RENDERIZAR USUÁRIOS
-  // ------------------------------------------------------------
-
-  function renderUsuarios(
-    usuarios
-  ){
-
-    const list =
-      document.getElementById(
-        'usuarios-list'
-      );
-
-
-    if(!list){
-
-      return;
-
-    }
-
-
-    const total =
-      document.getElementById(
-        'usuarios-total'
-      );
-
-
-    const admins =
-      document.getElementById(
-        'usuarios-admins'
-      );
-
-
-    const funcionarios =
-      document.getElementById(
-        'usuarios-funcionarios'
-      );
-
-
-    const qtdAdmins =
-      usuarios.filter(
-        u =>
-          u.perfil ===
-          'administrador'
+      ).join('') ||
+
+      '<div class="recibo-row">' +
+        '<span>Nenhuma lavagem concluída nesta data.</span>' +
+        '<span></span>' +
+      '</div>';
+
+
+    const pendentesQtd =
+      items.filter(
+        a =>
+          a.status === 'agendado' ||
+          a.status === 'em_andamento'
       ).length;
 
 
-    const qtdFuncionarios =
-      usuarios.filter(
-        u =>
-          u.perfil ===
-          'funcionario'
-      ).length;
+    document.getElementById(
+      'print-area'
+    ).innerHTML = `
 
+      <div class="recibo-header">
 
-    if(total){
-
-      total.textContent =
-        usuarios.length;
-
-    }
-
-
-    if(admins){
-
-      admins.textContent =
-        qtdAdmins;
-
-    }
-
-
-    if(funcionarios){
-
-      funcionarios.textContent =
-        qtdFuncionarios;
-
-    }
-
-
-    if(usuarios.length === 0){
-
-      list.innerHTML =
-        '<div class="empty">' +
-          '<strong>Nenhum usuário cadastrado</strong>' +
-          'Clique em "Novo usuário" para adicionar alguém à sua empresa.' +
-        '</div>';
-
-      return;
-
-    }
-
-
-    list.innerHTML =
-      usuarios.map(
-        usuario =>
-          renderUsuario(
-            usuario,
-            usuarios
-          )
-      ).join('');
-
-  }
-
-
-  // ------------------------------------------------------------
-  // RENDERIZAR UM USUÁRIO
-  // ------------------------------------------------------------
-
-  function renderUsuario(
-    usuario,
-    todosUsuarios
-  ){
-
-    const nome =
-      escapeHtml(
-        usuario.nome
-      );
-
-
-    const email =
-      escapeHtml(
-        usuario.email
-      );
-
-
-    const perfil =
-      usuario.perfil ===
-      'administrador'
-        ? 'Administrador'
-        : 'Funcionário';
-
-
-    const ativo =
-      usuario.ativo === true;
-
-
-    const status =
-      ativo
-        ? 'Ativo'
-        : 'Bloqueado';
-
-
-    const statusClass =
-      ativo
-        ? 'success'
-        : 'warning';
-
-
-    const isSelf =
-      usuarioLogado &&
-      String(
-        usuarioLogado.id
-      ) ===
-      String(
-        usuario.id
-      );
-
-
-    let permissionsText =
-      'Sem permissões';
-
-
-    if(
-      usuario.perfil ===
-      'administrador'
-    ){
-
-      permissionsText =
-        'Acesso completo';
-
-    }else if(
-      Array.isArray(
-        usuario.permissoes
-      ) &&
-      usuario.permissoes.length
-    ){
-
-      permissionsText =
-        usuario.permissoes.length +
-        ' permissões';
-
-    }
-
-
-    return `
-
-      <div class="user-row">
-
-        <div class="user-main">
-
-          <div class="user-avatar">
-            ${escapeHtml(
-              nome.charAt(0)
-            )}
-          </div>
-
-          <div>
-
-            <div class="client">
-              ${nome}
-            </div>
-
-            <div class="meta">
-              ${email}
-            </div>
-
-            <div class="meta">
-              ${perfil}
-              ·
-              ${escapeHtml(
-                permissionsText
-              )}
-            </div>
-
-          </div>
-
-        </div>
-
+        <h2>
+          Lavajato — Fechamento do dia
+        </h2>
 
         <div>
-
-          <span
-            class="status-badge status-${statusClass}"
-          >
-            ${status}
-          </span>
-
-        </div>
-
-
-        <div class="ticket-actions">
-
-          <button
-            class="btn btn-small btn-ghost"
-            onclick="App.editUser('${usuario.id}')"
-          >
-            Editar
-          </button>
-
-          ${
-            !isSelf
-              ? `
-                <button
-                  class="btn btn-small btn-ghost"
-                  onclick="App.changeUserProfile('${usuario.id}', '${usuario.perfil === 'administrador' ? 'funcionario' : 'administrador'}')"
-                >
-                  ${
-                    usuario.perfil ===
-                    'administrador'
-                      ? 'Tornar funcionário'
-                      : 'Tornar administrador'
-                  }
-                </button>
-              `
-              : ''
-          }
-
-          ${
-            !isSelf
-              ? `
-                <button
-                  class="btn btn-small btn-ghost"
-                  onclick="App.toggleUserStatus('${usuario.id}', ${!ativo})"
-                >
-                  ${
-                    ativo
-                      ? 'Bloquear'
-                      : 'Desbloquear'
-                  }
-                </button>
-              `
-              : ''
-          }
-
-          ${
-            !isSelf
-              ? `
-                <button
-                  class="btn btn-small btn-ghost"
-                  onclick="App.removeUser('${usuario.id}')"
-                >
-                  Excluir
-                </button>
-              `
-              : ''
-          }
-
+          ${capitalize(
+            fmtDatePretty(
+              selectedDate
+            )
+          )}
         </div>
 
       </div>
 
+
+      <div
+        class="recibo-row"
+        style="font-weight:600;"
+      >
+
+        <span>
+          Lavagens concluídas
+        </span>
+
+        <span>
+          ${done.length}
+        </span>
+
+      </div>
+
+
+      ${linhas}
+
+
+      <div class="recibo-total">
+
+        <span>
+          Total faturado
+        </span>
+
+        <span>
+          ${money(total)}
+        </span>
+
+      </div>
+
+
+      <div class="recibo-row">
+
+        <span>
+          Recebido
+        </span>
+
+        <span>
+          ${money(pago)}
+        </span>
+
+      </div>
+
+
+      <div class="recibo-row">
+
+        <span>
+          Pendente
+        </span>
+
+        <span>
+          ${money(pendente)}
+        </span>
+
+      </div>
+
+
+      <h3
+        style="
+          margin-top:18px;
+          font-size:14px;
+        "
+      >
+        Por forma de pagamento
+      </h3>
+
+
+      ${formaLinhas}
+
+
+      ${
+        pendentesQtd > 0
+          ? `<div
+              class="recibo-row"
+              style="margin-top:12px;"
+            >
+
+              <span>
+                Ainda agendados/em andamento hoje
+              </span>
+
+              <span>
+                ${pendentesQtd}
+              </span>
+
+            </div>`
+          : ''
+      }
+
     `;
 
+
+    window.print();
   }
-
-
-  // ------------------------------------------------------------
-  // ALTERAR PERFIL
-  // ------------------------------------------------------------
-
-  async function changeUserProfile(
-    id,
-    novoPerfil
-  ){
-
-    if(!isAdministrador()){
-
-      alert(
-        'Apenas administradores podem alterar cargos.'
-      );
-
-      return;
-
-    }
-
-
-    const nomePerfil =
-      novoPerfil ===
-      'administrador'
-        ? 'administrador'
-        : 'funcionário';
-
-
-    if(
-      !confirm(
-        `Deseja alterar este usuário para ${nomePerfil}?`
-      )
-    ){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/usuarios/' +
-        id,
-        {
-          method:'PUT',
-
-          body:
-            JSON.stringify({
-              perfil:
-                novoPerfil
-            })
-        }
-      );
-
-
-      await refreshUsuarios();
-
-
-    }catch(error){
-
-      alert(
-        'Não foi possível alterar o cargo: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  // ------------------------------------------------------------
-  // ATIVAR / BLOQUEAR
-  // ------------------------------------------------------------
-
-  async function toggleUserStatus(
-    id,
-    ativo
-  ){
-
-    if(!isAdministrador()){
-
-      alert(
-        'Apenas administradores podem bloquear usuários.'
-      );
-
-      return;
-
-    }
-
-
-    const mensagem =
-      ativo
-        ? 'Desbloquear este usuário?'
-        : 'Bloquear este usuário?';
-
-
-    if(!confirm(mensagem)){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/usuarios/' +
-        id +
-        '/status',
-        {
-          method:'PATCH',
-
-          body:
-            JSON.stringify({
-              ativo
-            })
-        }
-      );
-
-
-      await refreshUsuarios();
-
-
-    }catch(error){
-
-      alert(
-        'Não foi possível alterar o status: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  // ------------------------------------------------------------
-  // EXCLUIR USUÁRIO
-  // ------------------------------------------------------------
-
-  async function removeUser(
-    id
-  ){
-
-    if(!isAdministrador()){
-
-      alert(
-        'Apenas administradores podem excluir usuários.'
-      );
-
-      return;
-
-    }
-
-
-    if(
-      usuarioLogado &&
-      String(
-        usuarioLogado.id
-      ) ===
-      String(id)
-    ){
-
-      alert(
-        'Você não pode excluir o próprio usuário.'
-      );
-
-      return;
-
-    }
-
-
-    if(
-      !confirm(
-        'Excluir este usuário? Esta ação não pode ser desfeita.'
-      )
-    ){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/usuarios/' +
-        id,
-        {
-          method:'DELETE'
-        }
-      );
-
-
-      await refreshUsuarios();
-
-
-    }catch(error){
-
-      alert(
-        'Não foi possível excluir o usuário: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  // ------------------------------------------------------------
-  // EXPOR FUNÇÕES PARA OS BOTÕES INLINE
-  // ------------------------------------------------------------
-
-  window.App =
-    window.App ||
-    {};
-
-
-  window.App.openEditAppointment =
-    window.openEditAppointment;
-
-
-  window.App.finishAppointment =
-    window.finishAppointment;
-
-
-  window.App.editService =
-    window.editService;
-
-
-  window.App.removeService =
-    window.removeService;
-
-
-  window.App.removeExpense =
-    removeExpense;
-
-
-  window.App.editUser =
-    window.editUser;
-
-
-  window.App.changeUserProfile =
-    changeUserProfile;
-
-
-  window.App.toggleUserStatus =
-    toggleUserStatus;
-
-
-  window.App.removeUser =
-    removeUser;
 
 
   // ============================================================
@@ -4416,8 +2598,7 @@
       allDoneCache =
         range.filter(
           a =>
-            a.status ===
-            'concluido'
+            a.status === 'concluido'
         );
 
 
@@ -4443,11 +2624,8 @@
             '<strong>Não foi possível carregar os dados</strong>' +
             'Verifique a conexão com o banco de dados.' +
           '</div>';
-
       }
-
     }
-
   }
 
 
@@ -4481,7 +2659,6 @@
     return api(
       `/agendamentos?de=${de}&ate=${ate}`
     );
-
   }
 
 
@@ -4515,7 +2692,6 @@
     return api(
       `/despesas?de=${de}&ate=${ate}`
     );
-
   }
 
 
@@ -4552,10 +2728,7 @@
           .filter(fn)
           .reduce(
             (s,a) =>
-              s +
-              Number(
-                a.valor
-              ),
+              s + Number(a.valor),
             0
           );
 
@@ -4563,8 +2736,7 @@
     const hoje =
       sumWhere(
         a =>
-          a.data ===
-          today
+          a.data === today
       );
 
 
@@ -4594,10 +2766,33 @@
       );
 
 
+    document.getElementById(
+      'fin-hoje'
+    ).textContent =
+      money(hoje);
+
+
+    document.getElementById(
+      'fin-semana'
+    ).textContent =
+      money(semana);
+
+
+    document.getElementById(
+      'fin-mes'
+    ).textContent =
+      money(mes);
+
+
+    document.getElementById(
+      'fin-count'
+    ).textContent =
+      doneMes.length;
+
+
     const despesasMes =
       allExpensesCache.filter(
         d =>
-          d.data &&
           d.data.slice(0,7) ===
           monthStr
       );
@@ -4606,103 +2801,76 @@
     const totalDespesasMes =
       despesasMes.reduce(
         (s,d) =>
-          s +
-          Number(
-            d.valor
-          ),
+          s + Number(d.valor),
         0
       );
 
 
     const lucroMes =
-      mes -
-      totalDespesasMes;
+      mes - totalDespesasMes;
 
 
-    const finHoje =
+    document.getElementById(
+      'fin-despesas-mes'
+    ).textContent =
+      money(totalDespesasMes);
+
+
+    const lucroEl =
       document.getElementById(
-        'fin-hoje'
+        'fin-lucro-mes'
       );
 
 
-    const finSemana =
-      document.getElementById(
-        'fin-semana'
-      );
+    if(lucroEl){
 
-
-    const finMes =
-      document.getElementById(
-        'fin-mes'
-      );
-
-
-    const finDespesas =
-      document.getElementById(
-        'fin-despesas'
-      );
-
-
-    const finLucro =
-      document.getElementById(
-        'fin-lucro'
-      );
-
-
-    if(finHoje){
-
-      finHoje.textContent =
-        money(hoje);
-
+      lucroEl.textContent =
+        money(lucroMes);
     }
 
 
-    if(finSemana){
-
-      finSemana.textContent =
-        money(semana);
-
-    }
-
-
-    if(finMes){
-
-      finMes.textContent =
-        money(mes);
-
-    }
+    document
+      .getElementById(
+        'fin-lucro-card'
+      )
+      ?.classList.toggle(
+        'negative',
+        lucroMes < 0
+      );
 
 
-    if(finDespesas){
+    const bySvc = {};
 
-      finDespesas.textContent =
-        money(
-          totalDespesasMes
+
+    doneMes.forEach(a => {
+
+      const name =
+        a.servico_nome ||
+        serviceName(
+          a.servico_id
         );
 
-    }
+
+      bySvc[name] =
+        (bySvc[name] || 0) +
+        Number(a.valor);
+
+    });
 
 
-    if(finLucro){
-
-      finLucro.textContent =
-        money(
-          lucroMes
+    const entries =
+      Object.entries(bySvc)
+        .sort(
+          (a,b) =>
+            b[1] - a[1]
         );
 
-    }
 
+    const maxVal =
+      entries.length
+        ? entries[0][1]
+        : 0;
 
-    renderFinanceiroBars(
-      doneMes
-    );
-
-  }
-
-
-  function renderFinanceiroBars(
-    items
-  ){
 
     const bars =
       document.getElementById(
@@ -4710,568 +2878,266 @@
       );
 
 
-    if(!bars){
+    if(entries.length === 0){
 
-      return;
+      if(bars){
 
+        bars.innerHTML =
+          '<div class="empty">' +
+            'Nenhum faturamento registrado este mês ainda.' +
+          '</div>';
+      }
+
+    }else{
+
+      if(bars){
+
+        bars.innerHTML =
+          entries.map(
+            ([name,val]) =>
+              `<div class="bar-row">
+
+                <div class="name">
+                  ${escapeHtml(name)}
+                </div>
+
+                <div class="bar-track">
+
+                  <div
+                    class="bar-fill"
+                    style="width:${
+                      maxVal
+                        ? val / maxVal * 100
+                        : 0
+                    }%"
+                  ></div>
+
+                </div>
+
+                <div class="amount">
+                  ${money(val)}
+                </div>
+
+              </div>`
+          ).join('');
+      }
     }
 
 
-    const days = [];
+    const byCat = {};
 
 
-    for(let i = 6; i >= 0; i--){
+    despesasMes.forEach(d => {
 
-      const date =
-        new Date();
+      const cat =
+        d.categoria ||
+        'Outros';
 
 
-      date.setDate(
-        date.getDate() - i
-      );
+      byCat[cat] =
+        (byCat[cat] || 0) +
+        Number(d.valor);
 
+    });
 
-      days.push(
-        date
-          .toISOString()
-          .slice(0,10)
-      );
 
-    }
-
-
-    const values =
-      days.map(
-        day =>
-          items
-            .filter(
-              item =>
-                item.data ===
-                day
-            )
-            .reduce(
-              (sum,item) =>
-                sum +
-                Number(
-                  item.valor ||
-                  0
-                ),
-              0
-            )
-      );
-
-
-    const max =
-      Math.max(
-        ...values,
-        1
-      );
-
-
-    bars.innerHTML =
-      values.map(
-        (value,index) => {
-
-          const height =
-            Math.max(
-              4,
-              (
-                value /
-                max
-              ) *
-              100
-            );
-
-
-          const label =
-            new Date(
-              days[index] +
-              'T00:00:00'
-            ).toLocaleDateString(
-              'pt-BR',
-              {
-                weekday:'short'
-              }
-            );
-
-
-          return `
-
-            <div class="fin-bar-item">
-
-              <div
-                class="fin-bar"
-                style="height:${height}%"
-                title="${money(value)}"
-              ></div>
-
-              <span>
-                ${label}
-              </span>
-
-            </div>
-
-          `;
-
-        }
-      ).join('');
-
-  }
-
-
-  // ============================================================
-  // INICIALIZAÇÃO
-  // ============================================================
-
-  async function inicializarAplicacao(){
-
-    selectedDate =
-      todayISO();
-
-
-    if(agendaDate){
-
-      agendaDate.value =
-        selectedDate;
-
-    }
-
-
-    atualizarDadosUsuario();
-
-
-    await Promise.allSettled([
-      refreshServices(),
-      refreshAgenda()
-    ]);
-
-
-    if(
-      activeTab ===
-      'financeiro'
-    ){
-
-      await refreshFinanceiro();
-
-    }
-
-
-    iniciarMonitoramentoConexao();
-
-  }
-
-
-  function iniciarMonitoramentoConexao(){
-
-    if(connectionInterval){
-
-      clearInterval(
-        connectionInterval
-      );
-
-    }
-
-
-    verificarConexao();
-
-
-    connectionInterval =
-      setInterval(
-        verificarConexao,
-        30000
-      );
-
-  }
-
-
-  async function verificarConexao(){
-
-    const indicator =
-      document.getElementById(
-        'connection-status'
-      );
-
-
-    if(!indicator){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/status'
-      );
-
-
-      indicator.textContent =
-        'Conectado';
-
-
-      indicator.classList.add(
-        'online'
-      );
-
-
-      indicator.classList.remove(
-        'offline'
-      );
-
-
-    }catch(error){
-
-      indicator.textContent =
-        'Desconectado';
-
-
-      indicator.classList.remove(
-        'online'
-      );
-
-
-      indicator.classList.add(
-        'offline'
-      );
-
-    }
-
-  }
-
-
-  // ============================================================
-  // INÍCIO
-  // ============================================================
-
-  if(agendaDate){
-
-    agendaDate.value =
-      selectedDate;
-
-  }
-
-
-  carregarSessao();
-
-  
-
-
-})();
-    try{
-
-      const all =
-        await fetchWideRange();
-
-
-      const normalized =
-        termo
-          .toLowerCase();
-
-
-      const matches =
-        all.filter(
-          ap => {
-
-            const cliente =
-              String(
-                ap.cliente || ''
-              ).toLowerCase();
-
-
-            const telefone =
-              String(
-                ap.telefone || ''
-              ).toLowerCase();
-
-
-            const placa =
-              String(
-                ap.placa || ''
-              ).toLowerCase();
-
-
-            const veiculo =
-              String(
-                ap.veiculo || ''
-              ).toLowerCase();
-
-
-            return (
-              cliente.includes(
-                normalized
-              ) ||
-              telefone.includes(
-                normalized
-              ) ||
-              placa.includes(
-                normalized
-              ) ||
-              veiculo.includes(
-                normalized
-              )
-            );
-
-          }
+    const catEntries =
+      Object.entries(byCat)
+        .sort(
+          (a,b) =>
+            b[1] - a[1]
         );
 
 
-      if(matches.length === 0){
+    const maxCat =
+      catEntries.length
+        ? catEntries[0][1]
+        : 0;
 
-        summaryEl.innerHTML =
-          'Nenhum resultado encontrado.';
+
+    const despesasBars =
+      document.getElementById(
+        'fin-despesas-bars'
+      );
 
 
-        resultsEl.innerHTML = `
+    if(catEntries.length === 0){
 
-          <div class="empty">
+      if(despesasBars){
 
-            <strong>
-              Cliente não encontrado
-            </strong>
-
-            Nenhum agendamento corresponde à busca.
-
-          </div>
-
-        `;
-
-        return;
-
+        despesasBars.innerHTML =
+          '<div class="empty">' +
+            'Nenhuma despesa registrada este mês ainda.' +
+          '</div>';
       }
 
+    }else{
 
-      const total =
-        matches.reduce(
-          (sum,ap) =>
-            sum +
-            Number(
-              ap.valor || 0
-            ),
+      if(despesasBars){
+
+        despesasBars.innerHTML =
+          catEntries.map(
+            ([cat,val]) =>
+              `<div class="bar-row">
+
+                <div class="name">
+                  ${escapeHtml(cat)}
+                </div>
+
+                <div class="bar-track">
+
+                  <div
+                    class="bar-fill"
+                    style="width:${
+                      maxCat
+                        ? val / maxCat * 100
+                        : 0
+                    }%"
+                  ></div>
+
+                </div>
+
+                <div class="amount">
+                  ${money(val)}
+                </div>
+
+              </div>`
+          ).join('');
+      }
+    }
+
+
+    updateSideStats(hoje);
+  }
+
+
+  function updateSideStats(hojeVal){
+
+    if(hojeVal === undefined){
+
+      const today =
+        todayISO();
+
+
+      hojeVal =
+        allDoneCache
+          .filter(
+            a =>
+              a.data === today
+          )
+          .reduce(
+            (s,a) =>
+              s + Number(a.valor),
+            0
+          );
+    }
+
+
+    const todayEl =
+      document.getElementById(
+        'side-today'
+      );
+
+
+    if(todayEl){
+
+      todayEl.textContent =
+        money(hojeVal);
+    }
+
+
+    const pendenteTotal =
+      allDoneCache
+        .filter(
+          a =>
+            a.status_pagamento ===
+            'pendente'
+        )
+        .reduce(
+          (s,a) =>
+            s + Number(a.valor),
           0
         );
 
 
-      const concluidos =
-        matches.filter(
-          ap =>
-            ap.status ===
-            'concluido'
-        );
+    const pendingEl =
+      document.getElementById(
+        'side-pending'
+      );
 
 
-      summaryEl.innerHTML = `
+    if(pendingEl){
 
-        <span>
-          ${matches.length}
-          ${
-            matches.length === 1
-              ? 'registro'
-              : 'registros'
-          }
-        </span>
-
-        <span>
-          Total:
-          ${money(total)}
-        </span>
-
-        <span>
-          Concluídos:
-          ${concluidos.length}
-        </span>
-
-      `;
-
-
-      resultsEl.innerHTML =
-        matches
-          .slice()
-          .sort(
-            (a,b) =>
-              (
-                b.data +
-                b.hora
-              ).localeCompare(
-                a.data +
-                a.hora
-              )
-          )
-          .map(
-            ap => `
-
-              <div class="client-history-row">
-
-                <div>
-
-                  <div class="client">
-                    ${escapeHtml(
-                      ap.cliente ||
-                      'Cliente'
-                    )}
-                  </div>
-
-                  <div class="meta">
-
-                    ${formatDateBR(
-                      ap.data
-                    )}
-
-                    ·
-
-                    ${escapeHtml(
-                      ap.hora?.slice(0,5) ||
-                      ''
-                    )}
-
-                    ${
-                      ap.veiculo
-                        ? ' · ' +
-                          escapeHtml(
-                            ap.veiculo
-                          )
-                        : ''
-                    }
-
-                    ${
-                      ap.placa
-                        ? ' · ' +
-                          escapeHtml(
-                            ap.placa
-                          )
-                        : ''
-                    }
-
-                  </div>
-
-                </div>
-
-
-                <div>
-
-                  <div class="price-tag">
-                    ${money(
-                      ap.valor
-                    )}
-                  </div>
-
-                  <span
-                    class="status-badge status-${escapeHtml(
-                      ap.status ||
-                      ''
-                    )}"
-                  >
-                    ${escapeHtml(
-                      ap.status ||
-                      ''
-                    )}
-                  </span>
-
-                </div>
-
-              </div>
-
-            `
-          )
-          .join('');
-
-
-    }catch(error){
-
-      resultsEl.innerHTML = `
-
-        <div class="empty">
-
-          <strong>
-            Não foi possível realizar a busca
-          </strong>
-
-          ${escapeHtml(
-            error.message
-          )}
-
-        </div>
-
-      `;
-
+      pendingEl.textContent =
+        money(pendenteTotal);
     }
-
-  
+  }
 
 
   // ============================================================
-  // DESPESAS
+  // SERVIÇOS
   // ============================================================
 
-  
+  const overlayService =
+    document.getElementById(
+      'overlay-service'
+    );
 
 
   document
     .getElementById(
-      'btn-new-expense'
+      'btn-new-service'
     )
     ?.addEventListener(
       'click',
       () => {
 
+        editingServiceId = null;
+
         document.getElementById(
-          'ex-description'
+          'sv-name'
         ).value = '';
 
-
         document.getElementById(
-          'ex-value'
+          'sv-price'
         ).value = '';
 
-
         document.getElementById(
-          'ex-category'
+          'sv-duration'
         ).value = '';
 
-
-        document.getElementById(
-          'ex-date'
-        ).value =
-          todayISO();
-
-
-        overlayExpense?.classList.add(
+        overlayService?.classList.add(
           'active'
         );
-
       }
     );
 
 
   document
     .getElementById(
-      'btn-cancel-expense'
+      'btn-cancel-service'
     )
     ?.addEventListener(
       'click',
-      () => {
-
-        overlayExpense?.classList.remove(
+      () =>
+        overlayService?.classList.remove(
           'active'
-        );
-
-      }
+        )
     );
 
 
-  overlayExpense?.addEventListener(
+  overlayService?.addEventListener(
     'click',
     e => {
 
       if(
         e.target ===
-        overlayExpense
+        overlayService
       ){
 
-        overlayExpense.classList.remove(
+        overlayService.classList.remove(
           'active'
         );
-
       }
 
     }
@@ -5280,7 +3146,7 @@
 
   document
     .getElementById(
-      'form-expense'
+      'form-service'
     )
     ?.addEventListener(
       'submit',
@@ -5289,2694 +3155,448 @@
         e.preventDefault();
 
 
-        const descricao =
+        const nome =
           document.getElementById(
-            'ex-description'
+            'sv-name'
           ).value.trim();
 
 
-        const valor =
+        const preco =
           parseFloat(
             document.getElementById(
-              'ex-value'
+              'sv-price'
             ).value
           ) || 0;
 
 
-        const categoria =
-          document.getElementById(
-            'ex-category'
-          ).value.trim();
-
-
-        const data =
-          document.getElementById(
-            'ex-date'
-          ).value;
-
-
-        if(!descricao){
-
-          alert(
-            'Informe a descrição da despesa.'
-          );
-
-          return;
-
-        }
-
-
-        if(valor <= 0){
-
-          alert(
-            'Informe um valor válido.'
-          );
-
-          return;
-
-        }
+        const duracao_min =
+          parseInt(
+            document.getElementById(
+              'sv-duration'
+            ).value
+          ) || 0;
 
 
         try{
 
-          await api(
-            '/despesas',
-            {
-              method:'POST',
+          if(editingServiceId){
 
-              body:
-                JSON.stringify({
-                  descricao,
-                  valor,
-                  categoria,
-                  data
-                })
-            }
-          );
+            await api(
+              '/servicos/' +
+              editingServiceId,
+              {
+                method:'PUT',
+
+                body:
+                  JSON.stringify({
+                    nome,
+                    preco,
+                    duracao_min
+                  })
+              }
+            );
+
+          }else{
+
+            await api(
+              '/servicos',
+              {
+                method:'POST',
+
+                body:
+                  JSON.stringify({
+                    nome,
+                    preco,
+                    duracao_min
+                  })
+              }
+            );
+          }
 
 
-          overlayExpense?.classList.remove(
+          overlayService?.classList.remove(
             'active'
           );
 
 
-          await refreshDespesas();
+          await loadServices();
+          await refreshServicos();
 
 
         }catch(err){
 
           alert(
-            'Não foi possível salvar a despesa: ' +
+            'Não foi possível salvar o serviço: ' +
             err.message
           );
-
         }
 
       }
     );
 
 
+  function editService(id){
+
+    const s =
+      state.services.find(
+        x =>
+          String(x.id) ===
+          String(id)
+      );
+
+
+    if(!s){
+      return;
+    }
+
+
+    editingServiceId =
+      id;
+
+
+    document.getElementById(
+      'sv-name'
+    ).value =
+      s.nome;
+
+
+    document.getElementById(
+      'sv-price'
+    ).value =
+      s.preco;
+
+
+    document.getElementById(
+      'sv-duration'
+    ).value =
+      s.duracao_min;
+
+
+    overlayService?.classList.add(
+      'active'
+    );
+  }
+
+
+  async function removeService(id){
+
+    if(
+      !confirm(
+        'Remover este serviço permanentemente? Agendamentos que já usam esse serviço continuam existindo, só perdem a referência ao nome.'
+      )
+    ){
+      return;
+    }
+
+
+    try{
+
+      await api(
+        '/servicos/' + id,
+        {
+          method:'DELETE'
+        }
+      );
+
+
+      await loadServices();
+      await refreshServicos();
+
+
+    }catch(e){
+
+      alert(
+        'Erro ao remover: ' +
+        e.message
+      );
+    }
+  }
+
+
+  async function refreshServicos(){
+
+    if(
+      state.services.length === 0
+    ){
+
+      await loadServices();
+    }
+
+
+    const list =
+      document.getElementById(
+        'services-list'
+      );
+
+
+    if(!list){
+      return;
+    }
+
+
+    if(
+      state.services.length === 0
+    ){
+
+      list.innerHTML =
+        '<div class="empty">' +
+          'Nenhum serviço cadastrado.' +
+        '</div>';
+
+      return;
+    }
+
+
+    list.innerHTML =
+      state.services.map(
+        s =>
+          `<div
+            class="invoice-row"
+            style="grid-template-columns:1fr auto auto;"
+          >
+
+            <div>
+
+              <div class="client">
+                ${escapeHtml(s.nome)}
+              </div>
+
+              <div class="meta">
+                ${s.duracao_min} min
+              </div>
+
+            </div>
+
+
+            <span class="price-tag">
+              ${money(s.preco)}
+            </span>
+
+
+            <div class="ticket-actions">
+
+              <button
+                class="btn btn-small btn-ghost"
+                onclick="App.editService('${s.id}')"
+              >
+                Editar
+              </button>
+
+
+              <button
+                class="btn btn-small btn-ghost"
+                onclick="App.removeService('${s.id}')"
+              >
+                Remover
+              </button>
+
+            </div>
+
+          </div>`
+      ).join('');
+  }
+
+
   // ============================================================
-  // AGENDA — FILTROS
+  // CLIENTES
   // ============================================================
 
   document
     .getElementById(
-      'agenda-search'
+      'btn-cli-search'
+    )
+    ?.addEventListener(
+      'click',
+      runClientSearch
+    );
+
+
+  document
+    .getElementById(
+      'cli-search-input'
+    )
+    ?.addEventListener(
+      'keydown',
+      e => {
+
+        if(e.key === 'Enter'){
+
+          e.preventDefault();
+
+          runClientSearch();
+        }
+      }
+    );
+
+
+  document
+    .getElementById(
+      'cli-search-input'
     )
     ?.addEventListener(
       'input',
       e => {
 
-        const termo =
-          e.target.value
-            .trim()
-            .toLowerCase();
-
-
-        if(!termo){
-
-          renderAgenda(
-            currentAgendaItems
-          );
-
-          return;
-
-        }
-
-
-        const filtrados =
-          currentAgendaItems.filter(
-            ap => {
-
-              const cliente =
-                String(
-                  ap.cliente || ''
-                ).toLowerCase();
-
-
-              const placa =
-                String(
-                  ap.placa || ''
-                ).toLowerCase();
-
-
-              const veiculo =
-                String(
-                  ap.veiculo || ''
-                ).toLowerCase();
-
-
-              const servico =
-                String(
-                  ap.servico_nome ||
-                  serviceName(
-                    ap.servico_id
-                  ) ||
-                  ''
-                ).toLowerCase();
-
-
-              return (
-                cliente.includes(
-                  termo
-                ) ||
-                placa.includes(
-                  termo
-                ) ||
-                veiculo.includes(
-                  termo
-                ) ||
-                servico.includes(
-                  termo
-                )
-              );
-
-            }
-          );
-
-
-        renderAgenda(
-          filtrados
-        );
-
-      }
-    );
-
-
-  // ============================================================
-  // SELEÇÃO DE DATA
-  // ============================================================
-
-  document
-    .getElementById(
-      'agenda-date'
-    )
-    ?.addEventListener(
-      'change',
-      e => {
-
-        selectedDate =
-          e.target.value ||
-          todayISO();
-
-
-        refreshAgenda();
-
-      }
-    );
-
-
-  // ============================================================
-  // BOTÃO HOJE
-  // ============================================================
-
-  document
-    .getElementById(
-      'btn-agenda-today'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        selectedDate =
-          todayISO();
-
-
-        const date =
-          document.getElementById(
-            'agenda-date'
-          );
-
-
-        if(date){
-
-          date.value =
-            selectedDate;
-
-        }
-
-
-        refreshAgenda();
-
-      }
-    );
-
-
-  // ============================================================
-  // DIA ANTERIOR
-  // ============================================================
-
-  document
-    .getElementById(
-      'btn-agenda-prev'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        const date =
-          new Date(
-            selectedDate +
-            'T00:00:00'
-          );
-
-
-        date.setDate(
-          date.getDate() - 1
-        );
-
-
-        selectedDate =
-          date
-            .toISOString()
-            .slice(0,10);
-
-
-        const input =
-          document.getElementById(
-            'agenda-date'
-          );
-
-
-        if(input){
-
-          input.value =
-            selectedDate;
-
-        }
-
-
-        refreshAgenda();
-
-      }
-    );
-
-
-  // ============================================================
-  // PRÓXIMO DIA
-  // ============================================================
-
-  document
-    .getElementById(
-      'btn-agenda-next'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        const date =
-          new Date(
-            selectedDate +
-            'T00:00:00'
-          );
-
-
-        date.setDate(
-          date.getDate() + 1
-        );
-
-
-        selectedDate =
-          date
-            .toISOString()
-            .slice(0,10);
-
-
-        const input =
-          document.getElementById(
-            'agenda-date'
-          );
-
-
-        if(input){
-
-          input.value =
-            selectedDate;
-
-        }
-
-
-        refreshAgenda();
-
-      }
-    );
-
-
-  // ============================================================
-  // MODAL DE AGENDAMENTO
-  // ============================================================
-
-  const overlayAppointment =
-    document.getElementById(
-      'overlay-appointment'
-    );
-
-
-  const formAppointment =
-    document.getElementById(
-      'form-appointment'
-    );
-
-
-  document
-    .getElementById(
-      'btn-new-appointment'
-    )
-    ?.addEventListener(
-      'click',
-      openNewAppointment
-    );
-
-
-  function openNewAppointment(){
-
-    editingAppointmentId =
-      null;
-
-
-    const form =
-      document.getElementById(
-        'form-appointment'
-      );
-
-
-    form?.reset();
-
-
-    const title =
-      document.getElementById(
-        'appointment-modal-title'
-      );
-
-
-    if(title){
-
-      title.textContent =
-        'Novo agendamento';
-
-    }
-
-
-    const submit =
-      document.getElementById(
-        'appointment-submit'
-      );
-
-
-    if(submit){
-
-      submit.textContent =
-        'Criar agendamento';
-
-    }
-
-
-    const date =
-      document.getElementById(
-        'ap-date'
-      );
-
-
-    if(date){
-
-      date.value =
-        selectedDate;
-
-    }
-
-
-    const status =
-      document.getElementById(
-        'ap-status'
-      );
-
-
-    if(status){
-
-      status.value =
-        'agendado';
-
-    }
-
-
-    populateAppointmentServices();
-
-
-    overlayAppointment?.classList.add(
-      'active'
-    );
-
-  }
-
-
-  document
-    .getElementById(
-      'btn-cancel-appointment'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        overlayAppointment?.classList.remove(
-          'active'
-        );
-
-        editingAppointmentId =
-          null;
-
-      }
-    );
-
-
-  overlayAppointment?.addEventListener(
-    'click',
-    e => {
-
-      if(
-        e.target ===
-        overlayAppointment
-      ){
-
-        overlayAppointment.classList.remove(
-          'active'
-        );
-
-        editingAppointmentId =
-          null;
-
-      }
-
-    }
-  );
-
-
-  function populateAppointmentServices(){
-
-    const select =
-      document.getElementById(
-        'ap-service'
-      );
-
-
-    if(!select){
-
-      return;
-
-    }
-
-
-    select.innerHTML =
-      '<option value="">Selecione o serviço</option>' +
-      state.services
-        .map(
-          service => `
-
-            <option
-              value="${service.id}"
-            >
-              ${escapeHtml(
-                service.nome
-              )}
-              —
-              ${money(
-                service.preco
-              )}
-            </option>
-
-          `
-        )
-        .join('');
-
-  }
-
-
-  function serviceName(
-    id
-  ){
-
-    const service =
-      state.services.find(
-        s =>
-          String(s.id) ===
-          String(id)
-      );
-
-
-    return service
-      ? service.nome
-      : 'Serviço';
-
-  }
-
-
-  async function loadServices(){
-
-    try{
-
-      const services =
-        await api(
-          '/servicos'
-        );
-
-
-      state.services =
-        Array.isArray(
-          services
-        )
-          ? services
-          : [];
-
-
-      populateAppointmentServices();
-
-
-    }catch(error){
-
-      console.error(
-        'Erro ao carregar serviços:',
-        error
-      );
-
-    }
-
-  }
-
-
-  // ============================================================
-  // AGENDAMENTOS
-  // ============================================================
-
-  async function loadAppointments(
-    data
-  ){
-
-    try{
-
-      const items =
-        await api(
-          '/agendamentos?data=' +
-          encodeURIComponent(
-            data
+        document
+          .getElementById(
+            'btn-cli-clear'
           )
-        );
+          ?.classList.toggle(
+            'visible',
+            e.target.value.length > 0
+          );
 
-
-      state.appointments =
-        Array.isArray(items)
-          ? items
-          : [];
-
-
-      currentAgendaItems =
-        state.appointments;
-
-
-      return state.appointments;
-
-
-    }catch(error){
-
-      console.error(
-        'Erro ao carregar agendamentos:',
-        error
-      );
-
-
-      state.appointments =
-        [];
-
-
-      currentAgendaItems =
-        [];
-
-
-      return [];
-
-    }
-
-  }
-
-
-  async function refreshAgenda(){
-
-    const date =
-      document.getElementById(
-        'agenda-date'
-      );
-
-
-    if(date){
-
-      selectedDate =
-        date.value ||
-        selectedDate ||
-        todayISO();
-
-    }
-
-
-    await loadServices();
-
-
-    const items =
-      await loadAppointments(
-        selectedDate
-      );
-
-
-    renderAgenda(
-      items
+      }
     );
 
 
-    updateAgendaSummary(
-      items
+  document
+    .getElementById(
+      'btn-cli-clear'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        const input =
+          document.getElementById(
+            'cli-search-input'
+          );
+
+
+        if(!input){
+          return;
+        }
+
+
+        input.value = '';
+
+
+        document
+          .getElementById(
+            'btn-cli-clear'
+          )
+          ?.classList.remove(
+            'visible'
+          );
+
+
+        document.getElementById(
+          'cli-summary'
+        ).innerHTML = '';
+
+
+        document.getElementById(
+          'cli-results'
+        ).innerHTML = `
+
+          <div class="empty">
+
+            <svg
+              class="empty-icon"
+              viewBox="0 0 20 20"
+            >
+
+              <circle
+                cx="9"
+                cy="9"
+                r="6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+              />
+
+              <path
+                d="M17 17l-4-4"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+              />
+
+            </svg>
+
+            <strong>
+              Busque um cliente
+            </strong>
+
+            Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
+
+          </div>
+        `;
+
+
+        input.focus();
+      }
     );
 
-  }
 
+  async function runClientSearch(){
 
-  function updateAgendaSummary(
-    items
-  ){
-
-    const total =
-      items.length;
-
-
-    const pendentes =
-      items.filter(
-        item =>
-          item.status !==
-          'concluido'
-      ).length;
-
-
-    const concluidos =
-      items.filter(
-        item =>
-          item.status ===
-          'concluido'
-      ).length;
-
-
-    const faturado =
-      items.reduce(
-        (sum,item) =>
-          sum +
-          Number(
-            item.valor || 0
-          ),
-        0
-      );
-
-
-    const totalElement =
+    const termo =
       document.getElementById(
-        'agenda-total'
-      );
+        'cli-search-input'
+      ).value.trim();
 
 
-    const pendingElement =
+    const resultsEl =
       document.getElementById(
-        'agenda-pending'
+        'cli-results'
       );
 
 
-    const doneElement =
+    const summaryEl =
       document.getElementById(
-        'agenda-done'
+        'cli-summary'
       );
 
 
-    const valueElement =
-      document.getElementById(
-        'agenda-value'
-      );
+    if(!termo){
 
-
-    if(totalElement){
-
-      totalElement.textContent =
-        total;
-
-    }
-
-
-    if(pendingElement){
-
-      pendingElement.textContent =
-        pendentes;
-
-    }
-
-
-    if(doneElement){
-
-      doneElement.textContent =
-        concluidos;
-
-    }
-
-
-    if(valueElement){
-
-      valueElement.textContent =
-        money(faturado);
-
-    }
-
-  }
-
-
-  function renderAgenda(
-    items
-  ){
-
-    const list =
-      document.getElementById(
-        'agenda-list'
-      );
-
-
-    if(!list){
-
-      return;
-
-    }
-
-
-    const sorted =
-      items
-        .slice()
-        .sort(
-          (a,b) =>
-            String(
-              a.hora ||
-              ''
-            ).localeCompare(
-              String(
-                b.hora ||
-                ''
-              )
-            )
-        );
-
-
-    if(sorted.length === 0){
-
-      list.innerHTML = `
+      resultsEl.innerHTML = `
 
         <div class="empty">
 
+          <svg
+            class="empty-icon"
+            viewBox="0 0 20 20"
+          >
+
+            <circle
+              cx="9"
+              cy="9"
+              r="6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+
+            <path
+              d="M17 17l-4-4"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
           <strong>
-            Nenhum agendamento para este dia
+            Busque um cliente
           </strong>
 
-          Clique em
-          "Novo agendamento"
-          para cadastrar um atendimento.
+          Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
 
         </div>
-
-      `;
-
-      return;
-
-    }
-
-
-    list.innerHTML =
-      sorted
-        .map(
-          ap => {
-
-            const status =
-              ap.status ||
-              'agendado';
-
-
-            const statusLabel =
-              status ===
-              'concluido'
-                ? 'Concluído'
-                : status ===
-                  'cancelado'
-                    ? 'Cancelado'
-                    : 'Agendado';
-
-
-            return `
-
-              <div class="agenda-row">
-
-                <div class="agenda-time">
-
-                  ${escapeHtml(
-                    String(
-                      ap.hora ||
-                      ''
-                    ).slice(
-                      0,
-                      5
-                    )
-                  )}
-
-                </div>
-
-
-                <div class="agenda-main">
-
-                  <div class="client">
-
-                    ${escapeHtml(
-                      ap.cliente ||
-                      'Cliente'
-                    )}
-
-                  </div>
-
-
-                  <div class="meta">
-
-                    ${
-                      ap.veiculo
-                        ? escapeHtml(
-                            ap.veiculo
-                          )
-                        : ''
-                    }
-
-                    ${
-                      ap.placa
-                        ? ' · ' +
-                          escapeHtml(
-                            ap.placa
-                          )
-                        : ''
-                    }
-
-                    ${
-                      ap.servico_nome
-                        ? ' · ' +
-                          escapeHtml(
-                            ap.servico_nome
-                          )
-                        : ''
-                    }
-
-                  </div>
-
-                </div>
-
-
-                <div class="agenda-value">
-
-                  ${money(
-                    ap.valor
-                  )}
-
-                </div>
-
-
-                <div class="agenda-status">
-
-                  <span
-                    class="status-badge status-${escapeHtml(status)}"
-                  >
-                    ${statusLabel}
-                  </span>
-
-                </div>
-
-
-                <div class="ticket-actions">
-
-                  <button
-                    class="btn btn-small btn-ghost"
-                    onclick="App.editAppointment('${ap.id}')"
-                  >
-                    Editar
-                  </button>
-
-
-                  ${
-                    status !==
-                    'concluido'
-                      ? `
-                        <button
-                          class="btn btn-small btn-primary"
-                          onclick="App.finishAppointment('${ap.id}')"
-                        >
-                          Concluir
-                        </button>
-                      `
-                      : ''
-                  }
-
-                </div>
-
-              </div>
-
-            `;
-
-          }
-        )
-        .join('');
-
-  }
-
-
-  // ============================================================
-  // EDITAR AGENDAMENTO
-  // ============================================================
-
-  async function editAppointment(
-    id
-  ){
-
-    try{
-
-      const items =
-        await api(
-          '/agendamentos?data=' +
-          encodeURIComponent(
-            selectedDate
-          )
-        );
-
-
-      const appointment =
-        items.find(
-          item =>
-            String(item.id) ===
-            String(id)
-        );
-
-
-      if(!appointment){
-
-        alert(
-          'Agendamento não encontrado.'
-        );
-
-        return;
-
-      }
-
-
-      editingAppointmentId =
-        id;
-
-
-      await loadServices();
-
-
-      const title =
-        document.getElementById(
-          'appointment-modal-title'
-        );
-
-
-      if(title){
-
-        title.textContent =
-          'Editar agendamento';
-
-      }
-
-
-      const submit =
-        document.getElementById(
-          'appointment-submit'
-        );
-
-
-      if(submit){
-
-        submit.textContent =
-          'Salvar alterações';
-
-      }
-
-
-      setElementValue(
-        'ap-client',
-        appointment.cliente
-      );
-
-
-      setElementValue(
-        'ap-date',
-        appointment.data
-      );
-
-
-      setElementValue(
-        'ap-time',
-        String(
-          appointment.hora ||
-          ''
-        ).slice(
-          0,
-          5
-        )
-      );
-
-
-      setElementValue(
-        'ap-vehicle',
-        appointment.veiculo
-      );
-
-
-      setElementValue(
-        'ap-plate',
-        appointment.placa
-      );
-
-
-      setElementValue(
-        'ap-service',
-        appointment.servico_id
-      );
-
-
-      setElementValue(
-        'ap-value',
-        appointment.valor
-      );
-
-
-      setElementValue(
-        'ap-status',
-        appointment.status
-      );
-
-
-      overlayAppointment?.classList.add(
-        'active'
-      );
-
-
-    }catch(error){
-
-      alert(
-        'Não foi possível carregar o agendamento: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  function setElementValue(
-    id,
-    value
-  ){
-
-    const element =
-      document.getElementById(
-        id
-      );
-
-
-    if(element){
-
-      element.value =
-        value ?? '';
-
-    }
-
-  }
-
-
-  window.App.editAppointment =
-    editAppointment;
-
-
-  // ============================================================
-  // SALVAR AGENDAMENTO
-  // ============================================================
-
-  formAppointment?.addEventListener(
-    'submit',
-    async event => {
-
-      event.preventDefault();
-
-
-      const cliente =
-        document.getElementById(
-          'ap-client'
-        )?.value.trim();
-
-
-      const data =
-        document.getElementById(
-          'ap-date'
-        )?.value;
-
-
-      const hora =
-        document.getElementById(
-          'ap-time'
-        )?.value;
-
-
-      const veiculo =
-        document.getElementById(
-          'ap-vehicle'
-        )?.value.trim();
-
-
-      const placa =
-        document.getElementById(
-          'ap-plate'
-        )?.value.trim();
-
-
-      const servico_id =
-        document.getElementById(
-          'ap-service'
-        )?.value;
-
-
-      const valor =
-        parseFloat(
-          document.getElementById(
-            'ap-value'
-          )?.value
-        ) || 0;
-
-
-      const status =
-        document.getElementById(
-          'ap-status'
-        )?.value ||
-        'agendado';
-
-
-      if(
-        !cliente ||
-        !data ||
-        !hora ||
-        !servico_id
-      ){
-
-        alert(
-          'Preencha os campos obrigatórios.'
-        );
-
-        return;
-
-      }
-
-
-      const payload = {
-
-        cliente,
-
-        data,
-
-        hora,
-
-        veiculo,
-
-        placa,
-
-        servico_id:
-
-          Number(
-            servico_id
-          ),
-
-        valor,
-
-        status
-
-      };
-
-
-      const submit =
-        document.getElementById(
-          'appointment-submit'
-        );
-
-
-      if(submit){
-
-        submit.disabled =
-          true;
-
-        submit.textContent =
-          editingAppointmentId
-            ? 'Salvando...'
-            : 'Criando...';
-
-      }
-
-
-      try{
-
-        if(editingAppointmentId){
-
-          await api(
-            '/agendamentos/' +
-            editingAppointmentId,
-            {
-              method:'PUT',
-
-              body:
-                JSON.stringify(
-                  payload
-                )
-            }
-          );
-
-        }else{
-
-          await api(
-            '/agendamentos',
-            {
-              method:'POST',
-
-              body:
-                JSON.stringify(
-                  payload
-                )
-            }
-          );
-
-        }
-
-
-        overlayAppointment?.classList.remove(
-          'active'
-        );
-
-
-        editingAppointmentId =
-          null;
-
-
-        await refreshAgenda();
-
-
-      }catch(error){
-
-        alert(
-          'Não foi possível salvar o agendamento: ' +
-          error.message
-        );
-
-
-      }finally{
-
-        if(submit){
-
-          submit.disabled =
-            false;
-
-          submit.textContent =
-            'Salvar';
-
-        }
-
-      }
-
-    }
-  );
-
-
-  // ============================================================
-  // CONCLUIR AGENDAMENTO
-  // ============================================================
-
-  async function finishAppointment(
-    id
-  ){
-
-    if(
-      !confirm(
-        'Deseja marcar este agendamento como concluído?'
-      )
-    ){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/agendamentos/' +
-        id,
-        {
-          method:'PUT',
-
-          body:
-            JSON.stringify({
-              status:
-                'concluido'
-            })
-        }
-      );
-
-
-      await refreshAgenda();
-
-
-    }catch(error){
-
-      alert(
-        'Não foi possível concluir o agendamento: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  window.App.finishAppointment =
-    finishAppointment;
-
-
-  // ============================================================
-  // PAGAMENTOS
-  // ============================================================
-
-  async function setPayment(
-    id,
-    status_pagamento
-  ){
-
-    try{
-
-      await api(
-        '/agendamentos/' +
-        id,
-        {
-          method:'PATCH',
-
-          body:
-            JSON.stringify({
-              status_pagamento
-            })
-        }
-      );
-
-
-      await refreshCurrentTab();
-
-
-    }catch(error){
-
-      alert(
-        'Erro ao atualizar pagamento: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  async function setPaymentMethod(
-    id,
-    forma_pagamento
-  ){
-
-    try{
-
-      await api(
-        '/agendamentos/' +
-        id,
-        {
-          method:'PATCH',
-
-          body:
-            JSON.stringify({
-              forma_pagamento
-            })
-        }
-      );
-
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-    }
-
-  }
-
-
-  async function undoPayment(
-    id
-  ){
-
-    if(
-      !confirm(
-        'Desfazer a confirmação de pagamento? Você poderá trocar a forma de pagamento novamente depois.'
-      )
-    ){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/agendamentos/' +
-        id,
-        {
-          method:'PATCH',
-
-          body:
-            JSON.stringify({
-              status_pagamento:
-                'pendente'
-            })
-        }
-      );
-
-
-      await refreshCurrentTab();
-
-
-    }catch(error){
-
-      alert(
-        'Erro ao desfazer: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  window.App.setPayment =
-    setPayment;
-
-
-  window.App.setPaymentMethod =
-    setPaymentMethod;
-
-
-  window.App.undoPayment =
-    undoPayment;
-
-
-  // ============================================================
-  // RECIBO
-  // ============================================================
-
-  function printReceipt(
-    id
-  ){
-
-    const appointment =
-      allDoneCache.find(
-        item =>
-          String(item.id) ===
-          String(id)
-      );
-
-
-    if(!appointment){
-
-      alert(
-        'Atendimento não encontrado.'
-      );
-
-      return;
-
-    }
-
-
-    const printArea =
-      document.getElementById(
-        'print-area'
-      );
-
-
-    if(!printArea){
-
-      return;
-
-    }
-
-
-    const data =
-      new Date(
-        appointment.data +
-        'T00:00:00'
-      ).toLocaleDateString(
-        'pt-BR'
-      );
-
-
-    printArea.innerHTML = `
-
-      <div class="recibo-header">
-
-        <h2>
-          Recibo
-        </h2>
-
-        <div>
-          ${data}
-          às
-          ${String(
-            appointment.hora ||
-            ''
-          ).slice(0,5)}
-        </div>
-
-      </div>
-
-
-      <div class="recibo-row">
-
-        <span>
-          Cliente
-        </span>
-
-        <span>
-          ${escapeHtml(
-            appointment.cliente
-          )}
-        </span>
-
-      </div>
-
-
-      ${
-        appointment.veiculo
-          ? `
-
-            <div class="recibo-row">
-
-              <span>
-                Veículo
-              </span>
-
-              <span>
-                ${escapeHtml(
-                  appointment.veiculo
-                )}
-              </span>
-
-            </div>
-
-          `
-          : ''
-      }
-
-
-      ${
-        appointment.placa
-          ? `
-
-            <div class="recibo-row">
-
-              <span>
-                Placa
-              </span>
-
-              <span>
-                ${escapeHtml(
-                  appointment.placa
-                    .toUpperCase()
-                )}
-              </span>
-
-            </div>
-
-          `
-          : ''
-      }
-
-
-      <div class="recibo-row">
-
-        <span>
-          Serviço
-        </span>
-
-        <span>
-          ${escapeHtml(
-            appointment.servico_nome ||
-            serviceName(
-              appointment.servico_id
-            )
-          )}
-        </span>
-
-      </div>
-
-
-      <div class="recibo-row">
-
-        <span>
-          Forma de pagamento
-        </span>
-
-        <span>
-          ${escapeHtml(
-            appointment.forma_pagamento ||
-            'Não informado'
-          )}
-        </span>
-
-      </div>
-
-
-      <div class="recibo-total">
-
-        <span>
-          Total
-        </span>
-
-        <span>
-          ${money(
-            appointment.valor
-          )}
-        </span>
-
-      </div>
-
-    `;
-
-
-    window.print();
-
-  }
-
-
-  window.App.printReceipt =
-    printReceipt;
-
-
-  // ============================================================
-  // FECHAMENTO DO DIA
-  // ============================================================
-
-  async function printClosing(){
-
-    try{
-
-      const items =
-        await api(
-          '/agendamentos?data=' +
-          encodeURIComponent(
-            selectedDate
-          )
-        );
-
-
-      const done =
-        items
-          .filter(
-            item =>
-              item.status ===
-              'concluido'
-          )
-          .sort(
-            (a,b) =>
-              String(
-                a.hora ||
-                ''
-              ).localeCompare(
-                String(
-                  b.hora ||
-                  ''
-                )
-              )
-          );
-
-
-      const total =
-        done.reduce(
-          (sum,item) =>
-            sum +
-            Number(
-              item.valor ||
-              0
-            ),
-          0
-        );
-
-
-      const pago =
-        done
-          .filter(
-            item =>
-              item.status_pagamento ===
-              'pago'
-          )
-          .reduce(
-            (sum,item) =>
-              sum +
-              Number(
-                item.valor ||
-                0
-              ),
-            0
-          );
-
-
-      const pendente =
-        total -
-        pago;
-
-
-      const formas = {};
-
-
-      done
-        .filter(
-          item =>
-            item.status_pagamento ===
-            'pago'
-        )
-        .forEach(
-          item => {
-
-            const forma =
-              item.forma_pagamento ||
-              'Não informado';
-
-
-            formas[forma] =
-              (
-                formas[forma] ||
-                0
-              ) +
-              Number(
-                item.valor ||
-                0
-              );
-
-          }
-        );
-
-
-      const printArea =
-        document.getElementById(
-          'print-area'
-        );
-
-
-      if(!printArea){
-
-        return;
-
-      }
-
-
-      printArea.innerHTML = `
-
-        <div class="recibo-header">
-
-          <h2>
-            Fechamento do dia
-          </h2>
-
-          <div>
-            ${formatDateBR(
-              selectedDate
-            )}
-          </div>
-
-        </div>
-
-
-        <div class="recibo-row">
-
-          <span>
-            Atendimentos concluídos
-          </span>
-
-          <span>
-            ${done.length}
-          </span>
-
-        </div>
-
-
-        <div class="recibo-row">
-
-          <span>
-            Faturamento total
-          </span>
-
-          <span>
-            ${money(total)}
-          </span>
-
-        </div>
-
-
-        <div class="recibo-row">
-
-          <span>
-            Recebido
-          </span>
-
-          <span>
-            ${money(pago)}
-          </span>
-
-        </div>
-
-
-        <div class="recibo-row">
-
-          <span>
-            Pendente
-          </span>
-
-          <span>
-            ${money(pendente)}
-          </span>
-
-        </div>
-
-
-        <h3>
-          Por forma de pagamento
-        </h3>
-
-
-        ${
-          Object.keys(formas)
-            .map(
-              forma => `
-
-                <div class="recibo-row">
-
-                  <span>
-                    ${escapeHtml(
-                      forma
-                    )}
-                  </span>
-
-                  <span>
-                    ${money(
-                      formas[forma]
-                    )}
-                  </span>
-
-                </div>
-
-              `
-            )
-            .join('')
-        }
-
       `;
 
 
-      window.print();
-
-
-    }catch(error){
-
-      alert(
-        'Não foi possível gerar o fechamento: ' +
-        error.message
-      );
-
-    }
-
-  }
-
-
-  document
-    .getElementById(
-      'btn-closing'
-    )
-    ?.addEventListener(
-      'click',
-      printClosing
-    );
-
-
-  // ============================================================
-  // FINANCEIRO
-  // ============================================================
-
-  async function refreshFinanceiro(){
-
-    const container =
-      document.getElementById(
-        'fin-content'
-      );
-
-
-    try{
-
-      const [
-        appointments,
-        expenses
-      ] =
-        await Promise.all([
-          fetchWideRange(),
-          fetchWideRangeExpenses()
-        ]);
-
-
-      const done =
-        appointments.filter(
-          item =>
-            item.status ===
-            'concluido'
-        );
-
-
-      allDoneCache =
-        done;
-
-
-      allExpensesCache =
-        expenses;
-
-
-      renderFinanceiro();
-
-
-    }catch(error){
-
-      if(container){
-
-        container.innerHTML =
-          '<div class="empty">' +
-            '<strong>Não foi possível carregar o financeiro</strong>' +
-            escapeHtml(
-              error.message
-            ) +
-          '</div>';
-
-      }
-
-    }
-
-  }
-
-
-  function renderFinanceiro(){
-
-    const now =
-      new Date();
-
-
-    const month =
-      String(
-        now.getMonth() + 1
-      ).padStart(
-        2,
-        '0'
-      );
-
-
-    const year =
-      now.getFullYear();
-
-
-    const prefix =
-      `${year}-${month}`;
-
-
-    const receita =
-      allDoneCache
-        .filter(
-          item =>
-            String(
-              item.data
-            ).startsWith(
-              prefix
-            )
-        )
-        .reduce(
-          (sum,item) =>
-            sum +
-            Number(
-              item.valor ||
-              0
-            ),
-          0
-        );
-
-
-    const despesas =
-      allExpensesCache
-        .filter(
-          item =>
-            String(
-              item.data
-            ).startsWith(
-              prefix
-            )
-        )
-        .reduce(
-          (sum,item) =>
-            sum +
-            Number(
-              item.valor ||
-              0
-            ),
-          0
-        );
-
-
-    const lucro =
-      receita -
-      despesas;
-
-
-    const receitaElement =
-      document.getElementById(
-        'fin-receita'
-      );
-
-
-    const despesasElement =
-      document.getElementById(
-        'fin-despesas'
-      );
-
-
-    const lucroElement =
-      document.getElementById(
-        'fin-lucro'
-      );
-
-
-    if(receitaElement){
-
-      receitaElement.textContent =
-        money(receita);
-
-    }
-
-
-    if(despesasElement){
-
-      despesasElement.textContent =
-        money(despesas);
-
-    }
-
-
-    if(lucroElement){
-
-      lucroElement.textContent =
-        money(lucro);
-
-    }
-
-
-    renderFinanceiroChart();
-
-  }
-
-
-  function renderFinanceiroChart(){
-
-    const chart =
-      document.getElementById(
-        'fin-chart'
-      );
-
-
-    if(!chart){
+      summaryEl.innerHTML = '';
 
       return;
-
     }
 
 
-    const days = [];
-
-
-    const values = [];
-
-
-    for(
-      let i = 6;
-      i >= 0;
-      i--
-    ){
-
-      const date =
-        new Date();
-
-
-      date.setDate(
-        date.getDate() -
-        i
-      );
-
-
-      const iso =
-        date
-          .toISOString()
-          .slice(
-            0,
-            10
-          );
-
-
-      days.push(
-        iso
-      );
-
-
-      const value =
-        allDoneCache
-          .filter(
-            item =>
-              item.data ===
-              iso
-          )
-          .reduce(
-            (sum,item) =>
-              sum +
-              Number(
-                item.valor ||
-                0
-              ),
-            0
-          );
-
-
-      values.push(
-        value
-      );
-
-    }
-
-
-    const max =
-      Math.max(
-        ...values,
-        1
-      );
-
-
-    chart.innerHTML =
-      values
-        .map(
-          (value,index) => {
-
-            const height =
-              Math.max(
-                4,
-                (
-                  value /
-                  max
-                ) *
-                100
-              );
-
-
-            const label =
-              new Date(
-                days[index] +
-                'T00:00:00'
-              ).toLocaleDateString(
-                'pt-BR',
-                {
-                  day:'2-digit',
-                  month:'2-digit'
-                }
-              );
-
-
-            return `
-
-              <div
-                class="chart-column"
-              >
-
-                <div
-                  class="chart-bar"
-                  style="height:${height}%"
-                  title="${money(value)}"
-                ></div>
-
-                <span>
-                  ${label}
-                </span>
-
-              </div>
-
-            `;
-
-          }
-        )
-        .join('');
-
-  }
-
-
-  // ============================================================
-  // CARREGAMENTO DE DADOS
-  // ============================================================
-
-  async function loadTabData(
-    tab
-  ){
-
-    switch(tab){
-
-      case 'agenda':
-
-        await refreshAgenda();
-
-        break;
-
-
-      case 'faturamento':
-
-        await refreshFaturamento();
-
-        break;
-
-
-      case 'financeiro':
-
-        await refreshFinanceiro();
-
-        break;
-
-
-      case 'servicos':
-
-        await loadServices();
-        await refreshServicos();
-
-        break;
-
-
-      case 'clientes':
-
-        await runClientSearch();
-
-        break;
-
-
-      case 'despesas':
-
-        await refreshDespesas();
-
-        break;
-
-
-      case 'usuarios':
-
-        await refreshUsuarios();
-
-        break;
-
-    }
-
-  }
-
-
-  async function refreshSideStats(){
-
-    try{
-
-      const today =
-        todayISO();
-
-
-      const appointments =
-        await api(
-          '/agendamentos?data=' +
-          today
-        );
-
-
-      const completed =
-        appointments.filter(
-          item =>
-            item.status ===
-            'concluido'
-        );
-
-
-      const todayValue =
-        completed.reduce(
-          (sum,item) =>
-            sum +
-            Number(
-              item.valor ||
-              0
-            ),
-          0
-        );
-
-
-      const pendingValue =
-        completed
-          .filter(
-            item =>
-              item.status_pagamento !==
-              'pago'
-          )
-          .reduce(
-            (sum,item) =>
-              sum +
-              Number(
-                item.valor ||
-                0
-              ),
-            0
-          );
-
-
-      const todayElement =
-        document.getElementById(
-          'side-today'
-        );
-
-
-      const pendingElement =
-        document.getElementById(
-          'side-pending'
-        );
-
-
-      if(todayElement){
-
-        todayElement.textContent =
-          money(
-            todayValue
-          );
-
-      }
-
-
-      if(pendingElement){
-
-        pendingElement.textContent =
-          money(
-            pendingValue
-          );
-
-      }
-
-
-    }catch(error){
-
-      console.error(
-        'Erro ao atualizar estatísticas:',
-        error
-      );
-
-    }
-
-  }
-
-
-  // ============================================================
-  // NAVEGAÇÃO
-  // ============================================================
-
-  function activateTab(
-    tab
-  ){
-
-    if(
-      tab ===
-      'usuarios' &&
-      !isAdministrador()
-    ){
-
-      alert(
-        'Apenas administradores podem acessar a área de usuários.'
-      );
-
-      return;
-
-    }
-
-
-    activeTab =
-      tab;
-
-
-    document
-      .querySelectorAll(
-        '[data-tab]'
-      )
-      .forEach(
-        element => {
-
-          element.classList.toggle(
-            'active',
-            element.dataset.tab ===
-            tab
-          );
-
-        }
-      );
-
-
-    document
-      .querySelectorAll(
-        '.tab-panel'
-      )
-      .forEach(
-        panel => {
-
-          panel.classList.toggle(
-            'active',
-            panel.id ===
-            'tab-' +
-            tab
-          );
-
-        }
-      );
-
-
-    loadTabData(
-      tab
-    );
-
-  }
-
-
-  document
-    .querySelectorAll(
-      '[data-tab]'
-    )
-    .forEach(
-      element => {
-
-        element.addEventListener(
-          'click',
-          event => {
-
-            event.preventDefault();
-
-
-            activateTab(
-              element.dataset.tab
-            );
-
-          }
-        );
-
-      }
-    );
-
-
-  // ============================================================
-  // INICIALIZAÇÃO FINAL
-  // ============================================================
-
-  async function initialize(){
-
-    selectedDate =
-      todayISO();
-
-
-    const date =
-      document.getElementById(
-        'agenda-date'
-      );
-
-
-    if(date){
-
-      date.value =
-        selectedDate;
-
-    }
-
-
-    await loadServices();
-
-
-    await loadTabData(
-      activeTab
-    );
-
-
-    await refreshSideStats();
-
-
-    updatePermissionsVisibility();
-
-  }
-
-
-  // ============================================================
-  // INICIALIZAÇÃO DA SESSÃO
-  // ============================================================
-
-  async function startApplication(){
-
-    const token =
-      localStorage.getItem(
-        AUTH_TOKEN_KEY
-      );
-
-
-    if(!token){
-
-      showAuth();
-
-      return;
-
-    }
-
-
-    try{
-
-      const response =
-        await api(
-          '/auth/me'
-        );
-
-
-      usuarioLogado =
-        response.usuario ||
-        response;
-
-
-      empresaLogada =
-        response.empresa ||
-        null;
-
-
-      showApp();
-
-
-      atualizarDadosUsuario();
-
-
-      await initialize();
-
-
-    }catch(error){
-
-      console.error(
-        'Erro ao iniciar aplicação:',
-        error
-      );
-
-
-      localStorage.removeItem(
-        AUTH_TOKEN_KEY
-      );
-
-
-      usuarioLogado =
-        null;
-
-
-      empresaLogada =
-        null;
-
-
-      showAuth();
-
-    }
-
-  }
-
-
-  startApplication();
-
-
-  // ============================================================
-  // EXPOSIÇÃO GLOBAL
-  // ============================================================
-
-  window.App =
-    window.App ||
-    {};
-
-
-  window.App.refreshAgenda =
-    refreshAgenda;
-
-
-  window.App.refreshFaturamento =
-    refreshFaturamento;
-
-
-  window.App.refreshFinanceiro =
-    refreshFinanceiro;
-
-
-  window.App.refreshServicos =
-    refreshServicos;
-
-
-  window.App.refreshDespesas =
-    refreshDespesas;
-
-
-  window.App.refreshUsuarios =
-    refreshUsuarios;
-
-
-  window.App.openNewUser =
-    openNewUser;
-
-
-  window.App.closeUserModal =
-    closeUserModal;
-
-
-  window.App.getSelectedPermissions =
-    getSelectedPermissions;
-
-
-  window.App.setSelectedPermissions =
-    setSelectedPermissions;
-
-
-  window.App.updatePermissionsVisibility =
-    updatePermissionsVisibility;
-
+    resultsEl.innerHTML =
+      '<div class="empty">Buscando…</div>';
 
     summaryEl.innerHTML = '';
 
@@ -8005,7 +3625,7 @@
           'Verifique a conexão com o banco de dados.' +
         '</div>';
     }
-  
+  }
 
 
   function renderClientResults(items){
@@ -8560,167 +4180,6 @@
 
 
   // ------------------------------------------------------------
-  // PERMISSÕES DO USUÁRIO
-  // ------------------------------------------------------------
-
-  function getSelectedPermissions(){
-
-    return Array.from(
-      document.querySelectorAll(
-        '#user-permissions-grid input[data-permission]:checked'
-      )
-    ).map(
-      checkbox =>
-        checkbox.dataset.permission
-    );
-  }
-
-
-  function setSelectedPermissions(permissoes = []){
-
-    const permissoesSet =
-      new Set(
-        Array.isArray(permissoes)
-          ? permissoes
-          : []
-      );
-
-    document
-      .querySelectorAll(
-        '#user-permissions-grid input[data-permission]'
-      )
-      .forEach(
-        checkbox => {
-
-          checkbox.checked =
-            permissoesSet.has(
-              checkbox.dataset.permission
-            );
-
-        }
-      );
-  }
-
-
-  async function loadUserPermissions(id){
-
-    const response =
-      await api(
-        '/usuarios/' +
-        id +
-        '/permissoes'
-      );
-
-    const permissoes =
-      Array.isArray(response?.permissoes)
-        ? response.permissoes
-        : [];
-
-    setSelectedPermissions(
-      permissoes
-    );
-
-    return permissoes;
-  }
-
-
-  function updatePermissionsVisibility(){
-
-    const section =
-      document.getElementById(
-        'user-permissions-section'
-      );
-
-    const notice =
-      document.getElementById(
-        'admin-permission-notice'
-      );
-
-    const profile =
-      document.getElementById(
-        'user-profile'
-      )?.value;
-
-
-    if(!section){
-      return;
-    }
-
-
-    const administrador =
-      profile === 'administrador';
-
-
-    if(notice){
-
-      notice.style.display =
-        administrador
-          ? 'block'
-          : 'none';
-
-    }
-
-
-    section.classList.toggle(
-      'permissions-disabled',
-      administrador
-    );
-
-
-    const checkboxes =
-      section.querySelectorAll(
-        'input[data-permission]'
-      );
-
-
-    checkboxes.forEach(
-      checkbox => {
-
-        checkbox.disabled =
-          administrador;
-
-      }
-    );
-  }
-
-
-  document
-    .getElementById(
-      'user-profile'
-    )
-    ?.addEventListener(
-      'change',
-      async () => {
-
-        updatePermissionsVisibility();
-
-        if(
-          editingUserId &&
-          document.getElementById(
-            'user-profile'
-          )?.value === 'funcionario'
-        ){
-
-          try{
-
-            await loadUserPermissions(
-              editingUserId
-            );
-
-          }catch(error){
-
-            console.error(
-              'Não foi possível carregar as permissões:',
-              error
-            );
-
-          }
-        }
-      }
-    );
-
-
-  // ------------------------------------------------------------
   // ABRIR NOVO USUÁRIO
   // ------------------------------------------------------------
 
@@ -8818,11 +4277,6 @@
     }
 
 
-    setSelectedPermissions([]);
-
-    updatePermissionsVisibility();
-
-
     if(password){
       password.value = '';
       password.required = true;
@@ -8886,19 +4340,6 @@
     );
 
     editingUserId = null;
-
-    setSelectedPermissions([]);
-
-    const profile =
-      document.getElementById(
-        'user-profile'
-      );
-
-    if(profile){
-      profile.value = 'funcionario';
-    }
-
-    updatePermissionsVisibility();
   }
 
 
@@ -9027,31 +4468,6 @@
           }
 
 
-          // ------------------------------------------------------
-          // SALVAR PERMISSÕES
-          // ------------------------------------------------------
-
-          const permissoes =
-            perfil === 'administrador'
-              ? []
-              : getSelectedPermissions();
-
-
-          await api(
-            '/usuarios/' +
-            editingUserId +
-            '/permissoes',
-            {
-              method:'PATCH',
-
-              body:
-                JSON.stringify({
-                  permissoes
-                })
-            }
-          );
-
-
         }else{
 
           if(!senha){
@@ -9064,80 +4480,20 @@
           }
 
 
-          const respostaUsuario =
-            await api(
-              '/usuarios',
-              {
-                method:'POST',
+          await api(
+            '/usuarios',
+            {
+              method:'POST',
 
-                body:
-                  JSON.stringify({
-                    nome,
-                    email,
-                    senha,
-                    perfil
-                  })
-              }
-            );
-
-
-          // ------------------------------------------------------
-          // SALVAR PERMISSÕES DO NOVO FUNCIONÁRIO
-          // ------------------------------------------------------
-
-          if(perfil !== 'administrador'){
-
-            let novoUsuarioId =
-              respostaUsuario?.usuario?.id ||
-              respostaUsuario?.id;
-
-
-            // Caso a API não devolva o ID no POST,
-            // localizamos o usuário recém-criado pelo e-mail.
-            if(!novoUsuarioId){
-
-              const usuariosAtualizados =
-                await api('/usuarios');
-
-              const novoUsuario =
-                usuariosAtualizados.find(
-                  usuario =>
-                    String(usuario.email).toLowerCase() ===
-                    String(email).toLowerCase()
-                );
-
-              novoUsuarioId =
-                novoUsuario?.id;
+              body:
+                JSON.stringify({
+                  nome,
+                  email,
+                  senha,
+                  perfil
+                })
             }
-
-
-            if(novoUsuarioId){
-
-              const permissoes =
-                getSelectedPermissions();
-
-
-              await api(
-                '/usuarios/' +
-                novoUsuarioId +
-                '/permissoes',
-                {
-                  method:'PATCH',
-
-                  body:
-                    JSON.stringify({
-                      permissoes
-                    })
-                }
-              );
-
-            }else{
-
-              throw new Error(
-                'Usuário criado, mas não foi possível identificar o usuário para salvar as permissões.'
-              );
-            }
-          }
+          );
         }
 
 
@@ -9650,21 +5006,18 @@
 
 
       if(name){
-
         name.value =
           usuario.nome || '';
       }
 
 
       if(email){
-
         email.value =
           usuario.email || '';
       }
 
 
       if(profile){
-
         profile.value =
           usuario.perfil ||
           'funcionario';
@@ -9703,27 +5056,6 @@
             ? 'true'
             : 'false';
       }
-
-
-      // ----------------------------------------------------------
-      // CARREGAR PERMISSÕES ATUAIS
-      // ----------------------------------------------------------
-
-      if(
-        usuario.perfil ===
-        'administrador'
-      ){
-
-        setSelectedPermissions([]);
-
-      }else{
-
-        await loadUserPermissions(id);
-
-      }
-
-
-      updatePermissionsVisibility();
 
 
       overlayUser?.classList.add(
@@ -9783,15 +5115,13 @@
     try{
 
       await api(
-        '/usuarios/' +
-        id,
+        '/usuarios/' + id,
         {
           method:'PUT',
 
           body:
             JSON.stringify({
-              perfil:
-                novoPerfil
+              perfil: novoPerfil
             })
         }
       );
@@ -9803,12 +5133,10 @@
     }catch(error){
 
       alert(
-        'Não foi possível alterar o perfil: ' +
+        'Não foi possível alterar o cargo: ' +
         error.message
       );
-
     }
-
   }
 
 
@@ -9824,14 +5152,27 @@
     if(!isAdministrador()){
 
       alert(
-        'Apenas administradores podem alterar o status.'
+        'Apenas administradores podem bloquear usuários.'
       );
 
       return;
     }
 
 
-    const texto =
+    if(
+      Number(id) ===
+      Number(usuarioLogado?.id)
+    ){
+
+      alert(
+        'Você não pode bloquear o próprio usuário.'
+      );
+
+      return;
+    }
+
+
+    const acao =
       ativo
         ? 'ativar'
         : 'bloquear';
@@ -9839,7 +5180,7 @@
 
     if(
       !confirm(
-        `Deseja ${texto} este usuário?`
+        `Deseja ${acao} este usuário?`
       )
     ){
 
@@ -9850,11 +5191,9 @@
     try{
 
       await api(
-        '/usuarios/' +
-        id +
-        '/status',
+        '/usuarios/' + id,
         {
-          method:'PATCH',
+          method:'PUT',
 
           body:
             JSON.stringify({
@@ -9870,12 +5209,10 @@
     }catch(error){
 
       alert(
-        'Não foi possível alterar o status: ' +
+        `Não foi possível ${acao} o usuário: ` +
         error.message
       );
-
     }
-
   }
 
 
@@ -9883,9 +5220,7 @@
   // EXCLUIR USUÁRIO
   // ------------------------------------------------------------
 
-  async function deleteUser(
-    id
-  ){
+  async function deleteUser(id){
 
     if(!isAdministrador()){
 
@@ -9898,8 +5233,21 @@
 
 
     if(
+      Number(id) ===
+      Number(usuarioLogado?.id)
+    ){
+
+      alert(
+        'Você não pode excluir o próprio usuário.'
+      );
+
+      return;
+    }
+
+
+    if(
       !confirm(
-        'Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.'
+        'Deseja excluir este usuário definitivamente?'
       )
     ){
 
@@ -9910,8 +5258,7 @@
     try{
 
       await api(
-        '/usuarios/' +
-        id,
+        '/usuarios/' + id,
         {
           method:'DELETE'
         }
@@ -9927,116 +5274,126 @@
         'Não foi possível excluir o usuário: ' +
         error.message
       );
-
     }
-
   }
-
-
-  window.App =
-    window.App ||
-    {};
-
-
-  window.App.removeExpense =
-    removeExpense;
-
-
-  window.App.editUser =
-    editUser;
-
-
-  window.App.changeUserProfile =
-    changeUserProfile;
-
-
-  window.App.toggleUserStatus =
-    toggleUserStatus;
-
-
-  window.App.deleteUser =
-    deleteUser;
 
 
   // ============================================================
-  // ATUALIZAR ACESSO DO MENU USUÁRIOS
+  // APP GLOBAL
   // ============================================================
 
-  function atualizarAcessoUsuarios(){
+  window.App = {
 
-    const nav =
-      document.querySelector(
-        '[data-tab="usuarios"]'
-      );
+    setStatus,
+
+    deleteAppointment,
+
+    setPayment,
+
+    setPaymentMethod,
+
+    undoPayment,
+
+    printReceipt,
+
+    editService,
+
+    removeService,
+
+    openEditAppointment,
+
+    removeExpense,
+
+    editUser,
+
+    changeUserProfile,
+
+    toggleUserStatus,
+
+    deleteUser,
+
+    refreshUsuarios
+
+  };
 
 
-    if(!nav){
-      return;
+  // ============================================================
+  // INICIALIZAÇÃO DO SISTEMA
+  // ============================================================
+
+  async function iniciarSistema(){
+
+    checkConnection();
+
+
+    if(!connectionInterval){
+
+      connectionInterval =
+        setInterval(
+          checkConnection,
+          30000
+        );
     }
 
 
-    nav.style.display =
-      isAdministrador()
-        ? ''
-        : 'none';
+    atualizarSidebarUsuario();
 
+
+    try{
+
+      await loadServices();
+
+      await refreshAgenda();
+
+      await refreshSideStats();
+
+
+      if(isAdministrador()){
+
+        const navUsuarios =
+          document.getElementById(
+            'nav-usuarios'
+          );
+
+
+        if(
+          navUsuarios &&
+          navUsuarios.style.display !== 'none'
+        ){
+
+          // Usuários será carregado
+          // somente quando a aba for aberta.
+        }
+      }
+
+
+    }catch(error){
+
+      console.error(
+        'Erro ao iniciar o sistema:',
+        error
+      );
+    }
   }
 
 
-  function atualizarDadosUsuario(){
+  // ============================================================
+  // INICIALIZAÇÃO COM AUTENTICAÇÃO
+  // ============================================================
 
-    const nome =
-      document.getElementById(
-        'sidebar-user-name'
-      );
+  (async function initAuth(){
 
-
-    const email =
-      document.getElementById(
-        'sidebar-user-email'
-      );
+    const autenticado =
+      await verificarSessao();
 
 
-    const avatar =
-      document.getElementById(
-        'sidebar-user-avatar'
-      );
+    if(autenticado){
 
-
-    if(nome){
-
-      nome.textContent =
-        usuarioLogado?.nome ||
-        'Usuário';
+      await iniciarSistema();
 
     }
 
-
-    if(email){
-
-      email.textContent =
-        usuarioLogado?.email ||
-        '';
-
-    }
-
-
-    if(avatar){
-
-      avatar.textContent =
-        (
-          usuarioLogado?.nome ||
-          'U'
-        )
-          .charAt(0)
-          .toUpperCase();
-
-    }
-
-
-    atualizarAcessoUsuarios();
-
-  }
+  })();
 
 
   // ============================================================
@@ -10051,17 +5408,23 @@
       'click',
       () => {
 
+        if(
+          !confirm(
+            'Deseja sair da sua conta?'
+          )
+        ){
+
+          return;
+        }
+
+
         localStorage.removeItem(
           AUTH_TOKEN_KEY
         );
 
 
-        usuarioLogado =
-          null;
-
-
-        empresaLogada =
-          null;
+        usuarioLogado = null;
+        empresaLogada = null;
 
 
         window.location.reload();
@@ -10071,12 +5434,12 @@
 
 
   // ============================================================
-  // MENU MOBILE
+  // SIDEBAR / MENU
   // ============================================================
 
   const sidebar =
-    document.querySelector(
-      '.sidebar'
+    document.getElementById(
+      'sidebar'
     );
 
 
@@ -10086,180 +5449,173 @@
     );
 
 
-  sidebarToggle?.addEventListener(
-    'click',
-    () => {
+  const mobileMenuBtn =
+    document.getElementById(
+      'mobile-menu-btn'
+    );
 
-      sidebar?.classList.toggle(
-        'open'
-      );
 
-    }
-  );
+  const sidebarOverlay =
+    document.getElementById(
+      'sidebar-overlay'
+    );
+
+
+  if(
+    sidebar &&
+    sidebarToggle
+  ){
+
+    sidebarToggle.addEventListener(
+      'click',
+      () => {
+
+        if(
+          window.innerWidth <= 760
+        ){
+
+          sidebar.classList.remove(
+            'mobile-open'
+          );
+
+          sidebarOverlay?.classList.remove(
+            'active'
+          );
+
+          return;
+        }
+
+
+        sidebar.classList.toggle(
+          'collapsed'
+        );
+
+
+        localStorage.setItem(
+          'lavajato-sidebar-collapsed',
+          sidebar.classList.contains(
+            'collapsed'
+          )
+        );
+
+      }
+    );
+  }
+
+
+  if(
+    mobileMenuBtn &&
+    sidebar
+  ){
+
+    mobileMenuBtn.addEventListener(
+      'click',
+      () => {
+
+        sidebar.classList.add(
+          'mobile-open'
+        );
+
+
+        sidebarOverlay?.classList.add(
+          'active'
+        );
+
+      }
+    );
+  }
+
+
+  if(
+    sidebarOverlay &&
+    sidebar
+  ){
+
+    sidebarOverlay.addEventListener(
+      'click',
+      () => {
+
+        sidebar.classList.remove(
+          'mobile-open'
+        );
+
+
+        sidebarOverlay.classList.remove(
+          'active'
+        );
+
+      }
+    );
+  }
 
 
   document
     .querySelectorAll(
-      '[data-tab]'
+      '.sidebar .nav-btn'
     )
     .forEach(
-      element => {
+      button => {
 
-        element.addEventListener(
+        button.addEventListener(
           'click',
           () => {
 
-            sidebar?.classList.remove(
-              'open'
-            );
+            if(
+              window.innerWidth <= 760
+            ){
+
+              sidebar?.classList.remove(
+                'mobile-open'
+              );
+
+
+              sidebarOverlay?.classList.remove(
+                'active'
+              );
+
+            }
 
           }
         );
 
       }
-  );
-
-
-  // ============================================================
-  // FECHAR MODAIS COM ESC
-  // ============================================================
-
-  document.addEventListener(
-    'keydown',
-    event => {
-
-      if(
-        event.key !==
-        'Escape'
-      ){
-
-        return;
-
-      }
-
-
-      document
-        .querySelectorAll(
-          '.overlay.active'
-        )
-        .forEach(
-          overlay => {
-
-            overlay.classList.remove(
-              'active'
-            );
-
-          }
-        );
-
-
-      editingUserId =
-        null;
-
-
-      editingAppointmentId =
-        null;
-
-    }
-  );
-
-
-  // ============================================================
-  // REFRESH AUTOMÁTICO DA CONEXÃO
-  // ============================================================
-
-  async function checkConnection(){
-
-    const indicator =
-      document.getElementById(
-        'connection-status'
-      );
-
-
-    if(!indicator){
-
-      return;
-
-    }
-
-
-    try{
-
-      await api(
-        '/status',
-        {
-          skipAuth:true
-        }
-      );
-
-
-      indicator.classList.add(
-        'online'
-      );
-
-
-      indicator.classList.remove(
-        'offline'
-      );
-
-
-      indicator.textContent =
-        'Online';
-
-
-    }catch(error){
-
-      indicator.classList.add(
-        'offline'
-      );
-
-
-      indicator.classList.remove(
-        'online'
-      );
-
-
-      indicator.textContent =
-        'Offline';
-
-    }
-
-  }
-
-
-  checkConnection();
-
-
-  connectionInterval =
-    setInterval(
-      checkConnection,
-      30000
     );
 
 
-  // ============================================================
-  // EXPOSIÇÃO DE FUNÇÕES
-  // ============================================================
+  if(
+    sidebar &&
+    window.innerWidth > 760 &&
+    localStorage.getItem(
+      'lavajato-sidebar-collapsed'
+    ) === 'true'
+  ){
 
-  window.App =
-    window.App ||
-    {};
-
-
-  window.App.refreshUsuarios =
-    refreshUsuarios;
-
-
-  window.App.refreshDespesas =
-    refreshDespesas;
+    sidebar.classList.add(
+      'collapsed'
+    );
+  }
 
 
-  window.App.activateTab =
-    activateTab;
+  window.addEventListener(
+    'resize',
+    () => {
+
+      if(
+        window.innerWidth > 760
+      ){
+
+        sidebar?.classList.remove(
+          'mobile-open'
+        );
 
 
-  window.App.checkConnection =
-    checkConnection;
+        sidebarOverlay?.classList.remove(
+          'active'
+        );
 
+      }
 
-{};
+    }
+  );
+
+})();
