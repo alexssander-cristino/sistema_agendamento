@@ -74,6 +74,6 @@ app.get('*', (req, res) => {
 // SERVIDOR
 // ============================================================
 
-app.listen(PORT, () => {  
+app.listen(PORT, () => {
   console.log(`Lavajato rodando em http://localhost:${PORT}`);
 });
