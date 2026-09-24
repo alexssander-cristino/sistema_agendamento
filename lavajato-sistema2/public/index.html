@@ -283,8 +283,6 @@
 
     <aside class="sidebar" id="sidebar">
 
-      <!-- LOGO -->
-
       <div class="brand">
 
         <div class="brand-logo">
@@ -302,9 +300,6 @@
           </div>
 
         </div>
-
-
-        <!-- BOTÃO RECOLHER -->
 
         <button
           class="sidebar-toggle"
@@ -331,9 +326,7 @@
       </div>
 
 
-      <!-- =====================================================
-         EMPRESA / USUÁRIO LOGADO
-         ===================================================== -->
+      <!-- EMPRESA / USUÁRIO -->
 
       <div class="sidebar-user">
 
@@ -371,19 +364,14 @@
       </div>
 
 
-      <!-- TÍTULO -->
-
       <div class="menu-label">
         MENU
       </div>
 
 
-      <!-- =====================================================
-         MENU PRINCIPAL
-         ===================================================== -->
+      <!-- MENU -->
 
       <nav class="sidebar-nav">
-
 
         <!-- AGENDA -->
 
@@ -391,6 +379,7 @@
           class="nav-btn active"
           data-tab="agenda"
           type="button"
+          data-permission-module="agenda"
         >
 
           <svg
@@ -426,6 +415,7 @@
           class="nav-btn"
           data-tab="faturamento"
           type="button"
+          data-permission-module="faturamento"
         >
 
           <svg
@@ -466,6 +456,7 @@
           class="nav-btn"
           data-tab="financeiro"
           type="button"
+          data-permission-module="financeiro"
         >
 
           <svg
@@ -495,6 +486,7 @@
           class="nav-btn"
           data-tab="servicos"
           type="button"
+          data-permission-module="servicos"
         >
 
           <svg
@@ -533,6 +525,7 @@
           class="nav-btn"
           data-tab="clientes"
           type="button"
+          data-permission-module="clientes"
         >
 
           <svg
@@ -572,6 +565,7 @@
           class="nav-btn"
           data-tab="despesas"
           type="button"
+          data-permission-module="despesas"
         >
 
           <svg
@@ -604,16 +598,14 @@
         </button>
 
 
-        <!-- ===================================================
-           USUÁRIOS
-           SOMENTE ADMINISTRADOR
-           =================================================== -->
+        <!-- USUÁRIOS -->
 
         <button
           class="nav-btn"
           id="nav-usuarios"
           data-tab="usuarios"
           type="button"
+          data-permission-module="usuarios"
           style="display:none;"
         >
 
@@ -658,9 +650,7 @@
       </nav>
 
 
-      <!-- =====================================================
-         INFORMAÇÕES DO SIDEBAR
-         ===================================================== -->
+      <!-- INFORMAÇÕES -->
 
       <div class="sidebar-bottom">
 
@@ -759,15 +749,12 @@
 
 
     <!-- =======================================================
-       CONTEÚDO PRINCIPAL
+       CONTEÚDO
        ======================================================= -->
 
     <main>
 
-
-      <!-- =====================================================
-         AGENDA
-         ===================================================== -->
+      <!-- AGENDA -->
 
       <div
         class="panel active"
@@ -840,9 +827,7 @@
       </div>
 
 
-      <!-- =====================================================
-         FATURAMENTO
-         ===================================================== -->
+      <!-- FATURAMENTO -->
 
       <div
         class="panel"
@@ -923,9 +908,7 @@
       </div>
 
 
-      <!-- =====================================================
-         FINANCEIRO
-         ===================================================== -->
+      <!-- FINANCEIRO -->
 
       <div
         class="panel"
@@ -1086,9 +1069,7 @@
       </div>
 
 
-      <!-- =====================================================
-         SERVIÇOS
-         ===================================================== -->
+      <!-- SERVIÇOS -->
 
       <div
         class="panel"
@@ -1125,9 +1106,7 @@
       </div>
 
 
-      <!-- =====================================================
-         CLIENTES
-         ===================================================== -->
+      <!-- CLIENTES -->
 
       <div
         class="panel"
@@ -1263,9 +1242,7 @@
       </div>
 
 
-      <!-- =====================================================
-         DESPESAS
-         ===================================================== -->
+      <!-- DESPESAS -->
 
       <div
         class="panel"
@@ -1339,10 +1316,7 @@
       </div>
 
 
-      <!-- =====================================================
-         USUÁRIOS
-         SOMENTE ADMINISTRADOR
-         ===================================================== -->
+      <!-- USUÁRIOS -->
 
       <div
         class="panel"
@@ -1374,8 +1348,6 @@
 
         </div>
 
-
-        <!-- RESUMO -->
 
         <div class="totals-strip">
 
@@ -1428,8 +1400,6 @@
 
         </div>
 
-
-        <!-- LISTA DE USUÁRIOS -->
 
         <div
           id="usuarios-list"
@@ -1870,7 +1840,7 @@
     id="overlay-user"
   >
 
-    <div class="modal">
+    <div class="modal user-modal">
 
       <h3 id="user-modal-title">
         Novo usuário
@@ -1982,6 +1952,262 @@
             </option>
 
           </select>
+
+        </div>
+
+
+        <!-- =====================================================
+             PERMISSÕES
+             ===================================================== -->
+
+        <div
+          class="user-permissions-section"
+          id="user-permissions-section"
+        >
+
+          <div class="user-permissions-header">
+
+            <div>
+
+              <label class="user-permissions-title">
+                Permissões de acesso
+              </label>
+
+              <p class="user-permissions-description">
+                Selecione quais áreas este funcionário poderá acessar.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- AVISO ADMINISTRADOR -->
+
+          <div
+            class="admin-permission-notice"
+            id="admin-permission-notice"
+            style="display:none;"
+          >
+
+            <strong>
+              Administrador
+            </strong>
+
+            <span>
+              Administradores possuem acesso completo ao sistema.
+            </span>
+
+          </div>
+
+
+          <!-- GRID DE PERMISSÕES -->
+
+          <div
+            class="permissions-grid"
+            id="permissions-grid"
+          >
+
+            <!-- AGENDA -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="agenda"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Agenda
+                </strong>
+
+                <small>
+                  Agendamentos e atendimento
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- FATURAMENTO -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="faturamento"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Faturamento
+                </strong>
+
+                <small>
+                  Serviços e recebimentos
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- FINANCEIRO -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="financeiro"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Financeiro
+                </strong>
+
+                <small>
+                  Visão financeira do negócio
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- SERVIÇOS -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="servicos"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Serviços
+                </strong>
+
+                <small>
+                  Cadastro e preços dos serviços
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- CLIENTES -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="clientes"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Clientes
+                </strong>
+
+                <small>
+                  Consulta de clientes e histórico
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- DESPESAS -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="despesas"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Despesas
+                </strong>
+
+                <small>
+                  Controle de despesas
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- USUÁRIOS -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="usuarios"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Usuários
+                </strong>
+
+                <small>
+                  Gerenciamento de usuários
+                </small>
+
+              </span>
+
+            </label>
+
+
+            <!-- CONFIGURAÇÕES -->
+
+            <label class="permission-item">
+
+              <input
+                type="checkbox"
+                value="configuracoes"
+                data-permission
+              >
+
+              <span class="permission-item-text">
+
+                <strong>
+                  Configurações
+                </strong>
+
+                <small>
+                  Configurações do sistema
+                </small>
+
+              </span>
+
+            </label>
+
+          </div>
 
         </div>
 
@@ -2109,9 +2335,7 @@
           );
 
 
-        /* =====================================================
-           EMPRESA
-           ===================================================== */
+        /* EMPRESA */
 
         if (empresaElement && empresa) {
 
@@ -2124,9 +2348,7 @@
         }
 
 
-        /* =====================================================
-           NOME
-           ===================================================== */
+        /* NOME */
 
         if (nomeElement && usuario) {
 
@@ -2136,9 +2358,7 @@
         }
 
 
-        /* =====================================================
-           PERFIL
-           ===================================================== */
+        /* PERFIL */
 
         if (perfilElement && usuario) {
 
@@ -2150,9 +2370,7 @@
         }
 
 
-        /* =====================================================
-           AVATAR
-           ===================================================== */
+        /* AVATAR */
 
         if (avatarElement && usuario) {
 
@@ -2168,9 +2386,7 @@
         }
 
 
-        /* =====================================================
-           MENU DE USUÁRIOS
-           ===================================================== */
+        /* MENU DE USUÁRIOS */
 
         if (usuariosNav && usuario) {
 
@@ -2202,9 +2418,7 @@
     }
 
 
-    /* =========================================================
-       BOTÃO SAIR
-       ========================================================= */
+    /* BOTÃO SAIR */
 
     const btnLogout =
       document.getElementById('btn-logout');
@@ -2240,9 +2454,7 @@
     }
 
 
-    /* =========================================================
-       CARREGA USUÁRIO
-       ========================================================= */
+    /* CARREGA USUÁRIO */
 
     carregarUsuarioSidebar();
 
@@ -2268,9 +2480,7 @@
       document.getElementById('sidebar-overlay');
 
 
-    /*
-     * Abre o menu no celular
-     */
+    /* ABRE MENU MOBILE */
 
     if (mobileMenuBtn && sidebar) {
 
@@ -2297,9 +2507,7 @@
     }
 
 
-    /*
-     * Fecha o menu clicando no fundo
-     */
+    /* FECHA MENU */
 
     if (sidebarOverlay && sidebar) {
 
@@ -2322,19 +2530,13 @@
     }
 
 
-    /*
-     * Recolhe / expande a sidebar
-     */
+    /* RECOLHE / EXPANDE */
 
     if (sidebarToggle && sidebar) {
 
       sidebarToggle.addEventListener(
         'click',
         () => {
-
-          /*
-           * No celular fecha o menu
-           */
 
           if (window.innerWidth <= 760) {
 
@@ -2356,10 +2558,6 @@
           }
 
 
-          /*
-           * No computador recolhe
-           */
-
           sidebar.classList.toggle(
             'collapsed'
           );
@@ -2378,9 +2576,7 @@
     }
 
 
-    /*
-     * Recupera preferência
-     */
+    /* RECUPERA PREFERÊNCIA */
 
     if (
       sidebar &&
@@ -2397,9 +2593,7 @@
     }
 
 
-    /*
-     * Fecha menu mobile ao clicar
-     */
+    /* FECHA MENU MOBILE AO CLICAR */
 
     document
       .querySelectorAll(
@@ -2438,9 +2632,7 @@
       );
 
 
-    /*
-     * Ajusta ao redimensionar
-     */
+    /* REDIMENSIONAMENTO */
 
     window.addEventListener(
       'resize',
