@@ -98,6 +98,47 @@
 
 
   // ============================================================
+  // PERMISSÕES POR FUNCIONÁRIO
+  // ------------------------------------------------------------
+  // Cada aba do sistema (exceto "Usuários", que é sempre exclusiva
+  // do administrador) só aparece para quem tem essa permissão
+  // liberada. O administrador enxerga tudo, sempre — só o perfil
+  // "funcionario" é limitado pela lista `usuarioLogado.permissoes`
+  // que deve vir do back-end dentro do objeto `usuario` (em
+  // /auth/login, /auth/cadastro, /auth/me e em /usuarios).
+  // ============================================================
+
+  const PERMISSOES_DISPONIVEIS = [
+    { chave:'agenda',      label:'Agenda' },
+    { chave:'faturamento', label:'Faturamento' },
+    { chave:'financeiro',  label:'Financeiro' },
+    { chave:'servicos',    label:'Serviços' },
+    { chave:'clientes',    label:'Clientes' },
+    { chave:'despesas',    label:'Despesas' }
+  ];
+
+
+  function temPermissao(chave){
+
+    if(!usuarioLogado){
+      return false;
+    }
+
+    // administrador sempre vê tudo, independente da lista
+    if(usuarioLogado.perfil === 'administrador'){
+      return true;
+    }
+
+    const permissoes =
+      Array.isArray(usuarioLogado.permissoes)
+        ? usuarioLogado.permissoes
+        : [];
+
+    return permissoes.includes(chave);
+  }
+
+
+  // ============================================================
   // API
   // ============================================================
 
@@ -351,24 +392,68 @@
         'nav-usuarios'
       );
 
-    if(!btn){
-      return;
+    if(btn){
+
+      if(isAdministrador()){
+
+        btn.style.display = '';
+
+      }else{
+
+        btn.style.display = 'none';
+
+
+        if(activeTab === 'usuarios'){
+
+          goToTab('agenda');
+        }
+      }
     }
 
 
-    if(isAdministrador()){
+    // ------------------------------------------------------------
+    // Demais abas: só aparecem se o usuário tiver a permissão.
+    // "usuarios" já foi tratado acima e nunca é liberável por
+    // permissão — é sempre exclusivo do administrador.
+    // ------------------------------------------------------------
 
-      btn.style.display = '';
+    document
+      .querySelectorAll('.nav-btn, .bn-btn')
+      .forEach(navBtn => {
 
-    }else{
+        const tab =
+          navBtn.dataset.tab;
 
-      btn.style.display = 'none';
+        if(!tab || tab === 'usuarios'){
+          return;
+        }
+
+        navBtn.style.display =
+          temPermissao(tab)
+            ? ''
+            : 'none';
+
+      });
 
 
-      if(activeTab === 'usuarios'){
+    // se a aba aberta no momento deixou de ser permitida
+    // (por exemplo, o administrador acabou de revogar o acesso),
+    // manda o usuário para a primeira aba que ele ainda pode ver
+    if(
+      activeTab !== 'usuarios' &&
+      !temPermissao(activeTab)
+    ){
 
-        goToTab('agenda');
-      }
+      const proxima =
+        PERMISSOES_DISPONIVEIS.find(
+          p => temPermissao(p.chave)
+        );
+
+      goToTab(
+        proxima
+          ? proxima.chave
+          : 'agenda'
+      );
     }
   }
 
@@ -744,6 +829,15 @@
     if(
       tab === 'usuarios' &&
       !isAdministrador()
+    ){
+
+      return;
+    }
+
+
+    if(
+      tab !== 'usuarios' &&
+      !temPermissao(tab)
     ){
 
       return;
@@ -4294,6 +4388,10 @@
     }
 
 
+    marcarPermissoesNoFormulario([]);
+    atualizarVisibilidadePermissoes();
+
+
     overlayUser?.classList.add(
       'active'
     );
@@ -4341,6 +4439,75 @@
 
     editingUserId = null;
   }
+
+
+  // ------------------------------------------------------------
+  // CHECKBOXES DE PERMISSÃO NO MODAL DE USUÁRIO
+  // ------------------------------------------------------------
+  // Espera encontrar, dentro do formulário #form-user, um grupo de
+  // checkboxes com a classe "user-permissao-checkbox" e o atributo
+  // value igual à chave da aba (ex: value="agenda"). Ver o bloco de
+  // HTML sugerido ao final desta resposta.
+
+  function marcarPermissoesNoFormulario(selecionadas){
+
+    const checkboxes =
+      document.querySelectorAll(
+        '.user-permissao-checkbox'
+      );
+
+    checkboxes.forEach(cb => {
+
+      cb.checked =
+        Array.isArray(selecionadas) &&
+        selecionadas.includes(cb.value);
+    });
+  }
+
+
+  function lerPermissoesDoFormulario(){
+
+    return Array
+      .from(
+        document.querySelectorAll(
+          '.user-permissao-checkbox:checked'
+        )
+      )
+      .map(cb => cb.value);
+  }
+
+
+  // some com o bloco de permissões quando o perfil escolhido for
+  // "administrador" (ele sempre tem acesso a tudo, não precisa marcar nada)
+  function atualizarVisibilidadePermissoes(){
+
+    const profileEl =
+      document.getElementById(
+        'user-profile'
+      );
+
+    const field =
+      document.getElementById(
+        'user-permissions-field'
+      );
+
+    if(!profileEl || !field){
+      return;
+    }
+
+    field.style.display =
+      profileEl.value === 'administrador'
+        ? 'none'
+        : '';
+  }
+
+
+  document
+    .getElementById('user-profile')
+    ?.addEventListener(
+      'change',
+      atualizarVisibilidadePermissoes
+    );
 
 
   // ------------------------------------------------------------
@@ -4414,6 +4581,12 @@
       }
 
 
+      const permissoes =
+        perfil === 'administrador'
+          ? []
+          : lerPermissoesDoFormulario();
+
+
       try{
 
         if(editingUserId){
@@ -4441,7 +4614,8 @@
                   nome,
                   email,
                   perfil,
-                  ativo
+                  ativo,
+                  permissoes
                 })
             }
           );
@@ -4490,7 +4664,8 @@
                   nome,
                   email,
                   senha,
-                  perfil
+                  perfil,
+                  permissoes
                 })
             }
           );
@@ -5056,6 +5231,13 @@
             ? 'true'
             : 'false';
       }
+
+
+      marcarPermissoesNoFormulario(
+        usuario.permissoes || []
+      );
+
+      atualizarVisibilidadePermissoes();
 
 
       overlayUser?.classList.add(
