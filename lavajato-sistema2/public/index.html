@@ -2505,50 +2505,345 @@
      DADOS DO USUÁRIO LOGADO
      ========================================================= -->
 
-  <script>
+<script>
 
-    async function carregarUsuarioSidebar() {
+  async function carregarUsuarioSidebar() {
 
-      const token = localStorage.getItem(
-        'lavajato_auth_token'
+    const token = localStorage.getItem(
+      'lavajato_auth_token'
+    );
+
+    if (!token) {
+      return;
+    }
+
+    try {
+
+      const resposta = await fetch(
+        '/api/auth/me',
+        {
+          method: 'GET',
+
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
 
-      if (!token) {
+
+      if (!resposta.ok) {
+
+        if (resposta.status === 401) {
+
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.reload();
+
+        }
+
         return;
       }
 
-      try {
 
-        const resposta = await fetch(
-          '/api/auth/me',
+      const dados = await resposta.json();
+
+      const empresa = dados.empresa;
+      const usuario = dados.usuario;
+
+
+      const empresaElement =
+        document.getElementById(
+          'sidebar-company'
+        );
+
+
+      const nomeElement =
+        document.getElementById(
+          'sidebar-user-name'
+        );
+
+
+      const perfilElement =
+        document.getElementById(
+          'sidebar-user-profile'
+        );
+
+
+      const avatarElement =
+        document.getElementById(
+          'sidebar-user-avatar'
+        );
+
+
+      const usuariosNav =
+        document.getElementById(
+          'nav-usuarios'
+        );
+
+
+      const configuracoesNav =
+        document.getElementById(
+          'nav-configuracoes'
+        );
+
+
+      /* EMPRESA */
+
+      if (empresaElement && empresa) {
+
+        empresaElement.textContent =
+          empresa.nome || 'Minha empresa';
+
+        empresaElement.title =
+          empresa.nome || 'Minha empresa';
+
+      }
+
+
+      /* NOME */
+
+      if (nomeElement && usuario) {
+
+        nomeElement.textContent =
+          usuario.nome || 'Usuário';
+
+      }
+
+
+      /* PERFIL */
+
+      if (perfilElement && usuario) {
+
+        perfilElement.textContent =
+          usuario.perfil === 'administrador'
+            ? 'Administrador'
+            : 'Funcionário';
+
+      }
+
+
+      /* AVATAR */
+
+      if (avatarElement && usuario) {
+
+        const nome =
+          usuario.nome || 'U';
+
+        avatarElement.textContent =
+          nome
+            .trim()
+            .charAt(0)
+            .toUpperCase();
+
+      }
+
+
+      /* MENU DE USUÁRIOS */
+
+      if (usuariosNav && usuario) {
+
+        const podeUsuarios =
+          usuario.perfil === 'administrador' ||
+          (
+            Array.isArray(usuario.permissoes) &&
+            usuario.permissoes.includes('usuarios')
+          );
+
+        usuariosNav.style.display =
+          podeUsuarios ? 'flex' : 'none';
+
+      }
+
+
+      /* MENU DE CONFIGURAÇÕES */
+
+      if (configuracoesNav && usuario) {
+
+        const podeConfiguracoes =
+          usuario.perfil === 'administrador' ||
+          (
+            Array.isArray(usuario.permissoes) &&
+            usuario.permissoes.includes('configuracoes')
+          );
+
+        configuracoesNav.style.display =
+          podeConfiguracoes ? 'flex' : 'none';
+
+      }
+
+
+      /* GUARDA OS DADOS */
+
+      window.lavajatoUsuario =
+        usuario || null;
+
+      window.lavajatoEmpresa =
+        empresa || null;
+
+
+      /* PREENCHE CONFIGURAÇÕES */
+
+      preencherDadosConfiguracoes(
+        usuario,
+        empresa
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Erro ao carregar dados do usuário:',
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     PREENCHER CONFIGURAÇÕES
+     ========================================================= */
+
+  function preencherDadosConfiguracoes(
+    usuario,
+    empresa
+  ) {
+
+    const empresaNome =
+      document.getElementById(
+        'config-empresa-nome'
+      );
+
+    const empresaEmail =
+      document.getElementById(
+        'config-empresa-email'
+      );
+
+    const empresaTelefone =
+      document.getElementById(
+        'config-empresa-telefone'
+      );
+
+    const usuarioNome =
+      document.getElementById(
+        'config-usuario-nome'
+      );
+
+    const usuarioEmail =
+      document.getElementById(
+        'config-usuario-email'
+      );
+
+    const usuarioPerfil =
+      document.getElementById(
+        'config-usuario-perfil'
+      );
+
+
+    if (empresa) {
+
+      if (empresaNome) {
+        empresaNome.value =
+          empresa.nome || '';
+      }
+
+      if (empresaEmail) {
+        empresaEmail.value =
+          empresa.email || '';
+      }
+
+      if (empresaTelefone) {
+        empresaTelefone.value =
+          empresa.telefone || '';
+      }
+
+    }
+
+
+    if (usuario) {
+
+      if (usuarioNome) {
+        usuarioNome.value =
+          usuario.nome || '';
+      }
+
+      if (usuarioEmail) {
+        usuarioEmail.value =
+          usuario.email || '';
+      }
+
+      if (usuarioPerfil) {
+        usuarioPerfil.value =
+          usuario.perfil === 'administrador'
+            ? 'Administrador'
+            : 'Funcionário';
+      }
+
+    }
+
+  }
+
+
+  /* =========================================================
+     CARREGAR CONFIGURAÇÕES DO BANCO
+     ========================================================= */
+
+  async function carregarConfiguracoes() {
+
+    const token =
+      localStorage.getItem(
+        'lavajato_auth_token'
+      );
+
+    if (!token) {
+      return;
+    }
+
+
+    try {
+
+      const resposta =
+        await fetch(
+          '/api/configuracoes',
           {
             method: 'GET',
 
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization':
+                `Bearer ${token}`
             }
           }
         );
 
 
-        if (!resposta.ok) {
-
-          if (resposta.status === 401) {
-
-            localStorage.removeItem(
-              'lavajato_auth_token'
-            );
-
-          }
-
-          return;
-        }
+      const dados =
+        await resposta.json();
 
 
-        const dados = await resposta.json();
+      if (!resposta.ok) {
 
-        const empresa = dados.empresa;
-        const usuario = dados.usuario;
+        console.error(
+          'Erro ao carregar configurações:',
+          dados.erro
+        );
+
+        return;
+
+      }
+
+
+      if (dados.empresa) {
+
+        window.lavajatoEmpresa =
+          dados.empresa;
+
+
+        preencherDadosConfiguracoes(
+          window.lavajatoUsuario || null,
+          dados.empresa
+        );
 
 
         const empresaElement =
@@ -2557,154 +2852,371 @@
           );
 
 
-        const nomeElement =
-          document.getElementById(
-            'sidebar-user-name'
-          );
-
-
-        const perfilElement =
-          document.getElementById(
-            'sidebar-user-profile'
-          );
-
-
-        const avatarElement =
-          document.getElementById(
-            'sidebar-user-avatar'
-          );
-
-
-        const usuariosNav =
-          document.getElementById(
-            'nav-usuarios'
-          );
-
-
-        /* EMPRESA */
-
-        if (empresaElement && empresa) {
+        if (empresaElement) {
 
           empresaElement.textContent =
-            empresa.nome || 'Minha empresa';
+            dados.empresa.nome ||
+            'Minha empresa';
 
           empresaElement.title =
-            empresa.nome || 'Minha empresa';
+            dados.empresa.nome ||
+            'Minha empresa';
 
         }
-
-
-        /* NOME */
-
-        if (nomeElement && usuario) {
-
-          nomeElement.textContent =
-            usuario.nome || 'Usuário';
-
-        }
-
-
-        /* PERFIL */
-
-        if (perfilElement && usuario) {
-
-          perfilElement.textContent =
-            usuario.perfil === 'administrador'
-              ? 'Administrador'
-              : 'Funcionário';
-
-        }
-
-
-        /* AVATAR */
-
-        if (avatarElement && usuario) {
-
-          const nome =
-            usuario.nome || 'U';
-
-          avatarElement.textContent =
-            nome
-              .trim()
-              .charAt(0)
-              .toUpperCase();
-
-        }
-
-
-        /* MENU DE USUÁRIOS */
-
-        if (usuariosNav && usuario) {
-
-          if (
-            usuario.perfil === 'administrador'
-          ) {
-
-            usuariosNav.style.display =
-              'flex';
-
-          } else {
-
-            usuariosNav.style.display =
-              'none';
-
-          }
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          'Erro ao carregar dados do usuário:',
-          error
-        );
 
       }
 
-    }
+    } catch (error) {
 
-
-    /* BOTÃO SAIR */
-
-    const btnLogout =
-      document.getElementById('btn-logout');
-
-
-    if (btnLogout) {
-
-      btnLogout.addEventListener(
-        'click',
-        () => {
-
-          const confirmar =
-            confirm(
-              'Deseja sair da sua conta?'
-            );
-
-
-          if (!confirmar) {
-            return;
-          }
-
-
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
-
-          window.location.reload();
-
-        }
+      console.error(
+        'Erro ao carregar configurações:',
+        error
       );
 
     }
 
+  }
 
-    /* CARREGA USUÁRIO */
 
-    carregarUsuarioSidebar();
+  /* =========================================================
+     SALVAR CONFIGURAÇÕES
+     ========================================================= */
 
-  </script>
+  const formConfiguracoes =
+    document.getElementById(
+      'form-configuracoes'
+    );
+
+
+  if (formConfiguracoes) {
+
+    formConfiguracoes.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+
+        const token =
+          localStorage.getItem(
+            'lavajato_auth_token'
+          );
+
+
+        if (!token) {
+          return;
+        }
+
+
+        const nome =
+          document
+            .getElementById(
+              'config-empresa-nome'
+            )
+            ?.value
+            .trim() || '';
+
+
+        const email =
+          document
+            .getElementById(
+              'config-empresa-email'
+            )
+            ?.value
+            .trim() || '';
+
+
+        const telefone =
+          document
+            .getElementById(
+              'config-empresa-telefone'
+            )
+            ?.value
+            .trim() || '';
+
+
+        const mensagem =
+          document.getElementById(
+            'configuracoes-message'
+          );
+
+
+        const botao =
+          document.getElementById(
+            'btn-salvar-configuracoes'
+          );
+
+
+        if (!nome) {
+
+          mostrarMensagemConfiguracoes(
+            'Informe o nome da lavação.',
+            'erro'
+          );
+
+          return;
+
+        }
+
+
+        if (!email) {
+
+          mostrarMensagemConfiguracoes(
+            'Informe o e-mail da empresa.',
+            'erro'
+          );
+
+          return;
+
+        }
+
+
+        if (mensagem) {
+
+          mensagem.style.display =
+            'none';
+
+          mensagem.textContent =
+            '';
+
+        }
+
+
+        if (botao) {
+
+          botao.disabled =
+            true;
+
+          botao.textContent =
+            'Salvando...';
+
+        }
+
+
+        try {
+
+          const resposta =
+            await fetch(
+              '/api/configuracoes',
+              {
+                method: 'PUT',
+
+                headers: {
+                  'Content-Type':
+                    'application/json',
+
+                  'Authorization':
+                    `Bearer ${token}`
+                },
+
+                body: JSON.stringify({
+                  nome,
+                  email,
+                  telefone
+                })
+              }
+            );
+
+
+          const dados =
+            await resposta.json();
+
+
+          if (!resposta.ok) {
+
+            mostrarMensagemConfiguracoes(
+              dados.erro ||
+                'Não foi possível salvar as configurações.',
+              'erro'
+            );
+
+            return;
+
+          }
+
+
+          if (dados.empresa) {
+
+            window.lavajatoEmpresa =
+              dados.empresa;
+
+
+            preencherDadosConfiguracoes(
+              window.lavajatoUsuario || null,
+              dados.empresa
+            );
+
+
+            const empresaElement =
+              document.getElementById(
+                'sidebar-company'
+              );
+
+
+            if (empresaElement) {
+
+              empresaElement.textContent =
+                dados.empresa.nome ||
+                'Minha empresa';
+
+              empresaElement.title =
+                dados.empresa.nome ||
+                'Minha empresa';
+
+            }
+
+          }
+
+
+          mostrarMensagemConfiguracoes(
+            dados.mensagem ||
+              'Configurações salvas com sucesso.',
+            'sucesso'
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Erro ao salvar configurações:',
+            error
+          );
+
+
+          mostrarMensagemConfiguracoes(
+            'Não foi possível conectar ao servidor.',
+            'erro'
+          );
+
+        } finally {
+
+          if (botao) {
+
+            botao.disabled =
+              false;
+
+            botao.textContent =
+              'Salvar alterações';
+
+          }
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     MENSAGEM
+     ========================================================= */
+
+  function mostrarMensagemConfiguracoes(
+    mensagem,
+    tipo
+  ) {
+
+    const elemento =
+      document.getElementById(
+        'configuracoes-message'
+      );
+
+
+    if (!elemento) {
+      return;
+    }
+
+
+    elemento.textContent =
+      mensagem;
+
+
+    elemento.style.display =
+      'block';
+
+
+    if (tipo === 'sucesso') {
+
+      elemento.style.color =
+        '#166534';
+
+      elemento.style.background =
+        '#dcfce7';
+
+      elemento.style.border =
+        '1px solid #bbf7d0';
+
+    } else {
+
+      elemento.style.color =
+        '#991b1b';
+
+      elemento.style.background =
+        '#fee2e2';
+
+      elemento.style.border =
+        '1px solid #fecaca';
+
+    }
+
+
+    elemento.style.padding =
+      '10px 12px';
+
+    elemento.style.borderRadius =
+      '8px';
+
+  }
+
+
+  /* =========================================================
+     BOTÃO SAIR
+     ========================================================= */
+
+  const btnLogout =
+    document.getElementById('btn-logout');
+
+
+  if (btnLogout) {
+
+    btnLogout.addEventListener(
+      'click',
+      () => {
+
+        const confirmar =
+          confirm(
+            'Deseja sair da sua conta?'
+          );
+
+
+        if (!confirmar) {
+          return;
+        }
+
+
+        localStorage.removeItem(
+          'lavajato_auth_token'
+        );
+
+
+        window.location.reload();
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     CARREGAMENTO INICIAL
+     ========================================================= */
+
+  carregarUsuarioSidebar();
+
+  carregarConfiguracoes();
+
+</script>
 
 
   <!-- =========================================================
