@@ -2458,8 +2458,12 @@
             );
 
 
+          // aceita tanto { usuario: {...} } quanto o usuário
+          // "cru" na raiz da resposta, dependendo do formato
+          // que o back-end devolver
           usuarioSalvo =
-            resposta.usuario;
+            resposta?.usuario ||
+            resposta;
 
         }
 
@@ -2487,8 +2491,36 @@
             );
 
 
+          // se o back-end não devolver o usuário atualizado (ou
+          // devolver em outro formato), cai para o que já
+          // tínhamos — o id é o que realmente importa aqui, e
+          // esse a gente já conhece desde antes de salvar
           usuarioSalvo =
-            resposta.usuario;
+            resposta?.usuario ||
+            resposta ||
+            usuarioEditando;
+
+        }
+
+
+        // ======================================================
+        // ID DO USUÁRIO PARA SALVAR AS PERMISSÕES
+        // ======================================================
+        //
+        // Nunca depende só da resposta do back-end: ao editar,
+        // sempre temos o id original (usuarioEditando.id); ao
+        // criar, usamos o que veio na resposta.
+
+        const idParaPermissoes =
+          usuarioSalvo?.id ??
+          usuarioEditando?.id;
+
+
+        if (!idParaPermissoes) {
+
+          throw new Error(
+            'Não foi possível identificar o usuário para salvar as permissões.'
+          );
 
         }
 
@@ -2514,8 +2546,16 @@
               );
 
 
+          // ajuda a conferir no console do navegador se o id e
+          // a lista de permissões enviados são os esperados
+          console.log(
+            'Salvando permissões:',
+            { id: idParaPermissoes, permissoes }
+          );
+
+
           await api(
-            `/usuarios/${usuarioSalvo.id}/permissoes`,
+            `/usuarios/${idParaPermissoes}/permissoes`,
             {
               method: 'PATCH',
 
