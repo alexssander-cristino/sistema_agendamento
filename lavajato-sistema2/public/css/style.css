@@ -1663,51 +1663,708 @@ section.block h2 {
    CONFIGURAÇÕES
    ========================================================= */
 
-#panel-configuracoes { max-width: 900px; }
-
-#panel-configuracoes .block { margin-bottom: 26px; }
-
-#panel-configuracoes .block h2 {
-  margin-bottom: 4px;
+#panel-configuracoes {
+  width: 100%;
+  max-width: 980px;
+  padding-bottom: 40px;
 }
 
-#panel-configuracoes .date-label { line-height: 1.5; }
+#panel-configuracoes .block {
+  margin-bottom: 30px;
+}
+
+#panel-configuracoes .block h2 {
+  margin: 0 0 5px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+#panel-configuracoes .date-label {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORMULÁRIO DA EMPRESA
+   ========================================================= */
 
 #form-configuracoes {
   margin-top: 18px;
+
   background: var(--surface);
+
   border: 1px solid var(--border);
-  border-radius: var(--radius-m);
-  padding: 22px 24px;
+  border-radius: var(--radius-l);
+
+  padding: 26px;
+
   box-shadow: var(--shadow-1);
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease);
 }
 
-#form-configuracoes .field { margin-bottom: 18px; }
+#form-configuracoes:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2);
+}
 
-#form-configuracoes .field-row { gap: 18px; }
+#form-configuracoes .field {
+  margin-bottom: 18px;
+}
 
-#form-configuracoes input { width: 100%; }
+#form-configuracoes .field:last-of-type {
+  margin-bottom: 0;
+}
+
+#form-configuracoes .field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+#form-configuracoes .field label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--ink-soft);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+#form-configuracoes input {
+  width: 100%;
+  min-height: 43px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-s);
+
+  background: var(--surface-2);
+
+  color: var(--ink);
+
+  font-family: Inter, sans-serif;
+  font-size: 13.5px;
+
+  outline: none;
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    background-color var(--ease);
+}
+
+#form-configuracoes input:hover {
+  border-color: var(--border-strong);
+}
+
+#form-configuracoes input:focus {
+  background: var(--surface);
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px var(--accent-soft);
+}
 
 #panel-configuracoes input[readonly] {
   cursor: default;
-  opacity: .7;
+  opacity: .72;
   background: var(--surface-2);
 }
 
-#configuracoes-message {
-  margin-top: 18px;
-  margin-bottom: 18px;
-  padding: 10px 12px;
-  border-radius: var(--radius-s);
-  font-size: 13px;
-  line-height: 1.4;
+#panel-configuracoes input[readonly]:focus {
+  border-color: var(--border);
+  box-shadow: none;
 }
 
-#btn-salvar-configuracoes { min-width: 170px; }
+
+/* =========================================================
+   MENSAGEM
+   ========================================================= */
+
+#configuracoes-message {
+  margin: 18px 0 0;
+
+  padding: 11px 14px;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-s);
+
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   BOTÃO SALVAR CONFIGURAÇÕES
+   ========================================================= */
+
+#btn-salvar-configuracoes {
+  min-width: 180px;
+  margin-top: 20px;
+}
 
 #btn-salvar-configuracoes:disabled {
   opacity: .6;
   cursor: not-allowed;
+}
+
+
+/* =========================================================
+   MINHA CONTA
+   ========================================================= */
+
+#panel-configuracoes .account-card,
+#panel-configuracoes .config-account,
+#panel-configuracoes .user-account {
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+
+  padding: 22px 24px;
+
+  box-shadow: var(--shadow-1);
+}
+
+
+/* =========================================================
+   MAIS CONFIGURAÇÕES
+   ========================================================= */
+
+#panel-configuracoes .settings-card,
+#panel-configuracoes .appearance-card {
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+
+  padding: 24px;
+
+  box-shadow: var(--shadow-1);
+}
+
+
+/* =========================================================
+   APARÊNCIA
+   ========================================================= */
+
+#panel-configuracoes .appearance-section {
+  margin-top: 18px;
+
+  padding: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--surface-2) 0%,
+      var(--surface) 100%
+    );
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-m);
+}
+
+#panel-configuracoes .appearance-section h3 {
+  margin: 0 0 5px;
+
+  color: var(--ink);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+#panel-configuracoes .appearance-section > p {
+  margin: 0 0 20px;
+
+  color: var(--ink-soft);
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   LINHA DE APARÊNCIA
+   ========================================================= */
+
+#panel-configuracoes .appearance-row {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   CAMPO DE COR
+   ========================================================= */
+
+#panel-configuracoes .color-field {
+  min-width: 0;
+
+  padding: 16px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-m);
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    transform var(--ease);
+}
+
+#panel-configuracoes .color-field:hover {
+  border-color: var(--border-strong);
+
+  box-shadow: var(--shadow-2);
+
+  transform: translateY(-1px);
+}
+
+#panel-configuracoes .color-field label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: var(--ink);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#panel-configuracoes .color-field small {
+  display: block;
+
+  margin-top: 7px;
+
+  color: var(--ink-faint);
+
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   SELETOR DE COR
+   ========================================================= */
+
+#panel-configuracoes input[type="color"] {
+  width: 100%;
+  height: 46px;
+
+  padding: 4px;
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-s);
+
+  background: var(--surface);
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+
+#panel-configuracoes input[type="color"]:hover {
+  border-color: var(--accent);
+}
+
+#panel-configuracoes input[type="color"]:focus {
+  outline: none;
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px var(--accent-soft);
+}
+
+
+/* =========================================================
+   HEX DA COR
+   ========================================================= */
+
+#panel-configuracoes .color-text-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 9px;
+}
+
+#panel-configuracoes .color-text-row input[type="text"] {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 38px;
+
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-s);
+
+  background: var(--surface-2);
+
+  color: var(--ink);
+
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
+
+  font-size: 12px;
+
+  text-transform: uppercase;
+
+  outline: none;
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    background-color var(--ease);
+}
+
+#panel-configuracoes .color-text-row input[type="text"]:focus {
+  background: var(--surface);
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px var(--accent-soft);
+}
+
+
+/* =========================================================
+   PRESETS DE TEMA
+   ========================================================= */
+
+#panel-configuracoes .theme-presets {
+  margin-top: 22px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid var(--border);
+}
+
+#panel-configuracoes .theme-presets-title {
+  margin: 0 0 11px;
+
+  color: var(--ink);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#panel-configuracoes .theme-preset-list {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+#panel-configuracoes .theme-preset {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  width: 100%;
+
+  padding: 10px 11px;
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-s);
+
+  background: var(--surface);
+
+  color: var(--ink);
+
+  font-size: 11.5px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--ease),
+    background-color var(--ease),
+    box-shadow var(--ease),
+    transform var(--ease);
+}
+
+#panel-configuracoes .theme-preset:hover {
+  border-color: var(--accent);
+
+  background: var(--surface-tint);
+
+  box-shadow: var(--shadow-1);
+
+  transform: translateY(-1px);
+}
+
+#panel-configuracoes .theme-preset:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   CÍRCULOS DOS PRESETS
+   ========================================================= */
+
+#panel-configuracoes .theme-preset::before {
+  content: "";
+
+  width: 24px;
+  height: 24px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--preset-primary, #0E3A4C) 0%,
+      var(--preset-primary, #0E3A4C) 52%,
+      var(--preset-accent, #06B6D4) 52%,
+      var(--preset-accent, #06B6D4) 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.08),
+    0 2px 5px rgba(0,0,0,.08);
+}
+
+
+/* =========================================================
+   CORES DOS PRESETS
+   ========================================================= */
+
+#panel-configuracoes .theme-preset[data-primary="#0E3A4C"] {
+  --preset-primary: #0E3A4C;
+  --preset-accent: #06B6D4;
+}
+
+#panel-configuracoes .theme-preset[data-primary="#166534"] {
+  --preset-primary: #166534;
+  --preset-accent: #22C55E;
+}
+
+#panel-configuracoes .theme-preset[data-primary="#581C87"] {
+  --preset-primary: #581C87;
+  --preset-accent: #A855F7;
+}
+
+#panel-configuracoes .theme-preset[data-primary="#991B1B"] {
+  --preset-primary: #991B1B;
+  --preset-accent: #EF4444;
+}
+
+
+/* =========================================================
+   BOTÕES DA APARÊNCIA
+   ========================================================= */
+
+#panel-configuracoes .appearance-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 22px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid var(--border);
+}
+
+#panel-configuracoes #btn-restaurar-tema {
+  color: var(--ink-soft);
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+}
+
+#panel-configuracoes #btn-restaurar-tema:hover {
+  color: var(--warn);
+
+  border-color: #e6bcbc;
+
+  background: var(--warn-soft);
+}
+
+#panel-configuracoes #btn-salvar-tema {
+  min-width: 170px;
+}
+
+
+/* =========================================================
+   SELECT DE TEMA
+   ========================================================= */
+
+#panel-configuracoes #config-tema {
+  width: 100%;
+
+  min-height: 43px;
+
+  padding: 9px 11px;
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-s);
+
+  background: var(--surface-2);
+
+  color: var(--ink);
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  outline: none;
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    background-color var(--ease);
+}
+
+#panel-configuracoes #config-tema:hover {
+  border-color: var(--border-strong);
+}
+
+#panel-configuracoes #config-tema:focus {
+  background: var(--surface);
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px var(--accent-soft);
+}
+
+
+/* =========================================================
+   DIVISÓRIAS DAS CONFIGURAÇÕES
+   ========================================================= */
+
+#panel-configuracoes .settings-divider {
+  height: 1px;
+
+  margin: 24px 0;
+
+  background: var(--border);
+}
+
+
+/* =========================================================
+   RESPONSIVO — CONFIGURAÇÕES
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  #panel-configuracoes {
+    width: 100%;
+    max-width: none;
+  }
+
+  #form-configuracoes {
+    padding: 20px 16px;
+
+    border-radius: var(--radius-m);
+  }
+
+  #form-configuracoes .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  #panel-configuracoes .appearance-card,
+  #panel-configuracoes .settings-card,
+  #panel-configuracoes .account-card,
+  #panel-configuracoes .config-account,
+  #panel-configuracoes .user-account {
+    padding: 18px 16px;
+  }
+
+  #panel-configuracoes .appearance-section {
+    padding: 16px;
+  }
+
+  #panel-configuracoes .appearance-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  #panel-configuracoes .theme-preset-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #panel-configuracoes .appearance-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  #panel-configuracoes .appearance-actions .btn {
+    width: 100%;
+  }
+
+  #btn-salvar-configuracoes {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 480px) {
+
+  #panel-configuracoes .theme-preset-list {
+    grid-template-columns: 1fr;
+  }
+
+  #panel-configuracoes .color-field {
+    padding: 14px;
+  }
+
+  #panel-configuracoes .appearance-section {
+    padding: 14px;
+  }
+
+  #form-configuracoes {
+    padding: 16px 14px;
+  }
 }
 
 
