@@ -3,11 +3,43 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
-const exigirPermissao = require('../middleware/permissao');
+
+const {
+  buscarCodigosPermissoesUsuario
+} = require('../services/permissoes');
 
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+// ============================================================
+// PERMISSÕES DO ADMINISTRADOR
+// ============================================================
+
+const PERMISSOES_ADMINISTRADOR = [
+  'agenda',
+  'faturamento',
+  'financeiro',
+  'servicos',
+  'clientes',
+  'despesas',
+  'usuarios',
+  'configuracoes'
+];
+
+// ============================================================
+// BUSCAR PERMISSÕES DO USUÁRIO
+// ============================================================
+
+async function obterPermissoesUsuario(usuario) {
+  if (usuario.perfil === 'administrador') {
+    return PERMISSOES_ADMINISTRADOR;
+  }
+
+  return await buscarCodigosPermissoesUsuario(
+    usuario.id
+  );
+}
 
 // ============================================================
 // POST /api/auth/cadastro
@@ -24,15 +56,23 @@ router.post('/cadastro', async (req, res) => {
     senha
   } = req.body;
 
-  if (!empresa || !email_empresa || !nome || !email || !senha) {
+  if (
+    !empresa ||
+    !email_empresa ||
+    !nome ||
+    !email ||
+    !senha
+  ) {
     return res.status(400).json({
-      erro: 'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
+      erro:
+        'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
     });
   }
 
   if (senha.length < 6) {
     return res.status(400).json({
-      erro: 'A senha deve possuir pelo menos 6 caracteres.'
+      erro:
+        'A senha deve possuir pelo menos 6 caracteres.'
     });
   }
 
@@ -46,7 +86,9 @@ router.post('/cadastro', async (req, res) => {
     // ==========================================================
 
     const empresaExistente = await client.query(
-      'SELECT id FROM empresas WHERE LOWER(email) = LOWER($1)',
+      `SELECT id
+       FROM empresas
+       WHERE LOWER(email) = LOWER($1)`,
       [email_empresa]
     );
 
@@ -54,7 +96,8 @@ router.post('/cadastro', async (req, res) => {
       await client.query('ROLLBACK');
 
       return res.status(409).json({
-        erro: 'Já existe uma empresa cadastrada com esse e-mail.'
+        erro:
+          'Já existe uma empresa cadastrada com esse e-mail.'
       });
     }
 
@@ -63,7 +106,9 @@ router.post('/cadastro', async (req, res) => {
     // ==========================================================
 
     const usuarioExistente = await client.query(
-      'SELECT id FROM usuarios WHERE LOWER(email) = LOWER($1)',
+      `SELECT id
+       FROM usuarios
+       WHERE LOWER(email) = LOWER($1)`,
       [email]
     );
 
@@ -71,7 +116,8 @@ router.post('/cadastro', async (req, res) => {
       await client.query('ROLLBACK');
 
       return res.status(409).json({
-        erro: 'Já existe um usuário cadastrado com esse e-mail.'
+        erro:
+          'Já existe um usuário cadastrado com esse e-mail.'
       });
     }
 
@@ -81,9 +127,22 @@ router.post('/cadastro', async (req, res) => {
 
     const empresaResult = await client.query(
       `INSERT INTO empresas
-        (nome, email, telefone)
-       VALUES ($1, $2, $3)
-       RETURNING id, nome, email, telefone`,
+        (
+          nome,
+          email,
+          telefone
+        )
+       VALUES
+        (
+          $1,
+          $2,
+          $3
+        )
+       RETURNING
+          id,
+          nome,
+          email,
+          telefone`,
       [
         empresa,
         email_empresa,
@@ -97,7 +156,10 @@ router.post('/cadastro', async (req, res) => {
     // Cria senha criptografada
     // ==========================================================
 
-    const senhaHash = await bcrypt.hash(senha, 12);
+    const senhaHash = await bcrypt.hash(
+      senha,
+      12
+    );
 
     // ==========================================================
     // Cria o primeiro usuário como ADMINISTRADOR
@@ -140,6 +202,13 @@ router.post('/cadastro', async (req, res) => {
     await client.query('COMMIT');
 
     // ==========================================================
+    // Permissões
+    // ==========================================================
+
+    const permissoes =
+      PERMISSOES_ADMINISTRADOR;
+
+    // ==========================================================
     // Cria token
     // ==========================================================
 
@@ -162,14 +231,18 @@ router.post('/cadastro', async (req, res) => {
     // ==========================================================
 
     res.status(201).json({
-      mensagem: 'Empresa cadastrada com sucesso.',
+      mensagem:
+        'Empresa cadastrada com sucesso.',
+
       token,
 
       usuario: {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
-        perfil: usuario.perfil
+        perfil: usuario.perfil,
+        ativo: usuario.ativo,
+        permissoes
       },
 
       empresa: novaEmpresa
@@ -178,10 +251,14 @@ router.post('/cadastro', async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
 
-    console.error('Erro no cadastro:', err);
+    console.error(
+      'Erro no cadastro:',
+      err
+    );
 
     res.status(500).json({
-      erro: 'Não foi possível realizar o cadastro.'
+      erro:
+        'Não foi possível realizar o cadastro.'
     });
 
   } finally {
@@ -194,11 +271,15 @@ router.post('/cadastro', async (req, res) => {
 // ============================================================
 
 router.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
+  const {
+    email,
+    senha
+  } = req.body;
 
   if (!email || !senha) {
     return res.status(400).json({
-      erro: 'Informe e-mail e senha.'
+      erro:
+        'Informe e-mail e senha.'
     });
   }
 
@@ -230,7 +311,8 @@ router.post('/login', async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(401).json({
-        erro: 'E-mail ou senha incorretos.'
+        erro:
+          'E-mail ou senha incorretos.'
       });
     }
 
@@ -242,7 +324,8 @@ router.post('/login', async (req, res) => {
 
     if (!usuario.ativo) {
       return res.status(403).json({
-        erro: 'Este usuário está desativado.'
+        erro:
+          'Este usuário está desativado.'
       });
     }
 
@@ -250,16 +333,27 @@ router.post('/login', async (req, res) => {
     // Verifica senha
     // ==========================================================
 
-    const senhaValida = await bcrypt.compare(
-      senha,
-      usuario.senha
-    );
+    const senhaValida =
+      await bcrypt.compare(
+        senha,
+        usuario.senha
+      );
 
     if (!senhaValida) {
       return res.status(401).json({
-        erro: 'E-mail ou senha incorretos.'
+        erro:
+          'E-mail ou senha incorretos.'
       });
     }
+
+    // ==========================================================
+    // Busca permissões
+    // ==========================================================
+
+    const permissoes =
+      await obterPermissoesUsuario(
+        usuario
+      );
 
     // ==========================================================
     // Cria token
@@ -284,7 +378,8 @@ router.post('/login', async (req, res) => {
     // ==========================================================
 
     res.json({
-      mensagem: 'Login realizado com sucesso.',
+      mensagem:
+        'Login realizado com sucesso.',
 
       token,
 
@@ -292,7 +387,9 @@ router.post('/login', async (req, res) => {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
-        perfil: usuario.perfil
+        perfil: usuario.perfil,
+        ativo: usuario.ativo,
+        permissoes
       },
 
       empresa: {
@@ -304,10 +401,14 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Erro no login:', err);
+    console.error(
+      'Erro no login:',
+      err
+    );
 
     res.status(500).json({
-      erro: 'Não foi possível realizar o login.'
+      erro:
+        'Não foi possível realizar o login.'
     });
   }
 });
@@ -317,68 +418,102 @@ router.post('/login', async (req, res) => {
 // Retorna usuário atualmente autenticado
 // ============================================================
 
-router.get('/me', autenticar, async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT
-          u.id,
-          u.nome,
-          u.email,
-          u.perfil,
-          u.ativo,
+router.get(
+  '/me',
+  autenticar,
+  async (req, res) => {
+    try {
+      const { rows } = await pool.query(
+        `SELECT
+            u.id,
+            u.nome,
+            u.email,
+            u.perfil,
+            u.ativo,
 
-          e.id AS empresa_id,
-          e.nome AS empresa_nome,
-          e.email AS empresa_email,
-          e.telefone AS empresa_telefone
+            e.id AS empresa_id,
+            e.nome AS empresa_nome,
+            e.email AS empresa_email,
+            e.telefone AS empresa_telefone
 
-       FROM usuarios u
+         FROM usuarios u
 
-       INNER JOIN empresas e
-         ON e.id = u.empresa_id
+         INNER JOIN empresas e
+           ON e.id = u.empresa_id
 
-       WHERE u.id = $1
-         AND u.empresa_id = $2
+         WHERE u.id = $1
+           AND u.empresa_id = $2
 
-       LIMIT 1`,
-      [
-        req.usuario.id,
-        req.usuario.empresa_id
-      ]
-    );
+         LIMIT 1`,
+        [
+          req.usuario.id,
+          req.usuario.empresa_id
+        ]
+      );
 
-    if (rows.length === 0) {
-      return res.status(404).json({
-        erro: 'Usuário não encontrado.'
+      if (rows.length === 0) {
+        return res.status(404).json({
+          erro:
+            'Usuário não encontrado.'
+        });
+      }
+
+      const usuario = rows[0];
+
+      // ========================================================
+      // Verifica se usuário ainda está ativo
+      // ========================================================
+
+      if (!usuario.ativo) {
+        return res.status(403).json({
+          erro:
+            'Este usuário está desativado.'
+        });
+      }
+
+      // ========================================================
+      // Busca permissões atuais
+      // ========================================================
+
+      const permissoes =
+        await obterPermissoesUsuario(
+          usuario
+        );
+
+      // ========================================================
+      // Resposta
+      // ========================================================
+
+      res.json({
+        usuario: {
+          id: usuario.id,
+          nome: usuario.nome,
+          email: usuario.email,
+          perfil: usuario.perfil,
+          ativo: usuario.ativo,
+          permissoes
+        },
+
+        empresa: {
+          id: usuario.empresa_id,
+          nome: usuario.empresa_nome,
+          email: usuario.empresa_email,
+          telefone: usuario.empresa_telefone
+        }
+      });
+
+    } catch (err) {
+      console.error(
+        'Erro ao buscar usuário:',
+        err
+      );
+
+      res.status(500).json({
+        erro:
+          'Não foi possível carregar os dados do usuário.'
       });
     }
-
-    const usuario = rows[0];
-
-    res.json({
-      usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        perfil: usuario.perfil,
-        ativo: usuario.ativo
-      },
-
-      empresa: {
-        id: usuario.empresa_id,
-        nome: usuario.empresa_nome,
-        email: usuario.empresa_email,
-        telefone: usuario.empresa_telefone
-      }
-    });
-
-  } catch (err) {
-    console.error('Erro ao buscar usuário:', err);
-
-    res.status(500).json({
-      erro: 'Não foi possível carregar os dados do usuário.'
-    });
   }
-});
+);
 
 module.exports = router;

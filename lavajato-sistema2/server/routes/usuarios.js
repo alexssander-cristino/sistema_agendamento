@@ -34,9 +34,12 @@ const PERMISSOES_ADMINISTRADOR = [
 // ============================================================
 
 function somenteAdministrador(req, res, next) {
-  if (req.usuario.perfil !== 'administrador') {
+  if (
+    req.usuario.perfil !== 'administrador'
+  ) {
     return res.status(403).json({
-      erro: 'Acesso permitido somente para administradores.'
+      erro:
+        'Acesso permitido somente para administradores.'
     });
   }
 
@@ -44,57 +47,109 @@ function somenteAdministrador(req, res, next) {
 }
 
 // ============================================================
+// FUNÇÃO AUXILIAR
+// Valida permissões recebidas
+// ============================================================
+
+async function validarPermissoes(permissoes) {
+  if (!Array.isArray(permissoes)) {
+    return {
+      validas: false,
+      invalidas: []
+    };
+  }
+
+  const permissoesDisponiveis =
+    await buscarTodasPermissoes();
+
+  const codigosDisponiveis =
+    permissoesDisponiveis.map(
+      (permissao) =>
+        permissao.codigo
+    );
+
+  const permissoesInvalidas =
+    permissoes.filter(
+      (codigo) =>
+        !codigosDisponiveis.includes(
+          codigo
+        )
+    );
+
+  return {
+    validas:
+      permissoesInvalidas.length === 0,
+
+    invalidas:
+      permissoesInvalidas
+  };
+}
+
+// ============================================================
 // GET /api/usuarios
 // Lista usuários da empresa
 // ============================================================
 
-router.get('/', somenteAdministrador, async (req, res) => {
-  const empresaId = req.usuario.empresa_id;
+router.get(
+  '/',
+  somenteAdministrador,
+  async (req, res) => {
+    const empresaId =
+      req.usuario.empresa_id;
 
-  try {
-    const { rows } = await pool.query(
-      `SELECT
-          id,
-          empresa_id,
-          nome,
-          email,
-          perfil,
-          ativo,
-          criado_em,
-          atualizado_em
-       FROM usuarios
-       WHERE empresa_id = $1
-       ORDER BY nome ASC`,
-      [empresaId]
-    );
+    try {
+      const { rows } =
+        await pool.query(
+          `SELECT
+              id,
+              empresa_id,
+              nome,
+              email,
+              perfil,
+              ativo,
+              criado_em,
+              atualizado_em
+           FROM usuarios
+           WHERE empresa_id = $1
+           ORDER BY nome ASC`,
+          [empresaId]
+        );
 
-    const usuarios = await Promise.all(
-      rows.map(async (usuario) => {
-        const permissoes =
-          usuario.perfil === 'administrador'
-            ? PERMISSOES_ADMINISTRADOR
-            : await buscarCodigosPermissoesUsuario(usuario.id);
+      const usuarios =
+        await Promise.all(
+          rows.map(
+            async (usuario) => {
+              const permissoes =
+                usuario.perfil ===
+                'administrador'
+                  ? PERMISSOES_ADMINISTRADOR
+                  : await buscarCodigosPermissoesUsuario(
+                      usuario.id
+                    );
 
-        return {
-          ...usuario,
-          permissoes
-        };
-      })
-    );
+              return {
+                ...usuario,
+                permissoes
+              };
+            }
+          )
+        );
 
-    res.json(usuarios);
+      res.json(usuarios);
 
-  } catch (err) {
-    console.error(
-      'Erro ao listar usuários:',
-      err
-    );
+    } catch (err) {
+      console.error(
+        'Erro ao listar usuários:',
+        err
+      );
 
-    res.status(500).json({
-      erro: 'Não foi possível carregar os usuários.'
-    });
+      res.status(500).json({
+        erro:
+          'Não foi possível carregar os usuários.'
+      });
+    }
   }
-});
+);
 
 // ============================================================
 // GET /api/usuarios/permissoes
@@ -106,7 +161,8 @@ router.get(
   somenteAdministrador,
   async (req, res) => {
     try {
-      const permissoes = await buscarTodasPermissoes();
+      const permissoes =
+        await buscarTodasPermissoes();
 
       res.json(permissoes);
 
@@ -117,7 +173,8 @@ router.get(
       );
 
       res.status(500).json({
-        erro: 'Não foi possível carregar as permissões.'
+        erro:
+          'Não foi possível carregar as permissões.'
       });
     }
   }
@@ -133,35 +190,43 @@ router.get(
   somenteAdministrador,
   async (req, res) => {
     const { id } = req.params;
-    const empresaId = req.usuario.empresa_id;
+
+    const empresaId =
+      req.usuario.empresa_id;
 
     try {
-      const existente = await pool.query(
-        `SELECT
+      const existente =
+        await pool.query(
+          `SELECT
+              id,
+              nome,
+              email,
+              perfil,
+              ativo
+           FROM usuarios
+           WHERE id = $1
+             AND empresa_id = $2`,
+          [
             id,
-            nome,
-            email,
-            perfil,
-            ativo
-         FROM usuarios
-         WHERE id = $1
-           AND empresa_id = $2`,
-        [
-          id,
-          empresaId
-        ]
-      );
+            empresaId
+          ]
+        );
 
-      if (existente.rows.length === 0) {
+      if (
+        existente.rows.length === 0
+      ) {
         return res.status(404).json({
-          erro: 'Usuário não encontrado.'
+          erro:
+            'Usuário não encontrado.'
         });
       }
 
-      const usuario = existente.rows[0];
+      const usuario =
+        existente.rows[0];
 
       const permissoes =
-        usuario.perfil === 'administrador'
+        usuario.perfil ===
+        'administrador'
           ? PERMISSOES_ADMINISTRADOR
           : await buscarCodigosPermissoesUsuario(
               usuario.id
@@ -175,6 +240,7 @@ router.get(
           perfil: usuario.perfil,
           ativo: usuario.ativo
         },
+
         permissoes
       });
 
@@ -185,7 +251,8 @@ router.get(
       );
 
       res.status(500).json({
-        erro: 'Não foi possível carregar as permissões.'
+        erro:
+          'Não foi possível carregar as permissões.'
       });
     }
   }
@@ -200,24 +267,36 @@ router.post(
   '/',
   somenteAdministrador,
   async (req, res) => {
-    const empresaId = req.usuario.empresa_id;
+    const empresaId =
+      req.usuario.empresa_id;
 
     const {
       nome,
       email,
       senha,
-      perfil
+      perfil,
+      permissoes
     } = req.body;
 
-    if (!nome || !email || !senha) {
+    // ========================================================
+    // VALIDAÇÕES
+    // ========================================================
+
+    if (
+      !nome ||
+      !email ||
+      !senha
+    ) {
       return res.status(400).json({
-        erro: 'Informe nome, e-mail e senha.'
+        erro:
+          'Informe nome, e-mail e senha.'
       });
     }
 
     if (senha.length < 6) {
       return res.status(400).json({
-        erro: 'A senha deve possuir pelo menos 6 caracteres.'
+        erro:
+          'A senha deve possuir pelo menos 6 caracteres.'
       });
     }
 
@@ -226,81 +305,154 @@ router.post(
         ? 'administrador'
         : 'funcionario';
 
-    try {
-      const usuarioExistente = await pool.query(
-        `SELECT id
-         FROM usuarios
-         WHERE LOWER(email) = LOWER($1)`,
-        [email]
-      );
+    // ========================================================
+    // VALIDAR PERMISSÕES ANTES DE CRIAR
+    // ========================================================
 
-      if (usuarioExistente.rows.length > 0) {
+    let permissoesFinais = [];
+
+    if (
+      perfilFinal === 'funcionario'
+    ) {
+      permissoesFinais =
+        Array.isArray(permissoes)
+          ? permissoes
+          : [];
+
+      const resultado =
+        await validarPermissoes(
+          permissoesFinais
+        );
+
+      if (!resultado.validas) {
+        return res.status(400).json({
+          erro:
+            'Uma ou mais permissões informadas são inválidas.',
+
+          permissoes_invalidas:
+            resultado.invalidas
+        });
+      }
+    }
+
+    try {
+      // ======================================================
+      // Verifica usuário existente
+      // ======================================================
+
+      const usuarioExistente =
+        await pool.query(
+          `SELECT id
+           FROM usuarios
+           WHERE LOWER(email) = LOWER($1)`,
+          [email]
+        );
+
+      if (
+        usuarioExistente.rows.length > 0
+      ) {
         return res.status(409).json({
-          erro: 'Já existe um usuário cadastrado com esse e-mail.'
+          erro:
+            'Já existe um usuário cadastrado com esse e-mail.'
         });
       }
 
-      const senhaHash = await bcrypt.hash(
-        senha,
-        12
-      );
+      // ======================================================
+      // Cria senha
+      // ======================================================
 
-      const { rows } = await pool.query(
-        `INSERT INTO usuarios
-          (
-            empresa_id,
+      const senhaHash =
+        await bcrypt.hash(
+          senha,
+          12
+        );
+
+      // ======================================================
+      // Cria usuário
+      // ======================================================
+
+      const { rows } =
+        await pool.query(
+          `INSERT INTO usuarios
+            (
+              empresa_id,
+              nome,
+              email,
+              senha,
+              perfil
+            )
+           VALUES
+            (
+              $1,
+              $2,
+              $3,
+              $4,
+              $5
+            )
+           RETURNING
+              id,
+              empresa_id,
+              nome,
+              email,
+              perfil,
+              ativo,
+              criado_em,
+              atualizado_em`,
+          [
+            empresaId,
             nome,
             email,
-            senha,
-            perfil
-          )
-         VALUES
-          (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5
-          )
-         RETURNING
-            id,
-            empresa_id,
-            nome,
-            email,
-            perfil,
-            ativo,
-            criado_em,
-            atualizado_em`,
-        [
-          empresaId,
-          nome,
-          email,
-          senhaHash,
-          perfilFinal
-        ]
-      );
+            senhaHash,
+            perfilFinal
+          ]
+        );
 
-      const usuario = rows[0];
+      const usuario =
+        rows[0];
 
-      // Administradores não precisam de registros
-      // individuais de permissão.
-      //
-      // Funcionários começam sem permissões.
-      if (perfilFinal === 'funcionario') {
+      // ======================================================
+      // Salva permissões
+      // ======================================================
+
+      if (
+        perfilFinal ===
+        'administrador'
+      ) {
         await substituirPermissoesUsuario(
           usuario.id,
           []
         );
+      } else {
+        await substituirPermissoesUsuario(
+          usuario.id,
+          permissoesFinais
+        );
       }
 
+      // ======================================================
+      // Busca permissões salvas
+      // ======================================================
+
+      const permissoesSalvas =
+        perfilFinal ===
+        'administrador'
+          ? PERMISSOES_ADMINISTRADOR
+          : await buscarCodigosPermissoesUsuario(
+              usuario.id
+            );
+
+      // ======================================================
+      // Resposta
+      // ======================================================
+
       res.status(201).json({
-        mensagem: 'Usuário criado com sucesso.',
+        mensagem:
+          'Usuário criado com sucesso.',
+
         usuario: {
           ...usuario,
           permissoes:
-            perfilFinal === 'administrador'
-              ? PERMISSOES_ADMINISTRADOR
-              : []
+            permissoesSalvas
         }
       });
 
@@ -311,7 +463,8 @@ router.post(
       );
 
       res.status(500).json({
-        erro: 'Não foi possível criar o usuário.'
+        erro:
+          'Não foi possível criar o usuário.'
       });
     }
   }
@@ -319,7 +472,7 @@ router.post(
 
 // ============================================================
 // PUT /api/usuarios/:id
-// Atualiza dados, cargo e status
+// Atualiza dados, cargo, permissões e status
 // ============================================================
 
 router.put(
@@ -327,57 +480,72 @@ router.put(
   somenteAdministrador,
   async (req, res) => {
     const { id } = req.params;
-    const empresaId = req.usuario.empresa_id;
+
+    const empresaId =
+      req.usuario.empresa_id;
 
     const {
       nome,
       email,
       perfil,
-      ativo
+      ativo,
+      permissoes
     } = req.body;
 
     try {
-      const existente = await pool.query(
-        `SELECT *
-         FROM usuarios
-         WHERE id = $1
-           AND empresa_id = $2`,
-        [
-          id,
-          empresaId
-        ]
-      );
+      // ======================================================
+      // Busca usuário
+      // ======================================================
 
-      if (existente.rows.length === 0) {
+      const existente =
+        await pool.query(
+          `SELECT *
+           FROM usuarios
+           WHERE id = $1
+             AND empresa_id = $2`,
+          [
+            id,
+            empresaId
+          ]
+        );
+
+      if (
+        existente.rows.length === 0
+      ) {
         return res.status(404).json({
-          erro: 'Usuário não encontrado.'
+          erro:
+            'Usuário não encontrado.'
         });
       }
 
       const usuarioAtual =
         existente.rows[0];
 
-      // ========================================================
+      // ======================================================
       // NÃO PERMITIR DESATIVAR A PRÓPRIA CONTA
-      // ========================================================
+      // ======================================================
 
       if (
-        Number(id) === Number(req.usuario.id) &&
+        Number(id) ===
+          Number(req.usuario.id) &&
         ativo === false
       ) {
         return res.status(400).json({
-          erro: 'Você não pode desativar o próprio usuário.'
+          erro:
+            'Você não pode desativar o próprio usuário.'
         });
       }
 
-      // ========================================================
-      // NÃO PERMITIR QUE O ÚLTIMO ADMINISTRADOR
+      // ======================================================
+      // NÃO PERMITIR QUE O ÚLTIMO ADMIN
       // SEJA REBAIXADO
-      // ========================================================
+      // ======================================================
 
       if (
-        Number(id) !== Number(req.usuario.id) &&
-        usuarioAtual.perfil === 'administrador' &&
+        Number(id) !==
+          Number(req.usuario.id) &&
+        usuarioAtual.perfil ===
+          'administrador' &&
         perfil === 'funcionario'
       ) {
         const administradores =
@@ -392,10 +560,13 @@ router.put(
 
         const totalAdministradores =
           Number(
-            administradores.rows[0].total
+            administradores.rows[0]
+              .total
           );
 
-        if (totalAdministradores <= 1) {
+        if (
+          totalAdministradores <= 1
+        ) {
           return res.status(400).json({
             erro:
               'A empresa precisa possuir pelo menos um administrador ativo.'
@@ -403,11 +574,13 @@ router.put(
         }
       }
 
-      // ========================================================
+      // ======================================================
       // VERIFICAR E-MAIL
-      // ========================================================
+      // ======================================================
 
-      if (email !== undefined) {
+      if (
+        email !== undefined
+      ) {
         const emailExistente =
           await pool.query(
             `SELECT id
@@ -421,7 +594,8 @@ router.put(
           );
 
         if (
-          emailExistente.rows.length > 0
+          emailExistente.rows.length >
+          0
         ) {
           return res.status(409).json({
             erro:
@@ -429,6 +603,10 @@ router.put(
           });
         }
       }
+
+      // ======================================================
+      // NOVOS VALORES
+      // ======================================================
 
       const novoNome =
         nome !== undefined
@@ -451,48 +629,91 @@ router.put(
           ? Boolean(ativo)
           : usuarioAtual.ativo;
 
-      // ========================================================
-      // ATUALIZA USUÁRIO
-      // ========================================================
+      // ======================================================
+      // VALIDAR PERMISSÕES
+      // ======================================================
 
-      const { rows } = await pool.query(
-        `UPDATE usuarios
-         SET
-            nome = $1,
-            email = $2,
-            perfil = $3,
-            ativo = $4,
-            atualizado_em = NOW()
-         WHERE id = $5
-           AND empresa_id = $6
-         RETURNING
-            id,
-            empresa_id,
-            nome,
-            email,
-            perfil,
-            ativo,
-            criado_em,
-            atualizado_em`,
-        [
-          novoNome,
-          novoEmail,
-          novoPerfil,
-          novoAtivo,
-          id,
-          empresaId
-        ]
-      );
-
-      const usuario = rows[0];
-
-      // ========================================================
-      // SE VIROU ADMINISTRADOR
-      // NÃO PRECISA DE PERMISSÕES INDIVIDUAIS
-      // ========================================================
+      let permissoesFinais = [];
 
       if (
-        novoPerfil === 'administrador'
+        novoPerfil ===
+        'funcionario'
+      ) {
+        if (
+          Array.isArray(permissoes)
+        ) {
+          permissoesFinais =
+            permissoes;
+        } else {
+          // Se não vier no request,
+          // mantém as atuais.
+          permissoesFinais =
+            await buscarCodigosPermissoesUsuario(
+              usuarioAtual.id
+            );
+        }
+
+        const resultado =
+          await validarPermissoes(
+            permissoesFinais
+          );
+
+        if (!resultado.validas) {
+          return res.status(400).json({
+            erro:
+              'Uma ou mais permissões informadas são inválidas.',
+
+            permissoes_invalidas:
+              resultado.invalidas
+          });
+        }
+      }
+
+      // ======================================================
+      // ATUALIZA USUÁRIO
+      // ======================================================
+
+      const { rows } =
+        await pool.query(
+          `UPDATE usuarios
+           SET
+              nome = $1,
+              email = $2,
+              perfil = $3,
+              ativo = $4,
+              atualizado_em = NOW()
+           WHERE id = $5
+             AND empresa_id = $6
+           RETURNING
+              id,
+              empresa_id,
+              nome,
+              email,
+              perfil,
+              ativo,
+              criado_em,
+              atualizado_em`,
+          [
+            novoNome,
+            novoEmail,
+            novoPerfil,
+            novoAtivo,
+            id,
+            empresaId
+          ]
+        );
+
+      const usuario =
+        rows[0];
+
+      // ======================================================
+      // ADMINISTRADOR
+      // Não precisa de permissões individuais
+      // ======================================================
+
+      if (
+        novoPerfil ===
+        'administrador'
       ) {
         await substituirPermissoesUsuario(
           usuario.id,
@@ -500,12 +721,33 @@ router.put(
         );
       }
 
-      const permissoes =
-        novoPerfil === 'administrador'
+      // ======================================================
+      // FUNCIONÁRIO
+      // Salva permissões selecionadas
+      // ======================================================
+
+      else {
+        await substituirPermissoesUsuario(
+          usuario.id,
+          permissoesFinais
+        );
+      }
+
+      // ======================================================
+      // BUSCA PERMISSÕES FINAIS
+      // ======================================================
+
+      const permissoesSalvas =
+        novoPerfil ===
+        'administrador'
           ? PERMISSOES_ADMINISTRADOR
           : await buscarCodigosPermissoesUsuario(
               usuario.id
             );
+
+      // ======================================================
+      // RESPOSTA
+      // ======================================================
 
       res.json({
         mensagem:
@@ -513,7 +755,8 @@ router.put(
 
         usuario: {
           ...usuario,
-          permissoes
+          permissoes:
+            permissoesSalvas
         }
       });
 
@@ -541,13 +784,21 @@ router.patch(
   somenteAdministrador,
   async (req, res) => {
     const { id } = req.params;
-    const empresaId = req.usuario.empresa_id;
+
+    const empresaId =
+      req.usuario.empresa_id;
 
     const {
       permissoes
     } = req.body;
 
-    if (!Array.isArray(permissoes)) {
+    // ========================================================
+    // VALIDAÇÃO
+    // ========================================================
+
+    if (
+      !Array.isArray(permissoes)
+    ) {
       return res.status(400).json({
         erro:
           'Informe as permissões em formato de lista.'
@@ -555,37 +806,46 @@ router.patch(
     }
 
     try {
-      const existente = await pool.query(
-        `SELECT
-            id,
-            nome,
-            email,
-            perfil,
-            ativo
-         FROM usuarios
-         WHERE id = $1
-           AND empresa_id = $2`,
-        [
-          id,
-          empresaId
-        ]
-      );
+      // ======================================================
+      // Busca usuário
+      // ======================================================
 
-      if (existente.rows.length === 0) {
+      const existente =
+        await pool.query(
+          `SELECT
+              id,
+              nome,
+              email,
+              perfil,
+              ativo
+           FROM usuarios
+           WHERE id = $1
+             AND empresa_id = $2`,
+          [
+            id,
+            empresaId
+          ]
+        );
+
+      if (
+        existente.rows.length === 0
+      ) {
         return res.status(404).json({
-          erro: 'Usuário não encontrado.'
+          erro:
+            'Usuário não encontrado.'
         });
       }
 
       const usuario =
         existente.rows[0];
 
-      // ========================================================
+      // ======================================================
       // ADMINISTRADOR TEM ACESSO TOTAL
-      // ========================================================
+      // ======================================================
 
       if (
-        usuario.perfil === 'administrador'
+        usuario.perfil ===
+        'administrador'
       ) {
         return res.status(400).json({
           erro:
@@ -593,51 +853,46 @@ router.patch(
         });
       }
 
-      // ========================================================
-      // PERMISSÕES VÁLIDAS
-      // ========================================================
+      // ======================================================
+      // VALIDAR PERMISSÕES
+      // ======================================================
 
-      const permissoesDisponiveis =
-        await buscarTodasPermissoes();
-
-      const codigosDisponiveis =
-        permissoesDisponiveis.map(
-          (permissao) =>
-            permissao.codigo
+      const resultado =
+        await validarPermissoes(
+          permissoes
         );
 
-      const permissoesInvalidas =
-        permissoes.filter(
-          (codigo) =>
-            !codigosDisponiveis.includes(
-              codigo
-            )
-        );
-
-      if (
-        permissoesInvalidas.length > 0
-      ) {
+      if (!resultado.validas) {
         return res.status(400).json({
           erro:
             'Uma ou mais permissões informadas são inválidas.',
+
           permissoes_invalidas:
-            permissoesInvalidas
+            resultado.invalidas
         });
       }
 
-      // ========================================================
+      // ======================================================
       // SALVA PERMISSÕES
-      // ========================================================
+      // ======================================================
 
       await substituirPermissoesUsuario(
         usuario.id,
         permissoes
       );
 
+      // ======================================================
+      // BUSCA PERMISSÕES SALVAS
+      // ======================================================
+
       const novasPermissoes =
         await buscarCodigosPermissoesUsuario(
           usuario.id
         );
+
+      // ======================================================
+      // RESPOSTA
+      // ======================================================
 
       res.json({
         mensagem:
@@ -678,13 +933,17 @@ router.patch(
   somenteAdministrador,
   async (req, res) => {
     const { id } = req.params;
-    const empresaId = req.usuario.empresa_id;
 
-    const { senha } = req.body;
+    const empresaId =
+      req.usuario.empresa_id;
+
+    const { senha } =
+      req.body;
 
     if (!senha) {
       return res.status(400).json({
-        erro: 'Informe a nova senha.'
+        erro:
+          'Informe a nova senha.'
       });
     }
 
@@ -696,20 +955,24 @@ router.patch(
     }
 
     try {
-      const existente = await pool.query(
-        `SELECT id
-         FROM usuarios
-         WHERE id = $1
-           AND empresa_id = $2`,
-        [
-          id,
-          empresaId
-        ]
-      );
+      const existente =
+        await pool.query(
+          `SELECT id
+           FROM usuarios
+           WHERE id = $1
+             AND empresa_id = $2`,
+          [
+            id,
+            empresaId
+          ]
+        );
 
-      if (existente.rows.length === 0) {
+      if (
+        existente.rows.length === 0
+      ) {
         return res.status(404).json({
-          erro: 'Usuário não encontrado.'
+          erro:
+            'Usuário não encontrado.'
         });
       }
 
@@ -762,11 +1025,16 @@ router.patch(
   somenteAdministrador,
   async (req, res) => {
     const { id } = req.params;
-    const empresaId = req.usuario.empresa_id;
 
-    const { ativo } = req.body;
+    const empresaId =
+      req.usuario.empresa_id;
 
-    if (typeof ativo !== 'boolean') {
+    const { ativo } =
+      req.body;
+
+    if (
+      typeof ativo !== 'boolean'
+    ) {
       return res.status(400).json({
         erro:
           'Informe o status do usuário.'
@@ -774,36 +1042,40 @@ router.patch(
     }
 
     try {
-      const existente = await pool.query(
-        `SELECT
+      const existente =
+        await pool.query(
+          `SELECT
+              id,
+              perfil,
+              ativo
+           FROM usuarios
+           WHERE id = $1
+             AND empresa_id = $2`,
+          [
             id,
-            perfil,
-            ativo
-         FROM usuarios
-         WHERE id = $1
-           AND empresa_id = $2`,
-        [
-          id,
-          empresaId
-        ]
-      );
+            empresaId
+          ]
+        );
 
-      if (existente.rows.length === 0) {
+      if (
+        existente.rows.length === 0
+      ) {
         return res.status(404).json({
-          erro: 'Usuário não encontrado.'
+          erro:
+            'Usuário não encontrado.'
         });
       }
 
       const usuario =
         existente.rows[0];
 
-      // ========================================================
+      // ======================================================
       // NÃO PODE DESATIVAR A PRÓPRIA CONTA
-      // ========================================================
+      // ======================================================
 
       if (
         Number(id) ===
-        Number(req.usuario.id) &&
+          Number(req.usuario.id) &&
         ativo === false
       ) {
         return res.status(400).json({
@@ -812,12 +1084,13 @@ router.patch(
         });
       }
 
-      // ========================================================
+      // ======================================================
       // NÃO DEIXAR EMPRESA SEM ADMINISTRADOR
-      // ========================================================
+      // ======================================================
 
       if (
-        usuario.perfil === 'administrador' &&
+        usuario.perfil ===
+          'administrador' &&
         usuario.ativo === true &&
         ativo === false
       ) {
@@ -833,7 +1106,8 @@ router.patch(
 
         const totalAdministradores =
           Number(
-            administradores.rows[0].total
+            administradores.rows[0]
+              .total
           );
 
         if (
@@ -845,6 +1119,10 @@ router.patch(
           });
         }
       }
+
+      // ======================================================
+      // ATUALIZA STATUS
+      // ======================================================
 
       const { rows } =
         await pool.query(
@@ -902,7 +1180,13 @@ router.delete(
   somenteAdministrador,
   async (req, res) => {
     const { id } = req.params;
-    const empresaId = req.usuario.empresa_id;
+
+    const empresaId =
+      req.usuario.empresa_id;
+
+    // ========================================================
+    // NÃO PODE EXCLUIR A PRÓPRIA CONTA
+    // ========================================================
 
     if (
       Number(id) ===
@@ -915,35 +1199,40 @@ router.delete(
     }
 
     try {
-      const existente = await pool.query(
-        `SELECT
+      const existente =
+        await pool.query(
+          `SELECT
+              id,
+              perfil,
+              ativo
+           FROM usuarios
+           WHERE id = $1
+             AND empresa_id = $2`,
+          [
             id,
-            perfil,
-            ativo
-         FROM usuarios
-         WHERE id = $1
-           AND empresa_id = $2`,
-        [
-          id,
-          empresaId
-        ]
-      );
+            empresaId
+          ]
+        );
 
-      if (existente.rows.length === 0) {
+      if (
+        existente.rows.length === 0
+      ) {
         return res.status(404).json({
-          erro: 'Usuário não encontrado.'
+          erro:
+            'Usuário não encontrado.'
         });
       }
 
       const usuario =
         existente.rows[0];
 
-      // ========================================================
+      // ======================================================
       // NÃO DEIXAR EMPRESA SEM ADMINISTRADOR
-      // ========================================================
+      // ======================================================
 
       if (
-        usuario.perfil === 'administrador' &&
+        usuario.perfil ===
+          'administrador' &&
         usuario.ativo === true
       ) {
         const administradores =
@@ -958,7 +1247,8 @@ router.delete(
 
         const totalAdministradores =
           Number(
-            administradores.rows[0].total
+            administradores.rows[0]
+              .total
           );
 
         if (
@@ -970,6 +1260,10 @@ router.delete(
           });
         }
       }
+
+      // ======================================================
+      // EXCLUI USUÁRIO
+      // ======================================================
 
       await pool.query(
         `DELETE FROM usuarios
