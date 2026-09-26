@@ -4449,32 +4449,68 @@
   // value igual à chave da aba (ex: value="agenda"). Ver o bloco de
   // HTML sugerido ao final desta resposta.
 
-  function marcarPermissoesNoFormulario(selecionadas){
 
-    const checkboxes =
-      document.querySelectorAll(
-        '.user-permissao-checkbox'
-      );
+function marcarPermissoesNoFormulario(selecionadas){
 
-    checkboxes.forEach(cb => {
+  const checkboxes =
+    document.querySelectorAll(
+      '#form-user .user-permissao-checkbox, #form-user [data-permission]'
+    );
 
-      cb.checked =
-        Array.isArray(selecionadas) &&
-        selecionadas.includes(cb.value);
-    });
-  }
+  const lista =
+    Array.isArray(selecionadas)
+      ? selecionadas.map(String)
+      : [];
+
+  checkboxes.forEach(cb => {
+
+    const codigo =
+      cb.value ||
+      cb.dataset.permission ||
+      cb.dataset.permissao ||
+      '';
+
+    cb.checked =
+      lista.includes(String(codigo));
+  });
+}
 
 
-  function lerPermissoesDoFormulario(){
+function lerPermissoesDoFormulario(){
 
-    return Array
-      .from(
-        document.querySelectorAll(
-          '.user-permissao-checkbox:checked'
-        )
-      )
-      .map(cb => cb.value);
-  }
+  const checkboxes =
+    document.querySelectorAll(
+      '#form-user .user-permissao-checkbox, #form-user [data-permission]'
+    );
+
+  const permissoes = [];
+
+  checkboxes.forEach(cb => {
+
+    if(!cb.checked){
+      return;
+    }
+
+    const codigo =
+      cb.value ||
+      cb.dataset.permission ||
+      cb.dataset.permissao ||
+      '';
+
+    if(codigo && !permissoes.includes(codigo)){
+      permissoes.push(codigo);
+    }
+  });
+
+  console.log(
+    '[PERMISSÕES] Permissões selecionadas:',
+    permissoes
+  );
+
+  return permissoes;
+}
+
+
 
 
   // some com o bloco de permissões quando o perfil escolhido for
