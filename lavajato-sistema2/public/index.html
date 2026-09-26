@@ -2695,6 +2695,285 @@
 
 <script>
 
+
+/* =========================================================
+   CORES / APARÊNCIA
+   ========================================================= */
+
+function aplicarCoresEmpresa(empresa) {
+  if (!empresa) return;
+
+  const root = document.documentElement;
+
+  const primaria = empresa.cor_primaria || '#0E3A4C';
+  const destaque = empresa.cor_destaque || '#06B6D4';
+  const fundo = empresa.cor_fundo || '#F2F5F8';
+
+  root.style.setProperty('--primary', primaria);
+  root.style.setProperty('--accent', destaque);
+  root.style.setProperty('--bg', fundo);
+
+  // Variações automáticas da cor principal
+  root.style.setProperty('--primary-2', primaria);
+  root.style.setProperty('--primary-dark', primaria);
+
+  // Variações da cor de destaque
+  root.style.setProperty('--accent-2', destaque);
+
+  // Atualiza também o tema dos elementos da interface
+  document.querySelectorAll('.sidebar').forEach(el => {
+    el.style.setProperty('--primary', primaria);
+    el.style.setProperty('--accent', destaque);
+  });
+}
+
+
+/* =========================================================
+   SINCRONIZA COLOR PICKER COM CAMPO HEX
+   ========================================================= */
+
+function sincronizarCorInput(inputColorId, inputTextId) {
+  const inputColor = document.getElementById(inputColorId);
+  const inputText = document.getElementById(inputTextId);
+
+  if (!inputColor || !inputText) return;
+
+  inputColor.addEventListener('input', () => {
+    inputText.value = inputColor.value.toUpperCase();
+    aplicarPreviewCores();
+  });
+
+  inputText.addEventListener('input', () => {
+    let valor = inputText.value.trim().toUpperCase();
+
+    if (!valor.startsWith('#')) {
+      valor = '#' + valor.replace(/^#+/, '');
+    }
+
+    inputText.value = valor;
+
+    if (/^#[0-9A-F]{6}$/.test(valor)) {
+      inputColor.value = valor;
+      aplicarPreviewCores();
+    }
+  });
+
+  inputText.addEventListener('blur', () => {
+    const valor = inputText.value.trim().toUpperCase();
+
+    if (!/^#[0-9A-F]{6}$/.test(valor)) {
+      inputText.value = inputColor.value.toUpperCase();
+    }
+  });
+}
+
+
+/* =========================================================
+   PREVISUALIZAÇÃO DAS CORES
+   ========================================================= */
+
+function aplicarPreviewCores() {
+  const primaria =
+    document.getElementById('config-cor-principal')?.value ||
+    '#0E3A4C';
+
+  const destaque =
+    document.getElementById('config-cor-destaque')?.value ||
+    '#06B6D4';
+
+  const root = document.documentElement;
+
+  root.style.setProperty('--primary', primaria);
+  root.style.setProperty('--accent', destaque);
+
+  // Atualiza variações
+  root.style.setProperty('--primary-2', primaria);
+  root.style.setProperty('--primary-dark', primaria);
+  root.style.setProperty('--accent-2', destaque);
+}
+
+
+/* =========================================================
+   CONFIGURA OS CAMPOS DE COR
+   ========================================================= */
+
+function configurarSelecaoDeCores() {
+
+  sincronizarCorInput(
+    'config-cor-principal',
+    'config-cor-principal-text'
+  );
+
+  sincronizarCorInput(
+    'config-cor-destaque',
+    'config-cor-destaque-text'
+  );
+
+
+  /* =======================================================
+     PRESETS
+     ======================================================= */
+
+  document.querySelectorAll('.theme-preset').forEach(botao => {
+
+    botao.addEventListener('click', () => {
+
+      const primaria =
+        botao.dataset.primary || '#0E3A4C';
+
+      const destaque =
+        botao.dataset.accent || '#06B6D4';
+
+      const inputPrimaria =
+        document.getElementById('config-cor-principal');
+
+      const textoPrimaria =
+        document.getElementById('config-cor-principal-text');
+
+      const inputDestaque =
+        document.getElementById('config-cor-destaque');
+
+      const textoDestaque =
+        document.getElementById('config-cor-destaque-text');
+
+
+      if (inputPrimaria) {
+        inputPrimaria.value = primaria;
+      }
+
+      if (textoPrimaria) {
+        textoPrimaria.value = primaria;
+      }
+
+      if (inputDestaque) {
+        inputDestaque.value = destaque;
+      }
+
+      if (textoDestaque) {
+        textoDestaque.value = destaque;
+      }
+
+      aplicarPreviewCores();
+    });
+
+  });
+
+
+  /* =======================================================
+     RESTAURAR TEMA PADRÃO
+     ======================================================= */
+
+  const btnRestaurar =
+    document.getElementById('btn-restaurar-tema');
+
+  if (btnRestaurar) {
+
+    btnRestaurar.addEventListener('click', () => {
+
+      const primaria = '#0E3A4C';
+      const destaque = '#06B6D4';
+
+      const inputPrimaria =
+        document.getElementById('config-cor-principal');
+
+      const textoPrimaria =
+        document.getElementById('config-cor-principal-text');
+
+      const inputDestaque =
+        document.getElementById('config-cor-destaque');
+
+      const textoDestaque =
+        document.getElementById('config-cor-destaque-text');
+
+
+      if (inputPrimaria) {
+        inputPrimaria.value = primaria;
+      }
+
+      if (textoPrimaria) {
+        textoPrimaria.value = primaria;
+      }
+
+      if (inputDestaque) {
+        inputDestaque.value = destaque;
+      }
+
+      if (textoDestaque) {
+        textoDestaque.value = destaque;
+      }
+
+
+      const tema =
+        document.getElementById('config-tema');
+
+      if (tema) {
+        tema.value = 'claro';
+      }
+
+
+      aplicarPreviewCores();
+    });
+
+  }
+}
+
+
+/* =========================================================
+   PREENCHE AS CORES VINDAS DO BANCO
+   ========================================================= */
+
+function preencherCoresConfiguracoes(empresa) {
+
+  const primaria =
+    empresa?.cor_primaria || '#0E3A4C';
+
+  const destaque =
+    empresa?.cor_destaque || '#06B6D4';
+
+
+  const inputPrimaria =
+    document.getElementById('config-cor-principal');
+
+  const textoPrimaria =
+    document.getElementById('config-cor-principal-text');
+
+  const inputDestaque =
+    document.getElementById('config-cor-destaque');
+
+  const textoDestaque =
+    document.getElementById('config-cor-destaque-text');
+
+
+  if (inputPrimaria) {
+    inputPrimaria.value =
+      primaria.toUpperCase();
+  }
+
+  if (textoPrimaria) {
+    textoPrimaria.value =
+      primaria.toUpperCase();
+  }
+
+  if (inputDestaque) {
+    inputDestaque.value =
+      destaque.toUpperCase();
+  }
+
+  if (textoDestaque) {
+    textoDestaque.value =
+      destaque.toUpperCase();
+  }
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+
+configurarSelecaoDeCores();
+
+
+
   async function carregarUsuarioSidebar() {
 
     const token = localStorage.getItem(
