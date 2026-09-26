@@ -1459,6 +1459,208 @@
 
       </div>
 
+            <!-- =======================================================
+         CONFIGURAÇÕES
+         ======================================================= -->
+
+      <div
+        class="panel"
+        id="panel-configuracoes"
+      >
+
+        <div class="topbar">
+
+          <div>
+
+            <h1>
+              Configurações
+            </h1>
+
+            <div class="date-label">
+              Gerencie os dados da sua lavação e sua conta
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- DADOS DA EMPRESA -->
+
+        <section class="block">
+
+          <h2>
+            Dados da empresa
+          </h2>
+
+          <p
+            class="date-label"
+            style="margin-bottom:20px;"
+          >
+            Essas informações são utilizadas no sistema e poderão ser usadas futuramente em recibos e documentos.
+          </p>
+
+
+          <form id="form-configuracoes">
+
+            <div class="field-row">
+
+              <div class="field">
+
+                <label for="config-empresa-nome">
+                  Nome da lavação
+                </label>
+
+                <input
+                  type="text"
+                  id="config-empresa-nome"
+                  placeholder="Ex: Alx Garage"
+                  required
+                >
+
+              </div>
+
+
+              <div class="field">
+
+                <label for="config-empresa-email">
+                  E-mail da empresa
+                </label>
+
+                <input
+                  type="email"
+                  id="config-empresa-email"
+                  placeholder="contato@empresa.com"
+                  required
+                >
+
+              </div>
+
+            </div>
+
+
+            <div class="field">
+
+              <label for="config-empresa-telefone">
+                Telefone
+              </label>
+
+              <input
+                type="text"
+                id="config-empresa-telefone"
+                placeholder="(47) 99999-9999"
+              >
+
+            </div>
+
+
+            <div
+              id="configuracoes-message"
+              class="auth-error"
+              style="display:none;"
+            ></div>
+
+
+            <div class="modal-actions">
+
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="btn-salvar-configuracoes"
+              >
+                Salvar alterações
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+
+        <!-- MINHA CONTA -->
+
+        <section class="block">
+
+          <h2>
+            Minha conta
+          </h2>
+
+          <p
+            class="date-label"
+            style="margin-bottom:20px;"
+          >
+            Informações do usuário atualmente conectado.
+          </p>
+
+
+          <div class="field-row">
+
+            <div class="field">
+
+              <label for="config-usuario-nome">
+                Nome
+              </label>
+
+              <input
+                type="text"
+                id="config-usuario-nome"
+                readonly
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label for="config-usuario-email">
+                E-mail
+              </label>
+
+              <input
+                type="email"
+                id="config-usuario-email"
+                readonly
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="config-usuario-perfil">
+              Cargo
+            </label>
+
+            <input
+              type="text"
+              id="config-usuario-perfil"
+              readonly
+            >
+
+          </div>
+
+        </section>
+
+
+        <!-- MAIS CONFIGURAÇÕES -->
+
+        <section class="block">
+
+          <h2>
+            Mais configurações
+          </h2>
+
+          <p class="date-label">
+            Novas opções de configuração poderão ser adicionadas aqui posteriormente.
+          </p>
+
+        </section>
+
+      </div>
+
     </main>
 
   </div>
