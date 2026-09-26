@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
@@ -24,248 +25,237 @@
 
   <div id="auth-screen" class="auth-screen">
 
-    <div class="auth-card">
+```
+<div class="auth-card">
 
-      <div class="auth-logo">
-        <div class="auth-logo-mark"></div>
-      </div>
+  <div class="auth-logo">
+    <div class="auth-logo-mark"></div>
+  </div>
 
-      <div class="auth-header">
+  <div class="auth-header">
 
-        <h1>Lavajato</h1>
+    <h1>Lavajato</h1>
 
-        <p id="auth-subtitle">
-          Gestão simples para sua lavação
-        </p>
-
-      </div>
-
-
-      <!-- LOGIN -->
-
-      <form id="login-form" class="auth-form">
-
-        <div class="auth-field">
-
-          <label for="login-email">
-            E-mail
-          </label>
-
-          <input
-            type="email"
-            id="login-email"
-            placeholder="seu@email.com"
-            autocomplete="email"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="login-password">
-            Senha
-          </label>
-
-          <input
-            type="password"
-            id="login-password"
-            placeholder="Sua senha"
-            autocomplete="current-password"
-            required
-          >
-
-        </div>
-
-
-        <div
-          id="login-error"
-          class="auth-error"
-        ></div>
-
-
-        <button
-          type="submit"
-          class="auth-submit"
-          id="login-submit"
-        >
-          Entrar
-        </button>
-
-
-        <button
-          type="button"
-          class="auth-switch"
-          id="show-register"
-        >
-          Criar uma conta
-        </button>
-
-      </form>
-
-
-      <!-- CADASTRO -->
-
-      <form
-        id="register-form"
-        class="auth-form"
-        style="display:none;"
-      >
-
-        <div class="auth-field">
-
-          <label for="register-company">
-            Nome da lavação
-          </label>
-
-          <input
-            type="text"
-            id="register-company"
-            placeholder="Ex: Alx Garage"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-company-email">
-            E-mail da empresa
-          </label>
-
-          <input
-            type="email"
-            id="register-company-email"
-            placeholder="contato@empresa.com"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-phone">
-            Telefone
-          </label>
-
-          <input
-            type="text"
-            id="register-phone"
-            placeholder="(47) 99999-9999"
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-name">
-            Seu nome
-          </label>
-
-          <input
-            type="text"
-            id="register-name"
-            placeholder="Alex"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-email">
-            Seu e-mail
-          </label>
-
-          <input
-            type="email"
-            id="register-email"
-            placeholder="alex@email.com"
-            autocomplete="email"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-password">
-            Senha
-          </label>
-
-          <input
-            type="password"
-            id="register-password"
-            placeholder="Mínimo 6 caracteres"
-            autocomplete="new-password"
-            minlength="6"
-            required
-          >
-
-        </div>
-
-
-        <div
-          id="register-error"
-          class="auth-error"
-        ></div>
-
-
-        <button
-          type="submit"
-          class="auth-submit"
-          id="register-submit"
-        >
-          Criar conta
-        </button>
-
-
-        <button
-          type="button"
-          class="auth-switch"
-          id="show-login"
-        >
-          Já tenho uma conta
-        </button>
-
-      </form>
-
-    </div>
+    <p id="auth-subtitle">
+      Gestão simples para sua lavação
+    </p>
 
   </div>
 
+  <!-- LOGIN -->
+
+  <form id="login-form" class="auth-form">
+
+    <div class="auth-field">
+
+      <label for="login-email">
+        E-mail
+      </label>
+
+      <input
+        type="email"
+        id="login-email"
+        placeholder="seu@email.com"
+        autocomplete="email"
+        required
+      >
+
+    </div>
+
+    <div class="auth-field">
+
+      <label for="login-password">
+        Senha
+      </label>
+
+      <input
+        type="password"
+        id="login-password"
+        placeholder="Sua senha"
+        autocomplete="current-password"
+        required
+      >
+
+    </div>
+
+    <div
+      id="login-error"
+      class="auth-error"
+    ></div>
+
+    <button
+      type="submit"
+      class="auth-submit"
+      id="login-submit"
+    >
+      Entrar
+    </button>
+
+    <button
+      type="button"
+      class="auth-switch"
+      id="show-register"
+    >
+      Criar uma conta
+    </button>
+
+  </form>
+
+  <!-- CADASTRO -->
+
+  <form
+    id="register-form"
+    class="auth-form"
+    style="display:none;"
+  >
+
+    <div class="auth-field">
+
+      <label for="register-company">
+        Nome da lavação
+      </label>
+
+      <input
+        type="text"
+        id="register-company"
+        placeholder="Ex: Alx Garage"
+        required
+      >
+
+    </div>
+
+    <div class="auth-field">
+
+      <label for="register-company-email">
+        E-mail da empresa
+      </label>
+
+      <input
+        type="email"
+        id="register-company-email"
+        placeholder="contato@empresa.com"
+        required
+      >
+
+    </div>
+
+    <div class="auth-field">
+
+      <label for="register-phone">
+        Telefone
+      </label>
+
+      <input
+        type="text"
+        id="register-phone"
+        placeholder="(47) 99999-9999"
+      >
+
+    </div>
+
+    <div class="auth-field">
+
+      <label for="register-name">
+        Seu nome
+      </label>
+
+      <input
+        type="text"
+        id="register-name"
+        placeholder="Alex"
+        required
+      >
+
+    </div>
+
+    <div class="auth-field">
+
+      <label for="register-email">
+        Seu e-mail
+      </label>
+
+      <input
+        type="email"
+        id="register-email"
+        placeholder="alex@email.com"
+        autocomplete="email"
+        required
+      >
+
+    </div>
+
+    <div class="auth-field">
+
+      <label for="register-password">
+        Senha
+      </label>
+
+      <input
+        type="password"
+        id="register-password"
+        placeholder="Mínimo 6 caracteres"
+        autocomplete="new-password"
+        minlength="6"
+        required
+      >
+
+    </div>
+
+    <div
+      id="register-error"
+      class="auth-error"
+    ></div>
+
+    <button
+      type="submit"
+      class="auth-submit"
+      id="register-submit"
+    >
+      Criar conta
+    </button>
+
+    <button
+      type="button"
+      class="auth-switch"
+      id="show-login"
+    >
+      Já tenho uma conta
+    </button>
+
+  </form>
+
+</div>
+```
+
+  </div>
 
   <!-- =========================================================
      BOTÃO DO MENU MOBILE
      ========================================================= -->
 
-  <button
-    class="mobile-menu-btn"
-    id="mobile-menu-btn"
-    type="button"
-    aria-label="Abrir menu"
-  >
+<button
+class="mobile-menu-btn"
+id="mobile-menu-btn"
+type="button"
+aria-label="Abrir menu"
 
-    <svg viewBox="0 0 24 24">
+>
 
-      <path
-        d="M4 6h16M4 12h16M4 18h16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
+```
+<svg viewBox="0 0 24 24">
 
-    </svg>
+  <path
+    d="M4 6h16M4 12h16M4 18h16"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+
+</svg>
+```
 
   </button>
-
 
   <!-- FUNDO DO MENU MOBILE -->
 
@@ -274,1154 +264,1399 @@
     id="sidebar-overlay"
   ></div>
 
-
   <div class="app">
 
-    <!-- =======================================================
-       SIDEBAR
-       ======================================================= -->
+```
+<!-- =======================================================
+   SIDEBAR
+   ======================================================= -->
 
-    <aside class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar">
 
-      <div class="brand">
+  <div class="brand">
 
-        <div class="brand-logo">
-          <span class="mark"></span>
-        </div>
+    <div class="brand-logo">
+      <span class="mark"></span>
+    </div>
 
-        <div class="brand-info">
+    <div class="brand-info">
 
-          <div class="brand-text">
-            Lavajato
-          </div>
-
-          <div class="brand-sub">
-            agenda &amp; caixa
-          </div>
-
-        </div>
-
-        <button
-          class="sidebar-toggle"
-          id="sidebar-toggle"
-          type="button"
-          aria-label="Recolher menu"
-        >
-
-          <svg viewBox="0 0 20 20">
-
-            <path
-              d="M12.5 4.5L7 10l5.5 5.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-
-          </svg>
-
-        </button>
-
+      <div class="brand-text">
+        Lavajato
       </div>
 
-
-      <!-- EMPRESA / USUÁRIO -->
-
-      <div class="sidebar-user">
-
-        <div
-          class="sidebar-company"
-          id="sidebar-company"
-          title="Empresa"
-        >
-          Carregando empresa...
-        </div>
-
-        <div class="sidebar-user-info">
-
-          <div
-            class="sidebar-user-avatar"
-            id="sidebar-user-avatar"
-          >
-            U
-          </div>
-
-          <div class="sidebar-user-data">
-
-            <strong id="sidebar-user-name">
-              Carregando...
-            </strong>
-
-            <span id="sidebar-user-profile">
-              —
-            </span>
-
-          </div>
-
-        </div>
-
+      <div class="brand-sub">
+        agenda &amp; caixa
       </div>
 
-
-      <div class="menu-label">
-        MENU
-      </div>
-
-
-      <!-- MENU -->
-
-      <nav class="sidebar-nav">
-
-        <!-- AGENDA -->
-
-        <button
-          class="nav-btn active"
-          data-tab="agenda"
-          type="button"
-          data-permission-module="agenda"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <path
-              d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Agenda
-          </span>
-
-          <span
-            class="count"
-            id="nav-count-agenda"
-          ></span>
-
-        </button>
-
-
-        <!-- FATURAMENTO -->
-
-        <button
-          class="nav-btn"
-          data-tab="faturamento"
-          type="button"
-          data-permission-module="faturamento"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <path
-              d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
-            <path
-              d="M3 8h14"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Faturamento
-          </span>
-
-          <span
-            class="count"
-            id="nav-count-fat"
-          ></span>
-
-        </button>
-
-
-        <!-- FINANCEIRO -->
-
-        <button
-          class="nav-btn"
-          data-tab="financeiro"
-          type="button"
-          data-permission-module="financeiro"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <path
-              d="M4 15V9M10 15V5M16 15v-4"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Financeiro
-          </span>
-
-        </button>
-
-
-        <!-- SERVIÇOS -->
-
-        <button
-          class="nav-btn"
-          data-tab="servicos"
-          type="button"
-          data-permission-module="servicos"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <circle
-              cx="10"
-              cy="10"
-              r="7"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
-            <path
-              d="M10 6v4l3 2"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Serviços
-          </span>
-
-        </button>
-
-
-        <!-- CLIENTES -->
-
-        <button
-          class="nav-btn"
-          data-tab="clientes"
-          type="button"
-          data-permission-module="clientes"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <circle
-              cx="10"
-              cy="7"
-              r="3.2"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
-            <path
-              d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Clientes
-          </span>
-
-        </button>
-
-
-        <!-- DESPESAS -->
-
-        <button
-          class="nav-btn"
-          data-tab="despesas"
-          type="button"
-          data-permission-module="despesas"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <circle
-              cx="10"
-              cy="10"
-              r="7"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
-            <path
-              d="M7 10h6"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Despesas
-          </span>
-
-        </button>
-
-
-        <!-- USUÁRIOS -->
-
-        <button
-          class="nav-btn"
-          id="nav-usuarios"
-          data-tab="usuarios"
-          type="button"
-          data-permission-module="usuarios"
-          style="display:none;"
-        >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <circle
-              cx="10"
-              cy="6"
-              r="3"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
-            <path
-              d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-
-            <path
-              d="M15 4v4M13 6h4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Usuários
-          </span>
-
-        </button>
-
-      </nav>
-
-
-      <!-- INFORMAÇÕES -->
-
-      <div class="sidebar-bottom">
-
-        <div class="sidebar-stats">
-
-          <div class="stat-line">
-
-            <span>
-              Hoje
-            </span>
-
-            <b id="side-today">
-              R$ 0
-            </b>
-
-          </div>
-
-
-          <div class="stat-line">
-
-            <span>
-              A receber
-            </span>
-
-            <b id="side-pending">
-              R$ 0
-            </b>
-
-          </div>
-
-
-          <div
-            class="stat-line conn"
-            id="conn-status"
-          >
-
-            <span>
-              Banco
-            </span>
-
-            <b id="conn-badge">
-              verificando…
-            </b>
-
-          </div>
-
-        </div>
-
-
-        <!-- SAIR -->
-
-        <button
-          type="button"
-          class="sidebar-logout"
-          id="btn-logout"
-        >
-
-          <svg viewBox="0 0 20 20">
-
-            <path
-              d="M8 3H5a2 2 0 00-2 2v10a2 2 0 002 2h3"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-
-            <path
-              d="M11 6l4 4-4 4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-
-            <path
-              d="M7 10h8"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-          <span class="nav-text">
-            Sair
-          </span>
-
-        </button>
-
-      </div>
-
-    </aside>
-
-
-    <!-- =======================================================
-       CONTEÚDO
-       ======================================================= -->
-
-    <main>
-
-      <!-- AGENDA -->
-
-      <div
-        class="panel active"
-        id="panel-agenda"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Agenda
-            </h1>
-
-            <div
-              class="date-label"
-              id="agenda-date-label"
-            >
-              —
-            </div>
-
-          </div>
-
-          <div class="topbar-actions">
-
-            <button
-              class="btn btn-ghost"
-              id="btn-closing"
-              type="button"
-            >
-              Fechamento do dia
-            </button>
-
-            <button
-              class="btn btn-primary"
-              id="btn-new-appointment"
-              type="button"
-            >
-              Novo agendamento
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div class="date-picker-row">
-
-          <input
-            type="date"
-            id="agenda-date-input"
-          >
-
-          <button
-            class="chip"
-            id="btn-today"
-            type="button"
-          >
-            Hoje
-          </button>
-
-        </div>
-
-
-        <div
-          class="ticket-list"
-          id="agenda-list"
-        ></div>
-
-      </div>
-
-
-      <!-- FATURAMENTO -->
-
-      <div
-        class="panel"
-        id="panel-faturamento"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Faturamento
-            </h1>
-
-            <div class="date-label">
-              Serviços concluídos e recibos
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="totals-strip">
-
-          <div class="stat-card money">
-
-            <div class="label">
-              Total faturado
-            </div>
-
-            <div
-              class="value"
-              id="fat-total"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="label">
-              Recebido
-            </div>
-
-            <div
-              class="value"
-              id="fat-pago"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card warn">
-
-            <div class="label">
-              Pendente
-            </div>
-
-            <div
-              class="value"
-              id="fat-pendente"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div id="fat-list"></div>
-
-      </div>
-
-
-      <!-- FINANCEIRO -->
-
-      <div
-        class="panel"
-        id="panel-financeiro"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Financeiro
-            </h1>
-
-            <div class="date-label">
-              Visão geral do caixa
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="totals-strip">
-
-          <div class="stat-card money">
-
-            <div class="label">
-              Hoje
-            </div>
-
-            <div
-              class="value"
-              id="fin-hoje"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card money">
-
-            <div class="label">
-              Últimos 7 dias
-            </div>
-
-            <div
-              class="value"
-              id="fin-semana"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card money">
-
-            <div class="label">
-              Este mês
-            </div>
-
-            <div
-              class="value"
-              id="fin-mes"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="label">
-              Lavagens concluídas
-            </div>
-
-            <div
-              class="value"
-              id="fin-count"
-            >
-              0
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="totals-strip">
-
-          <div class="stat-card warn">
-
-            <div class="label">
-              Despesas do mês
-            </div>
-
-            <div
-              class="value"
-              id="fin-despesas-mes"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div
-            class="stat-card profit"
-            id="fin-lucro-card"
-          >
-
-            <div class="label">
-              Lucro líquido do mês
-            </div>
-
-            <div
-              class="value"
-              id="fin-lucro-mes"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <section class="block">
-
-          <h2>
-            Faturamento por serviço (mês atual)
-          </h2>
-
-          <div
-            class="bar-chart"
-            id="fin-bars"
-          ></div>
-
-        </section>
-
-
-        <section class="block">
-
-          <h2>
-            Despesas por categoria (mês atual)
-          </h2>
-
-          <div
-            class="bar-chart bar-chart-warn"
-            id="fin-despesas-bars"
-          ></div>
-
-        </section>
-
-      </div>
-
-
-      <!-- SERVIÇOS -->
-
-      <div
-        class="panel"
-        id="panel-servicos"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Serviços
-            </h1>
-
-            <div class="date-label">
-              Tabela de preços usada na agenda
-            </div>
-
-          </div>
-
-          <button
-            class="btn btn-primary"
-            id="btn-new-service"
-            type="button"
-          >
-            Novo serviço
-          </button>
-
-        </div>
-
-
-        <div id="services-list"></div>
-
-      </div>
-
-
-      <!-- CLIENTES -->
-
-      <div
-        class="panel"
-        id="panel-clientes"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Clientes
-            </h1>
-
-            <div class="date-label">
-              Busque o histórico por nome, telefone ou placa
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="search-bar">
-
-          <svg
-            class="search-icon"
-            viewBox="0 0 20 20"
-          >
-
-            <circle
-              cx="9"
-              cy="9"
-              r="6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-            />
-
-            <path
-              d="M17 17l-4-4"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-
-          </svg>
-
-
-          <input
-            type="text"
-            id="cli-search-input"
-            placeholder="Nome, telefone ou placa..."
-          >
-
-
-          <button
-            class="search-clear"
-            id="btn-cli-clear"
-            type="button"
-            aria-label="Limpar busca"
-          >
-
-            <svg viewBox="0 0 20 20">
-
-              <path
-                d="M6 6l8 8M14 6l-8 8"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-
-            </svg>
-
-          </button>
-
-
-          <button
-            class="btn btn-primary search-btn"
-            id="btn-cli-search"
-            type="button"
-          >
-            Buscar
-          </button>
-
-        </div>
-
-
-        <div id="cli-summary"></div>
-
-
-        <div
-          class="ticket-list"
-          id="cli-results"
-        >
-
-          <div class="empty">
-
-            <svg
-              class="empty-icon"
-              viewBox="0 0 20 20"
-            >
-
-              <circle
-                cx="9"
-                cy="9"
-                r="6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.4"
-              />
-
-              <path
-                d="M17 17l-4-4"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-              />
-
-            </svg>
-
-
-            <strong>
-              Busque um cliente
-            </strong>
-
-            Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- DESPESAS -->
-
-      <div
-        class="panel"
-        id="panel-despesas"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Despesas
-            </h1>
-
-            <div class="date-label">
-              Produtos, água, luz, manutenção e outros custos
-            </div>
-
-          </div>
-
-
-          <button
-            class="btn btn-primary"
-            id="btn-new-expense"
-            type="button"
-          >
-            Nova despesa
-          </button>
-
-        </div>
-
-
-        <div class="totals-strip">
-
-          <div class="stat-card warn">
-
-            <div class="label">
-              Total no período
-            </div>
-
-            <div
-              class="value"
-              id="desp-total"
-            >
-              R$ 0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="label">
-              Lançamentos
-            </div>
-
-            <div
-              class="value"
-              id="desp-count"
-            >
-              0
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div id="desp-list"></div>
-
-      </div>
-
-
-      <!-- USUÁRIOS -->
-
-      <div
-        class="panel"
-        id="panel-usuarios"
-      >
-
-        <div class="topbar">
-
-          <div>
-
-            <h1>
-              Usuários
-            </h1>
-
-            <div class="date-label">
-              Gerencie usuários, cargos e acesso ao sistema
-            </div>
-
-          </div>
-
-
-          <button
-            class="btn btn-primary"
-            id="btn-new-user"
-            type="button"
-          >
-            Novo usuário
-          </button>
-
-        </div>
-
-
-        <div class="totals-strip">
-
-          <div class="stat-card">
-
-            <div class="label">
-              Total de usuários
-            </div>
-
-            <div
-              class="value"
-              id="usuarios-total"
-            >
-              0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="label">
-              Administradores
-            </div>
-
-            <div
-              class="value"
-              id="usuarios-admins"
-            >
-              0
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="label">
-              Funcionários
-            </div>
-
-            <div
-              class="value"
-              id="usuarios-funcionarios"
-            >
-              0
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div
-          id="usuarios-list"
-          class="ticket-list"
-        >
-
-          <div class="empty">
-
-            <strong>
-              Carregando usuários...
-            </strong>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </main>
+    </div>
+
+    <button
+      class="sidebar-toggle"
+      id="sidebar-toggle"
+      type="button"
+      aria-label="Recolher menu"
+    >
+
+      <svg viewBox="0 0 20 20">
+
+        <path
+          d="M12.5 4.5L7 10l5.5 5.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+      </svg>
+
+    </button>
 
   </div>
 
+
+  <!-- EMPRESA / USUÁRIO -->
+
+  <div class="sidebar-user">
+
+    <div
+      class="sidebar-company"
+      id="sidebar-company"
+      title="Empresa"
+    >
+      Carregando empresa...
+    </div>
+
+    <div class="sidebar-user-info">
+
+      <div
+        class="sidebar-user-avatar"
+        id="sidebar-user-avatar"
+      >
+        U
+      </div>
+
+      <div class="sidebar-user-data">
+
+        <strong id="sidebar-user-name">
+          Carregando...
+        </strong>
+
+        <span id="sidebar-user-profile">
+          —
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="menu-label">
+    MENU
+  </div>
+
+
+  <!-- MENU -->
+
+  <nav class="sidebar-nav">
+
+    <!-- AGENDA -->
+
+    <button
+      class="nav-btn active"
+      data-tab="agenda"
+      type="button"
+      data-permission-module="agenda"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Agenda
+      </span>
+
+      <span
+        class="count"
+        id="nav-count-agenda"
+      ></span>
+
+    </button>
+
+
+    <!-- FATURAMENTO -->
+
+    <button
+      class="nav-btn"
+      data-tab="faturamento"
+      type="button"
+      data-permission-module="faturamento"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M3 8h14"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Faturamento
+      </span>
+
+      <span
+        class="count"
+        id="nav-count-fat"
+      ></span>
+
+    </button>
+
+
+    <!-- FINANCEIRO -->
+
+    <button
+      class="nav-btn"
+      data-tab="financeiro"
+      type="button"
+      data-permission-module="financeiro"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M4 15V9M10 15V5M16 15v-4"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Financeiro
+      </span>
+
+    </button>
+
+
+    <!-- SERVIÇOS -->
+
+    <button
+      class="nav-btn"
+      data-tab="servicos"
+      type="button"
+      data-permission-module="servicos"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="10"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M10 6v4l3 2"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Serviços
+      </span>
+
+    </button>
+
+
+    <!-- CLIENTES -->
+
+    <button
+      class="nav-btn"
+      data-tab="clientes"
+      type="button"
+      data-permission-module="clientes"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="7"
+          r="3.2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Clientes
+      </span>
+
+    </button>
+
+
+    <!-- DESPESAS -->
+
+    <button
+      class="nav-btn"
+      data-tab="despesas"
+      type="button"
+      data-permission-module="despesas"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="10"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M7 10h6"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Despesas
+      </span>
+
+    </button>
+
+
+    <!-- USUÁRIOS -->
+
+    <button
+      class="nav-btn"
+      id="nav-usuarios"
+      data-tab="usuarios"
+      type="button"
+      data-permission-module="usuarios"
+      style="display:none;"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="6"
+          r="3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M15 4v4M13 6h4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Usuários
+      </span>
+
+    </button>
+
+
+    <!-- CONFIGURAÇÕES -->
+
+    <button
+      class="nav-btn"
+      id="nav-configuracoes"
+      data-tab="configuracoes"
+      type="button"
+      data-permission-module="configuracoes"
+      style="display:none;"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="10"
+          r="2.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.4 1.4M13.55 13.55l1.4 1.4M14.95 5.05l-1.4 1.4M6.45 13.55l-1.4 1.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Configurações
+      </span>
+
+    </button>
+
+  </nav>
+
+
+  <!-- INFORMAÇÕES -->
+
+  <div class="sidebar-bottom">
+
+    <div class="sidebar-stats">
+
+      <div class="stat-line">
+
+        <span>
+          Hoje
+        </span>
+
+        <b id="side-today">
+          R$ 0
+        </b>
+
+      </div>
+
+
+      <div class="stat-line">
+
+        <span>
+          A receber
+        </span>
+
+        <b id="side-pending">
+          R$ 0
+        </b>
+
+      </div>
+
+
+      <div
+        class="stat-line conn"
+        id="conn-status"
+      >
+
+        <span>
+          Banco
+        </span>
+
+        <b id="conn-badge">
+          verificando…
+        </b>
+
+      </div>
+
+    </div>
+
+
+    <!-- SAIR -->
+
+    <button
+      type="button"
+      class="sidebar-logout"
+      id="btn-logout"
+    >
+
+      <svg viewBox="0 0 20 20">
+
+        <path
+          d="M8 3H5a2 2 0 00-2 2v10a2 2 0 002 2h3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M11 6l4 4-4 4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <path
+          d="M7 10h8"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Sair
+      </span>
+
+    </button>
+
+  </div>
+
+</aside>
+
+
+<!-- =======================================================
+   CONTEÚDO
+   ======================================================= -->
+
+<main>
+
+  <!-- AGENDA -->
+
+  <div
+    class="panel active"
+    id="panel-agenda"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Agenda
+        </h1>
+
+        <div
+          class="date-label"
+          id="agenda-date-label"
+        >
+          —
+        </div>
+
+      </div>
+
+      <div class="topbar-actions">
+
+        <button
+          class="btn btn-ghost"
+          id="btn-closing"
+          type="button"
+        >
+          Fechamento do dia
+        </button>
+
+        <button
+          class="btn btn-primary"
+          id="btn-new-appointment"
+          type="button"
+        >
+          Novo agendamento
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="date-picker-row">
+
+      <input
+        type="date"
+        id="agenda-date-input"
+      >
+
+      <button
+        class="chip"
+        id="btn-today"
+        type="button"
+      >
+        Hoje
+      </button>
+
+    </div>
+
+
+    <div
+      class="ticket-list"
+      id="agenda-list"
+    ></div>
+
+  </div>
+
+
+  <!-- FATURAMENTO -->
+
+  <div
+    class="panel"
+    id="panel-faturamento"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Faturamento
+        </h1>
+
+        <div class="date-label">
+          Serviços concluídos e recibos
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Total faturado
+        </div>
+
+        <div
+          class="value"
+          id="fat-total"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Recebido
+        </div>
+
+        <div
+          class="value"
+          id="fat-pago"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card warn">
+
+        <div class="label">
+          Pendente
+        </div>
+
+        <div
+          class="value"
+          id="fat-pendente"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div id="fat-list"></div>
+
+  </div>
+
+
+  <!-- FINANCEIRO -->
+
+  <div
+    class="panel"
+    id="panel-financeiro"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Financeiro
+        </h1>
+
+        <div class="date-label">
+          Visão geral do caixa
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Hoje
+        </div>
+
+        <div
+          class="value"
+          id="fin-hoje"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Últimos 7 dias
+        </div>
+
+        <div
+          class="value"
+          id="fin-semana"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Este mês
+        </div>
+
+        <div
+          class="value"
+          id="fin-mes"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Lavagens concluídas
+        </div>
+
+        <div
+          class="value"
+          id="fin-count"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card warn">
+
+        <div class="label">
+          Despesas do mês
+        </div>
+
+        <div
+          class="value"
+          id="fin-despesas-mes"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div
+        class="stat-card profit"
+        id="fin-lucro-card"
+      >
+
+        <div class="label">
+          Lucro líquido do mês
+        </div>
+
+        <div
+          class="value"
+          id="fin-lucro-mes"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <section class="block">
+
+      <h2>
+        Faturamento por serviço (mês atual)
+      </h2>
+
+      <div
+        class="bar-chart"
+        id="fin-bars"
+      ></div>
+
+    </section>
+
+
+    <section class="block">
+
+      <h2>
+        Despesas por categoria (mês atual)
+      </h2>
+
+      <div
+        class="bar-chart bar-chart-warn"
+        id="fin-despesas-bars"
+      ></div>
+
+    </section>
+
+  </div>
+
+
+  <!-- SERVIÇOS -->
+
+  <div
+    class="panel"
+    id="panel-servicos"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Serviços
+        </h1>
+
+        <div class="date-label">
+          Tabela de preços usada na agenda
+        </div>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="btn-new-service"
+        type="button"
+      >
+        Novo serviço
+      </button>
+
+    </div>
+
+
+    <div id="services-list"></div>
+
+  </div>
+
+
+  <!-- CLIENTES -->
+
+  <div
+    class="panel"
+    id="panel-clientes"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Clientes
+        </h1>
+
+        <div class="date-label">
+          Busque o histórico por nome, telefone ou placa
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="search-bar">
+
+      <svg
+        class="search-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="9"
+          cy="9"
+          r="6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        />
+
+        <path
+          d="M17 17l-4-4"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+
+      <input
+        type="text"
+        id="cli-search-input"
+        placeholder="Nome, telefone ou placa..."
+      >
+
+
+      <button
+        class="search-clear"
+        id="btn-cli-clear"
+        type="button"
+        aria-label="Limpar busca"
+      >
+
+        <svg viewBox="0 0 20 20">
+
+          <path
+            d="M6 6l8 8M14 6l-8 8"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+      </button>
+
+
+      <button
+        class="btn btn-primary search-btn"
+        id="btn-cli-search"
+        type="button"
+      >
+        Buscar
+      </button>
+
+    </div>
+
+
+    <div id="cli-summary"></div>
+
+
+    <div
+      class="ticket-list"
+      id="cli-results"
+    >
+
+      <div class="empty">
+
+        <svg
+          class="empty-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <circle
+            cx="9"
+            cy="9"
+            r="6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+          <path
+            d="M17 17l-4-4"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+
+        <strong>
+          Busque um cliente
+        </strong>
+
+        Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- DESPESAS -->
+
+  <div
+    class="panel"
+    id="panel-despesas"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Despesas
+        </h1>
+
+        <div class="date-label">
+          Produtos, água, luz, manutenção e outros custos
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        id="btn-new-expense"
+        type="button"
+      >
+        Nova despesa
+      </button>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card warn">
+
+        <div class="label">
+          Total no período
+        </div>
+
+        <div
+          class="value"
+          id="desp-total"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Lançamentos
+        </div>
+
+        <div
+          class="value"
+          id="desp-count"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div id="desp-list"></div>
+
+  </div>
+
+
+  <!-- USUÁRIOS -->
+
+  <div
+    class="panel"
+    id="panel-usuarios"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Usuários
+        </h1>
+
+        <div class="date-label">
+          Gerencie usuários, cargos e acesso ao sistema
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        id="btn-new-user"
+        type="button"
+      >
+        Novo usuário
+      </button>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card">
+
+        <div class="label">
+          Total de usuários
+        </div>
+
+        <div
+          class="value"
+          id="usuarios-total"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Administradores
+        </div>
+
+        <div
+          class="value"
+          id="usuarios-admins"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Funcionários
+        </div>
+
+        <div
+          class="value"
+          id="usuarios-funcionarios"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="usuarios-list"
+      class="ticket-list"
+    >
+
+      <div class="empty">
+
+        <strong>
+          Carregando usuários...
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       CONFIGURAÇÕES
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-configuracoes"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Configurações
+        </h1>
+
+        <div class="date-label">
+          Gerencie os dados da sua lavação e sua conta
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- DADOS DA EMPRESA -->
+
+    <section class="block">
+
+      <h2>
+        Dados da empresa
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Essas informações são utilizadas no sistema e poderão ser usadas futuramente em recibos e documentos.
+      </p>
+
+
+      <form id="form-configuracoes">
+
+        <div class="field-row">
+
+          <div class="field">
+
+            <label for="config-empresa-nome">
+              Nome da lavação
+            </label>
+
+            <input
+              type="text"
+              id="config-empresa-nome"
+              placeholder="Ex: Alx Garage"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="config-empresa-email">
+              E-mail da empresa
+            </label>
+
+            <input
+              type="email"
+              id="config-empresa-email"
+              placeholder="contato@empresa.com"
+              required
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-empresa-telefone">
+            Telefone
+          </label>
+
+          <input
+            type="text"
+            id="config-empresa-telefone"
+            placeholder="(47) 99999-9999"
+          >
+
+        </div>
+
+
+        <div
+          id="configuracoes-message"
+          class="auth-error"
+          style="display:none;"
+        ></div>
+
+
+        <div class="modal-actions">
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btn-salvar-configuracoes"
+          >
+            Salvar alterações
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    <!-- MINHA CONTA -->
+
+    <section class="block">
+
+      <h2>
+        Minha conta
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Informações do usuário atualmente conectado.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-usuario-nome">
+            Nome
+          </label>
+
+          <input
+            type="text"
+            id="config-usuario-nome"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-usuario-email">
+            E-mail
+          </label>
+
+          <input
+            type="email"
+            id="config-usuario-email"
+            readonly
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-usuario-perfil">
+          Cargo
+        </label>
+
+        <input
+          type="text"
+          id="config-usuario-perfil"
+          readonly
+        >
+
+      </div>
+
+    </section>
+
+
+    <!-- MAIS CONFIGURAÇÕES -->
+
+    <section class="block">
+
+      <h2>
+        Mais configurações
+      </h2>
+
+      <p class="date-label">
+        Novas opções de configuração poderão ser adicionadas aqui posteriormente.
+      </p>
+
+    </section>
+
+  </div>
+
+</main>
+```
+
+  </div>
 
   <!-- =========================================================
      MODAL: NOVO AGENDAMENTO / EDITAR
@@ -1432,171 +1667,172 @@
     id="overlay-appointment"
   >
 
-    <div class="modal">
+```
+<div class="modal">
 
-      <h3 id="appointment-modal-title">
-        Novo agendamento
-      </h3>
-
-
-      <form id="form-appointment">
-
-        <div class="field-row">
-
-          <div class="field">
-
-            <label>
-              Data
-            </label>
-
-            <input
-              type="date"
-              id="ap-date"
-              required
-            >
-
-          </div>
+  <h3 id="appointment-modal-title">
+    Novo agendamento
+  </h3>
 
 
-          <div class="field">
+  <form id="form-appointment">
 
-            <label>
-              Hora
-            </label>
+    <div class="field-row">
 
-            <input
-              type="time"
-              id="ap-time"
-              required
-            >
+      <div class="field">
 
-          </div>
+        <label>
+          Data
+        </label>
 
-        </div>
+        <input
+          type="date"
+          id="ap-date"
+          required
+        >
 
-
-        <div class="field">
-
-          <label>
-            Cliente
-          </label>
-
-          <input
-            type="text"
-            id="ap-client"
-            placeholder="Nome do cliente"
-            required
-          >
-
-        </div>
+      </div>
 
 
-        <div class="field-row">
+      <div class="field">
 
-          <div class="field">
+        <label>
+          Hora
+        </label>
 
-            <label>
-              Telefone
-            </label>
+        <input
+          type="time"
+          id="ap-time"
+          required
+        >
 
-            <input
-              type="text"
-              id="ap-phone"
-              placeholder="(00) 00000-0000"
-            >
-
-          </div>
-
-
-          <div class="field">
-
-            <label>
-              Placa
-            </label>
-
-            <input
-              type="text"
-              id="ap-plate"
-              placeholder="ABC1D23"
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Veículo
-          </label>
-
-          <input
-            type="text"
-            id="ap-vehicle"
-            placeholder="Modelo / cor"
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Serviço
-          </label>
-
-          <select
-            id="ap-service"
-            required
-          ></select>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Valor (R$)
-          </label>
-
-          <input
-            type="number"
-            id="ap-price"
-            step="0.01"
-            min="0"
-            required
-          >
-
-        </div>
-
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-appointment"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            id="appointment-submit-btn"
-          >
-            Agendar
-          </button>
-
-        </div>
-
-      </form>
+      </div>
 
     </div>
 
-  </div>
 
+    <div class="field">
+
+      <label>
+        Cliente
+      </label>
+
+      <input
+        type="text"
+        id="ap-client"
+        placeholder="Nome do cliente"
+        required
+      >
+
+    </div>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Telefone
+        </label>
+
+        <input
+          type="text"
+          id="ap-phone"
+          placeholder="(00) 00000-0000"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Placa
+        </label>
+
+        <input
+          type="text"
+          id="ap-plate"
+          placeholder="ABC1D23"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Veículo
+      </label>
+
+      <input
+        type="text"
+        id="ap-vehicle"
+        placeholder="Modelo / cor"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Serviço
+      </label>
+
+      <select
+        id="ap-service"
+        required
+      ></select>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Valor (R$)
+      </label>
+
+      <input
+        type="number"
+        id="ap-price"
+        step="0.01"
+        min="0"
+        required
+      >
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-appointment"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        id="appointment-submit-btn"
+      >
+        Agendar
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+```
+
+  </div>
 
   <!-- =========================================================
      MODAL: NOVO SERVIÇO
@@ -1607,92 +1843,93 @@
     id="overlay-service"
   >
 
-    <div class="modal">
+```
+<div class="modal">
 
-      <h3>
-        Novo serviço
-      </h3>
-
-
-      <form id="form-service">
-
-        <div class="field">
-
-          <label>
-            Nome
-          </label>
-
-          <input
-            type="text"
-            id="sv-name"
-            required
-          >
-
-        </div>
+  <h3>
+    Novo serviço
+  </h3>
 
 
-        <div class="field-row">
+  <form id="form-service">
 
-          <div class="field">
+    <div class="field">
 
-            <label>
-              Preço (R$)
-            </label>
+      <label>
+        Nome
+      </label>
 
-            <input
-              type="number"
-              id="sv-price"
-              step="0.01"
-              min="0"
-              required
-            >
-
-          </div>
-
-
-          <div class="field">
-
-            <label>
-              Duração (min)
-            </label>
-
-            <input
-              type="number"
-              id="sv-duration"
-              min="0"
-              required
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-service"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            Salvar
-          </button>
-
-        </div>
-
-      </form>
+      <input
+        type="text"
+        id="sv-name"
+        required
+      >
 
     </div>
 
-  </div>
 
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Preço (R$)
+        </label>
+
+        <input
+          type="number"
+          id="sv-price"
+          step="0.01"
+          min="0"
+          required
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Duração (min)
+        </label>
+
+        <input
+          type="number"
+          id="sv-duration"
+          min="0"
+          required
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-service"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+```
+
+  </div>
 
   <!-- =========================================================
      MODAL: NOVA DESPESA
@@ -1703,133 +1940,134 @@
     id="overlay-expense"
   >
 
-    <div class="modal">
+```
+<div class="modal">
 
-      <h3>
-        Nova despesa
-      </h3>
-
-
-      <form id="form-expense">
-
-        <div class="field">
-
-          <label>
-            Descrição
-          </label>
-
-          <input
-            type="text"
-            id="ex-desc"
-            placeholder="Ex: Compra de shampoo automotivo"
-            required
-          >
-
-        </div>
+  <h3>
+    Nova despesa
+  </h3>
 
 
-        <div class="field-row">
+  <form id="form-expense">
 
-          <div class="field">
+    <div class="field">
 
-            <label>
-              Categoria
-            </label>
+      <label>
+        Descrição
+      </label>
 
-            <select id="ex-category">
-
-              <option>
-                Produtos de limpeza
-              </option>
-
-              <option>
-                Água
-              </option>
-
-              <option>
-                Energia
-              </option>
-
-              <option>
-                Manutenção de equipamentos
-              </option>
-
-              <option>
-                Salários
-              </option>
-
-              <option>
-                Aluguel
-              </option>
-
-              <option>
-                Outros
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div class="field">
-
-            <label>
-              Data
-            </label>
-
-            <input
-              type="date"
-              id="ex-date"
-              required
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Valor (R$)
-          </label>
-
-          <input
-            type="number"
-            id="ex-value"
-            step="0.01"
-            min="0"
-            required
-          >
-
-        </div>
-
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-expense"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            Salvar
-          </button>
-
-        </div>
-
-      </form>
+      <input
+        type="text"
+        id="ex-desc"
+        placeholder="Ex: Compra de shampoo automotivo"
+        required
+      >
 
     </div>
 
-  </div>
 
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Categoria
+        </label>
+
+        <select id="ex-category">
+
+          <option>
+            Produtos de limpeza
+          </option>
+
+          <option>
+            Água
+          </option>
+
+          <option>
+            Energia
+          </option>
+
+          <option>
+            Manutenção de equipamentos
+          </option>
+
+          <option>
+            Salários
+          </option>
+
+          <option>
+            Aluguel
+          </option>
+
+          <option>
+            Outros
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Data
+        </label>
+
+        <input
+          type="date"
+          id="ex-date"
+          required
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Valor (R$)
+      </label>
+
+      <input
+        type="number"
+        id="ex-value"
+        step="0.01"
+        min="0"
+        required
+      >
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-expense"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+```
+
+  </div>
 
   <!-- =========================================================
      MODAL: USUÁRIO
@@ -1840,406 +2078,407 @@
     id="overlay-user"
   >
 
-    <div class="modal user-modal">
+```
+<div class="modal user-modal">
 
-      <h3 id="user-modal-title">
-        Novo usuário
-      </h3>
+  <h3 id="user-modal-title">
+    Novo usuário
+  </h3>
 
 
-      <form id="form-user">
+  <form id="form-user">
 
-        <!-- NOME -->
+    <!-- NOME -->
 
-        <div class="field">
+    <div class="field">
 
-          <label for="user-name">
-            Nome
-          </label>
+      <label for="user-name">
+        Nome
+      </label>
 
-          <input
-            type="text"
-            id="user-name"
-            placeholder="Nome do usuário"
-            required
-          >
-
-        </div>
-
-
-        <!-- E-MAIL -->
-
-        <div class="field">
-
-          <label for="user-email">
-            E-mail
-          </label>
-
-          <input
-            type="email"
-            id="user-email"
-            placeholder="usuario@email.com"
-            required
-          >
-
-        </div>
-
-
-        <!-- CARGO -->
-
-        <div class="field">
-
-          <label for="user-profile">
-            Cargo
-          </label>
-
-          <select id="user-profile">
-
-            <option value="funcionario">
-              Funcionário
-            </option>
-
-            <option value="administrador">
-              Administrador
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <!-- SENHA -->
-
-        <div
-          class="field"
-          id="user-password-field"
-        >
-
-          <label for="user-password">
-            Senha
-          </label>
-
-          <input
-            type="password"
-            id="user-password"
-            placeholder="Mínimo 6 caracteres"
-            minlength="6"
-          >
-
-        </div>
-
-
-        <!-- STATUS -->
-
-        <div
-          class="field"
-          id="user-active-field"
-          style="display:none;"
-        >
-
-          <label for="user-active">
-            Status
-          </label>
-
-          <select id="user-active">
-
-            <option value="true">
-              Ativo
-            </option>
-
-            <option value="false">
-              Bloqueado
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <!-- =====================================================
-             PERMISSÕES
-             ===================================================== -->
-
-        <div
-          class="user-permissions-section"
-          id="user-permissions-section"
-        >
-
-          <div class="user-permissions-header">
-
-            <div>
-
-              <label class="user-permissions-title">
-                Permissões de acesso
-              </label>
-
-              <p class="user-permissions-description">
-                Selecione quais áreas este funcionário poderá acessar.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <!-- AVISO ADMINISTRADOR -->
-
-          <div
-            class="admin-permission-notice"
-            id="admin-permission-notice"
-            style="display:none;"
-          >
-
-            <strong>
-              Administrador
-            </strong>
-
-            <span>
-              Administradores possuem acesso completo ao sistema.
-            </span>
-
-          </div>
-
-
-          <!-- GRID DE PERMISSÕES -->
-
-          <div
-            class="permissions-grid"
-            id="permissions-grid"
-          >
-
-            <!-- AGENDA -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="agenda"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Agenda
-                </strong>
-
-                <small>
-                  Agendamentos e atendimento
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- FATURAMENTO -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="faturamento"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Faturamento
-                </strong>
-
-                <small>
-                  Serviços e recebimentos
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- FINANCEIRO -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="financeiro"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Financeiro
-                </strong>
-
-                <small>
-                  Visão financeira do negócio
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- SERVIÇOS -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="servicos"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Serviços
-                </strong>
-
-                <small>
-                  Cadastro e preços dos serviços
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- CLIENTES -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="clientes"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Clientes
-                </strong>
-
-                <small>
-                  Consulta de clientes e histórico
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- DESPESAS -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="despesas"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Despesas
-                </strong>
-
-                <small>
-                  Controle de despesas
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- USUÁRIOS -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="usuarios"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Usuários
-                </strong>
-
-                <small>
-                  Gerenciamento de usuários
-                </small>
-
-              </span>
-
-            </label>
-
-
-            <!-- CONFIGURAÇÕES -->
-
-            <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="configuracoes"
-                data-permission
-              >
-
-              <span class="permission-item-text">
-
-                <strong>
-                  Configurações
-                </strong>
-
-                <small>
-                  Configurações do sistema
-                </small>
-
-              </span>
-
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <!-- AÇÕES -->
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-user"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            id="user-submit-btn"
-          >
-            Salvar
-          </button>
-
-        </div>
-
-      </form>
+      <input
+        type="text"
+        id="user-name"
+        placeholder="Nome do usuário"
+        required
+      >
 
     </div>
 
-  </div>
 
+    <!-- E-MAIL -->
+
+    <div class="field">
+
+      <label for="user-email">
+        E-mail
+      </label>
+
+      <input
+        type="email"
+        id="user-email"
+        placeholder="usuario@email.com"
+        required
+      >
+
+    </div>
+
+
+    <!-- CARGO -->
+
+    <div class="field">
+
+      <label for="user-profile">
+        Cargo
+      </label>
+
+      <select id="user-profile">
+
+        <option value="funcionario">
+          Funcionário
+        </option>
+
+        <option value="administrador">
+          Administrador
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- SENHA -->
+
+    <div
+      class="field"
+      id="user-password-field"
+    >
+
+      <label for="user-password">
+        Senha
+      </label>
+
+      <input
+        type="password"
+        id="user-password"
+        placeholder="Mínimo 6 caracteres"
+        minlength="6"
+      >
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div
+      class="field"
+      id="user-active-field"
+      style="display:none;"
+    >
+
+      <label for="user-active">
+        Status
+      </label>
+
+      <select id="user-active">
+
+        <option value="true">
+          Ativo
+        </option>
+
+        <option value="false">
+          Bloqueado
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- =====================================================
+         PERMISSÕES
+         ===================================================== -->
+
+    <div
+      class="user-permissions-section"
+      id="user-permissions-section"
+    >
+
+      <div class="user-permissions-header">
+
+        <div>
+
+          <label class="user-permissions-title">
+            Permissões de acesso
+          </label>
+
+          <p class="user-permissions-description">
+            Selecione quais áreas este funcionário poderá acessar.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- AVISO ADMINISTRADOR -->
+
+      <div
+        class="admin-permission-notice"
+        id="admin-permission-notice"
+        style="display:none;"
+      >
+
+        <strong>
+          Administrador
+        </strong>
+
+        <span>
+          Administradores possuem acesso completo ao sistema.
+        </span>
+
+      </div>
+
+
+      <!-- GRID DE PERMISSÕES -->
+
+      <div
+        class="permissions-grid"
+        id="permissions-grid"
+      >
+
+        <!-- AGENDA -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="agenda"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Agenda
+            </strong>
+
+            <small>
+              Agendamentos e atendimento
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- FATURAMENTO -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="faturamento"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Faturamento
+            </strong>
+
+            <small>
+              Serviços e recebimentos
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- FINANCEIRO -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="financeiro"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Financeiro
+            </strong>
+
+            <small>
+              Visão financeira do negócio
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- SERVIÇOS -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="servicos"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Serviços
+            </strong>
+
+            <small>
+              Cadastro e preços dos serviços
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- CLIENTES -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="clientes"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Clientes
+            </strong>
+
+            <small>
+              Consulta de clientes e histórico
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- DESPESAS -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="despesas"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Despesas
+            </strong>
+
+            <small>
+              Controle de despesas
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- USUÁRIOS -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="usuarios"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Usuários
+            </strong>
+
+            <small>
+              Gerenciamento de usuários
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <!-- CONFIGURAÇÕES -->
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="configuracoes"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Configurações
+            </strong>
+
+            <small>
+              Configurações do sistema
+            </small>
+
+          </span>
+
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <!-- AÇÕES -->
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-user"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        id="user-submit-btn"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+```
+
+  </div>
 
   <!-- =========================================================
      ÁREA DE IMPRESSÃO
@@ -2247,13 +2486,11 @@
 
   <div id="print-area"></div>
 
-
   <!-- =========================================================
      JAVASCRIPT PRINCIPAL
      ========================================================= -->
 
   <script src="/js/app.js"></script>
-
 
   <!-- =========================================================
      DADOS DO USUÁRIO LOGADO
@@ -2292,6 +2529,8 @@
             localStorage.removeItem(
               'lavajato_auth_token'
             );
+
+            window.location.reload();
 
           }
 
@@ -2332,6 +2571,12 @@
         const usuariosNav =
           document.getElementById(
             'nav-usuarios'
+          );
+
+
+        const configuracoesNav =
+          document.getElementById(
+            'nav-configuracoes'
           );
 
 
@@ -2391,7 +2636,11 @@
         if (usuariosNav && usuario) {
 
           if (
-            usuario.perfil === 'administrador'
+            usuario.perfil === 'administrador' ||
+            (
+              Array.isArray(usuario.permissoes) &&
+              usuario.permissoes.includes('usuarios')
+            )
           ) {
 
             usuariosNav.style.display =
@@ -2406,12 +2655,540 @@
 
         }
 
+
+        /* MENU DE CONFIGURAÇÕES */
+
+        if (configuracoesNav && usuario) {
+
+          if (
+            usuario.perfil === 'administrador' ||
+            (
+              Array.isArray(usuario.permissoes) &&
+              usuario.permissoes.includes('configuracoes')
+            )
+          ) {
+
+            configuracoesNav.style.display =
+              'flex';
+
+          } else {
+
+            configuracoesNav.style.display =
+              'none';
+
+          }
+
+        }
+
+
+        /*
+         * Guarda os dados atuais para que
+         * outras partes da aplicação possam
+         * reutilizar sem precisar consultar
+         * novamente imediatamente.
+         */
+
+        window.lavajatoUsuario =
+          usuario || null;
+
+        window.lavajatoEmpresa =
+          empresa || null;
+
+
+        /*
+         * Preenche a área de configurações
+         * caso ela já esteja disponível.
+         */
+
+        preencherDadosConfiguracoes(
+          usuario,
+          empresa
+        );
+
       } catch (error) {
 
         console.error(
           'Erro ao carregar dados do usuário:',
           error
         );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       PREENCHER CONFIGURAÇÕES COM DADOS DO LOGIN
+       ========================================================= */
+
+    function preencherDadosConfiguracoes(
+      usuario,
+      empresa
+    ) {
+
+      const empresaNome =
+        document.getElementById(
+          'config-empresa-nome'
+        );
+
+      const empresaEmail =
+        document.getElementById(
+          'config-empresa-email'
+        );
+
+      const empresaTelefone =
+        document.getElementById(
+          'config-empresa-telefone'
+        );
+
+      const usuarioNome =
+        document.getElementById(
+          'config-usuario-nome'
+        );
+
+      const usuarioEmail =
+        document.getElementById(
+          'config-usuario-email'
+        );
+
+      const usuarioPerfil =
+        document.getElementById(
+          'config-usuario-perfil'
+        );
+
+
+      if (empresa) {
+
+        if (empresaNome) {
+          empresaNome.value =
+            empresa.nome || '';
+        }
+
+        if (empresaEmail) {
+          empresaEmail.value =
+            empresa.email || '';
+        }
+
+        if (empresaTelefone) {
+          empresaTelefone.value =
+            empresa.telefone || '';
+        }
+
+      }
+
+
+      if (usuario) {
+
+        if (usuarioNome) {
+          usuarioNome.value =
+            usuario.nome || '';
+        }
+
+        if (usuarioEmail) {
+          usuarioEmail.value =
+            usuario.email || '';
+        }
+
+        if (usuarioPerfil) {
+          usuarioPerfil.value =
+            usuario.perfil === 'administrador'
+              ? 'Administrador'
+              : 'Funcionário';
+        }
+
+      }
+
+    }
+
+
+    /* =========================================================
+       CARREGAR CONFIGURAÇÕES DO BANCO
+       ========================================================= */
+
+    async function carregarConfiguracoes() {
+
+      const token =
+        localStorage.getItem(
+          'lavajato_auth_token'
+        );
+
+      if (!token) {
+        return;
+      }
+
+
+      try {
+
+        const resposta =
+          await fetch(
+            '/api/configuracoes',
+            {
+              method: 'GET',
+
+              headers: {
+                'Authorization':
+                  `Bearer ${token}`
+              }
+            }
+          );
+
+
+        const dados =
+          await resposta.json();
+
+
+        if (!resposta.ok) {
+
+          console.error(
+            'Erro ao carregar configurações:',
+            dados.erro
+          );
+
+          return;
+
+        }
+
+
+        if (dados.empresa) {
+
+          preencherDadosConfiguracoes(
+            window.lavajatoUsuario || null,
+            dados.empresa
+          );
+
+
+          window.lavajatoEmpresa =
+            dados.empresa;
+
+
+          const empresaElement =
+            document.getElementById(
+              'sidebar-company'
+            );
+
+
+          if (empresaElement) {
+
+            empresaElement.textContent =
+              dados.empresa.nome ||
+              'Minha empresa';
+
+            empresaElement.title =
+              dados.empresa.nome ||
+              'Minha empresa';
+
+          }
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          'Erro ao carregar configurações:',
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       SALVAR CONFIGURAÇÕES
+       ========================================================= */
+
+    const formConfiguracoes =
+      document.getElementById(
+        'form-configuracoes'
+      );
+
+
+    if (formConfiguracoes) {
+
+      formConfiguracoes.addEventListener(
+        'submit',
+        async event => {
+
+          event.preventDefault();
+
+
+          const token =
+            localStorage.getItem(
+              'lavajato_auth_token'
+            );
+
+
+          if (!token) {
+
+            return;
+
+          }
+
+
+          const nome =
+            document
+              .getElementById(
+                'config-empresa-nome'
+              )
+              ?.value
+              .trim() || '';
+
+
+          const email =
+            document
+              .getElementById(
+                'config-empresa-email'
+              )
+              ?.value
+              .trim() || '';
+
+
+          const telefone =
+            document
+              .getElementById(
+                'config-empresa-telefone'
+              )
+              ?.value
+              .trim() || '';
+
+
+          const mensagem =
+            document.getElementById(
+              'configuracoes-message'
+            );
+
+
+          const botao =
+            document.getElementById(
+              'btn-salvar-configuracoes'
+            );
+
+
+          if (mensagem) {
+
+            mensagem.style.display =
+              'none';
+
+            mensagem.textContent =
+              '';
+
+            mensagem.className =
+              'auth-error';
+
+          }
+
+
+          if (!nome) {
+
+            mostrarMensagemConfiguracoes(
+              'Informe o nome da lavação.',
+              'erro'
+            );
+
+            return;
+
+          }
+
+
+          if (!email) {
+
+            mostrarMensagemConfiguracoes(
+              'Informe o e-mail da empresa.',
+              'erro'
+            );
+
+            return;
+
+          }
+
+
+          if (botao) {
+
+            botao.disabled =
+              true;
+
+            botao.textContent =
+              'Salvando...';
+
+          }
+
+
+          try {
+
+            const resposta =
+              await fetch(
+                '/api/configuracoes',
+                {
+                  method: 'PUT',
+
+                  headers: {
+                    'Content-Type':
+                      'application/json',
+
+                    'Authorization':
+                      `Bearer ${token}`
+                  },
+
+                  body: JSON.stringify({
+                    nome,
+                    email,
+                    telefone
+                  })
+                }
+              );
+
+
+            const dados =
+              await resposta.json();
+
+
+            if (!resposta.ok) {
+
+              mostrarMensagemConfiguracoes(
+                dados.erro ||
+                  'Não foi possível salvar as configurações.',
+                'erro'
+              );
+
+              return;
+
+            }
+
+
+            if (dados.empresa) {
+
+              window.lavajatoEmpresa =
+                dados.empresa;
+
+
+              preencherDadosConfiguracoes(
+                window.lavajatoUsuario || null,
+                dados.empresa
+              );
+
+
+              const empresaElement =
+                document.getElementById(
+                  'sidebar-company'
+                );
+
+
+              if (empresaElement) {
+
+                empresaElement.textContent =
+                  dados.empresa.nome ||
+                  'Minha empresa';
+
+                empresaElement.title =
+                  dados.empresa.nome ||
+                  'Minha empresa';
+
+              }
+
+            }
+
+
+            mostrarMensagemConfiguracoes(
+              dados.mensagem ||
+                'Configurações salvas com sucesso.',
+              'sucesso'
+            );
+
+
+          } catch (error) {
+
+            console.error(
+              'Erro ao salvar configurações:',
+              error
+            );
+
+
+            mostrarMensagemConfiguracoes(
+              'Não foi possível conectar ao servidor.',
+              'erro'
+            );
+
+          } finally {
+
+            if (botao) {
+
+              botao.disabled =
+                false;
+
+              botao.textContent =
+                'Salvar alterações';
+
+            }
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /* =========================================================
+       MENSAGEM DE CONFIGURAÇÕES
+       ========================================================= */
+
+    function mostrarMensagemConfiguracoes(
+      mensagem,
+      tipo
+    ) {
+
+      const elemento =
+        document.getElementById(
+          'configuracoes-message'
+        );
+
+
+      if (!elemento) {
+        return;
+      }
+
+
+      elemento.textContent =
+        mensagem;
+
+
+      elemento.style.display =
+        'block';
+
+
+      if (tipo === 'sucesso') {
+
+        elemento.style.color =
+          '#166534';
+
+        elemento.style.background =
+          '#dcfce7';
+
+        elemento.style.border =
+          '1px solid #bbf7d0';
+
+        elemento.style.padding =
+          '10px 12px';
+
+        elemento.style.borderRadius =
+          '8px';
+
+      } else {
+
+        elemento.style.color =
+          '#991b1b';
+
+        elemento.style.background =
+          '#fee2e2';
+
+        elemento.style.border =
+          '1px solid #fecaca';
+
+        elemento.style.padding =
+          '10px 12px';
+
+        elemento.style.borderRadius =
+          '8px';
 
       }
 
@@ -2458,8 +3235,15 @@
 
     carregarUsuarioSidebar();
 
-  </script>
 
+    /*
+     * Carrega diretamente os dados salvos
+     * no banco para a tela de configurações.
+     */
+
+    carregarConfiguracoes();
+
+  </script>
 
   <!-- =========================================================
      CONTROLE DA SIDEBAR
