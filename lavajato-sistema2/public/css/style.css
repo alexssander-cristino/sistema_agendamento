@@ -1755,253 +1755,651 @@ section.block h2 {
   justify-content: space-between;
 }
 
+
 /* =========================================================
-   MODAL / PERMISSÕES DOS USUÁRIOS
+   MODAL USUÁRIO
    ========================================================= */
 
-#user-permissions-section {
-  margin-top: 20px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-m);
-  background: var(--surface-2);
-}
-
-#user-permissions-section .user-permissions-title {
-  margin: 0 0 4px;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-#user-permissions-section .user-permissions-description {
-  margin: 0 0 14px;
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--ink-soft);
-}
-
-#user-permissions-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-#user-permissions-grid .permission-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: 46px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-s);
-  background: var(--surface);
-  cursor: pointer;
-  transition:
-    border-color var(--ease),
-    background-color var(--ease),
-    box-shadow var(--ease);
-}
-
-#user-permissions-grid .permission-item input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-#user-permissions-grid .permission-check {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  margin-right: 11px;
-
-  border: 2px solid var(--border-strong);
-  border-radius: 5px;
-  background: #fff;
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  transition:
-    background-color var(--ease-fast),
-    border-color var(--ease-fast);
-}
+  padding: 24px;
 
-#user-permissions-grid .permission-check::after {
-  content: "";
-
-  width: 8px;
-  height: 4px;
-
-  border-left: 2px solid transparent;
-  border-bottom: 2px solid transparent;
-
-  transform: rotate(-45deg) translateY(-1px) scale(.6);
+  background: rgba(7, 31, 41, .58);
+  backdrop-filter: blur(5px);
 
   opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 
   transition:
-    transform .12s var(--ease-fast),
-    opacity .12s var(--ease-fast),
-    border-color .1s;
+    opacity .2s ease,
+    visibility .2s ease;
 }
 
-/* =========================================================
-   CHECKBOX MARCADO
-   ========================================================= */
-
-#user-permissions-grid
-.permission-item
-input[type="checkbox"]:checked
-+ .permission-check,
-
-#user-permissions-grid
-.permission-item
-input[type="checkbox"]:checked
-~ .permission-check {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-#user-permissions-grid
-.permission-item
-input[type="checkbox"]:checked
-+ .permission-check::after,
-
-#user-permissions-grid
-.permission-item
-input[type="checkbox"]:checked
-~ .permission-check::after {
-  border-color: #fff;
+.modal-overlay.active {
   opacity: 1;
-
-  transform:
-    rotate(-45deg)
-    translateY(-1px)
-    scale(1);
+  visibility: visible;
+  pointer-events: auto;
 }
 
-/* =========================================================
-   ITEM SELECIONADO
-   ========================================================= */
-
-#user-permissions-grid
-.permission-item:has(input[type="checkbox"]:checked) {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
 
 /* =========================================================
-   FOCO
+   CAIXA DO MODAL
    ========================================================= */
 
-#user-permissions-grid
-.permission-item:has(input[type="checkbox"]:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
+.modal-overlay .modal {
+  width: min(680px, 100%);
+  max-height: min(88vh, 820px);
 
-/* =========================================================
-   TEXTO DA PERMISSÃO
-   ========================================================= */
-
-#user-permissions-grid .permission-item-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+
+  background: var(--surface);
+
+  border: 1px solid rgba(255, 255, 255, .8);
+  border-radius: 18px;
+
+  box-shadow:
+    0 24px 70px rgba(7, 31, 41, .24),
+    0 8px 24px rgba(7, 31, 41, .12);
+
+  overflow: hidden;
+
+  transform: translateY(14px) scale(.98);
+
+  transition:
+    transform .22s cubic-bezier(.22, .8, .24, 1);
 }
 
-#user-permissions-grid .permission-item-text strong {
-  font-size: 12.5px;
+.modal-overlay.active .modal {
+  transform: translateY(0) scale(1);
+}
+
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px 24px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f9fbfc 100%
+    );
+
+  border-bottom: 1px solid var(--border);
+
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 19px;
   font-weight: 700;
+
   line-height: 1.2;
+
   color: var(--ink);
 }
 
-#user-permissions-grid .permission-item-text span {
-  font-size: 10px;
-  line-height: 1.25;
+.modal-close {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  background: transparent;
+
   color: var(--ink-soft);
+
+  font-size: 25px;
+  font-weight: 400;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--ease),
+    color var(--ease),
+    border-color var(--ease),
+    transform var(--ease);
 }
 
+.modal-close:hover {
+  background: var(--warn-soft);
+  border-color: #f1caca;
+  color: var(--warn);
+
+  transform: rotate(3deg);
+}
+
+
 /* =========================================================
-   HOVER
+   CORPO
    ========================================================= */
 
-#user-permissions-grid
-.permission-item:hover {
+.modal-body {
+  padding: 24px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+.form-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 16px;
+
+  margin-bottom: 16px;
+}
+
+.form-group {
+  min-width: 0;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--ink-soft);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  min-height: 42px;
+
+  box-sizing: border-box;
+
+  padding: 9px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface-2);
+
+  color: var(--ink);
+
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    background-color var(--ease);
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: var(--border-strong);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  background: var(--surface);
+
   border-color: var(--accent);
-  background: var(--surface-tint);
+
+  box-shadow:
+    0 0 0 3px var(--accent-soft);
 }
+
 
 /* =========================================================
-   PERMISSÕES DESABILITADAS
+   PERMISSÕES
    ========================================================= */
 
-#user-permissions-section.permissions-disabled {
-  opacity: .6;
+.permissions-box {
+  margin-top: 22px;
+
+  padding: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fbfc 0%,
+      #f5f8f9 100%
+    );
 }
 
-#user-permissions-section.permissions-disabled
+
+/* =========================================================
+   CABEÇALHO DAS PERMISSÕES
+   ========================================================= */
+
+.permissions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 15px;
+}
+
+.permissions-header h3 {
+  margin: 0 0 4px;
+
+  color: var(--ink);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.permissions-header span {
+  display: block;
+
+  color: var(--ink-soft);
+
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   GRID DE PERMISSÕES
+   ========================================================= */
+
+.permissions-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+
+/* =========================================================
+   ITEM DE PERMISSÃO
+   ========================================================= */
+
 .permission-item {
+  position: relative;
+
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface);
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--ease),
+    background-color var(--ease),
+    box-shadow var(--ease),
+    transform var(--ease);
+}
+
+.permission-item:hover {
+  border-color: #a9dbe4;
+
+  background: var(--surface-tint);
+
+  box-shadow:
+    0 2px 7px rgba(12, 26, 35, .05);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.permission-item input[type="checkbox"] {
+  position: absolute;
+
+  opacity: 0;
+
+  width: 1px;
+  height: 1px;
+
+  pointer-events: none;
+}
+
+.permission-item label {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+
+  padding-left: 30px;
+
+  color: var(--ink);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  line-height: 1.3;
+
+  cursor: pointer;
+}
+
+.permission-item label::before {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  top: 50%;
+
+  width: 18px;
+  height: 18px;
+
+  box-sizing: border-box;
+
+  border: 2px solid var(--border-strong);
+  border-radius: 5px;
+
+  background: #fff;
+
+  transform: translateY(-50%);
+
+  transition:
+    background-color var(--ease-fast),
+    border-color var(--ease-fast),
+    box-shadow var(--ease-fast);
+}
+
+.permission-item label::after {
+  content: "";
+
+  position: absolute;
+  left: 5px;
+  top: 50%;
+
+  width: 7px;
+  height: 4px;
+
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+
+  opacity: 0;
+
+  transform:
+    translateY(-65%)
+    rotate(-45deg)
+    scale(.7);
+
+  transition:
+    opacity .12s ease,
+    transform .12s ease;
+}
+
+
+/* =========================================================
+   PERMISSÃO SELECIONADA
+   ========================================================= */
+
+.permission-item:has(input[type="checkbox"]:checked) {
+  border-color: var(--accent);
+
+  background:
+    linear-gradient(
+      135deg,
+      #eafafd 0%,
+      #e0f7fa 100%
+    );
+
+  box-shadow:
+    0 2px 8px rgba(6, 182, 212, .08);
+}
+
+.permission-item
+input[type="checkbox"]:checked
++ label::before {
+  background: var(--accent);
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 2px 5px rgba(6, 182, 212, .2);
+}
+
+.permission-item
+input[type="checkbox"]:checked
++ label::after {
+  opacity: 1;
+
+  transform:
+    translateY(-65%)
+    rotate(-45deg)
+    scale(1);
+}
+
+
+/* =========================================================
+   FOCO DO CHECKBOX
+   ========================================================= */
+
+.permission-item
+input[type="checkbox"]:focus-visible
++ label::before {
+  outline: 2px solid var(--accent);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   PERMISSÃO DESABILITADA
+   ========================================================= */
+
+.permission-item:has(
+  input[type="checkbox"]:disabled
+) {
+  cursor: not-allowed;
+
+  opacity: .72;
+
+  background: #f1f4f5;
+}
+
+.permission-item
+input[type="checkbox"]:disabled
++ label {
   cursor: not-allowed;
 }
+
 
 /* =========================================================
    AVISO DO ADMINISTRADOR
    ========================================================= */
 
-#admin-permission-notice {
+.permission-notice {
+  display: none;
+
   margin-top: 12px;
-  padding: 10px 12px;
 
-  border: 1px solid #cfe7ec;
-  border-radius: var(--radius-s);
+  padding: 11px 13px;
 
-  background: var(--surface-tint);
+  border: 1px solid #c9e6eb;
+  border-radius: 8px;
+
+  background: #edf9fb;
+
   color: var(--primary-2);
 
   font-size: 11px;
+
   line-height: 1.45;
 }
 
-#admin-permission-notice strong {
+.permission-notice.active {
+  display: block;
+}
+
+
+/* =========================================================
+   RODAPÉ
+   ========================================================= */
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 16px 24px;
+
+  background: #fafcfc;
+
+  border-top: 1px solid var(--border);
+
+  flex-shrink: 0;
+}
+
+.modal-footer .btn {
+  min-height: 40px;
+
+  padding: 9px 16px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
   font-weight: 700;
 }
 
 
 /* =========================================================
-   RESPONSIVO — PERMISSÕES
+   RESPONSIVO
    ========================================================= */
 
-@media (max-width: 760px) {
-  #user-permissions-section {
-    margin-top: 18px;
-    padding: 14px;
+@media (max-width: 680px) {
+
+  .modal-overlay {
+    align-items: flex-end;
+
+    padding: 0;
   }
 
-  #user-permissions-grid {
-    gap: 6px;
+  .modal-overlay .modal {
+    width: 100%;
+    max-height: 94vh;
+
+    border-radius: 18px 18px 0 0;
+
+    transform: translateY(30px);
   }
 
-  #user-permissions-grid .permission-item {
-    min-height: 44px;
-    padding: 9px 10px;
+  .modal-overlay.active .modal {
+    transform: translateY(0);
   }
 
-  #user-permissions-grid .permission-item-text strong {
-    font-size: 12px;
+  .modal-header {
+    padding: 18px 20px;
   }
 
-  #user-permissions-grid .permission-item-text span {
-    font-size: 9.5px;
+  .modal-body {
+    padding: 20px;
+  }
+
+  .modal-footer {
+    padding: 14px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+
+    margin-bottom: 14px;
+  }
+
+  .permissions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .permissions-box {
+    padding: 15px;
   }
 }
 
+
+@media (max-width: 420px) {
+
+  .modal-header h2 {
+    font-size: 17px;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
 
 /* =========================================================
    OVERLAY MOBILE
