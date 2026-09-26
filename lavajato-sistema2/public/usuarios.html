@@ -12,56 +12,27 @@
 
   <style>
     :root {
-      --bg: #f5f8fa;
-      --surface: #ffffff;
-      --ink: #101f2b;
-      --ink-soft: #60727e;
-
-      --primary: #0e3a4c;
-      --primary-2: #175a73;
-      --primary-dark: #092a38;
-
-      --accent: #06b6d4;
-      --accent-soft: #e0f7fa;
-
-      --good: #1f9d6b;
-      --good-soft: #e2f7ee;
-
-      --warn: #e24c4c;
-      --warn-soft: #fce8e8;
-
-      --line: #e0e7ea;
-
-      --shadow-sm:
-        0 1px 2px rgba(16, 31, 43, 0.05),
-        0 1px 1px rgba(16, 31, 43, 0.04);
-
-      --shadow-md:
-        0 6px 18px rgba(16, 31, 43, 0.09),
-        0 1px 3px rgba(16, 31, 43, 0.05);
-
-      --shadow-modal:
-        0 24px 70px rgba(5, 20, 28, 0.25);
-
-      --radius-m: 10px;
-      --radius-l: 16px;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --warning: #d97706;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius: 14px;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html {
-      min-height: 100%;
-    }
-
     body {
       margin: 0;
-      min-height: 100vh;
-
-      background: var(--bg);
-      color: var(--ink);
-
       font-family:
         Inter,
         system-ui,
@@ -69,10 +40,8 @@
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-    }
-
-    body.modal-open {
-      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
     }
 
     button,
@@ -85,1050 +54,419 @@
       cursor: pointer;
     }
 
-    /* ==========================================================
-       HEADER
-       ========================================================== */
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
 
     .topbar {
-      height: 72px;
-
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
-
       display: flex;
       align-items: center;
       justify-content: space-between;
-
-      padding: 0 32px;
-
-      position: sticky;
-      top: 0;
-
-      z-index: 50;
-    }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .back-button {
-      width: 40px;
-      height: 40px;
-
-      border: 1px solid var(--line);
-      border-radius: 8px;
-
-      background: #fff;
-      color: var(--ink);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      transition: 150ms ease;
-    }
-
-    .back-button:hover {
-      background: var(--bg);
-      border-color: #cbd7dc;
-    }
-
-    .back-button svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .page-title {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .page-title h1 {
-      margin: 0;
-
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .page-title span {
-      color: var(--ink-soft);
-      font-size: 12px;
-    }
-
-    .company-info {
-      text-align: right;
-    }
-
-    .company-info strong {
-      display: block;
-      font-size: 13px;
-    }
-
-    .company-info span {
-      color: var(--ink-soft);
-      font-size: 11px;
-    }
-
-    /* ==========================================================
-       CONTAINER
-       ========================================================== */
-
-    .container {
-      width: min(1200px, calc(100% - 40px));
-      margin: 30px auto 50px;
-    }
-
-    .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
       gap: 20px;
-      margin-bottom: 22px;
+      margin-bottom: 25px;
     }
 
-    .page-header-text h2 {
-      margin: 0 0 5px;
-      font-size: 22px;
-    }
-
-    .page-header-text p {
+    .topbar-left h1 {
       margin: 0;
-
-      color: var(--ink-soft);
-      font-size: 13px;
+      font-size: 28px;
     }
 
-    .primary-button {
-      min-height: 42px;
-
-      border: 0;
-      border-radius: 9px;
-
-      padding: 11px 17px;
-
-      background: var(--primary);
-      color: #fff;
-
-      font-size: 13px;
-      font-weight: 600;
-
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-
-      transition:
-        background 150ms ease,
-        transform 150ms ease,
-        box-shadow 150ms ease;
-    }
-
-    .primary-button:hover {
-      background: var(--primary-2);
-
-      transform: translateY(-1px);
-
-      box-shadow:
-        0 5px 12px rgba(14, 58, 76, 0.18);
-    }
-
-    .primary-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-
-      transform: none;
-      box-shadow: none;
-    }
-
-    .primary-button svg {
-      width: 17px;
-      height: 17px;
-    }
-
-    /* ==========================================================
-       TABLE CARD
-       ========================================================== */
-
-    .card {
-      background: var(--surface);
-
-      border: 1px solid var(--line);
-      border-radius: var(--radius-l);
-
-      box-shadow: var(--shadow-sm);
-
-      overflow: hidden;
-    }
-
-    .card-header {
-      padding: 18px 20px;
-
-      border-bottom: 1px solid var(--line);
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      gap: 15px;
-    }
-
-    .card-header strong {
+    .topbar-left p {
+      margin: 7px 0 0;
+      color: var(--muted);
       font-size: 14px;
     }
 
-    .user-count {
-      color: var(--ink-soft);
-      font-size: 12px;
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
 
-    .table-wrapper {
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #eef2f7;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-hover);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 8px 11px;
+      font-size: 13px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-container {
       width: 100%;
       overflow-x: auto;
     }
 
     table {
       width: 100%;
-
       border-collapse: collapse;
+    }
 
-      min-width: 800px;
+    thead {
+      background: #f9fafb;
     }
 
     th {
       text-align: left;
-
-      padding: 13px 18px;
-
-      background: #f9fbfc;
-
-      color: var(--ink-soft);
-
-      font-size: 11px;
-      font-weight: 700;
-
+      padding: 15px 18px;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
-
-      border-bottom: 1px solid var(--line);
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
     }
 
     td {
-      padding: 15px 18px;
-
-      border-bottom: 1px solid var(--line);
-
-      font-size: 13px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
       vertical-align: middle;
     }
 
-    tbody tr:last-child td {
-      border-bottom: 0;
+    tbody tr:hover {
+      background: #fafafa;
     }
 
-    tbody tr:hover {
-      background: #fbfdfe;
+    tbody tr:last-child td {
+      border-bottom: none;
     }
 
     .user-name {
-      display: flex;
-      align-items: center;
-      gap: 11px;
+      font-weight: 600;
     }
 
-    .avatar {
-      width: 36px;
-      height: 36px;
-      min-width: 36px;
-
-      border-radius: 50%;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background: var(--primary);
-      color: #fff;
-
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .user-name-data strong {
-      display: block;
+    .user-email {
+      color: var(--muted);
+      margin-top: 3px;
       font-size: 13px;
-    }
-
-    .user-name-data span {
-      display: block;
-
-      margin-top: 2px;
-
-      color: var(--ink-soft);
-      font-size: 11px;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
-
-      padding: 5px 8px;
-
-      border-radius: 6px;
-
-      font-size: 10px;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 700;
     }
 
     .badge-admin {
-      background: var(--accent-soft);
-      color: var(--primary-2);
+      background: #ede9fe;
+      color: #6d28d9;
     }
 
     .badge-funcionario {
-      background: #eef2f4;
-      color: #53656f;
+      background: #dbeafe;
+      color: #1d4ed8;
     }
 
-    .badge-active {
-      background: var(--good-soft);
-      color: var(--good);
+    .badge-ativo {
+      background: #dcfce7;
+      color: #15803d;
     }
 
-    .badge-inactive {
-      background: var(--warn-soft);
-      color: var(--warn);
-    }
-
-    .permissions-summary {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-
-      align-items: center;
+    .badge-inativo {
+      background: #fee2e2;
+      color: #b91c1c;
     }
 
     .permission-count {
-      color: var(--ink-soft);
-      font-size: 11px;
-    }
-
-    .permission-full {
-      color: var(--primary-2);
-      font-size: 11px;
-      font-weight: 700;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .actions {
       display: flex;
-      align-items: center;
-      justify-content: flex-end;
-
-      gap: 6px;
+      gap: 7px;
+      flex-wrap: wrap;
     }
 
-    .action-button {
-      width: 34px;
-      height: 34px;
-
-      border: 1px solid var(--line);
-      border-radius: 7px;
-
-      background: #fff;
-      color: var(--ink-soft);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      transition: 150ms ease;
-    }
-
-    .action-button:hover {
-      background: var(--bg);
-      color: var(--ink);
-    }
-
-    .action-button.danger:hover {
-      background: var(--warn-soft);
-      color: var(--warn);
-      border-color: #f2cccc;
-    }
-
-    .action-button svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .empty-state {
-      padding: 50px 20px;
-
+    .empty {
       text-align: center;
-
-      color: var(--ink-soft);
+      padding: 50px 20px;
+      color: var(--muted);
     }
 
-    .empty-state strong {
-      display: block;
-
-      margin-bottom: 5px;
-
-      color: var(--ink);
-      font-size: 14px;
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
     }
 
-    .empty-state span {
-      font-size: 12px;
-    }
-
-    /* ==========================================================
-       MODAL - ESTRUTURA
-       ========================================================== */
+    /* ============================================================
+       MODAL
+    ============================================================ */
 
     .modal-overlay {
       position: fixed;
       inset: 0;
-
-      background:
-        rgba(5, 16, 22, 0.58);
-
+      background: rgba(15, 23, 42, 0.55);
       display: none;
-
       align-items: center;
       justify-content: center;
-
-      padding: 24px;
-
-      z-index: 100;
-
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
+      padding: 20px;
+      z-index: 1000;
     }
 
     .modal-overlay.active {
       display: flex;
-
-      animation: modalOverlayIn 160ms ease;
     }
 
     .modal {
-      width: min(680px, 100%);
-
-      max-height:
-        min(
-          calc(100vh - 48px),
-          820px
-        );
-
-      background: #fff;
-
-      border: 1px solid rgba(224, 231, 234, 0.9);
+      width: 100%;
+      max-width: 720px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: white;
       border-radius: 18px;
-
-      box-shadow: var(--shadow-modal);
-
-      overflow: hidden;
-
-      display: flex;
-      flex-direction: column;
-
-      animation: modalIn 180ms ease;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
     }
 
     .modal-header {
-      flex-shrink: 0;
-
-      padding: 18px 22px;
-
-      min-height: 68px;
-
-      background: #fff;
-
-      border-bottom: 1px solid var(--line);
-
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-
       gap: 15px;
     }
 
-    .modal-header-content {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .modal-header h3 {
+    .modal-header h2 {
       margin: 0;
-
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .modal-header small {
-      color: var(--ink-soft);
-      font-size: 10px;
+      font-size: 21px;
     }
 
     .modal-close {
       width: 36px;
       height: 36px;
-      min-width: 36px;
-
-      border: 1px solid transparent;
+      border: none;
       border-radius: 8px;
-
-      background: transparent;
-      color: var(--ink-soft);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      transition: 150ms ease;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 22px;
+      line-height: 1;
     }
 
     .modal-close:hover {
-      background: var(--bg);
-      color: var(--ink);
-
-      border-color: var(--line);
-    }
-
-    .modal-close svg {
-      width: 18px;
-      height: 18px;
+      background: #e5e7eb;
     }
 
     .modal-body {
-      padding: 22px;
-
-      overflow-y: auto;
-      overflow-x: hidden;
-
-      flex: 1;
-
-      scrollbar-width: thin;
-      scrollbar-color: #cbd7dc transparent;
-    }
-
-    .modal-body::-webkit-scrollbar {
-      width: 7px;
-    }
-
-    .modal-body::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-      background: #cbd7dc;
-      border-radius: 20px;
+      padding: 24px;
     }
 
     .modal-footer {
-      flex-shrink: 0;
-
-      padding: 15px 22px;
-
-      background: #fff;
-
-      border-top: 1px solid var(--line);
-
+      padding: 18px 24px;
+      border-top: 1px solid var(--border);
       display: flex;
-      align-items: center;
       justify-content: flex-end;
-
       gap: 10px;
     }
 
-    /* ==========================================================
-       FORM
-       ========================================================== */
-
-    .form-grid {
-      display: grid;
-
-      grid-template-columns:
-        minmax(0, 1fr)
-        minmax(0, 1fr);
-
-      gap: 16px;
-    }
-
     .form-group {
-      min-width: 0;
-
-      display: flex;
-      flex-direction: column;
-
-      gap: 7px;
+      margin-bottom: 18px;
     }
 
-    .form-group.full {
-      grid-column: 1 / -1;
+    .form-group:last-child {
+      margin-bottom: 0;
     }
 
-    .form-group label {
-      color: var(--ink);
-
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      height: 42px;
-
-      padding: 0 12px;
-
-      border: 1px solid #d7e0e4;
-      border-radius: 8px;
-
-      outline: none;
-
-      background: #fff;
-      color: var(--ink);
-
-      font-size: 13px;
-
-      transition:
-        border-color 150ms ease,
-        box-shadow 150ms ease,
-        background 150ms ease;
-    }
-
-    .form-group input:hover,
-    .form-group select:hover {
-      border-color: #c4d1d6;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--accent);
-
-      box-shadow:
-        0 0 0 3px rgba(6, 182, 212, 0.10);
-    }
-
-    .form-group input::placeholder {
-      color: #9aaab2;
-    }
-
-    .field-help {
-      color: var(--ink-soft);
-      font-size: 10px;
-    }
-
-    /* ==========================================================
-       PERMISSIONS
-       ========================================================== */
-
-    .permissions-section {
-      margin-top: 24px;
-      padding-top: 20px;
-
-      border-top: 1px solid var(--line);
-    }
-
-    .permissions-heading {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-
-      gap: 15px;
-
-      margin-bottom: 4px;
-    }
-
-    .permissions-title {
-      margin: 0;
-
+    label {
+      display: block;
+      margin-bottom: 7px;
       font-size: 13px;
       font-weight: 700;
+      color: #374151;
     }
 
-    .permissions-description {
-      margin: 0 0 14px;
+    input,
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      background: white;
+      color: var(--text);
+      outline: none;
+      transition: 0.2s;
+    }
 
-      color: var(--ink-soft);
-      font-size: 11px;
-      line-height: 1.5;
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .permissions-box {
+      margin-top: 22px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    .permissions-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 14px;
+    }
+
+    .permissions-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .permissions-header span {
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .permissions-grid {
       display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-      gap: 9px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }
 
     .permission-item {
-      position: relative;
-
-      min-width: 0;
-
       display: flex;
       align-items: center;
-
-      gap: 11px;
-
-      padding: 12px;
-
-      border: 1px solid var(--line);
-      border-radius: 10px;
-
-      background: #fff;
-
-      cursor: pointer;
-
-      transition:
-        background 150ms ease,
-        border-color 150ms ease,
-        box-shadow 150ms ease,
-        transform 150ms ease;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: white;
+      transition: 0.2s;
     }
 
     .permission-item:hover {
-      background: #f9fbfc;
-      border-color: #cbd7dc;
-    }
-
-    .permission-item:has(
-      input[type="checkbox"]:checked
-    ) {
-      background: #f1fafc;
-
-      border-color:
-        rgba(6, 182, 212, 0.55);
-
-      box-shadow:
-        0 0 0 1px
-        rgba(6, 182, 212, 0.08);
-    }
-
-    .permission-item:has(
-      input[type="checkbox"]:checked
-    )
-    .permission-item-content strong {
-      color: var(--primary-2);
+      border-color: #cbd5e1;
     }
 
     .permission-item input {
-      width: 17px;
-      height: 17px;
-
-      min-width: 17px;
-
+      width: auto;
       margin: 0;
+    }
 
-      accent-color: var(--primary);
-
+    .permission-item label {
+      margin: 0;
       cursor: pointer;
-    }
-
-    .permission-item-content {
-      min-width: 0;
-    }
-
-    .permission-item-content strong {
-      display: block;
-
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .permission-item-content span {
-      display: block;
-
-      margin-top: 3px;
-
-      color: var(--ink-soft);
-
-      font-size: 10px;
-      line-height: 1.3;
-    }
-
-    .permissions-disabled {
-      opacity: 0.62;
-    }
-
-    .permissions-disabled
-    .permission-item {
-      cursor: default;
-    }
-
-    .permissions-disabled
-    .permission-item:hover {
-      background: #fff;
-      border-color: var(--line);
-    }
-
-    .permissions-disabled
-    .permission-item:has(
-      input[type="checkbox"]:checked
-    ) {
-      background: #f6fafb;
-      border-color: var(--line);
-
-      box-shadow: none;
-    }
-
-    .permissions-disabled
-    .permission-item-content strong {
-      color: var(--ink);
-    }
-
-    .admin-notice {
-      display: none;
-
-      margin-top: 12px;
-
-      padding: 11px 12px;
-
-      border: 1px solid #c9edf2;
-      border-radius: 9px;
-
-      background: var(--accent-soft);
-      color: var(--primary-2);
-
-      font-size: 11px;
-      line-height: 1.45;
-    }
-
-    .admin-notice.active {
-      display: block;
-    }
-
-    /* ==========================================================
-       STATUS
-       ========================================================== */
-
-    .status-row {
-      margin-top: 20px;
-
-      min-height: 64px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      gap: 20px;
-
-      padding: 12px 14px;
-
-      border: 1px solid var(--line);
-      border-radius: 10px;
-
-      background: #fff;
-    }
-
-    .status-label {
-      min-width: 0;
-    }
-
-    .status-label strong {
-      display: block;
-
-      font-size: 12px;
-    }
-
-    .status-label span {
-      display: block;
-
-      margin-top: 3px;
-
-      color: var(--ink-soft);
-
-      font-size: 10px;
-      line-height: 1.35;
-    }
-
-    .switch {
-      position: relative;
-
-      width: 44px;
-      height: 24px;
-
-      min-width: 44px;
-    }
-
-    .switch input {
-      position: absolute;
-
-      opacity: 0;
-
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      inset: 0;
-
-      background: #ccd6da;
-
-      border-radius: 30px;
-
-      transition: 150ms ease;
-
-      cursor: pointer;
-    }
-
-    .slider::before {
-      content: "";
-
-      position: absolute;
-
-      width: 18px;
-      height: 18px;
-
-      left: 3px;
-      top: 3px;
-
-      background: #fff;
-
-      border-radius: 50%;
-
-      box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.2);
-
-      transition: 150ms ease;
-    }
-
-    .switch input:checked + .slider {
-      background: var(--good);
-    }
-
-    .switch input:checked + .slider::before {
-      transform: translateX(20px);
-    }
-
-    .switch input:focus-visible + .slider {
-      box-shadow:
-        0 0 0 3px rgba(31, 157, 107, 0.15);
-    }
-
-    /* ==========================================================
-       BUTTONS
-       ========================================================== */
-
-    .secondary-button {
-      min-height: 42px;
-
-      border: 1px solid var(--line);
-      border-radius: 8px;
-
-      padding: 10px 16px;
-
-      background: #fff;
-      color: var(--ink);
-
-      font-size: 13px;
+      flex: 1;
       font-weight: 600;
-
-      transition: 150ms ease;
+      font-size: 13px;
     }
 
-    .secondary-button:hover {
-      background: var(--bg);
-      border-color: #cbd7dc;
+    .permission-notice {
+      display: none;
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
-    /* ==========================================================
-       LOADING
-       ========================================================== */
-
-    .loading {
-      padding: 45px 20px;
-
-      text-align: center;
-
-      color: var(--ink-soft);
-
-      font-size: 12px;
+    .permission-notice.active {
+      display: block;
     }
 
-    /* ==========================================================
+    /* ============================================================
        TOAST
-       ========================================================== */
+    ============================================================ */
 
     .toast-container {
       position: fixed;
-
+      top: 20px;
       right: 20px;
-      bottom: 20px;
-
-      z-index: 300;
-
+      z-index: 2000;
       display: flex;
       flex-direction: column;
-
-      gap: 8px;
+      gap: 10px;
+      max-width: 380px;
     }
 
     .toast {
-      min-width: 280px;
-      max-width: 380px;
-
-      padding: 13px 15px;
-
-      border-radius: 9px;
-
-      background: var(--primary);
-      color: #fff;
-
-      box-shadow: var(--shadow-md);
-
-      font-size: 12px;
-
-      animation: toastIn 180ms ease;
-    }
-
-    .toast.error {
-      background: var(--warn);
+      background: white;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      animation: toastIn 0.25s ease;
     }
 
     .toast.success {
-      background: var(--good);
+      border-left-color: var(--success);
     }
 
-    /* ==========================================================
-       ANIMAÇÕES
-       ========================================================== */
-
-    @keyframes modalOverlayIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
+    .toast.error {
+      border-left-color: var(--danger);
     }
 
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px) scale(0.985);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+    .toast.warning {
+      border-left-color: var(--warning);
     }
 
     @keyframes toastIn {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(-10px);
       }
 
       to {
@@ -1137,116 +475,53 @@
       }
     }
 
-    /* ==========================================================
-       RESPONSIVE
-       ========================================================== */
+    /* ============================================================
+       RESPONSIVO
+    ============================================================ */
 
-    @media (max-width: 760px) {
+    @media (max-width: 800px) {
+      .page {
+        padding: 18px;
+      }
 
       .topbar {
-        height: 64px;
-        padding: 0 15px;
-      }
-
-      .company-info {
-        display: none;
-      }
-
-      .container {
-        width: calc(100% - 24px);
-        margin-top: 20px;
-      }
-
-      .page-header {
         align-items: flex-start;
         flex-direction: column;
       }
 
-      .primary-button {
+      .topbar-actions {
         width: 100%;
       }
 
-      .form-grid {
-        grid-template-columns: 1fr;
+      .topbar-actions .btn {
+        width: 100%;
       }
 
-      .form-group.full {
-        grid-column: auto;
+      .form-row {
+        grid-template-columns: 1fr;
       }
 
       .permissions-grid {
         grid-template-columns: 1fr;
-      }
-
-      .modal-overlay {
-        padding: 10px;
       }
 
       .modal {
-        width: 100%;
-        max-height: calc(100vh - 20px);
-
-        border-radius: 14px;
-      }
-
-      .modal-header {
-        padding: 16px 17px;
-      }
-
-      .modal-body {
-        padding: 17px;
-      }
-
-      .modal-footer {
-        padding: 14px 17px;
-      }
-
-      .modal-footer .secondary-button,
-      .modal-footer .primary-button {
-        flex: 1;
-        width: auto;
-      }
-
-      .toast-container {
-        right: 12px;
-        left: 12px;
-        bottom: 12px;
-      }
-
-      .toast {
-        min-width: 0;
-        max-width: none;
+        max-height: 95vh;
       }
     }
 
-    @media (max-width: 480px) {
-
-      .topbar-left {
-        gap: 10px;
+    @media (max-width: 600px) {
+      th,
+      td {
+        padding: 12px;
       }
 
-      .page-title h1 {
-        font-size: 18px;
+      .actions {
+        flex-direction: column;
       }
 
-      .page-title span {
-        font-size: 10px;
-      }
-
-      .modal-header h3 {
-        font-size: 16px;
-      }
-
-      .permissions-grid {
-        gap: 7px;
-      }
-
-      .permission-item {
-        padding: 10px;
-      }
-
-      .modal-footer {
-        gap: 7px;
+      .actions .btn {
+        width: 100%;
       }
     }
   </style>
@@ -1254,162 +529,61 @@
 
 <body>
 
-  <!-- ==========================================================
-       HEADER
-       ========================================================== -->
+  <main class="page">
 
-  <header class="topbar">
+    <!-- ==========================================================
+         TOPO
+    =========================================================== -->
 
-    <div class="topbar-left">
+    <div class="topbar">
 
-      <button
-        type="button"
-        class="back-button"
-        id="btn-voltar"
-        title="Voltar"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M19 12H5" />
-          <path d="M12 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      <div class="page-title">
-
+      <div class="topbar-left">
         <h1>Usuários</h1>
-
-        <span>
-          Gerenciamento de usuários e permissões
-        </span>
-
-      </div>
-
-    </div>
-
-    <div class="company-info">
-
-      <strong id="company-name">
-        Carregando...
-      </strong>
-
-      <span id="logged-user">
-        Carregando...
-      </span>
-
-    </div>
-
-  </header>
-
-
-  <!-- ==========================================================
-       CONTEÚDO
-       ========================================================== -->
-
-  <main class="container">
-
-    <div class="page-header">
-
-      <div class="page-header-text">
-
-        <h2>
-          Usuários da empresa
-        </h2>
-
         <p>
-          Gerencie cargos, acesso e permissões dos usuários.
+          Gerencie os usuários e as permissões de acesso do sistema.
         </p>
-
       </div>
 
-      <button
-        type="button"
-        class="primary-button"
-        id="btn-novo-usuario"
-      >
-
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
+      <div class="topbar-actions">
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="abrirModalNovoUsuario()"
         >
-          <path d="M12 5v14" />
-          <path d="M5 12h14" />
-        </svg>
-
-        Novo usuário
-
-      </button>
+          Novo usuário
+        </button>
+      </div>
 
     </div>
 
+    <!-- ==========================================================
+         LISTA
+    =========================================================== -->
 
-    <section class="card">
+    <div class="card">
 
-      <div class="card-header">
-
-        <strong>
-          Usuários cadastrados
-        </strong>
-
-        <span
-          class="user-count"
-          id="user-count"
-        >
-          0 usuários
-        </span>
-
-      </div>
-
-      <div class="table-wrapper">
+      <div class="table-container">
 
         <table>
 
           <thead>
-
             <tr>
-
-              <th>
-                Usuário
-              </th>
-
-              <th>
-                Cargo
-              </th>
-
-              <th>
-                Status
-              </th>
-
-              <th>
-                Permissões
-              </th>
-
-              <th>
-                Ações
-              </th>
-
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th>Permissões</th>
+              <th>Status</th>
+              <th>Ações</th>
             </tr>
-
           </thead>
 
-          <tbody id="usuarios-body">
+          <tbody id="usuariosTabela">
 
             <tr>
-
               <td colspan="5">
-
                 <div class="loading">
                   Carregando usuários...
                 </div>
-
               </td>
-
             </tr>
 
           </tbody>
@@ -1418,138 +592,112 @@
 
       </div>
 
-    </section>
+    </div>
 
   </main>
 
-
-  <!-- ==========================================================
-       MODAL
-       ========================================================== -->
+  <!-- ============================================================
+       MODAL USUÁRIO
+  ============================================================= -->
 
   <div
+    id="modalUsuario"
     class="modal-overlay"
-    id="modal-overlay"
   >
 
     <div class="modal">
 
       <div class="modal-header">
 
-        <div class="modal-header-content">
-
-          <h3 id="modal-title">
-            Novo usuário
-          </h3>
-
-          <small>
-            Configure os dados e acessos do usuário
-          </small>
-
-        </div>
+        <h2 id="modalTitulo">
+          Novo usuário
+        </h2>
 
         <button
           type="button"
           class="modal-close"
-          id="btn-fechar-modal"
-          title="Fechar"
+          onclick="fecharModal()"
         >
-
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M18 6L6 18" />
-            <path d="M6 6l12 12" />
-          </svg>
-
+          ×
         </button>
 
       </div>
 
+      <form
+        id="formUsuario"
+        onsubmit="salvarUsuario(event)"
+      >
 
-      <div class="modal-body">
+        <div class="modal-body">
 
-        <form id="usuario-form">
+          <!-- ======================================================
+               DADOS
+          ======================================================= -->
 
-          <input
-            type="hidden"
-            id="usuario-id"
-          >
+          <div class="form-row">
 
+            <div class="form-group">
 
-          <!-- ==================================================
-               DADOS DO USUÁRIO
-               ================================================== -->
-
-          <div class="form-grid">
-
-            <div class="form-group full">
-
-              <label for="usuario-nome">
+              <label for="usuarioNome">
                 Nome
               </label>
 
               <input
                 type="text"
-                id="usuario-nome"
-                placeholder="Nome completo"
-                autocomplete="name"
+                id="usuarioNome"
                 required
+                autocomplete="name"
               >
 
             </div>
 
-
             <div class="form-group">
 
-              <label for="usuario-email">
+              <label for="usuarioEmail">
                 E-mail
               </label>
 
               <input
                 type="email"
-                id="usuario-email"
-                placeholder="usuario@email.com"
-                autocomplete="email"
+                id="usuarioEmail"
                 required
+                autocomplete="email"
               >
 
             </div>
 
+          </div>
+
+          <div class="form-row">
 
             <div
               class="form-group"
-              id="senha-group"
+              id="grupoSenha"
             >
 
-              <label for="usuario-senha">
+              <label for="usuarioSenha">
                 Senha
               </label>
 
               <input
                 type="password"
-                id="usuario-senha"
-                placeholder="Mínimo de 6 caracteres"
+                id="usuarioSenha"
+                minlength="6"
                 autocomplete="new-password"
               >
 
-              <span class="field-help">
-                Obrigatória ao criar um usuário.
-              </span>
-
             </div>
 
+            <div class="form-group">
 
-            <div class="form-group full">
-
-              <label for="usuario-perfil">
-                Cargo
+              <label for="usuarioPerfil">
+                Perfil
               </label>
 
-              <select id="usuario-perfil">
+              <select
+                id="usuarioPerfil"
+                onchange="atualizarPermissoesVisual()"
+              >
 
                 <option value="funcionario">
                   Funcionário
@@ -1565,201 +713,169 @@
 
           </div>
 
+          <!-- ======================================================
+               STATUS
+          ======================================================= -->
 
-          <!-- ==================================================
+          <div
+            class="form-group"
+            id="grupoStatus"
+            style="display: none;"
+          >
+
+            <label for="usuarioAtivo">
+              Status
+            </label>
+
+            <select id="usuarioAtivo">
+
+              <option value="true">
+                Ativo
+              </option>
+
+              <option value="false">
+                Inativo
+              </option>
+
+            </select>
+
+          </div>
+
+          <!-- ======================================================
                PERMISSÕES
-               ================================================== -->
+          ======================================================= -->
 
-          <div class="permissions-section">
+          <div class="permissions-box">
 
-            <div class="permissions-heading">
+            <div class="permissions-header">
 
               <div>
-
-                <div class="permissions-title">
+                <h3>
                   Permissões
-                </div>
+                </h3>
 
-                <div class="permissions-description">
-                  Selecione quais áreas o funcionário poderá acessar.
-                </div>
+                <span>
+                  Selecione os módulos que o funcionário poderá acessar.
+                </span>
+              </div>
+
+            </div>
+
+            <div
+              id="permissoesGrid"
+              class="permissions-grid"
+            >
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permAgenda"
+                  value="agenda"
+                  data-permission
+                >
+
+                <label for="permAgenda">
+                  Agenda
+                </label>
+
+              </div>
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permFaturamento"
+                  value="faturamento"
+                  data-permission
+                >
+
+                <label for="permFaturamento">
+                  Faturamento
+                </label>
+
+              </div>
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permFinanceiro"
+                  value="financeiro"
+                  data-permission
+                >
+
+                <label for="permFinanceiro">
+                  Financeiro
+                </label>
+
+              </div>
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permServicos"
+                  value="servicos"
+                  data-permission
+                >
+
+                <label for="permServicos">
+                  Serviços
+                </label>
+
+              </div>
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permClientes"
+                  value="clientes"
+                  data-permission
+                >
+
+                <label for="permClientes">
+                  Clientes
+                </label>
+
+              </div>
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permDespesas"
+                  value="despesas"
+                  data-permission
+                >
+
+                <label for="permDespesas">
+                  Despesas
+                </label>
+
+              </div>
+
+              <div class="permission-item">
+
+                <input
+                  type="checkbox"
+                  id="permUsuarios"
+                  value="usuarios"
+                  data-permission
+                >
+
+                <label for="permUsuarios">
+                  Usuários
+                </label>
 
               </div>
 
             </div>
 
-
             <div
-              class="permissions-grid"
-              id="permissions-grid"
-            >
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="agenda"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Agenda
-                  </strong>
-
-                  <span>
-                    Agendamentos
-                  </span>
-
-                </div>
-
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="faturamento"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Faturamento
-                  </strong>
-
-                  <span>
-                    Faturamento e recebimentos
-                  </span>
-
-                </div>
-
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="financeiro"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Financeiro
-                  </strong>
-
-                  <span>
-                    Informações financeiras
-                  </span>
-
-                </div>
-
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="servicos"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Serviços
-                  </strong>
-
-                  <span>
-                    Cadastro de serviços
-                  </span>
-
-                </div>
-
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="clientes"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Clientes
-                  </strong>
-
-                  <span>
-                    Cadastro de clientes
-                  </span>
-
-                </div>
-
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="despesas"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Despesas
-                  </strong>
-
-                  <span>
-                    Controle de despesas
-                  </span>
-
-                </div>
-
-              </label>
-
-
-              <label class="permission-item">
-
-                <input
-                  type="checkbox"
-                  value="usuarios"
-                  data-permission
-                >
-
-                <div class="permission-item-content">
-
-                  <strong>
-                    Usuários
-                  </strong>
-
-                  <span>
-                    Gerenciamento de usuários
-                  </span>
-
-                </div>
-
-              </label>
-
-            </div>
-
-
-            <div
-              class="admin-notice"
-              id="admin-notice"
+              id="permissionNotice"
+              class="permission-notice"
             >
               Administradores possuem acesso total ao sistema.
               As permissões individuais não precisam ser configuradas.
@@ -1767,88 +883,52 @@
 
           </div>
 
+        </div>
 
-          <!-- ==================================================
-               STATUS
-               ================================================== -->
+        <!-- ========================================================
+             RODAPÉ
+        ========================================================= -->
 
-          <div class="status-row">
+        <div class="modal-footer">
 
-            <div class="status-label">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="fecharModal()"
+          >
+            Cancelar
+          </button>
 
-              <strong>
-                Usuário ativo
-              </strong>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btnSalvarUsuario"
+          >
+            Salvar usuário
+          </button>
 
-              <span>
-                Usuários inativos não conseguem acessar o sistema.
-              </span>
+        </div>
 
-            </div>
-
-            <label class="switch">
-
-              <input
-                type="checkbox"
-                id="usuario-ativo"
-                checked
-              >
-
-              <span class="slider"></span>
-
-            </label>
-
-          </div>
-
-        </form>
-
-      </div>
-
-
-      <div class="modal-footer">
-
-        <button
-          type="button"
-          class="secondary-button"
-          id="btn-cancelar"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          class="primary-button"
-          id="btn-salvar"
-        >
-          Salvar usuário
-        </button>
-
-      </div>
+      </form>
 
     </div>
 
   </div>
 
-
-  <!-- ==========================================================
-       TOAST
-       ========================================================== -->
+  <!-- ============================================================
+       TOASTS
+  ============================================================= -->
 
   <div
+    id="toastContainer"
     class="toast-container"
-    id="toast-container"
   ></div>
-
 
   <script>
 
-    // ==========================================================
+    // ============================================================
     // CONFIGURAÇÃO
-    // ==========================================================
-
-    const AUTH_TOKEN_KEY =
-      'lavajato_auth_token';
-
+    // ============================================================
 
     const PERMISSOES = [
       'agenda',
@@ -1860,210 +940,79 @@
       'usuarios'
     ];
 
-
     let usuarios = [];
 
     let usuarioEditando = null;
 
 
-    // ==========================================================
-    // ELEMENTOS
-    // ==========================================================
-
-    const modalOverlay =
-      document.getElementById(
-        'modal-overlay'
-      );
-
-    const usuarioForm =
-      document.getElementById(
-        'usuario-form'
-      );
-
-    const usuarioId =
-      document.getElementById(
-        'usuario-id'
-      );
-
-    const usuarioNome =
-      document.getElementById(
-        'usuario-nome'
-      );
-
-    const usuarioEmail =
-      document.getElementById(
-        'usuario-email'
-      );
-
-    const usuarioSenha =
-      document.getElementById(
-        'usuario-senha'
-      );
-
-    const usuarioPerfil =
-      document.getElementById(
-        'usuario-perfil'
-      );
-
-    const usuarioAtivo =
-      document.getElementById(
-        'usuario-ativo'
-      );
-
-    const senhaGroup =
-      document.getElementById(
-        'senha-group'
-      );
-
-    const permissionsGrid =
-      document.getElementById(
-        'permissions-grid'
-      );
-
-    const adminNotice =
-      document.getElementById(
-        'admin-notice'
-      );
-
-    const usuariosBody =
-      document.getElementById(
-        'usuarios-body'
-      );
-
-    const userCount =
-      document.getElementById(
-        'user-count'
-      );
-
-    const modalTitle =
-      document.getElementById(
-        'modal-title'
-      );
-
-    const btnSalvar =
-      document.getElementById(
-        'btn-salvar'
-      );
-
-
-    // ==========================================================
-    // TOKEN
-    // ==========================================================
-
-    function getToken() {
-
-      return localStorage.getItem(
-        AUTH_TOKEN_KEY
-      );
-
-    }
-
-
-    // ==========================================================
+    // ============================================================
     // API
-    // ==========================================================
+    // ============================================================
 
-    async function api(
-      endpoint,
-      options = {}
-    ) {
+    async function api(endpoint, options = {}) {
 
       const token =
-        getToken();
-
+        localStorage.getItem(
+          'lavajato_auth_token'
+        );
 
       const headers = {
-        'Content-Type':
-          'application/json',
-
+        'Content-Type': 'application/json',
         ...(options.headers || {})
       };
 
-
       if (token) {
-
         headers.Authorization =
           `Bearer ${token}`;
-
       }
 
-
-      console.log(
-        '[API]',
-        options.method || 'GET',
-        `/api${endpoint}`
-      );
-
-
-      const resposta =
+      const response =
         await fetch(
-          `/api${endpoint}`,
+          '/api' + endpoint,
           {
             ...options,
             headers
           }
         );
 
+      let data = null;
 
-      let dados = null;
-
-
-      try {
-
-        dados =
-          await resposta.json();
-
-      } catch {
-
-        dados = null;
-
-      }
-
-
-      console.log(
-        '[API RESPOSTA]',
-        resposta.status,
-        dados
-      );
-
+      const contentType =
+        response.headers.get(
+          'content-type'
+        );
 
       if (
-        resposta.status === 401
+        contentType &&
+        contentType.includes('application/json')
       ) {
+        data = await response.json();
+      } else {
+        const text =
+          await response.text();
 
-        localStorage.removeItem(
-          AUTH_TOKEN_KEY
-        );
-
-        window.location.href =
-          '/';
-
-        throw new Error(
-          'Sessão expirada.'
-        );
-
+        data = text
+          ? { mensagem: text }
+          : null;
       }
 
+      if (!response.ok) {
 
-      if (!resposta.ok) {
+        const mensagem =
+          data?.erro ||
+          data?.message ||
+          `Erro HTTP ${response.status}`;
 
-        throw new Error(
-          dados?.erro ||
-          dados?.message ||
-          'Não foi possível realizar a operação.'
-        );
-
+        throw new Error(mensagem);
       }
 
-
-      return dados;
-
+      return data;
     }
 
 
-    // ==========================================================
+    // ============================================================
     // TOAST
-    // ==========================================================
+    // ============================================================
 
     function mostrarToast(
       mensagem,
@@ -2072,114 +1021,42 @@
 
       const container =
         document.getElementById(
-          'toast-container'
+          'toastContainer'
         );
-
 
       const toast =
-        document.createElement(
-          'div'
-        );
-
+        document.createElement('div');
 
       toast.className =
         `toast ${tipo}`;
 
-
       toast.textContent =
         mensagem;
-
 
       container.appendChild(
         toast
       );
-
 
       setTimeout(() => {
 
         toast.remove();
 
       }, 3500);
-
     }
 
 
-    // ==========================================================
-    // VERIFICAR SESSÃO
-    // ==========================================================
-
-    async function verificarSessao() {
-
-      if (!getToken()) {
-
-        window.location.href =
-          '/';
-
-        return false;
-
-      }
-
-
-      try {
-
-        const resposta =
-          await api(
-            '/auth/me'
-          );
-
-
-        if (
-          resposta.usuario?.perfil !==
-          'administrador'
-        ) {
-
-          alert(
-            'Acesso permitido somente para administradores.'
-          );
-
-
-          window.location.href =
-            '/';
-
-
-          return false;
-
-        }
-
-
-        document.getElementById(
-          'company-name'
-        ).textContent =
-          resposta.empresa?.nome ||
-          'Empresa';
-
-
-        document.getElementById(
-          'logged-user'
-        ).textContent =
-          `${resposta.usuario?.nome || 'Usuário'} · Administrador`;
-
-
-        return true;
-
-      } catch (err) {
-
-        console.error(err);
-
-        return false;
-
-      }
-
-    }
-
-
-    // ==========================================================
+    // ============================================================
     // CARREGAR USUÁRIOS
-    // ==========================================================
+    // ============================================================
 
     async function carregarUsuarios() {
 
-      usuariosBody.innerHTML = `
+      const tabela =
+        document.getElementById(
+          'usuariosTabela'
+        );
+
+      tabela.innerHTML = `
         <tr>
           <td colspan="5">
             <div class="loading">
@@ -2189,397 +1066,277 @@
         </tr>
       `;
 
-
       try {
 
+        const resposta =
+          await api('/usuarios');
+
         usuarios =
-          await api(
-            '/usuarios'
-          );
-
-
-        if (!Array.isArray(usuarios)) {
-
-          usuarios =
-            usuarios?.usuarios ||
-            [];
-
-        }
-
+          Array.isArray(resposta)
+            ? resposta
+            : (
+                resposta?.usuarios ||
+                []
+              );
 
         renderizarUsuarios();
 
-      } catch (err) {
+      } catch (erro) {
 
-        console.error(err);
+        console.error(
+          'Erro ao carregar usuários:',
+          erro
+        );
 
-
-        usuariosBody.innerHTML = `
+        tabela.innerHTML = `
           <tr>
             <td colspan="5">
-              <div class="empty-state">
-
-                <strong>
-                  Não foi possível carregar os usuários.
-                </strong>
-
-                <span>
-                  ${escaparHtml(
-                    err.message
-                  )}
-                </span>
-
+              <div class="empty">
+                Não foi possível carregar os usuários.
               </div>
             </td>
           </tr>
         `;
 
+        mostrarToast(
+          erro.message ||
+          'Erro ao carregar usuários.',
+          'error'
+        );
       }
-
     }
 
 
-    // ==========================================================
+    // ============================================================
     // RENDERIZAR USUÁRIOS
-    // ==========================================================
+    // ============================================================
 
     function renderizarUsuarios() {
 
-      userCount.textContent =
-        `${usuarios.length} ${
-          usuarios.length === 1
-            ? 'usuário'
-            : 'usuários'
-        }`;
+      const tabela =
+        document.getElementById(
+          'usuariosTabela'
+        );
 
+      if (!usuarios.length) {
 
-      if (
-        usuarios.length === 0
-      ) {
-
-        usuariosBody.innerHTML = `
+        tabela.innerHTML = `
           <tr>
             <td colspan="5">
-
-              <div class="empty-state">
-
-                <strong>
-                  Nenhum usuário cadastrado.
-                </strong>
-
-                <span>
-                  Crie o primeiro usuário da empresa.
-                </span>
-
+              <div class="empty">
+                Nenhum usuário cadastrado.
               </div>
-
             </td>
           </tr>
         `;
 
         return;
-
       }
 
-
-      usuariosBody.innerHTML =
-        usuarios
-          .map(
-            usuario => {
-
-              const iniciais =
-                obterIniciais(
-                  usuario.nome
-                );
-
-
-              const cargo =
-                usuario.perfil ===
-                'administrador'
-
-                  ? `
-                    <span class="badge badge-admin">
-                      Administrador
-                    </span>
-                  `
-
-                  : `
-                    <span class="badge badge-funcionario">
-                      Funcionário
-                    </span>
-                  `;
-
-
-              const status =
-                usuario.ativo
-
-                  ? `
-                    <span class="badge badge-active">
-                      Ativo
-                    </span>
-                  `
-
-                  : `
-                    <span class="badge badge-inactive">
-                      Inativo
-                    </span>
-                  `;
-
-
-              const quantidadePermissoes =
-                usuario.perfil ===
-                'administrador'
-
-                  ? `
-                    <span class="permission-full">
-                      Acesso total
-                    </span>
-                  `
-
-                  : `
-                    <span class="permission-count">
-                      ${
-                        usuario.permissoes?.length ||
-                        0
-                      }
-                      ${
-                        (
-                          usuario.permissoes?.length ||
-                          0
-                        ) === 1
-                          ? 'permissão'
-                          : 'permissões'
-                      }
-                    </span>
-                  `;
-
-
-              return `
-                <tr>
-
-                  <td>
-
-                    <div class="user-name">
-
-                      <div class="avatar">
-                        ${escaparHtml(
-                          iniciais
-                        )}
-                      </div>
-
-                      <div class="user-name-data">
-
-                        <strong>
-                          ${escaparHtml(
-                            usuario.nome
-                          )}
-                        </strong>
-
-                        <span>
-                          ${escaparHtml(
-                            usuario.email
-                          )}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  </td>
-
-
-                  <td>
-                    ${cargo}
-                  </td>
-
-
-                  <td>
-                    ${status}
-                  </td>
-
-
-                  <td>
-
-                    <div class="permissions-summary">
-                      ${quantidadePermissoes}
-                    </div>
-
-                  </td>
-
-
-                  <td>
-
-                    <div class="actions">
-
-                      <button
-                        type="button"
-                        class="action-button"
-                        title="Editar usuário"
-                        onclick="editarUsuario(${usuario.id})"
-                      >
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-
-                          <path
-                            d="M12 20h9"
-                          />
-
-                          <path
-                            d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"
-                          />
-
-                        </svg>
-
-                      </button>
-
-
-                      <button
-                        type="button"
-                        class="action-button"
-                        title="${
-                          usuario.ativo
-                            ? 'Desativar usuário'
-                            : 'Ativar usuário'
-                        }"
-                        onclick="alternarStatus(${usuario.id})"
-                      >
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-
-                          ${
-                            usuario.ativo
-
-                              ? `
-                                <path d="M18 8A6 6 0 0 0 6 8v4a6 6 0 0 0 12 0Z"/>
-                                <path d="M12 2v6"/>
-                              `
-
-                              : `
-                                <path d="M18 8A6 6 0 0 0 6 8v4a6 6 0 0 0 12 0Z"/>
-                                <path d="M8 21h8"/>
-                              `
-                          }
-
-                        </svg>
-
-                      </button>
-
-
-                      <button
-                        type="button"
-                        class="action-button danger"
-                        title="Excluir usuário"
-                        onclick="excluirUsuario(${usuario.id})"
-                      >
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-
-                          <path d="M3 6h18" />
-
-                          <path
-                            d="M8 6V4h8v2"
-                          />
-
-                          <path
-                            d="M19 6l-1 14H6L5 6"
-                          />
-
-                          <path
-                            d="M10 11v5"
-                          />
-
-                          <path
-                            d="M14 11v5"
-                          />
-
-                        </svg>
-
-                      </button>
-
-                    </div>
-
-                  </td>
-
-                </tr>
-              `;
-
-            }
-          )
-          .join('');
-
+      tabela.innerHTML =
+        usuarios.map(usuario => {
+
+          const administrador =
+            usuario.perfil ===
+            'administrador';
+
+          const quantidadePermissoes =
+            administrador
+              ? 'Acesso total'
+              : (
+                  Array.isArray(
+                    usuario.permissoes
+                  )
+                    ? usuario.permissoes.length
+                    : 0
+                ) + ' permissões';
+
+          return `
+            <tr>
+
+              <td>
+
+                <div class="user-name">
+                  ${escaparHtml(
+                    usuario.nome
+                  )}
+                </div>
+
+                <div class="user-email">
+                  ${escaparHtml(
+                    usuario.email
+                  )}
+                </div>
+
+              </td>
+
+              <td>
+
+                <span
+                  class="badge ${
+                    administrador
+                      ? 'badge-admin'
+                      : 'badge-funcionario'
+                  }"
+                >
+                  ${
+                    administrador
+                      ? 'Administrador'
+                      : 'Funcionário'
+                  }
+                </span>
+
+              </td>
+
+              <td>
+
+                <span class="permission-count">
+                  ${quantidadePermissoes}
+                </span>
+
+              </td>
+
+              <td>
+
+                <span
+                  class="badge ${
+                    usuario.ativo
+                      ? 'badge-ativo'
+                      : 'badge-inativo'
+                  }"
+                >
+                  ${
+                    usuario.ativo
+                      ? 'Ativo'
+                      : 'Inativo'
+                  }
+                </span>
+
+              </td>
+
+              <td>
+
+                <div class="actions">
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    onclick="editarUsuario(${usuario.id})"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn ${
+                      usuario.ativo
+                        ? 'btn-danger'
+                        : 'btn-success'
+                    } btn-sm"
+                    onclick="alterarStatusUsuario(
+                      ${usuario.id},
+                      ${usuario.ativo}
+                    )"
+                  >
+                    ${
+                      usuario.ativo
+                        ? 'Desativar'
+                        : 'Ativar'
+                    }
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+          `;
+
+        }).join('');
     }
 
 
-    // ==========================================================
-    // NOVO USUÁRIO
-    // ==========================================================
+    // ============================================================
+    // ESCAPAR HTML
+    // ============================================================
 
-    function novoUsuario() {
+    function escaparHtml(valor) {
 
-      usuarioEditando =
-        null;
+      if (
+        valor === null ||
+        valor === undefined
+      ) {
+        return '';
+      }
 
-
-      usuarioForm.reset();
-
-
-      usuarioId.value =
-        '';
-
-
-      usuarioPerfil.value =
-        'funcionario';
-
-
-      usuarioAtivo.checked =
-        true;
+      return String(valor)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
 
 
-      usuarioSenha.value =
-        '';
+    // ============================================================
+    // ABRIR NOVO USUÁRIO
+    // ============================================================
 
+    function abrirModalNovoUsuario() {
 
-      modalTitle.textContent =
+      usuarioEditando = null;
+
+      const form =
+        document.getElementById(
+          'formUsuario'
+        );
+
+      form.reset();
+
+      document.getElementById(
+        'modalTitulo'
+      ).textContent =
         'Novo usuário';
 
-
-      btnSalvar.textContent =
+      document.getElementById(
+        'btnSalvarUsuario'
+      ).textContent =
         'Salvar usuário';
 
+      document.getElementById(
+        'grupoSenha'
+      ).style.display =
+        'block';
 
-      senhaGroup.style.display =
-        'flex';
+      document.getElementById(
+        'usuarioSenha'
+      ).required = true;
 
+      document.getElementById(
+        'grupoStatus'
+      ).style.display =
+        'none';
 
       limparPermissoes();
 
+      document.getElementById(
+        'usuarioPerfil'
+      ).value =
+        'funcionario';
 
       atualizarPermissoesVisual();
 
-
-      abrirModal();
-
+      document.getElementById(
+        'modalUsuario'
+      ).classList.add(
+        'active'
+      );
     }
 
 
-    // ==========================================================
+    // ============================================================
     // EDITAR USUÁRIO
-    // ==========================================================
+    // ============================================================
 
     async function editarUsuario(id) {
 
@@ -2590,197 +1347,218 @@
             Number(id)
         );
 
-
       if (!usuario) {
+
+        mostrarToast(
+          'Usuário não encontrado.',
+          'error'
+        );
+
         return;
       }
-
 
       usuarioEditando =
         usuario;
 
-
-      usuarioId.value =
-        usuario.id;
-
-
-      usuarioNome.value =
-        usuario.nome;
-
-
-      usuarioEmail.value =
-        usuario.email;
-
-
-      usuarioPerfil.value =
-        usuario.perfil;
-
-
-      usuarioAtivo.checked =
-        Boolean(usuario.ativo);
-
-
-      usuarioSenha.value =
-        '';
-
-
-      modalTitle.textContent =
+      document.getElementById(
+        'modalTitulo'
+      ).textContent =
         'Editar usuário';
 
-
-      btnSalvar.textContent =
+      document.getElementById(
+        'btnSalvarUsuario'
+      ).textContent =
         'Salvar alterações';
 
-
-      senhaGroup.style.display =
+      document.getElementById(
+        'grupoSenha'
+      ).style.display =
         'none';
 
+      document.getElementById(
+        'usuarioSenha'
+      ).required = false;
+
+      document.getElementById(
+        'grupoStatus'
+      ).style.display =
+        'block';
+
+      document.getElementById(
+        'usuarioNome'
+      ).value =
+        usuario.nome || '';
+
+      document.getElementById(
+        'usuarioEmail'
+      ).value =
+        usuario.email || '';
+
+      document.getElementById(
+        'usuarioPerfil'
+      ).value =
+        usuario.perfil ||
+        'funcionario';
+
+      document.getElementById(
+        'usuarioAtivo'
+      ).value =
+        usuario.ativo
+          ? 'true'
+          : 'false';
 
       limparPermissoes();
 
-
-      /*
-       * ADMINISTRADOR
-       */
+      // ----------------------------------------------------------
+      // ADMINISTRADOR
+      // ----------------------------------------------------------
 
       if (
         usuario.perfil ===
         'administrador'
       ) {
 
-        PERMISSOES.forEach(
+        marcarTodasPermissoes();
+
+        atualizarPermissoesVisual();
+
+        document.getElementById(
+          'modalUsuario'
+        ).classList.add(
+          'active'
+        );
+
+        return;
+      }
+
+      // ----------------------------------------------------------
+      // FUNCIONÁRIO
+      // ----------------------------------------------------------
+
+      try {
+
+        console.log(
+          '[PERMISSÕES] Buscando permissões do usuário:',
+          usuario.id
+        );
+
+        const resposta =
+          await api(
+            `/usuarios/${usuario.id}/permissoes`
+          );
+
+        console.log(
+          '[PERMISSÕES] Resposta:',
+          resposta
+        );
+
+        const permissoes =
+          Array.isArray(
+            resposta?.permissoes
+          )
+            ? resposta.permissoes
+            : [];
+
+        permissoes.forEach(
           permissao => {
+
+            const codigo =
+              typeof permissao === 'string'
+                ? permissao
+                : permissao?.codigo;
 
             const checkbox =
               document.querySelector(
-                `[data-permission][value="${permissao}"]`
+                `[data-permission][value="${codigo}"]`
               );
 
-
             if (checkbox) {
-
               checkbox.checked =
                 true;
-
             }
 
           }
         );
 
-
-        atualizarPermissoesVisual();
-
-
-        abrirModal();
-
-
-        return;
-      }
-
-
-      /*
-       * FUNCIONÁRIO
-       */
-
-      try {
-
-        console.log(
-          '[PERMISSOES] Buscando permissões do usuário:',
-          usuario.id
-        );
-
-
-        const respostaPermissoes =
-          await api(
-            `/usuarios/${usuario.id}/permissoes`
-          );
-
-
-        const permissoes =
-          Array.isArray(
-            respostaPermissoes?.permissoes
-          )
-            ? respostaPermissoes.permissoes
-                .map(
-                  permissao => {
-
-                    if (
-                      typeof permissao ===
-                      'string'
-                    ) {
-
-                      return permissao;
-
-                    }
-
-
-                    return permissao?.codigo;
-
-                  }
-                )
-                .filter(Boolean)
-
-            : [];
-
-
-        console.log(
-          '[PERMISSOES] Permissões recebidas:',
-          permissoes
-        );
-
-
-        document
-          .querySelectorAll(
-            '[data-permission]'
-          )
-          .forEach(
-            checkbox => {
-
-              checkbox.checked =
-                permissoes.includes(
-                  checkbox.value
-                );
-
-            }
-          );
-
-
-      } catch (err) {
+      } catch (erro) {
 
         console.error(
-          '[PERMISSOES] Erro ao carregar:',
-          err
+          'Erro ao carregar permissões:',
+          erro
         );
-
 
         mostrarToast(
-          'Não foi possível carregar as permissões do usuário.',
+          erro.message ||
+          'Não foi possível carregar as permissões.',
           'error'
         );
-
-
-        usuarioEditando =
-          null;
-
-
-        return;
-
       }
-
 
       atualizarPermissoesVisual();
 
-
-      abrirModal();
-
+      document.getElementById(
+        'modalUsuario'
+      ).classList.add(
+        'active'
+      );
     }
 
 
-    // ==========================================================
-    // COLETAR PERMISSÕES
-    // ==========================================================
+    // ============================================================
+    // SALVAR USUÁRIO
+    // ============================================================
 
-    function obterPermissoesSelecionadas() {
+    async function salvarUsuario(event) {
+
+      event.preventDefault();
+
+      console.log(
+        '🔥 SALVAR USUARIO FOI CHAMADO'
+      );
+
+      const btn =
+        document.getElementById(
+          'btnSalvarUsuario'
+        );
+
+      const editando =
+        usuarioEditando !== null;
+
+      // IMPORTANTE:
+      // Guardamos o ID antes de qualquer alteração
+      // do estado do modal.
+
+      const idUsuarioEditando =
+        usuarioEditando?.id || null;
+
+      const nome =
+        document.getElementById(
+          'usuarioNome'
+        ).value.trim();
+
+      const email =
+        document.getElementById(
+          'usuarioEmail'
+        ).value.trim();
+
+      const senha =
+        document.getElementById(
+          'usuarioSenha'
+        ).value;
+
+      const perfil =
+        document.getElementById(
+          'usuarioPerfil'
+        ).value;
+
+      const ativo =
+        document.getElementById(
+          'usuarioAtivo'
+        ).value === 'true';
+
+      // ----------------------------------------------------------
+      // PEGAR PERMISSÕES
+      // ----------------------------------------------------------
 
       const permissoes =
         Array.from(
@@ -2792,300 +1570,110 @@
             checkbox.value
         );
 
-
       console.log(
-        '[PERMISSOES] Selecionadas no modal:',
-        permissoes
-      );
-
-
-      return permissoes;
-
-    }
-
-
-    // ==========================================================
-    // SALVAR PERMISSÕES
-    // ==========================================================
-
-    async function salvarPermissoesUsuario(
-      id,
-      perfil
-    ) {
-
-      if (!id) {
-
-        throw new Error(
-          'ID do usuário não encontrado para salvar as permissões.'
-        );
-
-      }
-
-
-      /*
-       * Administrador possui acesso total.
-       *
-       * Não precisamos gravar permissões individuais
-       * para administrador.
-       */
-
-      if (
-        perfil !==
-        'funcionario'
-      ) {
-
-        console.log(
-          '[PERMISSOES] Usuário administrador. PATCH não necessário.'
-        );
-
-        return null;
-
-      }
-
-
-      const permissoes =
-        obterPermissoesSelecionadas();
-
-
-      console.log(
-        '================================================'
+        '========================================'
       );
 
       console.log(
-        '[PERMISSOES] ENVIANDO PATCH'
+        '[PERMISSÕES] Perfil:',
+        perfil
       );
 
       console.log(
-        '[PERMISSOES] URL:',
-        `/api/usuarios/${id}/permissoes`
-      );
-
-      console.log(
-        '[PERMISSOES] ID:',
-        id
-      );
-
-      console.log(
-        '[PERMISSOES] Lista:',
+        '[PERMISSÕES] Selecionadas:',
         permissoes
       );
 
       console.log(
-        '[PERMISSOES] Body:',
-        JSON.stringify({
-          permissoes
-        })
+        '[PERMISSÕES] Quantidade:',
+        permissoes.length
       );
 
       console.log(
-        '================================================'
-      );
-
-
-      /*
-       * ESTA É A REQUISIÇÃO QUE PRECISA APARECER
-       * NO F12 -> NETWORK.
-       */
-
-      const resposta =
-        await api(
-          `/usuarios/${id}/permissoes`,
-          {
-            method: 'PATCH',
-
-            body:
-              JSON.stringify({
-                permissoes
-              })
-          }
-        );
-
-
-      console.log(
-        '[PERMISSOES] PATCH concluído:',
-        resposta
-      );
-
-
-      return resposta;
-
-    }
-
-
-    // ==========================================================
-    // SALVAR USUÁRIO
-    // ==========================================================
-
-    async function salvarUsuario() {
-
-      console.log(
-        '=============================================='
+        '[USUÁRIO] Editando:',
+        editando
       );
 
       console.log(
-        '🔥 SALVAR USUARIO FOI CHAMADO'
+        '[USUÁRIO] ID:',
+        idUsuarioEditando
       );
 
       console.log(
-        '=============================================='
+        '========================================'
       );
 
-
-      const nome =
-        usuarioNome.value.trim();
-
-
-      const email =
-        usuarioEmail.value.trim();
-
-
-      const senha =
-        usuarioSenha.value;
-
-
-      const perfil =
-        usuarioPerfil.value;
-
-
-      const ativo =
-        usuarioAtivo.checked;
-
-
-      /*
-       * MUITO IMPORTANTE:
-       *
-       * Guardamos essas informações ANTES de qualquer
-       * chamada ou fechamento do modal.
-       */
-
-      const estavaEditando =
-        usuarioEditando !== null;
-
-
-      const idUsuarioEdicao =
-        usuarioEditando?.id || null;
-
-
-      // ========================================================
+      // ----------------------------------------------------------
       // VALIDAÇÕES
-      // ========================================================
+      // ----------------------------------------------------------
 
       if (!nome) {
 
         mostrarToast(
           'Informe o nome do usuário.',
-          'error'
+          'warning'
         );
 
         return;
-
       }
-
 
       if (!email) {
 
         mostrarToast(
-          'Informe o e-mail.',
-          'error'
+          'Informe o e-mail do usuário.',
+          'warning'
         );
 
         return;
-
       }
 
-
-      if (
-        !estavaEditando &&
-        !senha
-      ) {
+      if (!editando && !senha) {
 
         mostrarToast(
           'Informe uma senha.',
-          'error'
+          'warning'
         );
 
         return;
-
       }
 
-
-      if (
-        !estavaEditando &&
-        senha.length < 6
-      ) {
+      if (!editando && senha.length < 6) {
 
         mostrarToast(
           'A senha deve possuir pelo menos 6 caracteres.',
-          'error'
+          'warning'
         );
 
         return;
-
       }
 
+      // ----------------------------------------------------------
+      // DESABILITAR BOTÃO
+      // ----------------------------------------------------------
 
-      // ========================================================
-      // PERMISSÕES
-      // ========================================================
+      btn.disabled = true;
 
-      const permissoesSelecionadas =
-        perfil === 'funcionario'
-          ? obterPermissoesSelecionadas()
-          : [];
+      const textoOriginal =
+        btn.textContent;
 
-
-      console.log(
-        '[SALVAR] Perfil:',
-        perfil
-      );
-
-
-      console.log(
-        '[SALVAR] Permissões antes de salvar:',
-        permissoesSelecionadas
-      );
-
-
-      // ========================================================
-      // BOTÃO
-      // ========================================================
-
-      btnSalvar.disabled =
-        true;
-
-
-      btnSalvar.textContent =
+      btn.textContent =
         'Salvando...';
-
 
       try {
 
-        let resposta = null;
+        let usuarioSalvo = null;
 
-        let idParaPermissoes =
-          idUsuarioEdicao;
+        // ========================================================
+        // NOVO USUÁRIO
+        // ========================================================
 
-
-        // ======================================================
-        // CRIAR
-        // ======================================================
-
-        if (!estavaEditando) {
+        if (!editando) {
 
           console.log(
-            '[USUARIO] Criando usuário...'
+            '[USUÁRIO] POST /usuarios'
           );
 
-
-          /*
-           * IMPORTANTE:
-           *
-           * As permissões NÃO são mais enviadas aqui.
-           *
-           * Elas serão enviadas depois através do PATCH.
-           */
-
-          resposta =
+          usuarioSalvo =
             await api(
               '/usuarios',
               {
@@ -3093,72 +1681,54 @@
 
                 body:
                   JSON.stringify({
-
                     nome,
-
                     email,
-
                     senha,
+                    perfil,
 
-                    perfil
+                    // IMPORTANTE:
+                    // As permissões já vão junto
+                    // na criação do usuário.
 
+                    permissoes:
+                      perfil === 'funcionario'
+                        ? permissoes
+                        : []
                   })
-
               }
             );
 
-
           console.log(
-            '[USUARIO] Usuário criado:',
-            resposta
+            '[USUÁRIO] Criado:',
+            usuarioSalvo
           );
 
-
-          /*
-           * Tentamos encontrar o ID em diferentes
-           * formatos de resposta do backend.
-           */
-
-          idParaPermissoes =
-            resposta?.usuario?.id ??
-            resposta?.id ??
-            resposta?.data?.id ??
-            null;
-
-
-          if (!idParaPermissoes) {
-
-            throw new Error(
-              'Usuário foi criado, mas o servidor não retornou o ID para salvar as permissões.'
-            );
-
-          }
+          mostrarToast(
+            'Usuário criado com sucesso.',
+            'success'
+          );
 
         }
 
-
-        // ======================================================
-        // EDITAR
-        // ======================================================
+        // ========================================================
+        // EDITAR USUÁRIO
+        // ========================================================
 
         else {
 
           console.log(
-            '[USUARIO] Atualizando usuário:',
-            idUsuarioEdicao
+            '[USUÁRIO] PUT /usuarios/' +
+            idUsuarioEditando
           );
 
+          console.log(
+            '[USUÁRIO] Enviando permissões junto:',
+            permissoes
+          );
 
-          /*
-           * As permissões também NÃO são enviadas no PUT.
-           *
-           * Primeiro atualizamos o usuário.
-           * Depois fazemos o PATCH das permissões.
-           */
-
-          resposta =
+          usuarioSalvo =
             await api(
-              `/usuarios/${idUsuarioEdicao}`,
+              `/usuarios/${idUsuarioEditando}`,
               {
                 method: 'PUT',
 
@@ -3171,261 +1741,117 @@
 
                     perfil,
 
-                    ativo
+                    ativo,
 
+                    // ==================================================
+                    // AQUI ESTÁ A CORREÇÃO PRINCIPAL
+                    // ==================================================
+                    //
+                    // Antes o frontend atualizava o usuário e
+                    // depois tentava mandar outro PATCH.
+                    //
+                    // Agora as permissões vão diretamente no PUT.
+                    //
+                    // O backend que você mandou já possui suporte
+                    // para isso:
+                    //
+                    // const { nome, email, perfil, ativo, permissoes }
+                    //
+                    // ==================================================
+
+                    permissoes:
+                      perfil === 'funcionario'
+                        ? permissoes
+                        : []
                   })
-
               }
             );
 
-
           console.log(
-            '[USUARIO] Usuário atualizado:',
-            resposta
+            '[USUÁRIO] Atualizado:',
+            usuarioSalvo
           );
 
-
-          idParaPermissoes =
-            idUsuarioEdicao;
-
+          mostrarToast(
+            'Usuário e permissões atualizados com sucesso.',
+            'success'
+          );
         }
 
+        // ========================================================
+        // ATUALIZAR LISTA LOCAL
+        // ========================================================
 
-        // ======================================================
-        // SALVAR PERMISSÕES
-        // ======================================================
+        const usuarioRetornado =
+          usuarioSalvo?.usuario ||
+          usuarioSalvo;
 
-        console.log(
-          '[SALVAR] ID que será usado no PATCH:',
-          idParaPermissoes
-        );
+        if (usuarioRetornado?.id) {
 
+          const indice =
+            usuarios.findIndex(
+              item =>
+                Number(item.id) ===
+                Number(usuarioRetornado.id)
+            );
 
-        /*
-         * AQUI É O PONTO PRINCIPAL DA CORREÇÃO.
-         *
-         * Para funcionário:
-         *
-         * PATCH /api/usuarios/:id/permissoes
-         *
-         * Body:
-         * {
-         *   permissoes: [...]
-         * }
-         */
+          if (indice >= 0) {
 
-        await salvarPermissoesUsuario(
-          idParaPermissoes,
-          perfil
-        );
+            usuarios[indice] = {
+              ...usuarios[indice],
+              ...usuarioRetornado
+            };
 
+          } else {
 
-        // ======================================================
-        // SUCESSO
-        // ======================================================
+            usuarios.push(
+              usuarioRetornado
+            );
 
-        console.log(
-          '[SALVAR] Usuário e permissões salvos com sucesso.'
-        );
+          }
+        }
 
-
-        mostrarToast(
-          estavaEditando
-            ? 'Usuário e permissões atualizados com sucesso.'
-            : 'Usuário e permissões criados com sucesso.'
-        );
-
+        // ========================================================
+        // FECHAR
+        // ========================================================
 
         fecharModal();
 
+        renderizarUsuarios();
+
+        // Recarrega do banco para garantir que o contador
+        // de permissões esteja exatamente igual ao banco.
 
         await carregarUsuarios();
 
-
-      } catch (err) {
+      } catch (erro) {
 
         console.error(
-          '[SALVAR] Erro:',
-          err
+          'Erro ao salvar usuário:',
+          erro
         );
-
 
         mostrarToast(
-          err.message,
+          erro.message ||
+          'Não foi possível salvar o usuário.',
           'error'
         );
-
 
       } finally {
 
-        btnSalvar.disabled =
-          false;
+        btn.disabled = false;
 
-
-        /*
-         * Usa a variável estavaEditando.
-         *
-         * Não usamos usuarioEditando aqui porque
-         * fecharModal() limpa essa variável.
-         */
-
-        btnSalvar.textContent =
-          estavaEditando
+        btn.textContent =
+          editando
             ? 'Salvar alterações'
             : 'Salvar usuário';
-
       }
-
     }
 
 
-    // ==========================================================
-    // ALTERAR STATUS
-    // ==========================================================
-
-    async function alternarStatus(id) {
-
-      const usuario =
-        usuarios.find(
-          item =>
-            Number(item.id) ===
-            Number(id)
-        );
-
-
-      if (!usuario) {
-        return;
-      }
-
-
-      const novoStatus =
-        !usuario.ativo;
-
-
-      const acao =
-        novoStatus
-          ? 'ativar'
-          : 'desativar';
-
-
-      if (
-        !confirm(
-          `Deseja ${acao} o usuário "${usuario.nome}"?`
-        )
-      ) {
-
-        return;
-
-      }
-
-
-      try {
-
-        await api(
-          `/usuarios/${id}/status`,
-          {
-            method: 'PATCH',
-
-            body:
-              JSON.stringify({
-                ativo:
-                  novoStatus
-              })
-          }
-        );
-
-
-        mostrarToast(
-          novoStatus
-            ? 'Usuário ativado com sucesso.'
-            : 'Usuário desativado com sucesso.'
-        );
-
-
-        await carregarUsuarios();
-
-
-      } catch (err) {
-
-        console.error(err);
-
-
-        mostrarToast(
-          err.message,
-          'error'
-        );
-
-      }
-
-    }
-
-
-    // ==========================================================
-    // EXCLUIR USUÁRIO
-    // ==========================================================
-
-    async function excluirUsuario(id) {
-
-      const usuario =
-        usuarios.find(
-          item =>
-            Number(item.id) ===
-            Number(id)
-        );
-
-
-      if (!usuario) {
-        return;
-      }
-
-
-      if (
-        !confirm(
-          `Deseja realmente excluir o usuário "${usuario.nome}"?\n\nEssa ação não poderá ser desfeita.`
-        )
-      ) {
-
-        return;
-
-      }
-
-
-      try {
-
-        await api(
-          `/usuarios/${id}`,
-          {
-            method: 'DELETE'
-          }
-        );
-
-
-        mostrarToast(
-          'Usuário excluído com sucesso.'
-        );
-
-
-        await carregarUsuarios();
-
-
-      } catch (err) {
-
-        console.error(err);
-
-
-        mostrarToast(
-          err.message,
-          'error'
-        );
-
-      }
-
-    }
-
-
-    // ==========================================================
-    // PERMISSÕES
-    // ==========================================================
+    // ============================================================
+    // LIMPAR PERMISSÕES
+    // ============================================================
 
     function limparPermissoes() {
 
@@ -3444,26 +1870,14 @@
 
           }
         );
-
-
-      permissionsGrid.classList.remove(
-        'permissions-disabled'
-      );
-
-
-      adminNotice.classList.remove(
-        'active'
-      );
-
     }
 
 
-    function atualizarPermissoesVisual() {
+    // ============================================================
+    // MARCAR TODAS AS PERMISSÕES
+    // ============================================================
 
-      const administrador =
-        usuarioPerfil.value ===
-        'administrador';
-
+    function marcarTodasPermissoes() {
 
       document
         .querySelectorAll(
@@ -3472,225 +1886,201 @@
         .forEach(
           checkbox => {
 
-            if (administrador) {
+            checkbox.checked =
+              true;
 
-              checkbox.checked =
-                true;
+          }
+        );
+    }
 
-              checkbox.disabled =
-                true;
 
-            } else {
+    // ============================================================
+    // ATUALIZAR VISUAL DAS PERMISSÕES
+    // ============================================================
 
-              checkbox.disabled =
-                false;
+    function atualizarPermissoesVisual() {
 
-            }
+      const perfil =
+        document.getElementById(
+          'usuarioPerfil'
+        ).value;
+
+      const administrador =
+        perfil ===
+        'administrador';
+
+      const notice =
+        document.getElementById(
+          'permissionNotice'
+        );
+
+      document
+        .querySelectorAll(
+          '[data-permission]'
+        )
+        .forEach(
+          checkbox => {
+
+            checkbox.disabled =
+              administrador;
 
           }
         );
 
+      if (administrador) {
 
-      permissionsGrid.classList.toggle(
-        'permissions-disabled',
-        administrador
-      );
+        marcarTodasPermissoes();
 
+        notice.classList.add(
+          'active'
+        );
 
-      adminNotice.classList.toggle(
-        'active',
-        administrador
-      );
+      } else {
 
+        notice.classList.remove(
+          'active'
+        );
+
+      }
     }
 
 
-    // ==========================================================
-    // ABRIR MODAL
-    // ==========================================================
+    // ============================================================
+    // ALTERAR STATUS
+    // ============================================================
 
-    function abrirModal() {
+    async function alterarStatusUsuario(
+      id,
+      statusAtual
+    ) {
 
-      modalOverlay.classList.add(
-        'active'
-      );
+      const novoStatus =
+        !statusAtual;
 
+      const confirmacao =
+        confirm(
+          novoStatus
+            ? 'Deseja ativar este usuário?'
+            : 'Deseja desativar este usuário?'
+        );
 
-      document.body.classList.add(
-        'modal-open'
-      );
+      if (!confirmacao) {
+        return;
+      }
 
+      try {
 
-      setTimeout(() => {
+        await api(
+          `/usuarios/${id}/status`,
+          {
+            method: 'PATCH',
 
-        usuarioNome.focus();
+            body:
+              JSON.stringify({
+                ativo:
+                  novoStatus
+              })
+          }
+        );
 
-      }, 100);
+        mostrarToast(
+          novoStatus
+            ? 'Usuário ativado com sucesso.'
+            : 'Usuário desativado com sucesso.',
+          'success'
+        );
 
+        await carregarUsuarios();
+
+      } catch (erro) {
+
+        console.error(
+          'Erro ao alterar status:',
+          erro
+        );
+
+        mostrarToast(
+          erro.message ||
+          'Não foi possível alterar o status.',
+          'error'
+        );
+      }
     }
 
 
-    // ==========================================================
+    // ============================================================
     // FECHAR MODAL
-    // ==========================================================
+    // ============================================================
 
     function fecharModal() {
 
-      modalOverlay.classList.remove(
-        'active'
-      );
-
-
-      document.body.classList.remove(
-        'modal-open'
-      );
-
-
-      /*
-       * Pequeno atraso para evitar problemas
-       * com eventos do modal.
-       */
+      document
+        .getElementById(
+          'modalUsuario'
+        )
+        .classList.remove(
+          'active'
+        );
 
       usuarioEditando =
         null;
 
+      document
+        .getElementById(
+          'formUsuario'
+        )
+        .reset();
+
+      limparPermissoes();
+
+      document.getElementById(
+        'grupoSenha'
+      ).style.display =
+        'block';
+
+      document.getElementById(
+        'usuarioSenha'
+      ).required =
+        true;
+
+      document.getElementById(
+        'grupoStatus'
+      ).style.display =
+        'none';
+
+      document.getElementById(
+        'modalTitulo'
+      ).textContent =
+        'Novo usuário';
+
+      document.getElementById(
+        'btnSalvarUsuario'
+      ).textContent =
+        'Salvar usuário';
+
+      document.getElementById(
+        'permissionNotice'
+      ).classList.remove(
+        'active'
+      );
     }
 
 
-    // ==========================================================
-    // INICIAIS
-    // ==========================================================
-
-    function obterIniciais(nome) {
-
-      return String(
-        nome || ''
-      )
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map(
-          parte =>
-            parte
-              .charAt(0)
-              .toUpperCase()
-        )
-        .join('');
-
-    }
-
-
-    // ==========================================================
-    // ESCAPAR HTML
-    // ==========================================================
-
-    function escaparHtml(valor) {
-
-      return String(
-        valor ?? ''
-      )
-        .replaceAll(
-          '&',
-          '&amp;'
-        )
-        .replaceAll(
-          '<',
-          '&lt;'
-        )
-        .replaceAll(
-          '>',
-          '&gt;'
-        )
-        .replaceAll(
-          '"',
-          '&quot;'
-        )
-        .replaceAll(
-          "'",
-          '&#039;'
-        );
-
-    }
-
-
-    // ==========================================================
-    // EVENTOS
-    // ==========================================================
+    // ============================================================
+    // FECHAR CLICANDO FORA
+    // ============================================================
 
     document
       .getElementById(
-        'btn-novo-usuario'
+        'modalUsuario'
       )
       .addEventListener(
         'click',
-        novoUsuario
-      );
-
-
-    document
-      .getElementById(
-        'btn-fechar-modal'
-      )
-      .addEventListener(
-        'click',
-        fecharModal
-      );
-
-
-    document
-      .getElementById(
-        'btn-cancelar'
-      )
-      .addEventListener(
-        'click',
-        fecharModal
-      );
-
-
-    document
-      .getElementById(
-        'btn-salvar'
-      )
-      .addEventListener(
-        'click',
-        salvarUsuario
-      );
-
-
-    document
-      .getElementById(
-        'btn-voltar'
-      )
-      .addEventListener(
-        'click',
-        () => {
-
-          window.location.href =
-            '/';
-
-        }
-      );
-
-
-    usuarioPerfil
-      .addEventListener(
-        'change',
-        () => {
-
-          atualizarPermissoesVisual();
-
-        }
-      );
-
-
-    modalOverlay
-      .addEventListener(
-        'click',
-        event => {
+        function(event) {
 
           if (
             event.target ===
-            modalOverlay
+            this
           ) {
 
             fecharModal();
@@ -3701,50 +2091,53 @@
       );
 
 
-    // ==========================================================
+    // ============================================================
     // ESC FECHA MODAL
-    // ==========================================================
+    // ============================================================
 
     document.addEventListener(
       'keydown',
-      event => {
+      function(event) {
 
         if (
-          event.key === 'Escape' &&
-          modalOverlay.classList.contains(
-            'active'
-          )
+          event.key === 'Escape'
         ) {
 
-          fecharModal();
+          const modal =
+            document.getElementById(
+              'modalUsuario'
+            );
 
+          if (
+            modal.classList.contains(
+              'active'
+            )
+          ) {
+
+            fecharModal();
+
+          }
         }
-
       }
     );
 
 
-    // ==========================================================
+    // ============================================================
     // INICIALIZAÇÃO
-    // ==========================================================
+    // ============================================================
 
-    async function iniciar() {
+    document.addEventListener(
+      'DOMContentLoaded',
+      function() {
 
-      const autenticado =
-        await verificarSessao();
+        console.log(
+          'Página de usuários carregada.'
+        );
 
+        carregarUsuarios();
 
-      if (!autenticado) {
-        return;
       }
-
-
-      await carregarUsuarios();
-
-    }
-
-
-    iniciar();
+    );
 
   </script>
 
