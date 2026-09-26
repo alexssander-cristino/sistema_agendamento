@@ -5033,17 +5033,18 @@ function lerPermissoesDoFormulario(){
         "
       >
 
-        <div
-          class="sidebar-user-avatar"
-          style="
-            width:40px;
-            height:40px;
-            min-width:40px;
-            font-size:14px;
-          "
-        >
-          ${escapeHtml(inicial)}
-        </div>
+      <div
+  class="sidebar-user-avatar"
+  style="
+    width:40px;
+    height:40px;
+    min-width:40px;
+    font-size:14px;
+    overflow-y:auto;
+  "
+>
+  ${escapeHtml(inicial)}
+</div>
 
 
         <div

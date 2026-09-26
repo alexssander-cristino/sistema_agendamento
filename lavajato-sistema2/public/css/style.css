@@ -3529,9 +3529,6 @@ section.block h2{
   line-height: 1.5;
 }
 
-
-/* FORMULÁRIO */
-
 #form-configuracoes {
   margin-top: 20px;
 }
@@ -3548,16 +3545,10 @@ section.block h2{
   width: 100%;
 }
 
-
-/* CAMPOS SOMENTE LEITURA */
-
 #panel-configuracoes input[readonly] {
   cursor: default;
   opacity: 0.75;
 }
-
-
-/* MENSAGEM */
 
 #configuracoes-message {
   margin-top: 18px;
@@ -3565,9 +3556,6 @@ section.block h2{
   font-size: 14px;
   line-height: 1.4;
 }
-
-
-/* BOTÃO SALVAR */
 
 #btn-salvar-configuracoes {
   min-width: 170px;
@@ -3577,11 +3565,6 @@ section.block h2{
   opacity: 0.65;
   cursor: not-allowed;
 }
-
-
-/* =========================================================
-   RESPONSIVO
-   ========================================================= */
 
 @media (max-width: 760px) {
 
