@@ -217,6 +217,23 @@ router.put(
       });
     }
   }
+
+  
+);
+
+document.documentElement.style.setProperty(
+  '--primary',
+  configuracoes.cor_primaria
+);
+
+document.documentElement.style.setProperty(
+  '--accent',
+  configuracoes.cor_destaque
+);
+
+document.documentElement.style.setProperty(
+  '--bg',
+  configuracoes.cor_fundo
 );
 
 module.exports = router;
