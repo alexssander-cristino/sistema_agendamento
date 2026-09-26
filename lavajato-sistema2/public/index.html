@@ -1653,9 +1653,197 @@
             Mais configurações
           </h2>
 
-          <p class="date-label">
-            Novas opções de configuração poderão ser adicionadas aqui posteriormente.
-          </p>
+          <!-- MAIS CONFIGURAÇÕES -->
+
+<section class="block">
+
+  <h2>
+    Aparência
+  </h2>
+
+  <p class="date-label" style="margin-bottom:20px;">
+    Personalize as cores e o tema do sistema.
+  </p>
+
+
+  <!-- TEMA -->
+
+  <div class="field">
+
+    <label for="config-tema">
+      Tema
+    </label>
+
+    <select id="config-tema">
+
+      <option value="claro">
+        Claro
+      </option>
+
+      <option value="escuro">
+        Escuro
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- CORES -->
+
+  <div class="field-row">
+
+    <div class="field">
+
+      <label for="config-cor-principal">
+        Cor principal
+      </label>
+
+      <div class="color-picker">
+
+        <input
+          type="color"
+          id="config-cor-principal"
+          value="#0E3A4C"
+        >
+
+        <input
+          type="text"
+          id="config-cor-principal-text"
+          value="#0E3A4C"
+          maxlength="7"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="config-cor-destaque">
+        Cor de destaque
+      </label>
+
+      <div class="color-picker">
+
+        <input
+          type="color"
+          id="config-cor-destaque"
+          value="#06B6D4"
+        >
+
+        <input
+          type="text"
+          id="config-cor-destaque-text"
+          value="#06B6D4"
+          maxlength="7"
+        >
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- PRESETS -->
+
+  <div class="field">
+
+    <label>
+      Temas rápidos
+    </label>
+
+    <div class="theme-presets">
+
+      <button
+        type="button"
+        class="theme-preset"
+        data-primary="#0E3A4C"
+        data-accent="#06B6D4"
+      >
+        <span
+          class="theme-preset-color"
+          style="background:#0E3A4C;"
+        ></span>
+
+        Azul
+      </button>
+
+
+      <button
+        type="button"
+        class="theme-preset"
+        data-primary="#166534"
+        data-accent="#22C55E"
+      >
+        <span
+          class="theme-preset-color"
+          style="background:#166534;"
+        ></span>
+
+        Verde
+      </button>
+
+
+      <button
+        type="button"
+        class="theme-preset"
+        data-primary="#581C87"
+        data-accent="#A855F7"
+      >
+        <span
+          class="theme-preset-color"
+          style="background:#581C87;"
+        ></span>
+
+        Roxo
+      </button>
+
+
+      <button
+        type="button"
+        class="theme-preset"
+        data-primary="#991B1B"
+        data-accent="#EF4444"
+      >
+        <span
+          class="theme-preset-color"
+          style="background:#991B1B;"
+        ></span>
+
+        Vermelho
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- AÇÕES -->
+
+  <div class="modal-actions">
+
+    <button
+      type="button"
+      class="btn btn-ghost"
+      id="btn-restaurar-tema"
+    >
+      Restaurar padrão
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      id="btn-salvar-tema"
+    >
+      Salvar aparência
+    </button>
+
+  </div>
+
+</section>
 
         </section>
 
