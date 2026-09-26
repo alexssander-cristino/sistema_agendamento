@@ -56,6 +56,17 @@ async function verificarPermissaoConfiguracoes(req, res, next) {
 }
 
 // ============================================================
+// VALIDA COR HEXADECIMAL
+// ============================================================
+
+function validarCor(cor) {
+  return (
+    typeof cor === 'string' &&
+    /^#[0-9A-Fa-f]{6}$/.test(cor)
+  );
+}
+
+// ============================================================
 // GET /api/configuracoes
 // Busca dados da empresa
 // ============================================================
@@ -66,12 +77,16 @@ router.get(
   verificarPermissaoConfiguracoes,
   async (req, res) => {
     try {
+
       const { rows } = await pool.query(
         `SELECT
             id,
             nome,
             email,
             telefone,
+            cor_primaria,
+            cor_destaque,
+            cor_fundo,
             criado_em,
             atualizado_em
          FROM empresas
@@ -93,6 +108,7 @@ router.get(
       });
 
     } catch (err) {
+
       console.error(
         'Erro ao buscar configurações:',
         err
@@ -115,10 +131,14 @@ router.put(
   autenticar,
   verificarPermissaoConfiguracoes,
   async (req, res) => {
+
     const {
       nome,
       email,
-      telefone
+      telefone,
+      cor_primaria,
+      cor_destaque,
+      cor_fundo
     } = req.body;
 
     // ==========================================================
@@ -137,31 +157,63 @@ router.put(
       });
     }
 
-    const nomeLimpo = nome.trim();
-    const emailLimpo = email.trim().toLowerCase();
+    // ==========================================================
+    // VALIDAÇÃO DAS CORES
+    // ==========================================================
+
+    if (
+      !validarCor(cor_primaria) ||
+      !validarCor(cor_destaque) ||
+      !validarCor(cor_fundo)
+    ) {
+      return res.status(400).json({
+        erro: 'Uma ou mais cores informadas são inválidas.'
+      });
+    }
+
+    const nomeLimpo =
+      nome.trim();
+
+    const emailLimpo =
+      email.trim().toLowerCase();
+
     const telefoneLimpo =
       telefone && telefone.trim()
         ? telefone.trim()
         : null;
 
+    // Normaliza as cores
+    const corPrimariaLimpa =
+      cor_primaria.toLowerCase();
+
+    const corDestaqueLimpa =
+      cor_destaque.toLowerCase();
+
+    const corFundoLimpa =
+      cor_fundo.toLowerCase();
+
     try {
+
       // ========================================================
-      // Verifica se o e-mail já pertence a outra empresa
+      // VERIFICA E-MAIL
       // ========================================================
 
-      const empresaExistente = await pool.query(
-        `SELECT id
-         FROM empresas
-         WHERE LOWER(email) = LOWER($1)
-           AND id <> $2
-         LIMIT 1`,
-        [
-          emailLimpo,
-          req.usuario.empresa_id
-        ]
-      );
+      const empresaExistente =
+        await pool.query(
+          `SELECT id
+           FROM empresas
+           WHERE LOWER(email) = LOWER($1)
+             AND id <> $2
+           LIMIT 1`,
+          [
+            emailLimpo,
+            req.usuario.empresa_id
+          ]
+        );
 
-      if (empresaExistente.rows.length > 0) {
+      if (
+        empresaExistente.rows.length > 0
+      ) {
         return res.status(409).json({
           erro:
             'Já existe outra empresa cadastrada com esse e-mail.'
@@ -169,31 +221,41 @@ router.put(
       }
 
       // ========================================================
-      // Atualiza empresa
+      // ATUALIZA EMPRESA
       // ========================================================
 
-      const { rows } = await pool.query(
-        `UPDATE empresas
-         SET
-           nome = $1,
-           email = $2,
-           telefone = $3,
-           atualizado_em = CURRENT_TIMESTAMP
-         WHERE id = $4
-         RETURNING
-           id,
-           nome,
-           email,
-           telefone,
-           criado_em,
-           atualizado_em`,
-        [
-          nomeLimpo,
-          emailLimpo,
-          telefoneLimpo,
-          req.usuario.empresa_id
-        ]
-      );
+      const { rows } =
+        await pool.query(
+          `UPDATE empresas
+           SET
+             nome = $1,
+             email = $2,
+             telefone = $3,
+             cor_primaria = $4,
+             cor_destaque = $5,
+             cor_fundo = $6,
+             atualizado_em = CURRENT_TIMESTAMP
+           WHERE id = $7
+           RETURNING
+             id,
+             nome,
+             email,
+             telefone,
+             cor_primaria,
+             cor_destaque,
+             cor_fundo,
+             criado_em,
+             atualizado_em`,
+          [
+            nomeLimpo,
+            emailLimpo,
+            telefoneLimpo,
+            corPrimariaLimpa,
+            corDestaqueLimpa,
+            corFundoLimpa,
+            req.usuario.empresa_id
+          ]
+        );
 
       if (rows.length === 0) {
         return res.status(404).json({
@@ -202,38 +264,26 @@ router.put(
       }
 
       return res.json({
-        mensagem: 'Configurações salvas com sucesso.',
-        empresa: rows[0]
+        mensagem:
+          'Configurações salvas com sucesso.',
+
+        empresa:
+          rows[0]
       });
 
     } catch (err) {
+
       console.error(
         'Erro ao atualizar configurações:',
         err
       );
 
       return res.status(500).json({
-        erro: 'Não foi possível salvar as configurações.'
+        erro:
+          'Não foi possível salvar as configurações.'
       });
     }
   }
-
-  
-);
-
-document.documentElement.style.setProperty(
-  '--primary',
-  configuracoes.cor_primaria
-);
-
-document.documentElement.style.setProperty(
-  '--accent',
-  configuracoes.cor_destaque
-);
-
-document.documentElement.style.setProperty(
-  '--bg',
-  configuracoes.cor_fundo
 );
 
 module.exports = router;
