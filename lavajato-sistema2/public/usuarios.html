@@ -40,6 +40,9 @@
         0 6px 18px rgba(16, 31, 43, 0.09),
         0 1px 3px rgba(16, 31, 43, 0.05);
 
+      --shadow-modal:
+        0 24px 70px rgba(5, 20, 28, 0.25);
+
       --radius-m: 10px;
       --radius-l: 16px;
     }
@@ -48,11 +51,17 @@
       box-sizing: border-box;
     }
 
+    html {
+      min-height: 100%;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+
       background: var(--bg);
       color: var(--ink);
+
       font-family:
         Inter,
         system-ui,
@@ -60,6 +69,10 @@
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
+    }
+
+    body.modal-open {
+      overflow: hidden;
     }
 
     button,
@@ -78,6 +91,7 @@
 
     .topbar {
       height: 72px;
+
       background: var(--surface);
       border-bottom: 1px solid var(--line);
 
@@ -89,6 +103,7 @@
 
       position: sticky;
       top: 0;
+
       z-index: 50;
     }
 
@@ -133,6 +148,7 @@
 
     .page-title h1 {
       margin: 0;
+
       font-size: 20px;
       font-weight: 700;
     }
@@ -169,8 +185,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
 
+      gap: 20px;
       margin-bottom: 22px;
     }
 
@@ -181,11 +197,14 @@
 
     .page-header-text p {
       margin: 0;
+
       color: var(--ink-soft);
       font-size: 13px;
     }
 
     .primary-button {
+      min-height: 42px;
+
       border: 0;
       border-radius: 9px;
 
@@ -202,18 +221,27 @@
       justify-content: center;
       gap: 8px;
 
-      transition: 150ms ease;
+      transition:
+        background 150ms ease,
+        transform 150ms ease,
+        box-shadow 150ms ease;
     }
 
     .primary-button:hover {
       background: var(--primary-2);
+
       transform: translateY(-1px);
+
+      box-shadow:
+        0 5px 12px rgba(14, 58, 76, 0.18);
     }
 
     .primary-button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+
       transform: none;
+      box-shadow: none;
     }
 
     .primary-button svg {
@@ -227,19 +255,24 @@
 
     .card {
       background: var(--surface);
+
       border: 1px solid var(--line);
       border-radius: var(--radius-l);
+
       box-shadow: var(--shadow-sm);
+
       overflow: hidden;
     }
 
     .card-header {
       padding: 18px 20px;
+
       border-bottom: 1px solid var(--line);
 
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       gap: 15px;
     }
 
@@ -259,12 +292,15 @@
 
     table {
       width: 100%;
+
       border-collapse: collapse;
+
       min-width: 800px;
     }
 
     th {
       text-align: left;
+
       padding: 13px 18px;
 
       background: #f9fbfc;
@@ -282,7 +318,9 @@
 
     td {
       padding: 15px 18px;
+
       border-bottom: 1px solid var(--line);
+
       font-size: 13px;
       vertical-align: middle;
     }
@@ -326,7 +364,9 @@
 
     .user-name-data span {
       display: block;
+
       margin-top: 2px;
+
       color: var(--ink-soft);
       font-size: 11px;
     }
@@ -367,6 +407,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
+
       align-items: center;
     }
 
@@ -385,6 +426,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+
       gap: 6px;
     }
 
@@ -423,13 +465,17 @@
 
     .empty-state {
       padding: 50px 20px;
+
       text-align: center;
+
       color: var(--ink-soft);
     }
 
     .empty-state strong {
       display: block;
+
       margin-bottom: 5px;
+
       color: var(--ink);
       font-size: 14px;
     }
@@ -439,65 +485,102 @@
     }
 
     /* ==========================================================
-       MODAL
+       MODAL - ESTRUTURA
        ========================================================== */
 
     .modal-overlay {
       position: fixed;
       inset: 0;
 
-      background: rgba(5, 16, 22, 0.55);
+      background:
+        rgba(5, 16, 22, 0.58);
 
       display: none;
+
       align-items: center;
       justify-content: center;
 
-      padding: 20px;
+      padding: 24px;
 
       z-index: 100;
+
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
     }
 
     .modal-overlay.active {
       display: flex;
+
+      animation: modalOverlayIn 160ms ease;
     }
 
     .modal {
-      width: min(650px, 100%);
-      max-height: calc(100vh - 40px);
+      width: min(680px, 100%);
+
+      max-height:
+        min(
+          calc(100vh - 48px),
+          820px
+        );
 
       background: #fff;
-      border-radius: var(--radius-l);
 
-      box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(224, 231, 234, 0.9);
+      border-radius: 18px;
+
+      box-shadow: var(--shadow-modal);
 
       overflow: hidden;
 
       display: flex;
       flex-direction: column;
+
+      animation: modalIn 180ms ease;
     }
 
     .modal-header {
-      padding: 20px 22px;
+      flex-shrink: 0;
+
+      padding: 18px 22px;
+
+      min-height: 68px;
+
+      background: #fff;
 
       border-bottom: 1px solid var(--line);
 
       display: flex;
       align-items: center;
       justify-content: space-between;
+
+      gap: 15px;
+    }
+
+    .modal-header-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
     .modal-header h3 {
       margin: 0;
+
       font-size: 17px;
+      font-weight: 700;
+    }
+
+    .modal-header small {
+      color: var(--ink-soft);
+      font-size: 10px;
     }
 
     .modal-close {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
 
-      border: 0;
-      border-radius: 7px;
+      border: 1px solid transparent;
+      border-radius: 8px;
 
       background: transparent;
       color: var(--ink-soft);
@@ -505,10 +588,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
+      transition: 150ms ease;
     }
 
     .modal-close:hover {
       background: var(--bg);
+      color: var(--ink);
+
+      border-color: var(--line);
     }
 
     .modal-close svg {
@@ -518,17 +606,42 @@
 
     .modal-body {
       padding: 22px;
+
       overflow-y: auto;
+      overflow-x: hidden;
+
+      flex: 1;
+
+      scrollbar-width: thin;
+      scrollbar-color: #cbd7dc transparent;
+    }
+
+    .modal-body::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: #cbd7dc;
+      border-radius: 20px;
     }
 
     .modal-footer {
-      padding: 16px 22px;
+      flex-shrink: 0;
+
+      padding: 15px 22px;
+
+      background: #fff;
 
       border-top: 1px solid var(--line);
 
       display: flex;
       align-items: center;
       justify-content: flex-end;
+
       gap: 10px;
     }
 
@@ -538,13 +651,20 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
       gap: 16px;
     }
 
     .form-group {
+      min-width: 0;
+
       display: flex;
       flex-direction: column;
+
       gap: 7px;
     }
 
@@ -554,6 +674,7 @@
 
     .form-group label {
       color: var(--ink);
+
       font-size: 12px;
       font-weight: 600;
     }
@@ -561,7 +682,6 @@
     .form-group input,
     .form-group select {
       width: 100%;
-
       height: 42px;
 
       padding: 0 12px;
@@ -576,14 +696,27 @@
 
       font-size: 13px;
 
-      transition: 150ms ease;
+      transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        background 150ms ease;
+    }
+
+    .form-group input:hover,
+    .form-group select:hover {
+      border-color: #c4d1d6;
     }
 
     .form-group input:focus,
     .form-group select:focus {
       border-color: var(--accent);
+
       box-shadow:
         0 0 0 3px rgba(6, 182, 212, 0.10);
+    }
+
+    .form-group input::placeholder {
+      color: #9aaab2;
     }
 
     .field-help {
@@ -596,47 +729,70 @@
        ========================================================== */
 
     .permissions-section {
-      margin-top: 22px;
+      margin-top: 24px;
       padding-top: 20px;
 
       border-top: 1px solid var(--line);
     }
 
-    .permissions-title {
+    .permissions-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+
+      gap: 15px;
+
       margin-bottom: 4px;
+    }
+
+    .permissions-title {
+      margin: 0;
 
       font-size: 13px;
       font-weight: 700;
     }
 
     .permissions-description {
-      margin-bottom: 14px;
+      margin: 0 0 14px;
 
       color: var(--ink-soft);
       font-size: 11px;
+      line-height: 1.5;
     }
 
     .permissions-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 9px;
     }
 
     .permission-item {
+      position: relative;
+
+      min-width: 0;
+
       display: flex;
       align-items: center;
-      gap: 10px;
 
-      padding: 11px 12px;
+      gap: 11px;
+
+      padding: 12px;
 
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 10px;
 
       background: #fff;
 
       cursor: pointer;
 
-      transition: 150ms ease;
+      transition:
+        background 150ms ease,
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        transform 150ms ease;
     }
 
     .permission-item:hover {
@@ -644,82 +800,170 @@
       border-color: #cbd7dc;
     }
 
+    .permission-item:has(
+      input[type="checkbox"]:checked
+    ) {
+      background: #f1fafc;
+
+      border-color:
+        rgba(6, 182, 212, 0.55);
+
+      box-shadow:
+        0 0 0 1px
+        rgba(6, 182, 212, 0.08);
+    }
+
+    .permission-item:has(
+      input[type="checkbox"]:checked
+    )
+    .permission-item-content strong {
+      color: var(--primary-2);
+    }
+
     .permission-item input {
-      width: 16px;
-      height: 16px;
+      width: 17px;
+      height: 17px;
+
+      min-width: 17px;
+
+      margin: 0;
+
       accent-color: var(--primary);
+
+      cursor: pointer;
+    }
+
+    .permission-item-content {
+      min-width: 0;
     }
 
     .permission-item-content strong {
       display: block;
+
       font-size: 12px;
+      font-weight: 700;
     }
 
     .permission-item-content span {
       display: block;
-      margin-top: 2px;
+
+      margin-top: 3px;
+
       color: var(--ink-soft);
+
       font-size: 10px;
+      line-height: 1.3;
     }
 
     .permissions-disabled {
-      opacity: 0.55;
-      pointer-events: none;
+      opacity: 0.62;
+    }
+
+    .permissions-disabled
+    .permission-item {
+      cursor: default;
+    }
+
+    .permissions-disabled
+    .permission-item:hover {
+      background: #fff;
+      border-color: var(--line);
+    }
+
+    .permissions-disabled
+    .permission-item:has(
+      input[type="checkbox"]:checked
+    ) {
+      background: #f6fafb;
+      border-color: var(--line);
+
+      box-shadow: none;
+    }
+
+    .permissions-disabled
+    .permission-item-content strong {
+      color: var(--ink);
     }
 
     .admin-notice {
       display: none;
 
-      padding: 11px 12px;
-
       margin-top: 12px;
 
-      border-radius: 8px;
+      padding: 11px 12px;
+
+      border: 1px solid #c9edf2;
+      border-radius: 9px;
 
       background: var(--accent-soft);
       color: var(--primary-2);
 
       font-size: 11px;
+      line-height: 1.45;
     }
 
     .admin-notice.active {
       display: block;
     }
 
+    /* ==========================================================
+       STATUS
+       ========================================================== */
+
     .status-row {
-      margin-top: 18px;
+      margin-top: 20px;
+
+      min-height: 64px;
 
       display: flex;
       align-items: center;
       justify-content: space-between;
 
-      padding: 12px;
+      gap: 20px;
+
+      padding: 12px 14px;
 
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 10px;
+
+      background: #fff;
+    }
+
+    .status-label {
+      min-width: 0;
     }
 
     .status-label strong {
       display: block;
+
       font-size: 12px;
     }
 
     .status-label span {
       display: block;
-      margin-top: 2px;
+
+      margin-top: 3px;
+
       color: var(--ink-soft);
+
       font-size: 10px;
+      line-height: 1.35;
     }
 
     .switch {
       position: relative;
 
-      width: 42px;
-      height: 23px;
+      width: 44px;
+      height: 24px;
+
+      min-width: 44px;
     }
 
     .switch input {
+      position: absolute;
+
       opacity: 0;
+
       width: 0;
       height: 0;
     }
@@ -742,8 +986,8 @@
 
       position: absolute;
 
-      width: 17px;
-      height: 17px;
+      width: 18px;
+      height: 18px;
 
       left: 3px;
       top: 3px;
@@ -752,7 +996,8 @@
 
       border-radius: 50%;
 
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.2);
 
       transition: 150ms ease;
     }
@@ -762,10 +1007,21 @@
     }
 
     .switch input:checked + .slider::before {
-      transform: translateX(19px);
+      transform: translateX(20px);
     }
 
+    .switch input:focus-visible + .slider {
+      box-shadow:
+        0 0 0 3px rgba(31, 157, 107, 0.15);
+    }
+
+    /* ==========================================================
+       BUTTONS
+       ========================================================== */
+
     .secondary-button {
+      min-height: 42px;
+
       border: 1px solid var(--line);
       border-radius: 8px;
 
@@ -776,10 +1032,13 @@
 
       font-size: 13px;
       font-weight: 600;
+
+      transition: 150ms ease;
     }
 
     .secondary-button:hover {
       background: var(--bg);
+      border-color: #cbd7dc;
     }
 
     /* ==========================================================
@@ -788,8 +1047,11 @@
 
     .loading {
       padding: 45px 20px;
+
       text-align: center;
+
       color: var(--ink-soft);
+
       font-size: 12px;
     }
 
@@ -807,6 +1069,7 @@
 
       display: flex;
       flex-direction: column;
+
       gap: 8px;
     }
 
@@ -836,6 +1099,32 @@
       background: var(--good);
     }
 
+    /* ==========================================================
+       ANIMAÇÕES
+       ========================================================== */
+
+    @keyframes modalOverlayIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     @keyframes toastIn {
       from {
         opacity: 0;
@@ -853,6 +1142,7 @@
        ========================================================== */
 
     @media (max-width: 760px) {
+
       .topbar {
         height: 64px;
         padding: 0 15px;
@@ -893,7 +1183,14 @@
       }
 
       .modal {
+        width: 100%;
         max-height: calc(100vh - 20px);
+
+        border-radius: 14px;
+      }
+
+      .modal-header {
+        padding: 16px 17px;
       }
 
       .modal-body {
@@ -902,6 +1199,12 @@
 
       .modal-footer {
         padding: 14px 17px;
+      }
+
+      .modal-footer .secondary-button,
+      .modal-footer .primary-button {
+        flex: 1;
+        width: auto;
       }
 
       .toast-container {
@@ -915,10 +1218,45 @@
         max-width: none;
       }
     }
+
+    @media (max-width: 480px) {
+
+      .topbar-left {
+        gap: 10px;
+      }
+
+      .page-title h1 {
+        font-size: 18px;
+      }
+
+      .page-title span {
+        font-size: 10px;
+      }
+
+      .modal-header h3 {
+        font-size: 16px;
+      }
+
+      .permissions-grid {
+        gap: 7px;
+      }
+
+      .permission-item {
+        padding: 10px;
+      }
+
+      .modal-footer {
+        gap: 7px;
+      }
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- ==========================================================
+       HEADER
+       ========================================================== -->
 
   <header class="topbar">
 
@@ -942,30 +1280,50 @@
       </button>
 
       <div class="page-title">
+
         <h1>Usuários</h1>
-        <span>Gerenciamento de usuários e permissões</span>
+
+        <span>
+          Gerenciamento de usuários e permissões
+        </span>
+
       </div>
 
     </div>
 
     <div class="company-info">
-      <strong id="company-name">Carregando...</strong>
-      <span id="logged-user">Carregando...</span>
+
+      <strong id="company-name">
+        Carregando...
+      </strong>
+
+      <span id="logged-user">
+        Carregando...
+      </span>
+
     </div>
 
   </header>
 
+
+  <!-- ==========================================================
+       CONTEÚDO
+       ========================================================== -->
 
   <main class="container">
 
     <div class="page-header">
 
       <div class="page-header-text">
-        <h2>Usuários da empresa</h2>
+
+        <h2>
+          Usuários da empresa
+        </h2>
 
         <p>
           Gerencie cargos, acesso e permissões dos usuários.
         </p>
+
       </div>
 
       <button
@@ -973,6 +1331,7 @@
         class="primary-button"
         id="btn-novo-usuario"
       >
+
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -984,6 +1343,7 @@
         </svg>
 
         Novo usuário
+
       </button>
 
     </div>
@@ -1013,11 +1373,27 @@
           <thead>
 
             <tr>
-              <th>Usuário</th>
-              <th>Cargo</th>
-              <th>Status</th>
-              <th>Permissões</th>
-              <th>Ações</th>
+
+              <th>
+                Usuário
+              </th>
+
+              <th>
+                Cargo
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Permissões
+              </th>
+
+              <th>
+                Ações
+              </th>
+
             </tr>
 
           </thead>
@@ -1025,6 +1401,7 @@
           <tbody id="usuarios-body">
 
             <tr>
+
               <td colspan="5">
 
                 <div class="loading">
@@ -1032,6 +1409,7 @@
                 </div>
 
               </td>
+
             </tr>
 
           </tbody>
@@ -1045,6 +1423,10 @@
   </main>
 
 
+  <!-- ==========================================================
+       MODAL
+       ========================================================== -->
+
   <div
     class="modal-overlay"
     id="modal-overlay"
@@ -1054,9 +1436,17 @@
 
       <div class="modal-header">
 
-        <h3 id="modal-title">
-          Novo usuário
-        </h3>
+        <div class="modal-header-content">
+
+          <h3 id="modal-title">
+            Novo usuário
+          </h3>
+
+          <small>
+            Configure os dados e acessos do usuário
+          </small>
+
+        </div>
 
         <button
           type="button"
@@ -1064,6 +1454,7 @@
           id="btn-fechar-modal"
           title="Fechar"
         >
+
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -1073,6 +1464,7 @@
             <path d="M18 6L6 18" />
             <path d="M6 6l12 12" />
           </svg>
+
         </button>
 
       </div>
@@ -1087,6 +1479,11 @@
             id="usuario-id"
           >
 
+
+          <!-- ==================================================
+               DADOS DO USUÁRIO
+               ================================================== -->
+
           <div class="form-grid">
 
             <div class="form-group full">
@@ -1099,6 +1496,7 @@
                 type="text"
                 id="usuario-nome"
                 placeholder="Nome completo"
+                autocomplete="name"
                 required
               >
 
@@ -1115,6 +1513,7 @@
                 type="email"
                 id="usuario-email"
                 placeholder="usuario@email.com"
+                autocomplete="email"
                 required
               >
 
@@ -1134,6 +1533,7 @@
                 type="password"
                 id="usuario-senha"
                 placeholder="Mínimo de 6 caracteres"
+                autocomplete="new-password"
               >
 
               <span class="field-help">
@@ -1166,15 +1566,28 @@
           </div>
 
 
+          <!-- ==================================================
+               PERMISSÕES
+               ================================================== -->
+
           <div class="permissions-section">
 
-            <div class="permissions-title">
-              Permissões
+            <div class="permissions-heading">
+
+              <div>
+
+                <div class="permissions-title">
+                  Permissões
+                </div>
+
+                <div class="permissions-description">
+                  Selecione quais áreas o funcionário poderá acessar.
+                </div>
+
+              </div>
+
             </div>
 
-            <div class="permissions-description">
-              Selecione quais áreas o funcionário poderá acessar.
-            </div>
 
             <div
               class="permissions-grid"
@@ -1355,6 +1768,10 @@
           </div>
 
 
+          <!-- ==================================================
+               STATUS
+               ================================================== -->
+
           <div class="status-row">
 
             <div class="status-label">
@@ -1412,6 +1829,10 @@
 
   </div>
 
+
+  <!-- ==========================================================
+       TOAST
+       ========================================================== -->
 
   <div
     class="toast-container"
@@ -1519,6 +1940,11 @@
         'modal-title'
       );
 
+    const btnSalvar =
+      document.getElementById(
+        'btn-salvar'
+      );
+
 
     // ==========================================================
     // TOKEN
@@ -1545,6 +1971,7 @@
       const token =
         getToken();
 
+
       const headers = {
         'Content-Type':
           'application/json',
@@ -1559,6 +1986,13 @@
           `Bearer ${token}`;
 
       }
+
+
+      console.log(
+        '[API]',
+        options.method || 'GET',
+        `/api${endpoint}`
+      );
 
 
       const resposta =
@@ -1586,6 +2020,13 @@
       }
 
 
+      console.log(
+        '[API RESPOSTA]',
+        resposta.status,
+        dados
+      );
+
+
       if (
         resposta.status === 401
       ) {
@@ -1608,6 +2049,7 @@
 
         throw new Error(
           dados?.erro ||
+          dados?.message ||
           'Não foi possível realizar a operação.'
         );
 
@@ -1754,6 +2196,15 @@
           await api(
             '/usuarios'
           );
+
+
+        if (!Array.isArray(usuarios)) {
+
+          usuarios =
+            usuarios?.usuarios ||
+            [];
+
+        }
 
 
         renderizarUsuarios();
@@ -1948,9 +2399,11 @@
 
 
                   <td>
+
                     <div class="permissions-summary">
                       ${quantidadePermissoes}
                     </div>
+
                   </td>
 
 
@@ -2105,9 +2558,7 @@
         'Novo usuário';
 
 
-      document.getElementById(
-        'btn-salvar'
-      ).textContent =
+      btnSalvar.textContent =
         'Salvar usuário';
 
 
@@ -2166,7 +2617,7 @@
 
 
       usuarioAtivo.checked =
-        usuario.ativo;
+        Boolean(usuario.ativo);
 
 
       usuarioSenha.value =
@@ -2177,9 +2628,7 @@
         'Editar usuário';
 
 
-      document.getElementById(
-        'btn-salvar'
-      ).textContent =
+      btnSalvar.textContent =
         'Salvar alterações';
 
 
@@ -2209,8 +2658,10 @@
 
 
             if (checkbox) {
+
               checkbox.checked =
                 true;
+
             }
 
           }
@@ -2233,6 +2684,12 @@
 
       try {
 
+        console.log(
+          '[PERMISSOES] Buscando permissões do usuário:',
+          usuario.id
+        );
+
+
         const respostaPermissoes =
           await api(
             `/usuarios/${usuario.id}/permissoes`
@@ -2244,24 +2701,32 @@
             respostaPermissoes?.permissoes
           )
             ? respostaPermissoes.permissoes
-                .map(permissao => {
+                .map(
+                  permissao => {
 
-                  if (
-                    typeof permissao ===
-                    'string'
-                  ) {
+                    if (
+                      typeof permissao ===
+                      'string'
+                    ) {
 
-                    return permissao;
+                      return permissao;
+
+                    }
+
+
+                    return permissao?.codigo;
 
                   }
-
-
-                  return permissao?.codigo;
-
-                })
+                )
                 .filter(Boolean)
 
             : [];
+
+
+        console.log(
+          '[PERMISSOES] Permissões recebidas:',
+          permissoes
+        );
 
 
         document
@@ -2280,16 +2745,10 @@
           );
 
 
-        console.log(
-          'Permissões carregadas para edição:',
-          permissoes
-        );
-
-
       } catch (err) {
 
         console.error(
-          'Erro ao carregar permissões:',
+          '[PERMISSOES] Erro ao carregar:',
           err
         );
 
@@ -2318,13 +2777,157 @@
 
 
     // ==========================================================
+    // COLETAR PERMISSÕES
+    // ==========================================================
+
+    function obterPermissoesSelecionadas() {
+
+      const permissoes =
+        Array.from(
+          document.querySelectorAll(
+            '[data-permission]:checked'
+          )
+        ).map(
+          checkbox =>
+            checkbox.value
+        );
+
+
+      console.log(
+        '[PERMISSOES] Selecionadas no modal:',
+        permissoes
+      );
+
+
+      return permissoes;
+
+    }
+
+
+    // ==========================================================
+    // SALVAR PERMISSÕES
+    // ==========================================================
+
+    async function salvarPermissoesUsuario(
+      id,
+      perfil
+    ) {
+
+      if (!id) {
+
+        throw new Error(
+          'ID do usuário não encontrado para salvar as permissões.'
+        );
+
+      }
+
+
+      /*
+       * Administrador possui acesso total.
+       *
+       * Não precisamos gravar permissões individuais
+       * para administrador.
+       */
+
+      if (
+        perfil !==
+        'funcionario'
+      ) {
+
+        console.log(
+          '[PERMISSOES] Usuário administrador. PATCH não necessário.'
+        );
+
+        return null;
+
+      }
+
+
+      const permissoes =
+        obterPermissoesSelecionadas();
+
+
+      console.log(
+        '================================================'
+      );
+
+      console.log(
+        '[PERMISSOES] ENVIANDO PATCH'
+      );
+
+      console.log(
+        '[PERMISSOES] URL:',
+        `/api/usuarios/${id}/permissoes`
+      );
+
+      console.log(
+        '[PERMISSOES] ID:',
+        id
+      );
+
+      console.log(
+        '[PERMISSOES] Lista:',
+        permissoes
+      );
+
+      console.log(
+        '[PERMISSOES] Body:',
+        JSON.stringify({
+          permissoes
+        })
+      );
+
+      console.log(
+        '================================================'
+      );
+
+
+      /*
+       * ESTA É A REQUISIÇÃO QUE PRECISA APARECER
+       * NO F12 -> NETWORK.
+       */
+
+      const resposta =
+        await api(
+          `/usuarios/${id}/permissoes`,
+          {
+            method: 'PATCH',
+
+            body:
+              JSON.stringify({
+                permissoes
+              })
+          }
+        );
+
+
+      console.log(
+        '[PERMISSOES] PATCH concluído:',
+        resposta
+      );
+
+
+      return resposta;
+
+    }
+
+
+    // ==========================================================
     // SALVAR USUÁRIO
     // ==========================================================
 
     async function salvarUsuario() {
 
       console.log(
+        '=============================================='
+      );
+
+      console.log(
         '🔥 SALVAR USUARIO FOI CHAMADO'
+      );
+
+      console.log(
+        '=============================================='
       );
 
 
@@ -2346,6 +2949,21 @@
 
       const ativo =
         usuarioAtivo.checked;
+
+
+      /*
+       * MUITO IMPORTANTE:
+       *
+       * Guardamos essas informações ANTES de qualquer
+       * chamada ou fechamento do modal.
+       */
+
+      const estavaEditando =
+        usuarioEditando !== null;
+
+
+      const idUsuarioEdicao =
+        usuarioEditando?.id || null;
 
 
       // ========================================================
@@ -2377,7 +2995,7 @@
 
 
       if (
-        !usuarioEditando &&
+        !estavaEditando &&
         !senha
       ) {
 
@@ -2392,7 +3010,7 @@
 
 
       if (
-        !usuarioEditando &&
+        !estavaEditando &&
         senha.length < 6
       ) {
 
@@ -2407,33 +3025,24 @@
 
 
       // ========================================================
-      // COLETAR PERMISSÕES
+      // PERMISSÕES
       // ========================================================
 
-      let permissoes = [];
-
-
-      if (
-        perfil ===
-        'funcionario'
-      ) {
-
-        permissoes =
-          Array.from(
-            document.querySelectorAll(
-              '[data-permission]:checked'
-            )
-          ).map(
-            checkbox =>
-              checkbox.value
-          );
-
-      }
+      const permissoesSelecionadas =
+        perfil === 'funcionario'
+          ? obterPermissoesSelecionadas()
+          : [];
 
 
       console.log(
-        'Permissões selecionadas:',
-        permissoes
+        '[SALVAR] Perfil:',
+        perfil
+      );
+
+
+      console.log(
+        '[SALVAR] Permissões antes de salvar:',
+        permissoesSelecionadas
       );
 
 
@@ -2441,30 +3050,40 @@
       // BOTÃO
       // ========================================================
 
-      const botao =
-        document.getElementById(
-          'btn-salvar'
-        );
-
-
-      botao.disabled =
+      btnSalvar.disabled =
         true;
 
 
-      botao.textContent =
+      btnSalvar.textContent =
         'Salvando...';
 
 
       try {
 
-        let resposta;
+        let resposta = null;
+
+        let idParaPermissoes =
+          idUsuarioEdicao;
 
 
         // ======================================================
         // CRIAR
         // ======================================================
 
-        if (!usuarioEditando) {
+        if (!estavaEditando) {
+
+          console.log(
+            '[USUARIO] Criando usuário...'
+          );
+
+
+          /*
+           * IMPORTANTE:
+           *
+           * As permissões NÃO são mais enviadas aqui.
+           *
+           * Elas serão enviadas depois através do PATCH.
+           */
 
           resposta =
             await api(
@@ -2481,14 +3100,39 @@
 
                     senha,
 
-                    perfil,
-
-                    permissoes
+                    perfil
 
                   })
 
               }
             );
+
+
+          console.log(
+            '[USUARIO] Usuário criado:',
+            resposta
+          );
+
+
+          /*
+           * Tentamos encontrar o ID em diferentes
+           * formatos de resposta do backend.
+           */
+
+          idParaPermissoes =
+            resposta?.usuario?.id ??
+            resposta?.id ??
+            resposta?.data?.id ??
+            null;
+
+
+          if (!idParaPermissoes) {
+
+            throw new Error(
+              'Usuário foi criado, mas o servidor não retornou o ID para salvar as permissões.'
+            );
+
+          }
 
         }
 
@@ -2499,9 +3143,22 @@
 
         else {
 
+          console.log(
+            '[USUARIO] Atualizando usuário:',
+            idUsuarioEdicao
+          );
+
+
+          /*
+           * As permissões também NÃO são enviadas no PUT.
+           *
+           * Primeiro atualizamos o usuário.
+           * Depois fazemos o PATCH das permissões.
+           */
+
           resposta =
             await api(
-              `/usuarios/${usuarioEditando.id}`,
+              `/usuarios/${idUsuarioEdicao}`,
               {
                 method: 'PUT',
 
@@ -2514,21 +3171,52 @@
 
                     perfil,
 
-                    ativo,
-
-                    permissoes
+                    ativo
 
                   })
 
               }
             );
 
+
+          console.log(
+            '[USUARIO] Usuário atualizado:',
+            resposta
+          );
+
+
+          idParaPermissoes =
+            idUsuarioEdicao;
+
         }
 
 
+        // ======================================================
+        // SALVAR PERMISSÕES
+        // ======================================================
+
         console.log(
-          'Resposta do servidor:',
-          resposta
+          '[SALVAR] ID que será usado no PATCH:',
+          idParaPermissoes
+        );
+
+
+        /*
+         * AQUI É O PONTO PRINCIPAL DA CORREÇÃO.
+         *
+         * Para funcionário:
+         *
+         * PATCH /api/usuarios/:id/permissoes
+         *
+         * Body:
+         * {
+         *   permissoes: [...]
+         * }
+         */
+
+        await salvarPermissoesUsuario(
+          idParaPermissoes,
+          perfil
         );
 
 
@@ -2536,10 +3224,15 @@
         // SUCESSO
         // ======================================================
 
+        console.log(
+          '[SALVAR] Usuário e permissões salvos com sucesso.'
+        );
+
+
         mostrarToast(
-          usuarioEditando
-            ? 'Usuário atualizado com sucesso.'
-            : 'Usuário criado com sucesso.'
+          estavaEditando
+            ? 'Usuário e permissões atualizados com sucesso.'
+            : 'Usuário e permissões criados com sucesso.'
         );
 
 
@@ -2552,7 +3245,7 @@
       } catch (err) {
 
         console.error(
-          'Erro ao salvar usuário:',
+          '[SALVAR] Erro:',
           err
         );
 
@@ -2565,12 +3258,19 @@
 
       } finally {
 
-        botao.disabled =
+        btnSalvar.disabled =
           false;
 
 
-        botao.textContent =
-          usuarioEditando
+        /*
+         * Usa a variável estavaEditando.
+         *
+         * Não usamos usuarioEditando aqui porque
+         * fecharModal() limpa essa variável.
+         */
+
+        btnSalvar.textContent =
+          estavaEditando
             ? 'Salvar alterações'
             : 'Salvar usuário';
 
@@ -2739,8 +3439,21 @@
             checkbox.checked =
               false;
 
+            checkbox.disabled =
+              false;
+
           }
         );
+
+
+      permissionsGrid.classList.remove(
+        'permissions-disabled'
+      );
+
+
+      adminNotice.classList.remove(
+        'active'
+      );
 
     }
 
@@ -2803,8 +3516,16 @@
       );
 
 
-      document.body.style.overflow =
-        'hidden';
+      document.body.classList.add(
+        'modal-open'
+      );
+
+
+      setTimeout(() => {
+
+        usuarioNome.focus();
+
+      }, 100);
 
     }
 
@@ -2820,9 +3541,15 @@
       );
 
 
-      document.body.style.overflow =
-        '';
+      document.body.classList.remove(
+        'modal-open'
+      );
 
+
+      /*
+       * Pequeno atraso para evitar problemas
+       * com eventos do modal.
+       */
 
       usuarioEditando =
         null;
@@ -2836,7 +3563,9 @@
 
     function obterIniciais(nome) {
 
-      return nome
+      return String(
+        nome || ''
+      )
         .trim()
         .split(/\s+/)
         .slice(0, 2)
