@@ -4655,7 +4655,7 @@ select.pay-method {
   inset: 0 !important;
   z-index: 99999 !important;
 
-  display: flex !important;
+  display: flex;
   align-items: center !important;
   justify-content: center !important;
 
@@ -4682,7 +4682,7 @@ select.pay-method {
   margin: 0 auto !important;
   padding: 32px !important;
 
-  display: flex !important;
+  display: flex;
   flex-direction: column !important;
   align-items: stretch !important;
   justify-content: flex-start !important;
@@ -4912,7 +4912,7 @@ select.pay-method {
   margin: 0 !important;
   padding: 24px !important;
   box-sizing: border-box !important;
-  display: flex !important;
+  display: flex;
   align-items: center !important;
   justify-content: center !important;
   overflow-x: hidden !important;
@@ -4955,11 +4955,11 @@ select.pay-method {
 }
 
 #login-form {
-  display: flex !important;
+  display: flex;
 }
 
 #register-form {
-  display: none !important;
+  display: none;
 }
 
 #login-form .field,
