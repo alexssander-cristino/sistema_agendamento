@@ -80,6 +80,382 @@
 
 
 /* =========================================================
+   LOGIN / AUTENTICAÇÃO
+   ========================================================= */
+
+#auth-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100vh;
+  padding: 24px;
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(6, 182, 212, 0.14),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(13, 54, 70, 0.18),
+      transparent 35%
+    ),
+    var(--bg);
+
+  overflow-y: auto;
+}
+
+
+/* ---------------------------------------------------------
+   CONTAINER PRINCIPAL
+   --------------------------------------------------------- */
+
+#auth-screen > * {
+  box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   FORMULÁRIOS
+   --------------------------------------------------------- */
+
+#login-form,
+#register-form {
+  width: min(100%, 430px);
+
+  padding: 36px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 22px;
+
+  box-shadow:
+    0 25px 70px rgba(7, 31, 41, 0.15),
+    0 4px 16px rgba(7, 31, 41, 0.06);
+
+  backdrop-filter: blur(12px);
+
+  animation: authCardIn 0.35s ease;
+}
+
+
+/* ---------------------------------------------------------
+   ANIMAÇÃO
+   --------------------------------------------------------- */
+
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* ---------------------------------------------------------
+   TÍTULOS
+   --------------------------------------------------------- */
+
+#auth-screen h1,
+#auth-screen h2 {
+  margin: 0 0 8px;
+
+  color: var(--primary);
+
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+
+#auth-screen h1 {
+  font-size: 28px;
+}
+
+
+#auth-screen h2 {
+  font-size: 25px;
+}
+
+
+#auth-screen p {
+  color: var(--ink-soft);
+}
+
+
+/* ---------------------------------------------------------
+   CAMPOS
+   --------------------------------------------------------- */
+
+#auth-screen label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--ink);
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+#auth-screen input,
+#auth-screen select {
+  box-sizing: border-box;
+
+  width: 100%;
+  min-height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface);
+
+  color: var(--ink);
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+
+#auth-screen input::placeholder {
+  color: var(--ink-faint);
+}
+
+
+#auth-screen input:hover,
+#auth-screen select:hover {
+  border-color: var(--border-strong);
+}
+
+
+#auth-screen input:focus,
+#auth-screen select:focus {
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px rgba(6, 182, 212, 0.12);
+}
+
+
+/* ---------------------------------------------------------
+   ESPAÇAMENTO DOS CAMPOS
+   --------------------------------------------------------- */
+
+#login-form .field,
+#register-form .field {
+  margin-bottom: 18px;
+}
+
+
+#login-form .field:last-of-type,
+#register-form .field:last-of-type {
+  margin-bottom: 22px;
+}
+
+
+/* ---------------------------------------------------------
+   BOTÕES
+   --------------------------------------------------------- */
+
+#login-submit,
+#register-submit {
+  width: 100%;
+  min-height: 48px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-2)
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(13, 54, 70, 0.18);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+}
+
+
+#login-submit:hover,
+#register-submit:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 11px 24px rgba(13, 54, 70, 0.23);
+}
+
+
+#login-submit:active,
+#register-submit:active {
+  transform: translateY(0);
+}
+
+
+#login-submit:disabled,
+#register-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ---------------------------------------------------------
+   LINKS DE LOGIN / CADASTRO
+   --------------------------------------------------------- */
+
+#show-register,
+#show-login {
+  display: inline-block;
+
+  margin-top: 18px;
+
+  color: var(--accent);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition: color 0.18s ease;
+}
+
+
+#show-register:hover,
+#show-login:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+
+/* ---------------------------------------------------------
+   MENSAGENS DE ERRO
+   --------------------------------------------------------- */
+
+#login-error,
+#register-error {
+  display: none;
+
+  margin: 0 0 18px;
+  padding: 11px 13px;
+
+  border: 1px solid #f1caca;
+  border-radius: 9px;
+
+  background: var(--warn-soft);
+
+  color: #a72f2f;
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+
+/* ---------------------------------------------------------
+   CHECKBOX
+   --------------------------------------------------------- */
+
+#auth-screen input[type="checkbox"] {
+  width: 16px;
+  min-height: 16px;
+
+  padding: 0;
+
+  accent-color: var(--accent);
+
+  cursor: pointer;
+}
+
+
+/* ---------------------------------------------------------
+   RESPONSIVO
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+  #auth-screen {
+    align-items: flex-start;
+
+    padding: 18px;
+  }
+
+
+  #login-form,
+  #register-form {
+    width: 100%;
+
+    margin: 20px 0;
+
+    padding: 28px 22px;
+
+    border-radius: 18px;
+  }
+
+
+  #auth-screen h1 {
+    font-size: 25px;
+  }
+
+
+  #auth-screen h2 {
+    font-size: 23px;
+  }
+
+}
+
+
+@media (max-width: 380px) {
+
+  #auth-screen {
+    padding: 12px;
+  }
+
+
+  #login-form,
+  #register-form {
+    padding: 24px 18px;
+  }
+
+}
+
+
+
+/* =========================================================
    RESET
    ========================================================= */
 
