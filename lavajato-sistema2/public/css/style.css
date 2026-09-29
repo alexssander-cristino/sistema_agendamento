@@ -5948,3 +5948,128 @@ tbody tr:hover { background: #fbfdfe; }
   main { padding-left: 10px; padding-right: 10px; }
 }
 
+
+
+/* =========================================================
+   REFINO FINAL — GRADIENTES MODERADOS
+   ========================================================= */
+
+:root {
+  --gradient-brand: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(13,54,70,.96) 0%, rgba(23,90,115,.94) 100%);
+}
+
+#auth-screen {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(6,182,212,.14), transparent 28%),
+    radial-gradient(circle at 88% 82%, rgba(13,54,70,.12), transparent 30%),
+    var(--bg);
+}
+
+#login-form,
+#register-form {
+  border: 1px solid rgba(13,54,70,.08);
+  box-shadow:
+    0 24px 60px rgba(7,31,41,.12),
+    0 2px 10px rgba(7,31,41,.05);
+}
+
+#login-form::before,
+#register-form::before {
+  content: "";
+  display: block;
+  width: 52px;
+  height: 4px;
+  margin: -12px auto 22px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+#login-submit,
+#register-submit,
+.btn-primary {
+  background: var(--gradient-brand);
+}
+
+#login-submit:hover,
+#register-submit:hover,
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-2) 0%, var(--accent-2) 100%);
+}
+
+.sidebar {
+  background:
+    linear-gradient(180deg, rgba(23,90,115,.28), transparent 28%),
+    var(--gradient-brand-soft);
+}
+
+.brand .mark {
+  background: linear-gradient(135deg, var(--accent), #54d5e8);
+}
+
+.sidebar-user-avatar,
+.usuario-avatar {
+  background: linear-gradient(135deg, var(--primary-2), var(--accent-2));
+}
+
+.nav-btn.active {
+  background: linear-gradient(
+    90deg,
+    rgba(6,182,212,.15),
+    rgba(255,255,255,.035)
+  );
+}
+
+.stat-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fbfdfe 100%);
+}
+
+.stat-card.profit {
+  background: linear-gradient(180deg, var(--good-soft) 0%, #ffffff 72%);
+}
+
+.stat-card.profit.negative {
+  background: linear-gradient(180deg, var(--warn-soft) 0%, #ffffff 72%);
+}
+
+.search-bar,
+.ticket,
+.invoice-row,
+.usuario-item {
+  background: linear-gradient(135deg, #ffffff 0%, #fcfeff 100%);
+}
+
+section.block h2 {
+  position: relative;
+  padding-left: 10px;
+}
+
+section.block h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 3px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--primary-2));
+}
+
+.bar-fill {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.modal h3 {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbfc 100%);
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    background: var(--gradient-brand-soft);
+  }
+
+  #login-form::before,
+  #register-form::before {
+    margin-bottom: 18px;
+  }
+}
