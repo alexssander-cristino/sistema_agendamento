@@ -6073,3 +6073,18 @@ section.block h2::before {
     margin-bottom: 18px;
   }
 }
+
+@media (max-width: 600px) {
+  main,
+  .main-content,
+  .page-content,
+  .content {
+    padding-top: 12px !important;
+    margin-top: 0 !important;
+  }
+
+  .page-header {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
