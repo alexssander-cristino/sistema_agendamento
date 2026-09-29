@@ -6074,17 +6074,29 @@ section.block h2::before {
   }
 }
 
-@media (max-width: 600px) {
-  main,
-  .main-content,
-  .page-content,
-  .content {
-    padding-top: 12px !important;
-    margin-top: 0 !important;
+/* =========================================================
+   AJUSTE FINAL — ESPAÇO SUPERIOR NO CELULAR
+   ========================================================= */
+
+@media (max-width: 760px) {
+  main {
+    padding-top: 48px !important;
   }
 
-  .page-header {
+  .topbar {
     margin-top: 0 !important;
     padding-top: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  main {
+    padding-top: 48px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  main {
+    padding-top: 44px !important;
   }
 }
