@@ -133,11 +133,8 @@ app.get('*', (req, res) => {
     });
   }
 
-  res.sendFile(
-    path.join(
-      publicPath,
-      'index.html'
-    )
+  res.status(404).sendFile(
+    path.join(publicPath, '404.html')
   );
 });
 

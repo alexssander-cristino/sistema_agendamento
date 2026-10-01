@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="robots"
+    content="noindex"
+  >
+
+  <title>404 | Página não encontrada</title>
+
+  <style>
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f4f6fa;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+      margin: 0;
+
+      min-height: 100vh;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 24px;
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #eff6ff 0%,
+          var(--bg) 45%,
+          #eef1f6 100%
+        );
+
+      color: var(--text);
+    }
+
+
+    .container {
+      width: 100%;
+
+      max-width: 560px;
+
+      text-align: center;
+    }
+
+
+    .logo {
+      margin-bottom: 35px;
+
+      font-size: 25px;
+
+      font-weight: 800;
+
+      letter-spacing: -.5px;
+    }
+
+
+    .logo span {
+      color: var(--primary);
+    }
+
+
+    .error-number {
+      margin: 0;
+
+      font-size: clamp(100px, 25vw, 190px);
+
+      line-height: .9;
+
+      font-weight: 900;
+
+      letter-spacing: -10px;
+
+      color: var(--primary);
+
+      text-shadow:
+        0 12px 30px rgba(37, 99, 235, .15);
+    }
+
+
+    .title {
+      margin:
+        28px 0 10px;
+
+      font-size: 28px;
+
+      font-weight: 800;
+    }
+
+
+    .description {
+      max-width: 430px;
+
+      margin:
+        0 auto 28px;
+
+      color: var(--muted);
+
+      font-size: 15px;
+
+      line-height: 1.6;
+    }
+
+
+    .actions {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 10px;
+
+      flex-wrap: wrap;
+    }
+
+
+    .button {
+      min-width: 145px;
+
+      padding:
+        12px 18px;
+
+      border-radius: 10px;
+
+      font-size: 14px;
+
+      font-weight: 700;
+
+      text-decoration: none;
+
+      transition:
+        transform .15s ease,
+        background .15s ease,
+        border-color .15s ease;
+    }
+
+
+    .button:hover {
+      transform:
+        translateY(-1px);
+    }
+
+
+    .button-primary {
+      background:
+        var(--primary);
+
+      color: #ffffff;
+
+      border:
+        1px solid var(--primary);
+    }
+
+
+    .button-primary:hover {
+      background:
+        var(--primary-dark);
+    }
+
+
+    .button-secondary {
+      background:
+        #ffffff;
+
+      color:
+        var(--text);
+
+      border:
+        1px solid var(--border);
+    }
+
+
+    .button-secondary:hover {
+      border-color:
+        #cbd5e1;
+    }
+
+
+    .footer {
+      margin-top: 45px;
+
+      color: #9ca3af;
+
+      font-size: 12px;
+    }
+
+
+    @media (max-width: 480px) {
+
+      .error-number {
+        letter-spacing: -6px;
+      }
+
+
+      .title {
+        font-size: 24px;
+      }
+
+
+      .description {
+        font-size: 14px;
+      }
+
+
+      .actions {
+        flex-direction: column;
+      }
+
+
+      .button {
+        width: 100%;
+
+        max-width: 240px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <main class="container">
+
+
+    <div class="logo">
+      Nex<span>Lava</span>
+    </div>
+
+
+    <h1 class="error-number">
+      404
+    </h1>
+
+
+    <h2 class="title">
+      Página não encontrada
+    </h2>
+
+
+    <p class="description">
+      A página que você está procurando não existe,
+      foi movida ou o endereço digitado está incorreto.
+    </p>
+
+
+    <div class="actions">
+
+      <a
+        href="/"
+        class="button button-primary"
+      >
+        Voltar para o início
+      </a>
+
+
+      <a
+        href="javascript:history.back()"
+        class="button button-secondary"
+      >
+        Voltar página
+      </a>
+
+    </div>
+
+
+    <div class="footer">
+      NexLava SaaS
+    </div>
+
+  </main>
+
+</body>
+
+</html>
