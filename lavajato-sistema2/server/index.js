@@ -28,23 +28,12 @@ const PORT = process.env.PORT || 3000;
 // CORS
 // ============================================================
 
-const corsOrigin = process.env.CORS_ORIGIN;
-
-if (corsOrigin) {
-  app.use(
-    cors({
-      origin: corsOrigin,
-      credentials: true
-    })
-  );
-} else {
-  app.use(
-    cors({
-      origin: true,
-      credentials: true
-    })
-  );
-}
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 // ============================================================
 // MIDDLEWARE
