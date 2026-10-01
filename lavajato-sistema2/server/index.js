@@ -34,15 +34,14 @@ if (corsOrigin) {
   app.use(
     cors({
       origin: corsOrigin,
-      credentials: true,
+      credentials: true
     })
   );
 } else {
-  // Desenvolvimento local
   app.use(
     cors({
       origin: true,
-      credentials: true,
+      credentials: true
     })
   );
 }
@@ -55,7 +54,7 @@ app.use(express.json());
 
 app.use(
   express.urlencoded({
-    extended: true,
+    extended: true
   })
 );
 
@@ -80,7 +79,7 @@ app.use('/api/usuarios', usuariosRouter);
 app.use('/api/configuracoes', configuracoesRouter);
 
 // ============================================================
-// STATUS DA API
+// STATUS
 // ============================================================
 
 app.get('/api/status', async (req, res) => {
@@ -90,7 +89,7 @@ app.get('/api/status', async (req, res) => {
     res.status(200).json({
       ok: true,
       banco: 'conectado',
-      ambiente: process.env.NODE_ENV || 'development',
+      ambiente: process.env.NODE_ENV || 'development'
     });
   } catch (err) {
     console.error(
@@ -104,7 +103,7 @@ app.get('/api/status', async (req, res) => {
       detalhe:
         process.env.NODE_ENV === 'production'
           ? 'Erro ao conectar ao banco de dados.'
-          : err.message,
+          : err.message
     });
   }
 });
@@ -122,14 +121,13 @@ const publicPath = path.join(
 app.use(express.static(publicPath));
 
 // ============================================================
-// FALLBACK DO FRONTEND
+// FALLBACK
 // ============================================================
 
 app.get('*', (req, res) => {
-  // Não intercepta rotas da API
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({
-      erro: 'Rota da API não encontrada.',
+      erro: 'Rota da API não encontrada.'
     });
   }
 
@@ -142,7 +140,7 @@ app.get('*', (req, res) => {
 });
 
 // ============================================================
-// TRATAMENTO DE ERROS
+// ERROS
 // ============================================================
 
 app.use((err, req, res, next) => {
@@ -155,17 +153,13 @@ app.use((err, req, res, next) => {
     erro:
       process.env.NODE_ENV === 'production'
         ? 'Erro interno do servidor.'
-        : err.message,
+        : err.message
   });
 });
 
 // ============================================================
-// SERVIDOR
+// SERVIDOR LOCAL
 // ============================================================
-
-// O Vercel consegue executar a aplicação Express.
-// Mantemos o listen para continuar funcionando
-// normalmente quando executado localmente.
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
