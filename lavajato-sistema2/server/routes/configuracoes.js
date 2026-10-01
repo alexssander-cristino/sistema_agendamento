@@ -57,13 +57,29 @@ async function verificarPermissaoConfiguracoes(req, res, next) {
 
 // ============================================================
 // VALIDA COR HEXADECIMAL
+// Aceita:
+// #000000
+// #FFFFFF
+// #fff
+// #ABC
 // ============================================================
 
 function validarCor(cor) {
-  return (
-    typeof cor === 'string' &&
-    /^#[0-9A-Fa-f]{6}$/.test(cor)
-  );
+  if (typeof cor !== 'string') {
+    return false;
+  }
+
+  const corLimpa = cor.trim();
+
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(corLimpa);
+}
+
+// ============================================================
+// NORMALIZA COR
+// ============================================================
+
+function normalizarCor(cor) {
+  return cor.trim().toLowerCase();
 }
 
 // ============================================================
@@ -145,13 +161,13 @@ router.put(
     // VALIDAÇÕES
     // ==========================================================
 
-    if (!nome || !nome.trim()) {
+    if (!nome || typeof nome !== 'string' || !nome.trim()) {
       return res.status(400).json({
         erro: 'Informe o nome da lavação.'
       });
     }
 
-    if (!email || !email.trim()) {
+    if (!email || typeof email !== 'string' || !email.trim()) {
       return res.status(400).json({
         erro: 'Informe o e-mail da empresa.'
       });
@@ -166,10 +182,21 @@ router.put(
       !validarCor(cor_destaque) ||
       !validarCor(cor_fundo)
     ) {
+
+      console.error('Cores recebidas inválidas:', {
+        cor_primaria,
+        cor_destaque,
+        cor_fundo
+      });
+
       return res.status(400).json({
         erro: 'Uma ou mais cores informadas são inválidas.'
       });
     }
+
+    // ==========================================================
+    // NORMALIZAÇÃO DOS DADOS
+    // ==========================================================
 
     const nomeLimpo =
       nome.trim();
@@ -178,19 +205,26 @@ router.put(
       email.trim().toLowerCase();
 
     const telefoneLimpo =
-      telefone && telefone.trim()
+      typeof telefone === 'string' && telefone.trim()
         ? telefone.trim()
         : null;
 
-    // Normaliza as cores
+    // ==========================================================
+    // NORMALIZAÇÃO DAS CORES
+    // ==========================================================
+
     const corPrimariaLimpa =
-      cor_primaria.toLowerCase();
+      normalizarCor(cor_primaria);
 
     const corDestaqueLimpa =
-      cor_destaque.toLowerCase();
+      normalizarCor(cor_destaque);
 
     const corFundoLimpa =
-      cor_fundo.toLowerCase();
+      normalizarCor(cor_fundo);
+
+    // ==========================================================
+    // BANCO
+    // ==========================================================
 
     try {
 
@@ -262,6 +296,10 @@ router.put(
           erro: 'Empresa não encontrada.'
         });
       }
+
+      // ========================================================
+      // RESPOSTA
+      // ========================================================
 
       return res.json({
         mensagem:
