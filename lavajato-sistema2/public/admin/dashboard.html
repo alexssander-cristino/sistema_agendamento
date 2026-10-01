@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
@@ -614,7 +613,6 @@
           data-page="dashboard"
           type="button"
         >
-
           <span class="menu-icon">
             ▦
           </span>
@@ -622,7 +620,6 @@
           <span>
             Dashboard
           </span>
-
         </button>
 
         <button
@@ -630,7 +627,6 @@
           data-page="planos"
           type="button"
         >
-
           <span class="menu-icon">
             $
           </span>
@@ -638,21 +634,19 @@
           <span>
             Planos
           </span>
-
         </button>
 
         <div class="menu-title">
           SaaS
         </div>
 
-        <!-- EMPRESAS DESBLOQUEADO -->
+        <!-- EMPRESAS -->
 
         <button
           class="menu-btn"
           data-page="empresas"
           type="button"
         >
-
           <span class="menu-icon">
             ◉
           </span>
@@ -660,17 +654,15 @@
           <span>
             Empresas
           </span>
-
         </button>
 
-        <!-- ASSINATURAS DESBLOQUEADO -->
+        <!-- ASSINATURAS -->
 
         <button
           class="menu-btn"
           data-page="assinaturas"
           type="button"
         >
-
           <span class="menu-icon">
             ↻
           </span>
@@ -678,17 +670,15 @@
           <span>
             Assinaturas
           </span>
-
         </button>
 
-        <!-- PAGAMENTOS DESBLOQUEADO -->
+        <!-- PAGAMENTOS -->
 
         <button
           class="menu-btn"
           data-page="pagamentos"
           type="button"
         >
-
           <span class="menu-icon">
             $
           </span>
@@ -696,17 +686,15 @@
           <span>
             Pagamentos
           </span>
-
         </button>
 
-        <!-- USUÁRIOS DESBLOQUEADO -->
+        <!-- USUÁRIOS -->
 
         <button
           class="menu-btn"
           data-page="usuarios"
           type="button"
         >
-
           <span class="menu-icon">
             ◇
           </span>
@@ -714,7 +702,6 @@
           <span>
             Usuários
           </span>
-
         </button>
 
         <div class="menu-title">
@@ -726,7 +713,6 @@
           data-page="sistema"
           type="button"
         >
-
           <span class="menu-icon">
             ↗
           </span>
@@ -734,7 +720,6 @@
           <span>
             Abrir sistema
           </span>
-
         </button>
 
         <button
@@ -742,7 +727,6 @@
           data-page="status"
           type="button"
         >
-
           <span class="menu-icon">
             ●
           </span>
@@ -750,7 +734,6 @@
           <span>
             Status da API
           </span>
-
         </button>
 
       </nav>
@@ -1278,8 +1261,10 @@
         };
 
         if (token) {
+
           headers.Authorization =
             `Bearer ${token}`;
+
         }
 
         const response =
@@ -1647,7 +1632,9 @@
       // ==========================================================
 
       document
-        .querySelectorAll('.menu-btn[data-page]')
+        .querySelectorAll(
+          '.menu-btn[data-page]'
+        )
         .forEach(button => {
 
           button.addEventListener(
@@ -1657,7 +1644,9 @@
               const page =
                 button.dataset.page;
 
-              if (page === 'dashboard') {
+              if (
+                page === 'dashboard'
+              ) {
 
                 window.location.href =
                   '/admin/dashboard.html';
@@ -1666,7 +1655,9 @@
 
               }
 
-              if (page === 'planos') {
+              if (
+                page === 'planos'
+              ) {
 
                 window.location.href =
                   '/admin/planos.html';
@@ -1675,7 +1666,9 @@
 
               }
 
-              if (page === 'empresas') {
+              if (
+                page === 'empresas'
+              ) {
 
                 window.location.href =
                   '/admin/empresas.html';
@@ -1684,7 +1677,9 @@
 
               }
 
-              if (page === 'assinaturas') {
+              if (
+                page === 'assinaturas'
+              ) {
 
                 window.location.href =
                   '/admin/assinaturas.html';
@@ -1693,7 +1688,9 @@
 
               }
 
-              if (page === 'pagamentos') {
+              if (
+                page === 'pagamentos'
+              ) {
 
                 window.location.href =
                   '/admin/pagamentos.html';
@@ -1702,7 +1699,9 @@
 
               }
 
-              if (page === 'usuarios') {
+              if (
+                page === 'usuarios'
+              ) {
 
                 window.location.href =
                   '/admin/usuarios.html';
@@ -1711,20 +1710,27 @@
 
               }
 
-              if (page === 'sistema') {
+              if (
+                page === 'sistema'
+              ) {
 
-                window.location.href = '/';
+                window.location.href =
+                  '/';
 
                 return;
 
               }
 
-              if (page === 'status') {
+              if (
+                page === 'status'
+              ) {
 
                 carregarStatus();
 
                 document
-                  .getElementById('status-api')
+                  .getElementById(
+                    'status-api'
+                  )
                   .scrollIntoView({
                     behavior: 'smooth'
                   });
@@ -1826,7 +1832,8 @@
               'dev_empresa_contexto'
             );
 
-            window.location.href = '/';
+            window.location.href =
+              '/';
 
           }
         );
