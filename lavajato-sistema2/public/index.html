@@ -3197,9 +3197,7 @@ function configurarSalvarTema() {
       'btn-salvar-tema'
     );
 
-
   if (!botao) return;
-
 
   botao.addEventListener(
     'click',
@@ -3209,7 +3207,6 @@ function configurarSalvarTema() {
         localStorage.getItem(
           'lavajato_auth_token'
         );
-
 
       if (!token) {
 
@@ -3221,6 +3218,9 @@ function configurarSalvarTema() {
         return;
       }
 
+      // =====================================================
+      // DADOS DA EMPRESA
+      // =====================================================
 
       const nome =
         document
@@ -3230,7 +3230,6 @@ function configurarSalvarTema() {
           ?.value
           .trim() || '';
 
-
       const email =
         document
           .getElementById(
@@ -3238,7 +3237,6 @@ function configurarSalvarTema() {
           )
           ?.value
           .trim() || '';
-
 
       const telefone =
         document
@@ -3248,40 +3246,71 @@ function configurarSalvarTema() {
           ?.value
           .trim() || '';
 
+      // =====================================================
+      // CORES
+      // =====================================================
 
-      const corPrimaria =
-        document
-          .getElementById(
-            'config-cor-principal'
-          )
-          ?.value
-          .toUpperCase() ||
-        '#0E3A4C';
+      const inputPrimaria =
+        document.getElementById(
+          'config-cor-principal'
+        );
 
+      const inputDestaque =
+        document.getElementById(
+          'config-cor-destaque'
+        );
 
-      const corDestaque =
-        document
-          .getElementById(
-            'config-cor-destaque'
-          )
-          ?.value
-          .toUpperCase() ||
-        '#06B6D4';
+      let corPrimaria =
+        inputPrimaria?.value
+          ?.trim()
+          .toUpperCase() || '#0E3A4C';
 
+      let corDestaque =
+        inputDestaque?.value
+          ?.trim()
+          .toUpperCase() || '#06B6D4';
 
-      const corFundo =
-        window.lavajatoEmpresa
-          ?.cor_fundo ||
-        '#F2F5F8';
+      // =====================================================
+      // COR DE FUNDO
+      // =====================================================
+      // A tela atualmente não possui um campo para editar
+      // a cor de fundo, então usamos a salva no banco.
+      //
+      // Se não existir ou estiver inválida, usamos o padrão.
 
+      let corFundo =
+        window.lavajatoEmpresa?.cor_fundo
+          ?.toString()
+          .trim()
+          .toUpperCase() || '#F2F5F8';
 
-      /* Validação */
+      // =====================================================
+      // GARANTE #
+      // =====================================================
 
-      if (
-        !/^#[0-9A-F]{6}$/.test(
-          corPrimaria
-        )
-      ) {
+      if (!corPrimaria.startsWith('#')) {
+        corPrimaria =
+          '#' + corPrimaria;
+      }
+
+      if (!corDestaque.startsWith('#')) {
+        corDestaque =
+          '#' + corDestaque;
+      }
+
+      if (!corFundo.startsWith('#')) {
+        corFundo =
+          '#' + corFundo;
+      }
+
+      // =====================================================
+      // VALIDAÇÃO
+      // =====================================================
+
+      const regexCor =
+        /^#[0-9A-F]{6}$/;
+
+      if (!regexCor.test(corPrimaria)) {
 
         mostrarMensagemConfiguracoes(
           'A cor principal é inválida.',
@@ -3291,12 +3320,7 @@ function configurarSalvarTema() {
         return;
       }
 
-
-      if (
-        !/^#[0-9A-F]{6}$/.test(
-          corDestaque
-        )
-      ) {
+      if (!regexCor.test(corDestaque)) {
 
         mostrarMensagemConfiguracoes(
           'A cor de destaque é inválida.',
@@ -3306,18 +3330,54 @@ function configurarSalvarTema() {
         return;
       }
 
+      if (!regexCor.test(corFundo)) {
 
-      /* Estado do botão */
+        // Se a cor de fundo salva no banco estiver
+        // inválida, usa o padrão.
+        corFundo =
+          '#F2F5F8';
+      }
+
+      // =====================================================
+      // VALIDA DADOS DA EMPRESA
+      // =====================================================
+
+      if (!nome) {
+
+        mostrarMensagemConfiguracoes(
+          'Informe o nome da lavação.',
+          'erro'
+        );
+
+        return;
+      }
+
+      if (!email) {
+
+        mostrarMensagemConfiguracoes(
+          'Informe o e-mail da empresa.',
+          'erro'
+        );
+
+        return;
+      }
+
+      // =====================================================
+      // MOSTRA ESTADO DO BOTÃO
+      // =====================================================
 
       const textoOriginal =
         botao.textContent;
 
-
-      botao.disabled = true;
+      botao.disabled =
+        true;
 
       botao.textContent =
         'Salvando...';
 
+      // =====================================================
+      // ENVIA PARA API
+      // =====================================================
 
       try {
 
@@ -3337,11 +3397,14 @@ function configurarSalvarTema() {
 
               body: JSON.stringify({
 
-                nome,
+                nome:
+                  nome,
 
-                email,
+                email:
+                  email,
 
-                telefone,
+                telefone:
+                  telefone,
 
                 cor_primaria:
                   corPrimaria,
@@ -3353,56 +3416,106 @@ function configurarSalvarTema() {
                   corFundo
 
               })
-
             }
           );
 
+        // ===================================================
+        // TENTA LER JSON
+        // ===================================================
 
-        const dados =
-          await resposta.json();
+        let dados = {};
 
+        try {
 
-        if (!resposta.ok) {
+          dados =
+            await resposta.json();
 
-          throw new Error(
-            dados.erro ||
-            'Não foi possível salvar a aparência.'
+        } catch (erroJson) {
+
+          console.error(
+            'Resposta da API não é JSON:',
+            erroJson
           );
 
         }
 
+        // ===================================================
+        // ERRO DA API
+        // ===================================================
 
-        /* Atualiza empresa */
+        if (!resposta.ok) {
 
-        window.lavajatoEmpresa =
-          dados.empresa;
+          console.error(
+            'Erro retornado pela API:',
+            dados
+          );
 
+          throw new Error(
+            dados.erro ||
+            dados.detalhe ||
+            'Não foi possível salvar a aparência.'
+          );
+        }
 
-        /* Aplica imediatamente */
+        // ===================================================
+        // ATUALIZA EMPRESA
+        // ===================================================
+
+        if (dados.empresa) {
+
+          window.lavajatoEmpresa =
+            dados.empresa;
+
+        } else {
+
+          // Mantém pelo menos as cores atualizadas
+          window.lavajatoEmpresa = {
+            ...(window.lavajatoEmpresa || {}),
+
+            nome:
+              nome,
+
+            email:
+              email,
+
+            telefone:
+              telefone,
+
+            cor_primaria:
+              corPrimaria,
+
+            cor_destaque:
+              corDestaque,
+
+            cor_fundo:
+              corFundo
+          };
+
+        }
+
+        // ===================================================
+        // APLICA IMEDIATAMENTE
+        // ===================================================
 
         aplicarCoresEmpresa(
-          dados.empresa
+          window.lavajatoEmpresa
         );
-
 
         preencherCoresConfiguracoes(
-          dados.empresa
+          window.lavajatoEmpresa
         );
 
-
-        /* Mensagem */
+        // ===================================================
+        // SUCESSO
+        // ===================================================
 
         mostrarMensagemConfiguracoes(
           'Aparência salva com sucesso!',
           'sucesso'
         );
 
-
-        /* Atualiza botão */
-
         botao.textContent =
           'Salvo!';
-
 
         setTimeout(() => {
 
@@ -3411,7 +3524,6 @@ function configurarSalvarTema() {
 
         }, 2000);
 
-
       } catch (erro) {
 
         console.error(
@@ -3419,13 +3531,11 @@ function configurarSalvarTema() {
           erro
         );
 
-
         mostrarMensagemConfiguracoes(
           erro.message ||
           'Não foi possível salvar a aparência.',
           'erro'
         );
-
 
       } finally {
 
