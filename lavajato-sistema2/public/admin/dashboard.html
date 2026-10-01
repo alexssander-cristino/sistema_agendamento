@@ -1922,69 +1922,115 @@
       }
 
 
-      // ==========================================================
-      // MENU
-      // ==========================================================
+     // ==========================================================
+    // MENU
+    // ==========================================================
 
-      document
-        .querySelectorAll(
-          '.menu-btn[data-page]'
-        )
-        .forEach(button => {
+document
+  .querySelectorAll('.menu-btn[data-page]')
+  .forEach(button => {
 
-          button.addEventListener(
-            'click',
-            () => {
+    button.addEventListener('click', () => {
 
-              const page =
-                button.dataset.page;
+      const page =
+        button.dataset.page;
 
+      // ------------------------------------------------------
+      // DASHBOARD
+      // ------------------------------------------------------
 
-              if (
-                page === 'planos'
-              ) {
+      if (page === 'dashboard') {
+        window.location.href =
+          '/admin/dashboard.html';
 
-                window.location.href =
-                  '/admin/planos.html';
+        return;
+      }
 
-                return;
+      // ------------------------------------------------------
+      // PLANOS
+      // ------------------------------------------------------
 
-              }
+      if (page === 'planos') {
+        window.location.href =
+          '/admin/planos.html';
 
+        return;
+      }
 
-              if (
-                page === 'sistema'
-              ) {
+      // ------------------------------------------------------
+      // EMPRESAS
+      // ------------------------------------------------------
 
-                window.location.href =
-                  '/';
+      if (page === 'empresas') {
+        window.location.href =
+          '/admin/empresas.html';
 
-                return;
+        return;
+      }
 
-              }
+      // ------------------------------------------------------
+      // ASSINATURAS
+      // ------------------------------------------------------
 
+      if (page === 'assinaturas') {
+        window.location.href =
+          '/admin/assinaturas.html';
 
-              if (
-                page === 'status'
-              ) {
+        return;
+      }
 
-                carregarStatus();
+      // ------------------------------------------------------
+      // PAGAMENTOS
+      // ------------------------------------------------------
 
-                document
-                  .getElementById(
-                    'status-api'
-                  )
-                  .scrollIntoView({
-                    behavior: 'smooth'
-                  });
+      if (page === 'pagamentos') {
+        window.location.href =
+          '/admin/pagamentos.html';
 
-              }
+        return;
+      }
 
-            }
-          );
+      // ------------------------------------------------------
+      // USUÁRIOS
+      // ------------------------------------------------------
 
-        });
+      if (page === 'usuarios') {
+        window.location.href =
+          '/admin/usuarios.html';
 
+        return;
+      }
+
+      // ------------------------------------------------------
+      // SISTEMA
+      // ------------------------------------------------------
+
+      if (page === 'sistema') {
+        window.location.href = '/';
+
+        return;
+      }
+
+      // ------------------------------------------------------
+      // STATUS
+      // ------------------------------------------------------
+
+      if (page === 'status') {
+
+        carregarStatus();
+
+        document
+          .getElementById('status-api')
+          .scrollIntoView({
+            behavior: 'smooth'
+          });
+
+        return;
+      }
+
+    });
+
+  });
 
       // ==========================================================
       // ATALHOS
