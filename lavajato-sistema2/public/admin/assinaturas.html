@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Empresas | Lavajato</title>
+  <title>Assinaturas | Lavajato</title>
 
   <style>
     :root {
@@ -13,15 +14,26 @@
       --text: #172033;
       --muted: #6b7280;
       --border: #e5e7eb;
+
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
-      --danger: #dc2626;
-      --success: #16a34a;
-      --warning: #d97706;
+
       --sidebar: #111827;
       --sidebar-hover: #1f2937;
       --sidebar-text: #d1d5db;
       --sidebar-active: #2563eb;
+
+      --success: #16a34a;
+      --success-bg: #dcfce7;
+
+      --warning: #d97706;
+      --warning-bg: #fef3c7;
+
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+
+      --info: #2563eb;
+      --info-bg: #dbeafe;
     }
 
     * {
@@ -41,6 +53,10 @@
       display: flex;
       min-height: 100vh;
     }
+
+    /* ============================================================
+       SIDEBAR
+       ============================================================ */
 
     .sidebar {
       width: 250px;
@@ -101,12 +117,17 @@
       padding: 11px;
       border-radius: 8px;
       cursor: pointer;
+      font-size: 14px;
     }
 
     .logout:hover {
       background: #374151;
       color: white;
     }
+
+    /* ============================================================
+       MAIN
+       ============================================================ */
 
     .main {
       margin-left: 250px;
@@ -132,23 +153,9 @@
       font-size: 14px;
     }
 
-    .btn {
-      border: 0;
-      border-radius: 8px;
-      padding: 11px 16px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
+    /* ============================================================
+       FILTROS
+       ============================================================ */
 
     .filters {
       background: var(--card);
@@ -156,6 +163,7 @@
       border-radius: 12px;
       padding: 18px;
       margin-bottom: 20px;
+
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
@@ -178,8 +186,36 @@
     }
 
     .select {
-      min-width: 170px;
+      min-width: 180px;
     }
+
+    .input:focus,
+    .select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    /* ============================================================
+       TABELA
+       ============================================================ */
 
     .table-card {
       background: var(--card);
@@ -195,7 +231,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 850px;
+      min-width: 900px;
     }
 
     th,
@@ -217,37 +253,51 @@
       background: #f9fafb;
     }
 
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    /* ============================================================
+       STATUS
+       ============================================================ */
+
     .status {
       display: inline-flex;
       padding: 5px 9px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
+      white-space: nowrap;
     }
 
-    .status.active {
+    .status.ativa {
       color: #166534;
-      background: #dcfce7;
+      background: var(--success-bg);
     }
 
-    .status.pending {
+    .status.pendente {
       color: #92400e;
-      background: #fef3c7;
+      background: var(--warning-bg);
     }
 
-    .status.inactive {
+    .status.inadimplente {
       color: #991b1b;
-      background: #fee2e2;
+      background: var(--danger-bg);
     }
 
-    .actions {
-      display: flex;
-      gap: 7px;
+    .status.cancelada {
+      color: #374151;
+      background: #e5e7eb;
     }
+
+    /* ============================================================
+       AÇÕES
+       ============================================================ */
 
     .action {
       border: 1px solid var(--border);
       background: white;
+      color: var(--text);
       border-radius: 7px;
       padding: 7px 10px;
       cursor: pointer;
@@ -258,13 +308,22 @@
       background: #f3f4f6;
     }
 
+    /* ============================================================
+       EMPTY / LOADING
+       ============================================================ */
+
     .empty {
       text-align: center;
       padding: 45px 20px;
       color: var(--muted);
     }
 
+    /* ============================================================
+       RESPONSIVO
+       ============================================================ */
+
     @media (max-width: 800px) {
+
       .sidebar {
         width: 210px;
       }
@@ -282,6 +341,7 @@
     }
 
     @media (max-width: 600px) {
+
       .sidebar {
         position: static;
         width: 100%;
@@ -303,180 +363,240 @@
         width: 100%;
         padding: 18px;
       }
+
+      .filters {
+        flex-direction: column;
+      }
+
+      .input,
+      .select,
+      .filters .btn {
+        width: 100%;
+      }
     }
   </style>
+
 </head>
 
 <body>
 
 <div class="layout">
 
+  <!-- ==========================================================
+       SIDEBAR
+       =========================================================== -->
+
   <aside class="sidebar">
 
-    <div class="logo">
-      Lava<span>jato</span>
-    </div>
 
-    <div class="menu">
+<div class="logo">
+  Lava<span>jato</span>
+</div>
 
-      <div class="menu-title">Geral</div>
+<div class="menu">
 
-      <a href="/admin/dashboard.html">
-        Dashboard
-      </a>
+  <div class="menu-title">
+    Geral
+  </div>
 
-      <a href="/admin/planos.html">
-        Planos
-      </a>
+  <a href="/admin/dashboard.html">
+    Dashboard
+  </a>
 
-      <div class="menu-title">SaaS</div>
+  <a href="/admin/planos.html">
+    Planos
+  </a>
 
-      <a href="/admin/empresas.html" class="active">
-        Empresas
-      </a>
+  <div class="menu-title">
+    SaaS
+  </div>
 
-      <a href="/admin/assinaturas.html">
-        Assinaturas
-      </a>
+  <a href="/admin/empresas.html">
+    Empresas
+  </a>
 
-      <a href="/admin/pagamentos.html">
-        Pagamentos
-      </a>
+  <a
+    href="/admin/assinaturas.html"
+    class="active"
+  >
+    Assinaturas
+  </a>
 
-      <a href="/admin/usuarios.html">
-        Usuários
-      </a>
+  <a href="/admin/pagamentos.html">
+    Pagamentos
+  </a>
 
-      <div class="menu-title">Sistema</div>
+  <a href="/admin/usuarios.html">
+    Usuários
+  </a>
 
-      <a href="/">
-        Abrir sistema
-      </a>
+  <div class="menu-title">
+    Sistema
+  </div>
 
-    </div>
+  <a href="/">
+    Abrir sistema
+  </a>
 
-    <button class="logout" onclick="logout()">
-      Sair
-    </button>
+</div>
+
+<button
+  class="logout"
+  type="button"
+  onclick="AssinaturasAdmin.logout()"
+>
+  Sair
+</button>
+
 
   </aside>
 
+  <!-- ==========================================================
+       MAIN
+       =========================================================== -->
+
   <main class="main">
 
-    <div class="topbar">
 
-      <div>
-        <h1>Empresas</h1>
-        <p class="subtitle">
-          Empresas cadastradas no sistema SaaS.
-        </p>
-      </div>
+<div class="topbar">
 
-      <button class="btn btn-primary" onclick="novaEmpresa()">
-        + Nova empresa
-      </button>
+  <div>
 
-    </div>
+    <h1>
+      Assinaturas
+    </h1>
 
-    <div class="filters">
+    <p class="subtitle">
+      Gerencie as assinaturas das empresas do SaaS.
+    </p>
 
-      <input
-        type="text"
-        class="input"
-        id="busca"
-        placeholder="Pesquisar empresa..."
-      >
+  </div>
 
-      <select class="select" id="status">
-        <option value="">Todos os status</option>
-        <option value="ativa">Ativas</option>
-        <option value="pendente">Pendentes</option>
-        <option value="inativa">Inativas</option>
-      </select>
+</div>
 
-      <button class="btn btn-primary" onclick="filtrar()">
-        Filtrar
-      </button>
 
-    </div>
+<!-- ========================================================
+     FILTROS
+     ========================================================= -->
 
-    <div class="table-card">
+<div class="filters">
 
-      <div class="table-wrapper">
+  <input
+    type="text"
+    class="input"
+    id="busca"
+    placeholder="Pesquisar por empresa ou plano..."
+  >
 
-        <table>
+  <select
+    class="select"
+    id="status"
+  >
+    <option value="">
+      Todos os status
+    </option>
 
-          <thead>
-            <tr>
-              <th>Empresa</th>
-              <th>Administrador</th>
-              <th>E-mail</th>
-              <th>Plano</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
+    <option value="ativa">
+      Ativas
+    </option>
 
-          <tbody id="empresasTabela">
+    <option value="pendente">
+      Pendentes
+    </option>
 
-            <tr>
-              <td>
-                Lavajato Exemplo
-              </td>
+    <option value="inadimplente">
+      Inadimplentes
+    </option>
 
-              <td>
-                João da Silva
-              </td>
+    <option value="pausada">
+      Pausadas
+    </option>
 
-              <td>
-                joao@email.com
-              </td>
+    <option value="cancelada">
+      Canceladas
+    </option>
 
-              <td>
-                Plano Mensal
-              </td>
+  </select>
 
-              <td>
-                <span class="status active">
-                  Ativa
-                </span>
-              </td>
+  <button
+    class="btn btn-primary"
+    type="button"
+    onclick="AssinaturasAdmin.filtrar()"
+  >
+    Filtrar
+  </button>
 
-              <td>
-                <div class="actions">
-                  <button
-                    class="action"
-                    onclick="detalhesEmpresa(1)"
-                  >
-                    Detalhes
-                  </button>
+</div>
 
-                  <button
-                    class="action"
-                    onclick="testarEmpresa(1)"
-                  >
-                    Entrar como teste
-                  </button>
-                </div>
-              </td>
 
-            </tr>
+<!-- ========================================================
+     TABELA
+     ========================================================= -->
 
-            <tr id="emptyRow" style="display:none;">
-              <td colspan="6">
-                <div class="empty">
-                  Nenhuma empresa encontrada.
-                </div>
-              </td>
-            </tr>
+<div class="table-card">
 
-          </tbody>
+  <div class="table-wrapper">
 
-        </table>
+    <table>
 
-      </div>
+      <thead>
 
-    </div>
+        <tr>
+
+          <th>
+            Empresa
+          </th>
+
+          <th>
+            Plano
+          </th>
+
+          <th>
+            Valor
+          </th>
+
+          <th>
+            Status
+          </th>
+
+          <th>
+            Início
+          </th>
+
+          <th>
+            Próxima cobrança
+          </th>
+
+          <th>
+            Ações
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="tabela">
+
+        <tr>
+
+          <td colspan="7">
+
+            <div class="empty">
+              Carregando assinaturas...
+            </div>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
 
   </main>
 
