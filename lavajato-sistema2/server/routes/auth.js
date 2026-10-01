@@ -48,7 +48,8 @@ async function obterPermissoesUsuario(usuario) {
    * Administrador possui todas as permissões
    * da própria empresa.
    */
-  if (usuario.perfil === 'administrador') {
+  if (usuario.perfil === 'dev' ||
+      usuario.perfil === 'administrador') {
     return PERMISSOES_ADMINISTRADOR;
   }
 

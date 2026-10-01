@@ -762,12 +762,16 @@ await iniciarSistema();
         resposta.empresa || null;
 
 
-      atualizarSidebarUsuario();
+     if (usuarioLogado?.perfil === 'dev') {
+  window.location.href = '/admin/dashboard.html';
+  return false;
+}
 
-      hideAuthScreen();
+atualizarSidebarUsuario();
 
-      return true;
+hideAuthScreen();
 
+return true;
 
     }catch(error){
 

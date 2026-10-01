@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Usuários | Lavajato</title>
+
+  <style>
+
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --sidebar: #111827;
+      --sidebar-hover: #1f2937;
+      --sidebar-text: #d1d5db;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: var(--sidebar);
+      color: white;
+      padding: 22px 14px;
+      position: fixed;
+      inset: 0 auto 0 0;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: 700;
+      padding: 0 12px 28px;
+    }
+
+    .logo span {
+      color: #60a5fa;
+    }
+
+    .menu-title {
+      color: #6b7280;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 15px 12px 8px;
+    }
+
+    .menu a {
+      display: block;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      padding: 11px 12px;
+      border-radius: 8px;
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+
+    .menu a:hover {
+      background: var(--sidebar-hover);
+      color: white;
+    }
+
+    .menu a.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .logout {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 20px;
+      border: 0;
+      background: #1f2937;
+      color: #d1d5db;
+      padding: 11px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 30px;
+    }
+
+    .topbar {
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .filters {
+      margin-bottom: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    input,
+    select {
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      background: white;
+      font-size: 14px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    select {
+      min-width: 180px;
+    }
+
+    .btn {
+      border: 0;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    th {
+      background: #f9fafb;
+      color: #4b5563;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .perfil {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .administrador {
+      color: #1d4ed8;
+      background: #dbeafe;
+    }
+
+    .funcionario {
+      color: #374151;
+      background: #e5e7eb;
+    }
+
+    .ativo {
+      color: #166534;
+      background: #dcfce7;
+    }
+
+    .inativo {
+      color: #991b1b;
+      background: #fee2e2;
+    }
+
+    .action {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 7px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+
+      .layout {
+        display: block;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 18px;
+      }
+
+      .logout {
+        position: static;
+        width: 100%;
+        margin-top: 15px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      Lava<span>jato</span>
+    </div>
+
+    <div class="menu">
+
+      <div class="menu-title">
+        Geral
+      </div>
+
+      <a href="/admin/dashboard.html">
+        Dashboard
+      </a>
+
+      <a href="/admin/planos.html">
+        Planos
+      </a>
+
+      <div class="menu-title">
+        SaaS
+      </div>
+
+      <a href="/admin/empresas.html">
+        Empresas
+      </a>
+
+      <a href="/admin/assinaturas.html">
+        Assinaturas
+      </a>
+
+      <a href="/admin/pagamentos.html">
+        Pagamentos
+      </a>
+
+      <a
+        href="/admin/usuarios.html"
+        class="active"
+      >
+        Usuários
+      </a>
+
+      <div class="menu-title">
+        Sistema
+      </div>
+
+      <a href="/">
+        Abrir sistema
+      </a>
+
+    </div>
+
+    <button
+      class="logout"
+      onclick="logout()"
+    >
+      Sair
+    </button>
+
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <h1>Usuários</h1>
+
+      <p class="subtitle">
+        Usuários cadastrados em todas as empresas.
+      </p>
+
+    </div>
+
+    <div class="filters">
+
+      <input
+        type="text"
+        id="busca"
+        placeholder="Pesquisar nome ou e-mail..."
+      >
+
+      <select id="perfil">
+
+        <option value="">
+          Todos os perfis
+        </option>
+
+        <option value="administrador">
+          Administradores
+        </option>
+
+        <option value="funcionario">
+          Funcionários
+        </option>
+
+      </select>
+
+      <button
+        class="btn"
+        onclick="filtrar()"
+      >
+        Filtrar
+      </button>
+
+    </div>
+
+    <div class="table-card">
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Empresa</th>
+              <th>Perfil</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="tabela">
+
+            <tr>
+
+              <td>
+                João da Silva
+              </td>
+
+              <td>
+                joao@email.com
+              </td>
+
+              <td>
+                Lavajato Exemplo
+              </td>
+
+              <td>
+
+                <span class="perfil administrador">
+                  Administrador
+                </span>
+
+              </td>
+
+              <td>
+
+                <span class="perfil ativo">
+                  Ativo
+                </span>
+
+              </td>
+
+              <td>
+
+                <button
+                  class="action"
+                  onclick="detalhes(1)"
+                >
+                  Detalhes
+                </button>
+
+              </td>
+
+            </tr>
+
+            <tr>
+
+              <td>
+                Pedro Souza
+              </td>
+
+              <td>
+                pedro@email.com
+              </td>
+
+              <td>
+                Lavajato Exemplo
+              </td>
+
+              <td>
+
+                <span class="perfil funcionario">
+                  Funcionário
+                </span>
+
+              </td>
+
+              <td>
+
+                <span class="perfil ativo">
+                  Ativo
+                </span>
+
+              </td>
+
+              <td>
+
+                <button
+                  class="action"
+                  onclick="detalhes(2)"
+                >
+                  Detalhes
+                </button>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script src="/admin/js/usuarios.js"></script>
+
+</body>
+</html>

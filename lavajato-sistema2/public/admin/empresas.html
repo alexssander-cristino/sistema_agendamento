@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Empresas | Lavajato</title>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #d97706;
+      --sidebar: #111827;
+      --sidebar-hover: #1f2937;
+      --sidebar-text: #d1d5db;
+      --sidebar-active: #2563eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: var(--sidebar);
+      color: white;
+      padding: 22px 14px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: 700;
+      padding: 0 12px 28px;
+    }
+
+    .logo span {
+      color: #60a5fa;
+    }
+
+    .menu-title {
+      color: #6b7280;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 15px 12px 8px;
+    }
+
+    .menu a {
+      display: block;
+      text-decoration: none;
+      color: var(--sidebar-text);
+      padding: 11px 12px;
+      border-radius: 8px;
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+
+    .menu a:hover {
+      background: var(--sidebar-hover);
+      color: white;
+    }
+
+    .menu a.active {
+      background: var(--sidebar-active);
+      color: white;
+    }
+
+    .logout {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 20px;
+      border: 0;
+      background: #1f2937;
+      color: #d1d5db;
+      padding: 11px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      background: #374151;
+      color: white;
+    }
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      gap: 15px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .filters {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .input,
+    .select {
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    .input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .select {
+      min-width: 170px;
+    }
+
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 850px;
+    }
+
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    th {
+      background: #f9fafb;
+      color: #4b5563;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .status {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status.active {
+      color: #166534;
+      background: #dcfce7;
+    }
+
+    .status.pending {
+      color: #92400e;
+      background: #fef3c7;
+    }
+
+    .status.inactive {
+      color: #991b1b;
+      background: #fee2e2;
+    }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .action {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 7px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .action:hover {
+      background: #f3f4f6;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 45px 20px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 800px) {
+      .sidebar {
+        width: 210px;
+      }
+
+      .main {
+        margin-left: 210px;
+        width: calc(100% - 210px);
+        padding: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .logout {
+        position: static;
+        width: 100%;
+        margin-top: 15px;
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      Lava<span>jato</span>
+    </div>
+
+    <div class="menu">
+
+      <div class="menu-title">Geral</div>
+
+      <a href="/admin/dashboard.html">
+        Dashboard
+      </a>
+
+      <a href="/admin/planos.html">
+        Planos
+      </a>
+
+      <div class="menu-title">SaaS</div>
+
+      <a href="/admin/empresas.html" class="active">
+        Empresas
+      </a>
+
+      <a href="/admin/assinaturas.html">
+        Assinaturas
+      </a>
+
+      <a href="/admin/pagamentos.html">
+        Pagamentos
+      </a>
+
+      <a href="/admin/usuarios.html">
+        Usuários
+      </a>
+
+      <div class="menu-title">Sistema</div>
+
+      <a href="/">
+        Abrir sistema
+      </a>
+
+    </div>
+
+    <button class="logout" onclick="logout()">
+      Sair
+    </button>
+
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <div>
+        <h1>Empresas</h1>
+        <p class="subtitle">
+          Empresas cadastradas no sistema SaaS.
+        </p>
+      </div>
+
+      <button class="btn btn-primary" onclick="novaEmpresa()">
+        + Nova empresa
+      </button>
+
+    </div>
+
+    <div class="filters">
+
+      <input
+        type="text"
+        class="input"
+        id="busca"
+        placeholder="Pesquisar empresa..."
+      >
+
+      <select class="select" id="status">
+        <option value="">Todos os status</option>
+        <option value="ativa">Ativas</option>
+        <option value="pendente">Pendentes</option>
+        <option value="inativa">Inativas</option>
+      </select>
+
+      <button class="btn btn-primary" onclick="filtrar()">
+        Filtrar
+      </button>
+
+    </div>
+
+    <div class="table-card">
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th>Administrador</th>
+              <th>E-mail</th>
+              <th>Plano</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+
+          <tbody id="empresasTabela">
+
+            <tr>
+              <td>
+                Lavajato Exemplo
+              </td>
+
+              <td>
+                João da Silva
+              </td>
+
+              <td>
+                joao@email.com
+              </td>
+
+              <td>
+                Plano Mensal
+              </td>
+
+              <td>
+                <span class="status active">
+                  Ativa
+                </span>
+              </td>
+
+              <td>
+                <div class="actions">
+                  <button
+                    class="action"
+                    onclick="detalhesEmpresa(1)"
+                  >
+                    Detalhes
+                  </button>
+
+                  <button
+                    class="action"
+                    onclick="testarEmpresa(1)"
+                  >
+                    Entrar como teste
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+
+            <tr id="emptyRow" style="display:none;">
+              <td colspan="6">
+                <div class="empty">
+                  Nenhuma empresa encontrada.
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script src="/admin/js/empresas.js"></script>
+
+</body>
+</html>
