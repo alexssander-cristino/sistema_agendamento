@@ -3,35 +3,26 @@ require('dotenv').config();
 const { Pool, types } = require('pg');
 
 // PostgreSQL DATE como texto YYYY-MM-DD
-// Evita problemas de timezone/Invalid Date no frontend.
 types.setTypeParser(1082, (val) => val);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-// ============================================================
-// CONFIGURAÇÃO DO BANCO
-// ============================================================
-
 const poolConfig = {
   connectionString: process.env.DATABASE_URL,
 
-  // Supabase normalmente exige SSL.
   ssl: isProduction
     ? {
         rejectUnauthorized: false,
       }
     : false,
 
-  max: 10,
+  // Vercel + Supabase
+  max: 5,
 
-  idleTimeoutMillis: 30000,
+  idleTimeoutMillis: 10000,
 
   connectionTimeoutMillis: 10000,
 };
-
-// ============================================================
-// VALIDAÇÃO
-// ============================================================
 
 if (!process.env.DATABASE_URL) {
   console.error(
@@ -39,15 +30,7 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// ============================================================
-// POOL
-// ============================================================
-
 const pool = new Pool(poolConfig);
-
-// ============================================================
-// ERROS DO POOL
-// ============================================================
 
 pool.on('error', (err) => {
   console.error(
@@ -55,9 +38,5 @@ pool.on('error', (err) => {
     err.message
   );
 });
-
-// ============================================================
-// EXPORT
-// ============================================================
 
 module.exports = pool;
