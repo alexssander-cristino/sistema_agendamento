@@ -580,12 +580,16 @@
           resposta.empresa || null;
 
 
-        atualizarSidebarUsuario();
+        if (usuarioLogado?.perfil === 'dev') {
+  window.location.href = '/admin/dashboard.html';
+  return;
+}
 
-        hideAuthScreen();
+atualizarSidebarUsuario();
 
-        await iniciarSistema();
+hideAuthScreen();
 
+await iniciarSistema();
 
       }catch(error){
 
