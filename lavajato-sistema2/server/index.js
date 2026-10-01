@@ -16,6 +16,7 @@ const authRouter = require('./routes/auth');
 const usuariosRouter = require('./routes/usuarios');
 const configuracoesRouter = require('./routes/configuracoes');
 const planosRouter = require('./routes/planos');
+const adminRouter = require('./routes/admin');
 
 // ============================================================
 // APP
@@ -69,6 +70,8 @@ app.use('/api/usuarios', usuariosRouter);
 app.use('/api/configuracoes', configuracoesRouter);
 
 app.use('/api/planos', planosRouter);
+
+app.use('/api/admin', adminRouter);
 
 // ============================================================
 // STATUS

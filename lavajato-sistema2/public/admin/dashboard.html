@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Dashboard | NexLava SaaS</title>
+
+  <style>
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+
+      --bg: #f4f6fa;
+      --sidebar: #111827;
+      --sidebar-hover: #1f2937;
+
+      --card: #ffffff;
+
+      --text: #111827;
+      --muted: #6b7280;
+
+      --border: #e5e7eb;
+
+      --success: #16a34a;
+      --success-bg: #dcfce7;
+
+      --warning: #d97706;
+      --warning-bg: #fef3c7;
+
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+
+      --radius: 16px;
+
+      --shadow:
+        0 8px 25px rgba(15, 23, 42, .07);
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+      margin: 0;
+
+      min-height: 100vh;
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
+    }
+
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+
+    /* ==========================================================
+       LAYOUT
+       ========================================================== */
+
+    .layout {
+      display: flex;
+
+      min-height: 100vh;
+    }
+
+
+    /* ==========================================================
+       SIDEBAR
+       ========================================================== */
+
+    .sidebar {
+      position: fixed;
+
+      top: 0;
+      left: 0;
+      bottom: 0;
+
+      width: 260px;
+
+      display: flex;
+      flex-direction: column;
+
+      background: var(--sidebar);
+      color: #ffffff;
+
+      z-index: 100;
+    }
+
+
+    .brand {
+      padding: 25px 22px;
+
+      border-bottom:
+        1px solid rgba(255,255,255,.08);
+    }
+
+
+    .brand-title {
+      margin: 0;
+
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+
+    .brand-subtitle {
+      margin: 5px 0 0;
+
+      color: #9ca3af;
+
+      font-size: 12px;
+    }
+
+
+    .dev-badge {
+      display: inline-flex;
+
+      margin-top: 12px;
+
+      padding: 5px 9px;
+
+      border-radius: 999px;
+
+      background: rgba(37,99,235,.18);
+
+      color: #93c5fd;
+
+      font-size: 11px;
+      font-weight: 700;
+
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+
+    .menu {
+      flex: 1;
+
+      padding: 18px 12px;
+
+      overflow-y: auto;
+    }
+
+
+    .menu-title {
+      padding:
+        10px 11px 7px;
+
+      color: #6b7280;
+
+      font-size: 10px;
+      font-weight: 700;
+
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+
+    .menu-btn {
+      width: 100%;
+
+      display: flex;
+      align-items: center;
+
+      gap: 11px;
+
+      padding: 11px 12px;
+
+      margin-bottom: 4px;
+
+      border: none;
+      border-radius: 10px;
+
+      background: transparent;
+
+      color: #d1d5db;
+
+      text-align: left;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      transition:
+        background .15s ease,
+        color .15s ease;
+    }
+
+
+    .menu-btn:hover {
+      background: var(--sidebar-hover);
+      color: #ffffff;
+    }
+
+
+    .menu-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+
+    .menu-icon {
+      width: 20px;
+
+      text-align: center;
+
+      font-size: 15px;
+    }
+
+
+    .menu-disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+
+    .menu-disabled:hover {
+      background: transparent;
+      color: #d1d5db;
+    }
+
+
+    .sidebar-footer {
+      padding: 14px;
+
+      border-top:
+        1px solid rgba(255,255,255,.08);
+    }
+
+
+    .logout-btn {
+      width: 100%;
+
+      padding: 11px;
+
+      border: 1px solid rgba(255,255,255,.1);
+
+      border-radius: 10px;
+
+      background: transparent;
+
+      color: #d1d5db;
+
+      font-weight: 600;
+    }
+
+
+    .logout-btn:hover {
+      background: #1f2937;
+      color: #ffffff;
+    }
+
+
+    /* ==========================================================
+       MAIN
+       ========================================================== */
+
+    .main {
+      width: 100%;
+
+      margin-left: 260px;
+
+      min-width: 0;
+    }
+
+
+    .topbar {
+      height: 70px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 30px;
+
+      background: #ffffff;
+
+      border-bottom:
+        1px solid var(--border);
+    }
+
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      color: var(--muted);
+
+      font-size: 13px;
+    }
+
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      background: #dbeafe;
+      color: var(--primary);
+
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+
+    .content {
+      padding: 30px;
+    }
+
+
+    /* ==========================================================
+       HEADER
+       ========================================================== */
+
+    .page-header {
+      margin-bottom: 25px;
+    }
+
+
+    .page-header h1 {
+      margin: 0;
+
+      font-size: 28px;
+    }
+
+
+    .page-header p {
+      margin: 7px 0 0;
+
+      color: var(--muted);
+
+      font-size: 14px;
+    }
+
+
+    /* ==========================================================
+       CARDS
+       ========================================================== */
+
+    .cards {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+      gap: 18px;
+
+      margin-bottom: 24px;
+    }
+
+
+    .card {
+      background: var(--card);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: var(--radius);
+
+      box-shadow: var(--shadow);
+    }
+
+
+    .stat-card {
+      padding: 21px;
+    }
+
+
+    .stat-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+
+    .stat-title {
+      color: var(--muted);
+
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 10px;
+
+      background: #eff6ff;
+
+      color: var(--primary);
+
+      font-size: 17px;
+    }
+
+
+    .stat-value {
+      margin-top: 15px;
+
+      font-size: 29px;
+      font-weight: 800;
+    }
+
+
+    .stat-detail {
+      margin-top: 5px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+
+    /* ==========================================================
+       GRID
+       ========================================================== */
+
+    .dashboard-grid {
+      display: grid;
+
+      grid-template-columns:
+        1.5fr 1fr;
+
+      gap: 20px;
+
+      margin-bottom: 20px;
+    }
+
+
+    .box-header {
+      padding: 19px 21px;
+
+      border-bottom:
+        1px solid var(--border);
+    }
+
+
+    .box-header h2 {
+      margin: 0;
+
+      font-size: 16px;
+    }
+
+
+    .box-header p {
+      margin: 5px 0 0;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+
+    .box-body {
+      padding: 20px;
+    }
+
+
+    /* ==========================================================
+       STATUS
+       ========================================================== */
+
+    .system-status {
+      display: flex;
+      flex-direction: column;
+
+      gap: 12px;
+    }
+
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 13px 14px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 10px;
+    }
+
+
+    .status-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+
+    .status-value {
+      display: inline-flex;
+      align-items: center;
+
+      gap: 6px;
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+
+      border-radius: 50%;
+
+      background: currentColor;
+    }
+
+
+    .online {
+      color: var(--success);
+    }
+
+
+    .offline {
+      color: var(--danger);
+    }
+
+
+    /* ==========================================================
+       ATALHOS
+       ========================================================== */
+
+    .shortcuts {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 10px;
+    }
+
+
+    .shortcut {
+      display: flex;
+      align-items: center;
+
+      gap: 11px;
+
+      padding: 13px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 10px;
+
+      background: #ffffff;
+
+      color: var(--text);
+
+      text-align: left;
+
+      transition:
+        border-color .15s ease,
+        background .15s ease;
+    }
+
+
+    .shortcut:hover {
+      border-color: #bfdbfe;
+      background: #f8fbff;
+    }
+
+
+    .shortcut-icon {
+      width: 35px;
+      height: 35px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      flex-shrink: 0;
+
+      border-radius: 9px;
+
+      background: #eff6ff;
+
+      color: var(--primary);
+    }
+
+
+    .shortcut-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+
+    .shortcut-description {
+      margin-top: 2px;
+
+      color: var(--muted);
+
+      font-size: 11px;
+    }
+
+
+    /* ==========================================================
+       ASSINATURAS
+       ========================================================== */
+
+    .subscription-list {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 12px;
+    }
+
+
+    .subscription-item {
+      padding: 16px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 11px;
+    }
+
+
+    .subscription-label {
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+
+    .subscription-value {
+      margin-top: 5px;
+
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+
+    .subscription-active {
+      color: var(--success);
+    }
+
+
+    .subscription-pending {
+      color: var(--warning);
+    }
+
+
+    .subscription-danger {
+      color: var(--danger);
+    }
+
+
+    /* ==========================================================
+       LOADING
+       ========================================================== */
+
+    .loading {
+      color: var(--muted);
+
+      font-size: 13px;
+    }
+
+
+    /* ==========================================================
+       MOBILE
+       ========================================================== */
+
+    .mobile-menu {
+      display: none;
+
+      width: 38px;
+      height: 38px;
+
+      border: 1px solid var(--border);
+      border-radius: 9px;
+
+      background: #ffffff;
+    }
+
+
+    @media (max-width: 1100px) {
+
+      .cards {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+
+    @media (max-width: 760px) {
+
+      .sidebar {
+        transform:
+          translateX(-100%);
+
+        transition:
+          transform .2s ease;
+      }
+
+
+      .sidebar.open {
+        transform:
+          translateX(0);
+      }
+
+
+      .main {
+        margin-left: 0;
+      }
+
+
+      .mobile-menu {
+        display: block;
+      }
+
+
+      .topbar {
+        padding: 0 18px;
+      }
+
+
+      .content {
+        padding: 20px;
+      }
+
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+
+      .subscription-list {
+        grid-template-columns: 1fr;
+      }
+
+
+      .shortcuts {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <div class="layout">
+
+
+    <!-- ========================================================
+         SIDEBAR
+         ========================================================= -->
+
+    <aside
+      id="sidebar"
+      class="sidebar"
+    >
+
+      <div class="brand">
+
+        <h1 class="brand-title">
+          NexLava
+        </h1>
+
+        <p class="brand-subtitle">
+          Administração do SaaS
+        </p>
+
+        <span class="dev-badge">
+          DEV
+        </span>
+
+      </div>
+
+
+      <nav class="menu">
+
+        <div class="menu-title">
+          Geral
+        </div>
+
+
+        <button
+          class="menu-btn active"
+          data-page="dashboard"
+        >
+          <span class="menu-icon">
+            ▦
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="planos"
+        >
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Planos
+          </span>
+        </button>
+
+
+        <div class="menu-title">
+          SaaS
+        </div>
+
+
+        <button
+          class="menu-btn menu-disabled"
+          title="Módulo será criado na próxima etapa"
+        >
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+        </button>
+
+
+        <button
+          class="menu-btn menu-disabled"
+          title="Módulo será criado na próxima etapa"
+        >
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+        </button>
+
+
+        <button
+          class="menu-btn menu-disabled"
+          title="Módulo será criado na próxima etapa"
+        >
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+        </button>
+
+
+        <button
+          class="menu-btn menu-disabled"
+          title="Módulo será criado na próxima etapa"
+        >
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+        </button>
+
+
+        <div class="menu-title">
+          Sistema
+        </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="sistema"
+        >
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="status"
+        >
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+        </button>
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          id="logout-btn"
+          class="logout-btn"
+        >
+          Sair do painel DEV
+        </button>
+
+      </div>
+
+    </aside>
+
+
+    <!-- ========================================================
+         MAIN
+         ========================================================= -->
+
+    <main class="main">
+
+
+      <header class="topbar">
+
+        <button
+          type="button"
+          id="mobile-menu"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+
+        <div class="topbar-title">
+          Administração SaaS
+        </div>
+
+
+        <div class="topbar-user">
+
+          <span id="user-name">
+            Desenvolvedor
+          </span>
+
+          <div
+            id="user-avatar"
+            class="avatar"
+          >
+            D
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <section class="content">
+
+
+        <!-- ======================================================
+             DASHBOARD
+             ====================================================== -->
+
+        <div id="dashboard-page">
+
+
+          <div class="page-header">
+
+            <h1>
+              Dashboard
+            </h1>
+
+            <p>
+              Visão geral da plataforma SaaS.
+            </p>
+
+          </div>
+
+
+          <!-- CARDS -->
+
+          <div class="cards">
+
+
+            <div class="card stat-card">
+
+              <div class="stat-top">
+
+                <div class="stat-title">
+                  Empresas
+                </div>
+
+                <div class="stat-icon">
+                  ◉
+                </div>
+
+              </div>
+
+              <div
+                id="total-empresas"
+                class="stat-value"
+              >
+                -
+              </div>
+
+              <div class="stat-detail">
+                Empresas cadastradas
+              </div>
+
+            </div>
+
+
+            <div class="card stat-card">
+
+              <div class="stat-top">
+
+                <div class="stat-title">
+                  Usuários
+                </div>
+
+                <div class="stat-icon">
+                  ◇
+                </div>
+
+              </div>
+
+              <div
+                id="total-usuarios"
+                class="stat-value"
+              >
+                -
+              </div>
+
+              <div
+                id="usuarios-detalhe"
+                class="stat-detail"
+              >
+                Carregando...
+              </div>
+
+            </div>
+
+
+            <div class="card stat-card">
+
+              <div class="stat-top">
+
+                <div class="stat-title">
+                  Planos ativos
+                </div>
+
+                <div class="stat-icon">
+                  $
+                </div>
+
+              </div>
+
+              <div
+                id="total-planos"
+                class="stat-value"
+              >
+                -
+              </div>
+
+              <div
+                id="planos-detalhe"
+                class="stat-detail"
+              >
+                Carregando...
+              </div>
+
+            </div>
+
+
+            <div class="card stat-card">
+
+              <div class="stat-top">
+
+                <div class="stat-title">
+                  Assinaturas
+                </div>
+
+                <div class="stat-icon">
+                  ↻
+                </div>
+
+              </div>
+
+              <div
+                id="total-assinaturas"
+                class="stat-value"
+              >
+                -
+              </div>
+
+              <div
+                id="assinaturas-detalhe"
+                class="stat-detail"
+              >
+                Carregando...
+              </div>
+
+            </div>
+
+
+          </div>
+
+
+          <!-- GRID -->
+
+          <div class="dashboard-grid">
+
+
+            <!-- STATUS -->
+
+            <div class="card">
+
+              <div class="box-header">
+
+                <h2>
+                  Status do sistema
+                </h2>
+
+                <p>
+                  Estado atual da infraestrutura.
+                </p>
+
+              </div>
+
+
+              <div class="box-body">
+
+                <div class="system-status">
+
+
+                  <div class="status-row">
+
+                    <span class="status-name">
+                      API
+                    </span>
+
+                    <span
+                      id="status-api"
+                      class="status-value"
+                    >
+                      Verificando...
+                    </span>
+
+                  </div>
+
+
+                  <div class="status-row">
+
+                    <span class="status-name">
+                      Banco de dados
+                    </span>
+
+                    <span
+                      id="status-banco"
+                      class="status-value"
+                    >
+                      Verificando...
+                    </span>
+
+                  </div>
+
+
+                  <div class="status-row">
+
+                    <span class="status-name">
+                      Ambiente
+                    </span>
+
+                    <span
+                      id="status-ambiente"
+                      class="status-value"
+                    >
+                      -
+                    </span>
+
+                  </div>
+
+
+                  <div class="status-row">
+
+                    <span class="status-name">
+                      Resposta do banco
+                    </span>
+
+                    <span
+                      id="status-tempo"
+                      class="status-value"
+                    >
+                      -
+                    </span>
+
+                  </div>
+
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- ATALHOS -->
+
+            <div class="card">
+
+              <div class="box-header">
+
+                <h2>
+                  Acesso rápido
+                </h2>
+
+                <p>
+                  Ferramentas administrativas.
+                </p>
+
+              </div>
+
+
+              <div class="box-body">
+
+                <div class="shortcuts">
+
+
+                  <button
+                    class="shortcut"
+                    id="shortcut-planos"
+                  >
+
+                    <span class="shortcut-icon">
+                      $
+                    </span>
+
+                    <span>
+
+                      <div class="shortcut-title">
+                        Planos
+                      </div>
+
+                      <div class="shortcut-description">
+                        Gerenciar planos
+                      </div>
+
+                    </span>
+
+                  </button>
+
+
+                  <button
+                    class="shortcut"
+                    id="shortcut-sistema"
+                  >
+
+                    <span class="shortcut-icon">
+                      ↗
+                    </span>
+
+                    <span>
+
+                      <div class="shortcut-title">
+                        Sistema
+                      </div>
+
+                      <div class="shortcut-description">
+                        Abrir sistema
+                      </div>
+
+                    </span>
+
+                  </button>
+
+
+                  <button
+                    class="shortcut"
+                    id="shortcut-status"
+                  >
+
+                    <span class="shortcut-icon">
+                      ●
+                    </span>
+
+                    <span>
+
+                      <div class="shortcut-title">
+                        API
+                      </div>
+
+                      <div class="shortcut-description">
+                        Ver status
+                      </div>
+
+                    </span>
+
+                  </button>
+
+
+                  <button
+                    class="shortcut"
+                    id="shortcut-refresh"
+                  >
+
+                    <span class="shortcut-icon">
+                      ↻
+                    </span>
+
+                    <span>
+
+                      <div class="shortcut-title">
+                        Atualizar
+                      </div>
+
+                      <div class="shortcut-description">
+                        Recarregar dados
+                      </div>
+
+                    </span>
+
+                  </button>
+
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+          </div>
+
+
+          <!-- ASSINATURAS -->
+
+          <div class="card">
+
+            <div class="box-header">
+
+              <h2>
+                Situação das assinaturas
+              </h2>
+
+              <p>
+                Resumo para testes do fluxo SaaS.
+              </p>
+
+            </div>
+
+
+            <div class="box-body">
+
+              <div class="subscription-list">
+
+
+                <div class="subscription-item">
+
+                  <div class="subscription-label">
+                    Ativas
+                  </div>
+
+                  <div
+                    id="assinaturas-ativas"
+                    class="subscription-value subscription-active"
+                  >
+                    -
+                  </div>
+
+                </div>
+
+
+                <div class="subscription-item">
+
+                  <div class="subscription-label">
+                    Pendentes
+                  </div>
+
+                  <div
+                    id="assinaturas-pendentes"
+                    class="subscription-value subscription-pending"
+                  >
+                    -
+                  </div>
+
+                </div>
+
+
+                <div class="subscription-item">
+
+                  <div class="subscription-label">
+                    Inadimplentes
+                  </div>
+
+                  <div
+                    id="assinaturas-inadimplentes"
+                    class="subscription-value subscription-danger"
+                  >
+                    -
+                  </div>
+
+                </div>
+
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <script>
+
+    (() => {
+
+      'use strict';
+
+
+      // ==========================================================
+      // CONFIGURAÇÃO
+      // ==========================================================
+
+      const API = '/api';
+
+      const AUTH_TOKEN_KEY =
+        'lavajato_auth_token';
+
+
+      // ==========================================================
+      // API
+      // ==========================================================
+
+      async function api(
+        path,
+        options = {}
+      ) {
+
+        const token =
+          localStorage.getItem(
+            AUTH_TOKEN_KEY
+          );
+
+
+        const headers = {
+          'Content-Type':
+            'application/json',
+
+          ...(options.headers || {})
+        };
+
+
+        if (token) {
+
+          headers.Authorization =
+            `Bearer ${token}`;
+
+        }
+
+
+        const response =
+          await fetch(
+            API + path,
+            {
+              ...options,
+              headers
+            }
+          );
+
+
+        if (
+          response.status === 401
+        ) {
+
+          localStorage.removeItem(
+            AUTH_TOKEN_KEY
+          );
+
+          window.location.href = '/';
+
+          throw new Error(
+            'Sessão expirada.'
+          );
+
+        }
+
+
+        let data = null;
+
+
+        try {
+
+          data =
+            await response.json();
+
+        } catch (_) {
+
+          data = null;
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data?.erro ||
+            'Erro na requisição.'
+          );
+
+        }
+
+
+        return data;
+
+      }
+
+
+      // ==========================================================
+      // AUTENTICAÇÃO / DEV
+      // ==========================================================
+
+      async function verificarDev() {
+
+        const token =
+          localStorage.getItem(
+            AUTH_TOKEN_KEY
+          );
+
+
+        if (!token) {
+
+          window.location.href = '/';
+
+          return false;
+
+        }
+
+
+        try {
+
+          const data =
+            await api('/auth/me');
+
+
+          const usuario =
+            data.usuario;
+
+
+          if (
+            !usuario ||
+            usuario.perfil !== 'dev'
+          ) {
+
+            document.body.innerHTML = `
+              <div
+                style="
+                  min-height:100vh;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  padding:20px;
+                  font-family:system-ui,sans-serif;
+                  background:#f4f6fa;
+                "
+              >
+
+                <div
+                  style="
+                    width:100%;
+                    max-width:420px;
+                    padding:32px;
+                    background:#fff;
+                    border:1px solid #e5e7eb;
+                    border-radius:16px;
+                    text-align:center;
+                    box-shadow:0 10px 30px rgba(15,23,42,.08);
+                  "
+                >
+
+                  <h1
+                    style="
+                      margin:0 0 10px;
+                      font-size:24px;
+                    "
+                  >
+                    Acesso negado
+                  </h1>
+
+                  <p
+                    style="
+                      margin:0 0 20px;
+                      color:#6b7280;
+                    "
+                  >
+                    Este painel é exclusivo para o DEV.
+                  </p>
+
+                  <button
+                    onclick="window.location.href='/'"
+                    style="
+                      padding:11px 18px;
+                      border:0;
+                      border-radius:10px;
+                      background:#2563eb;
+                      color:#fff;
+                      font-weight:600;
+                      cursor:pointer;
+                    "
+                  >
+                    Voltar
+                  </button>
+
+                </div>
+
+              </div>
+            `;
+
+            return false;
+
+          }
+
+
+          const nome =
+            usuario.nome ||
+            'Desenvolvedor';
+
+
+          document.getElementById(
+            'user-name'
+          ).textContent = nome;
+
+
+          document.getElementById(
+            'user-avatar'
+          ).textContent =
+            nome
+              .charAt(0)
+              .toUpperCase();
+
+
+          return true;
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          return false;
+
+        }
+
+      }
+
+
+      // ==========================================================
+      // DASHBOARD
+      // ==========================================================
+
+      async function carregarDashboard() {
+
+        try {
+
+          const data =
+            await api(
+              '/admin/dashboard'
+            );
+
+
+          // Empresas
+
+          document.getElementById(
+            'total-empresas'
+          ).textContent =
+            data.empresas.total;
+
+
+          // Usuários
+
+          document.getElementById(
+            'total-usuarios'
+          ).textContent =
+            data.usuarios.total;
+
+
+          document.getElementById(
+            'usuarios-detalhe'
+          ).textContent =
+            `${data.usuarios.administradores} administradores · ${data.usuarios.funcionarios} funcionários`;
+
+
+          // Planos
+
+          document.getElementById(
+            'total-planos'
+          ).textContent =
+            data.planos.ativos;
+
+
+          document.getElementById(
+            'planos-detalhe'
+          ).textContent =
+            `${data.planos.total} planos cadastrados`;
+
+
+          // Assinaturas
+
+          document.getElementById(
+            'total-assinaturas'
+          ).textContent =
+            data.assinaturas.total;
+
+
+          document.getElementById(
+            'assinaturas-detalhe'
+          ).textContent =
+            `${data.assinaturas.ativas} ativas`;
+
+
+          // Assinaturas detalhadas
+
+          document.getElementById(
+            'assinaturas-ativas'
+          ).textContent =
+            data.assinaturas.ativas;
+
+
+          document.getElementById(
+            'assinaturas-pendentes'
+          ).textContent =
+            data.assinaturas.pendentes;
+
+
+          document.getElementById(
+            'assinaturas-inadimplentes'
+          ).textContent =
+            data.assinaturas.inadimplentes;
+
+
+        } catch (error) {
+
+          console.error(
+            'Erro ao carregar dashboard:',
+            error
+          );
+
+        }
+
+      }
+
+
+      // ==========================================================
+      // STATUS
+      // ==========================================================
+
+      async function carregarStatus() {
+
+        const apiStatus =
+          document.getElementById(
+            'status-api'
+          );
+
+
+        const bancoStatus =
+          document.getElementById(
+            'status-banco'
+          );
+
+
+        const ambienteStatus =
+          document.getElementById(
+            'status-ambiente'
+          );
+
+
+        const tempoStatus =
+          document.getElementById(
+            'status-tempo'
+          );
+
+
+        try {
+
+          const data =
+            await api(
+              '/admin/status'
+            );
+
+
+          apiStatus.innerHTML =
+            `
+              <span class="status-dot"></span>
+              Online
+            `;
+
+          apiStatus.className =
+            'status-value online';
+
+
+          if (
+            data.banco === 'online'
+          ) {
+
+            bancoStatus.innerHTML =
+              `
+                <span class="status-dot"></span>
+                Online
+              `;
+
+            bancoStatus.className =
+              'status-value online';
+
+          } else {
+
+            bancoStatus.innerHTML =
+              `
+                <span class="status-dot"></span>
+                Offline
+              `;
+
+            bancoStatus.className =
+              'status-value offline';
+
+          }
+
+
+          ambienteStatus.textContent =
+            data.ambiente || '-';
+
+
+          tempoStatus.textContent =
+            `${data.tempo_resposta_ms} ms`;
+
+
+        } catch (error) {
+
+          console.error(error);
+
+
+          apiStatus.innerHTML =
+            `
+              <span class="status-dot"></span>
+              Erro
+            `;
+
+          apiStatus.className =
+            'status-value offline';
+
+
+          bancoStatus.innerHTML =
+            `
+              <span class="status-dot"></span>
+              Offline
+            `;
+
+          bancoStatus.className =
+            'status-value offline';
+
+        }
+
+      }
+
+
+      // ==========================================================
+      // MENU
+      // ==========================================================
+
+      document
+        .querySelectorAll(
+          '.menu-btn[data-page]'
+        )
+        .forEach(button => {
+
+          button.addEventListener(
+            'click',
+            () => {
+
+              const page =
+                button.dataset.page;
+
+
+              if (
+                page === 'planos'
+              ) {
+
+                window.location.href =
+                  '/admin/planos.html';
+
+                return;
+
+              }
+
+
+              if (
+                page === 'sistema'
+              ) {
+
+                window.location.href =
+                  '/';
+
+                return;
+
+              }
+
+
+              if (
+                page === 'status'
+              ) {
+
+                carregarStatus();
+
+                document
+                  .getElementById(
+                    'status-api'
+                  )
+                  .scrollIntoView({
+                    behavior: 'smooth'
+                  });
+
+              }
+
+            }
+          );
+
+        });
+
+
+      // ==========================================================
+      // ATALHOS
+      // ==========================================================
+
+      document
+        .getElementById(
+          'shortcut-planos'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            window.location.href =
+              '/admin/planos.html';
+
+          }
+        );
+
+
+      document
+        .getElementById(
+          'shortcut-sistema'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            window.location.href =
+              '/';
+
+          }
+        );
+
+
+      document
+        .getElementById(
+          'shortcut-status'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            carregarStatus();
+
+            document
+              .getElementById(
+                'status-api'
+              )
+              .scrollIntoView({
+                behavior: 'smooth'
+              });
+
+          }
+        );
+
+
+      document
+        .getElementById(
+          'shortcut-refresh'
+        )
+        .addEventListener(
+          'click',
+          async () => {
+
+            await carregarDashboard();
+
+            await carregarStatus();
+
+          }
+        );
+
+
+      // ==========================================================
+      // LOGOUT
+      // ==========================================================
+
+      document
+        .getElementById(
+          'logout-btn'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            localStorage.removeItem(
+              AUTH_TOKEN_KEY
+            );
+
+            window.location.href = '/';
+
+          }
+        );
+
+
+      // ==========================================================
+      // MENU MOBILE
+      // ==========================================================
+
+      document
+        .getElementById(
+          'mobile-menu'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            document
+              .getElementById(
+                'sidebar'
+              )
+              .classList.toggle(
+                'open'
+              );
+
+          }
+        );
+
+
+      // ==========================================================
+      // INICIALIZAÇÃO
+      // ==========================================================
+
+      async function iniciar() {
+
+        const autorizado =
+          await verificarDev();
+
+
+        if (!autorizado) {
+          return;
+        }
+
+
+        await Promise.all([
+          carregarDashboard(),
+          carregarStatus()
+        ]);
+
+      }
+
+
+      iniciar();
+
+    })();
+
+  </script>
+
+</body>
+
+</html>
