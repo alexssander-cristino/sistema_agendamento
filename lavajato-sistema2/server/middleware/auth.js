@@ -11,20 +11,11 @@ if (!JWT_SECRET) {
 function autenticar(req, res, next) {
   const authorization = req.headers.authorization;
 
-  // ============================================================
-  // VERIFICA SE O TOKEN FOI ENVIADO
-  // ============================================================
-
   if (!authorization) {
     return res.status(401).json({
       erro: 'Não autenticado.'
     });
   }
-
-  // ============================================================
-  // VALIDA O FORMATO:
-  // Bearer TOKEN
-  // ============================================================
 
   const partes = authorization.split(' ');
 
@@ -40,23 +31,26 @@ function autenticar(req, res, next) {
 
   const token = partes[1];
 
-  // ============================================================
-  // VALIDA O JWT
-  // ============================================================
-
   try {
     const payload = jwt.verify(
       token,
       JWT_SECRET
     );
 
-    // ==========================================================
-    // VALIDA DADOS ESSENCIAIS DO USUÁRIO
-    // ==========================================================
+    /*
+     * Todo usuário precisa ter:
+     * - id
+     * - perfil
+     *
+     * empresa_id é obrigatório para:
+     * - administrador
+     * - funcionario
+     *
+     * Para dev, empresa_id pode ser NULL.
+     */
 
     if (
       !payload.id ||
-      !payload.empresa_id ||
       !payload.perfil
     ) {
       return res.status(401).json({
@@ -64,13 +58,52 @@ function autenticar(req, res, next) {
       });
     }
 
-    // ==========================================================
-    // DISPONIBILIZA O USUÁRIO PARA AS ROTAS
-    // ==========================================================
+    const perfisPermitidos = [
+      'administrador',
+      'funcionario',
+      'dev'
+    ];
+
+    if (!perfisPermitidos.includes(payload.perfil)) {
+      return res.status(401).json({
+        erro: 'Token de autenticação inválido.'
+      });
+    }
+
+    /*
+     * Usuários comuns precisam estar vinculados
+     * a uma empresa.
+     */
+    if (
+      payload.perfil !== 'dev' &&
+      !payload.empresa_id
+    ) {
+      return res.status(401).json({
+        erro: 'Token de autenticação inválido.'
+      });
+    }
+
+    /*
+     * DEV pode existir sem empresa.
+     */
+    if (
+      payload.perfil === 'dev' &&
+      payload.empresa_id !== null &&
+      payload.empresa_id !== undefined
+    ) {
+      /*
+       * Não bloqueamos o token caso futuramente
+       * um DEV possua uma empresa técnica.
+       *
+       * O controle de acesso continua sendo feito
+       * pelo perfil.
+       */
+    }
 
     req.usuario = {
       id: payload.id,
-      empresa_id: payload.empresa_id,
+      empresa_id:
+        payload.empresa_id ?? null,
       nome: payload.nome,
       email: payload.email,
       perfil: payload.perfil

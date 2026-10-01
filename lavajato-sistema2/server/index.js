@@ -15,6 +15,7 @@ const despesasRouter = require('./routes/despesas');
 const authRouter = require('./routes/auth');
 const usuariosRouter = require('./routes/usuarios');
 const configuracoesRouter = require('./routes/configuracoes');
+const planosRouter = require('./routes/planos');
 
 // ============================================================
 // APP
@@ -66,6 +67,8 @@ app.use('/api/despesas', despesasRouter);
 app.use('/api/usuarios', usuariosRouter);
 
 app.use('/api/configuracoes', configuracoesRouter);
+
+app.use('/api/planos', planosRouter);
 
 // ============================================================
 // STATUS
