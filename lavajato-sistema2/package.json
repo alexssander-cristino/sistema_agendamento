@@ -7,6 +7,9 @@
     "start": "node server/index.js",
     "dev": "nodemon server/index.js"
   },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
