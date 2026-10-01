@@ -5,6 +5,9 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 
+const registrarLogs =
+  require('./middleware/logger');
+
 // ============================================================
 // ROTAS
 // ============================================================
@@ -48,6 +51,10 @@ app.use(
     extended: true
   })
 );
+
+app.use(registrarLogs);
+
+
 
 // ============================================================
 // AUTENTICAÇÃO

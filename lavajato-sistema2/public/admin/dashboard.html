@@ -704,6 +704,15 @@
           </span>
         </button>
 
+        <button
+            class="menu-btn"
+            data-page="logs"
+            type="button"
+            >
+            <span class="menu-icon">≡</span>
+            <span>Logs</span>
+        </button>
+
         <div class="menu-title">
           Sistema
         </div>
@@ -1741,6 +1750,12 @@
 
             }
           );
+
+          if (page === 'logs') {
+  window.location.href =
+    '/admin/logs.html';
+  return;
+}
 
         });
 

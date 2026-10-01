@@ -857,6 +857,265 @@ router.get('/info', async (req, res) => {
 });
 
 // ============================================================
+// LOGS
+// ============================================================
+
+router.get('/logs', async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT
+        l.id,
+        l.usuario_id,
+        l.empresa_id,
+        l.email_tentativa,
+        l.acao,
+        l.descricao,
+        l.metodo,
+        l.rota,
+        l.ip,
+        l.status_http,
+        l.tempo_ms,
+        l.criado_em,
+
+        u.nome AS usuario_nome,
+        u.email AS usuario_email,
+        u.perfil AS usuario_perfil,
+
+        e.nome AS empresa_nome
+
+      FROM logs_sistema l
+
+      LEFT JOIN usuarios u
+        ON u.id = l.usuario_id
+
+      LEFT JOIN empresas e
+        ON e.id = l.empresa_id
+
+      ORDER BY l.id DESC
+
+      LIMIT 1000
+    `);
+
+    return res.json({
+      logs: result.rows
+    });
+
+  } catch (err) {
+
+    console.error(
+      'Erro ao carregar logs:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível carregar os logs.'
+    });
+  }
+});
+
+
+// ============================================================
+// RESUMO DOS LOGS
+// ============================================================
+
+router.get('/logs/resumo', async (req, res) => {
+  try {
+
+    const [
+      total,
+      hoje,
+      erros,
+      ips,
+      loginSucesso,
+      loginFalhou,
+      metodos,
+      ipsRanking
+    ] = await Promise.all([
+
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM logs_sistema
+      `),
+
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM logs_sistema
+        WHERE criado_em >= CURRENT_DATE
+      `),
+
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM logs_sistema
+        WHERE status_http >= 400
+      `),
+
+      pool.query(`
+        SELECT COUNT(DISTINCT ip)::int AS total
+        FROM logs_sistema
+        WHERE ip IS NOT NULL
+          AND ip <> ''
+      `),
+
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM logs_sistema
+        WHERE acao = 'login_sucesso'
+      `),
+
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM logs_sistema
+        WHERE acao = 'login_falhou'
+      `),
+
+      pool.query(`
+        SELECT
+          metodo,
+          COUNT(*)::int AS quantidade
+
+        FROM logs_sistema
+
+        WHERE metodo IS NOT NULL
+
+        GROUP BY metodo
+
+        ORDER BY quantidade DESC
+      `),
+
+      pool.query(`
+        SELECT
+          ip,
+          COUNT(*)::int AS quantidade
+
+        FROM logs_sistema
+
+        WHERE ip IS NOT NULL
+          AND ip <> ''
+
+        GROUP BY ip
+
+        ORDER BY quantidade DESC
+
+        LIMIT 20
+      `)
+
+    ]);
+
+    return res.json({
+
+      total_requisicoes:
+        total.rows[0].total,
+
+      requisicoes_hoje:
+        hoje.rows[0].total,
+
+      requisicoes_com_erro:
+        erros.rows[0].total,
+
+      ips_unicos:
+        ips.rows[0].total,
+
+      login_sucesso:
+        loginSucesso.rows[0].total,
+
+      login_falhou:
+        loginFalhou.rows[0].total,
+
+      requisicoes_por_metodo:
+        metodos.rows,
+
+      requisicoes_por_ip:
+        ipsRanking.rows
+
+    });
+
+  } catch (err) {
+
+    console.error(
+      'Erro ao carregar resumo dos logs:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível carregar o resumo dos logs.'
+    });
+  }
+});
+
+
+// ============================================================
+// DETALHE DO LOG
+// ============================================================
+
+router.get('/logs/:id', async (req, res) => {
+
+  const logId =
+    Number(req.params.id);
+
+  if (
+    !Number.isInteger(logId) ||
+    logId <= 0
+  ) {
+    return res.status(400).json({
+      erro: 'ID do log inválido.'
+    });
+  }
+
+  try {
+
+    const result = await pool.query(
+      `
+        SELECT
+          l.*,
+
+          u.nome AS usuario_nome,
+          u.email AS usuario_email,
+          u.perfil AS usuario_perfil,
+
+          e.nome AS empresa_nome
+
+        FROM logs_sistema l
+
+        LEFT JOIN usuarios u
+          ON u.id = l.usuario_id
+
+        LEFT JOIN empresas e
+          ON e.id = l.empresa_id
+
+        WHERE l.id = $1
+
+        LIMIT 1
+      `,
+      [logId]
+    );
+
+    if (
+      result.rows.length === 0
+    ) {
+      return res.status(404).json({
+        erro: 'Log não encontrado.'
+      });
+    }
+
+    return res.json({
+      log: result.rows[0]
+    });
+
+  } catch (err) {
+
+    console.error(
+      'Erro ao carregar detalhe do log:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível carregar o log.'
+    });
+  }
+});
+
+// ============================================================
 // EXPORTAÇÃO
 // ============================================================
 
