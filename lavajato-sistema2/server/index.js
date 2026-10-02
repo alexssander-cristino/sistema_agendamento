@@ -25,6 +25,7 @@ const adminAssinaturasRouter = require('./routes/adminAssinaturas');
 const privacidadeRouter = require('./routes/privacidade');
 const adminPrivacidadeRouter = require('./routes/adminPrivacidade');
 const adminTratamentosRouter = require('./routes/adminTratamentos');
+const adminIncidentesRouter = require('./routes/adminIncidentes');
 
 
 // ============================================================
@@ -87,6 +88,8 @@ app.use('/api/planos', planosRouter);
 app.use('/api/admin/privacidade', adminPrivacidadeRouter);
 
 app.use('/api/admin/tratamentos', adminTratamentosRouter);
+
+app.use('/api/admin/incidentes', adminIncidentesRouter);
 
 app.use('/api/admin', adminRouter);
 

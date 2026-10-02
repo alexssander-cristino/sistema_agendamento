@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Política de Segurança | Orvix</title>
+
+ <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #16a34a;
+      --success-bg: #dcfce7;
+      --warning: #d97706;
+      --warning-bg: #fef3c7;
+      --danger: #dc2626;
+      --radius: 16px;
+      --shadow:
+        0 8px 25px rgba(15, 23, 42, .07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    /* ==========================================================
+       HEADER
+    ========================================================== */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      height: 68px;
+      padding: 0 30px;
+
+      background: rgba(255, 255, 255, .96);
+      border-bottom: 1px solid var(--border);
+
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      color: var(--text);
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 10px;
+
+      background: var(--primary);
+      color: #ffffff;
+
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .back-button {
+      padding: 9px 14px;
+
+      border: 1px solid var(--border);
+      border-radius: 9px;
+
+      background: #ffffff;
+      color: var(--text);
+
+      font-size: 13px;
+      font-weight: 600;
+
+      transition:
+        background .15s ease,
+        border-color .15s ease;
+    }
+
+    .back-button:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    /* ==========================================================
+       LAYOUT
+    ========================================================== */
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 45px 0 70px;
+    }
+
+    .hero {
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.2;
+      letter-spacing: -.02em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 12px 0 0;
+
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .updated {
+      display: inline-flex;
+      align-items: center;
+
+      margin-top: 16px;
+      padding: 6px 10px;
+
+      border-radius: 999px;
+
+      background: #eff6ff;
+      color: #1d4ed8;
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* ==========================================================
+       CONTENT
+    ========================================================== */
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 90px;
+
+      padding: 18px;
+
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .toc-title {
+      margin-bottom: 10px;
+
+      font-size: 12px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .toc a {
+      display: block;
+
+      padding: 7px 0;
+
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toc a:hover {
+      color: var(--primary);
+    }
+
+    .content-card {
+      padding: 30px;
+
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .section {
+      scroll-margin-top: 90px;
+      padding-bottom: 28px;
+      margin-bottom: 28px;
+
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .section h3 {
+      margin: 20px 0 8px;
+
+      font-size: 15px;
+    }
+
+    .section p {
+      margin: 0 0 12px;
+
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .section ul {
+      margin: 10px 0 15px;
+      padding-left: 22px;
+
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .section li {
+      margin-bottom: 7px;
+    }
+
+    .highlight {
+      margin: 16px 0;
+      padding: 15px 17px;
+
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+
+      background: #eff6ff;
+    }
+
+    .highlight p {
+      margin: 0;
+    }
+
+    .warning {
+      margin: 16px 0;
+      padding: 15px 17px;
+
+      border-left: 4px solid var(--warning);
+      border-radius: 8px;
+
+      background: var(--warning-bg);
+    }
+
+    .warning p {
+      margin: 0;
+    }
+
+    .security-list {
+      display: grid;
+      gap: 10px;
+
+      margin-top: 15px;
+    }
+
+    .security-item {
+      padding: 14px;
+
+      border: 1px solid var(--border);
+      border-radius: 10px;
+
+      background: #ffffff;
+    }
+
+    .security-item strong {
+      display: block;
+      margin-bottom: 3px;
+
+      font-size: 13px;
+    }
+
+    .security-item span {
+      display: block;
+
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer {
+      margin-top: 25px;
+
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* ==========================================================
+       MOBILE
+    ========================================================== */
+
+    @media (max-width: 820px) {
+      .topbar {
+        padding: 0 18px;
+      }
+
+      .brand {
+        font-size: 17px;
+      }
+
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+      }
+
+      .toc-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 15px;
+      }
+
+      .page {
+        padding-top: 30px;
+      }
+
+      .content-card {
+        padding: 23px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar {
+        height: 62px;
+      }
+
+      .back-button {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .page {
+        width: min(100% - 22px, 1120px);
+        padding-top: 22px;
+        padding-bottom: 45px;
+      }
+
+      .hero h1 {
+        font-size: 25px;
+      }
+
+      .hero p {
+        font-size: 13px;
+      }
+
+      .toc-links {
+        grid-template-columns: 1fr;
+      }
+
+      .content-card {
+        padding: 19px;
+      }
+
+      .section h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========================================================
+       HEADER
+  ========================================================= -->
+
+  <header class="topbar">
+
+    <a
+      href="/"
+      class="brand"
+      aria-label="Orvix"
+    >
+      <span class="brand-mark">
+        O
+      </span>
+
+      <span>
+        Orvix
+      </span>
+    </a>
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="voltar()"
+    >
+      Voltar
+    </button>
+
+  </header>
+
+
+  <!-- ========================================================
+       PAGE
+  ========================================================= -->
+
+  <main class="page">
+
+    <div class="hero">
+
+      <h1>
+        Política de Segurança da Informação
+      </h1>
+
+      <p>
+        Esta política estabelece as diretrizes adotadas pelo
+        Orvix para proteger informações, sistemas, usuários e
+        dados tratados durante a utilização da plataforma.
+      </p>
+
+      <span class="updated">
+        Última atualização: 02/10/2026
+      </span>
+
+    </div>
+
+
+    <div class="layout-grid">
+
+      <!-- ======================================================
+           SUMÁRIO
+      ======================================================= -->
+
+      <aside class="toc">
+
+        <div class="toc-title">
+          Nesta política
+        </div>
+
+        <div class="toc-links">
+
+          <a href="#objetivo">
+            1. Objetivo
+          </a>
+
+          <a href="#escopo">
+            2. Escopo
+          </a>
+
+          <a href="#acesso">
+            3. Controle de acesso
+          </a>
+
+          <a href="#autenticacao">
+            4. Autenticação
+          </a>
+
+          <a href="#permissoes">
+            5. Perfis e permissões
+          </a>
+
+          <a href="#dados">
+            6. Proteção dos dados
+          </a>
+
+          <a href="#banco">
+            7. Banco de dados
+          </a>
+
+          <a href="#segredos">
+            8. Credenciais e segredos
+          </a>
+
+          <a href="#logs">
+            9. Logs e auditoria
+          </a>
+
+          <a href="#backups">
+            10. Backups
+          </a>
+
+          <a href="#atualizacoes">
+            11. Atualizações
+          </a>
+
+          <a href="#incidentes">
+            12. Incidentes
+          </a>
+
+          <a href="#responsabilidades">
+            13. Responsabilidades
+          </a>
+
+          <a href="#revisao">
+            14. Revisão
+          </a>
+
+          <a href="#contato">
+            15. Contato
+          </a>
+
+        </div>
+
+      </aside>
+
+
+      <!-- ======================================================
+           CONTENT
+      ======================================================= -->
+
+      <article class="content-card">
+
+
+        <!-- ====================================================
+             1
+        ===================================================== -->
+
+        <section
+          id="objetivo"
+          class="section"
+        >
+
+          <h2>
+            1. Objetivo
+          </h2>
+
+          <p>
+            Esta Política de Segurança da Informação estabelece
+            princípios e práticas destinados a preservar a
+            confidencialidade, integridade e disponibilidade das
+            informações tratadas pelo Orvix.
+          </p>
+
+          <p>
+            O objetivo é reduzir riscos relacionados ao acesso
+            não autorizado, perda, alteração, divulgação ou uso
+            indevido de informações e dados pessoais.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             2
+        ===================================================== -->
+
+        <section
+          id="escopo"
+          class="section"
+        >
+
+          <h2>
+            2. Escopo
+          </h2>
+
+          <p>
+            Esta política aplica-se à plataforma Orvix, seus
+            ambientes tecnológicos, bancos de dados, aplicações,
+            usuários administrativos e demais recursos utilizados
+            para disponibilização do serviço.
+          </p>
+
+          <p>
+            As empresas que utilizam o Orvix também são
+            responsáveis por estabelecer controles internos
+            adequados para os usuários, dados e informações que
+            inserem na plataforma.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             3
+        ===================================================== -->
+
+        <section
+          id="acesso"
+          class="section"
+        >
+
+          <h2>
+            3. Controle de acesso
+          </h2>
+
+          <p>
+            O acesso aos recursos do sistema é controlado de
+            acordo com o perfil e as permissões atribuídas ao
+            usuário.
+          </p>
+
+          <p>
+            O acesso administrativo é separado do acesso
+            destinado aos usuários das empresas que utilizam a
+            plataforma.
+          </p>
+
+          <div class="security-list">
+
+            <div class="security-item">
+              <strong>
+                Identificação do usuário
+              </strong>
+
+              <span>
+                Cada usuário possui uma conta individual para
+                acesso ao sistema.
+              </span>
+            </div>
+
+            <div class="security-item">
+              <strong>
+                Controle de privilégios
+              </strong>
+
+              <span>
+                As funcionalidades disponíveis dependem do perfil
+                e das permissões do usuário.
+              </span>
+            </div>
+
+            <div class="security-item">
+              <strong>
+                Isolamento entre empresas
+              </strong>
+
+              <span>
+                Os dados das empresas são associados à respectiva
+                empresa e as APIs realizam verificações de
+                autorização.
+              </span>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             4
+        ===================================================== -->
+
+        <section
+          id="autenticacao"
+          class="section"
+        >
+
+          <h2>
+            4. Autenticação
+          </h2>
+
+          <p>
+            O Orvix utiliza autenticação baseada em tokens para
+            controlar o acesso às funcionalidades protegidas da
+            aplicação.
+          </p>
+
+          <p>
+            As credenciais de autenticação não são utilizadas
+            diretamente para autorizar cada requisição. Após a
+            autenticação, o sistema utiliza um token de sessão
+            para identificar o usuário.
+          </p>
+
+          <h3>
+            Senhas
+          </h3>
+
+          <p>
+            As senhas dos usuários são armazenadas utilizando
+            mecanismo de hash, evitando que a senha original seja
+            armazenada diretamente no banco de dados.
+          </p>
+
+          <div class="highlight">
+
+            <p>
+              Usuários não devem compartilhar suas credenciais de
+              acesso. Cada pessoa deve utilizar sua própria conta
+              no sistema.
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             5
+        ===================================================== -->
+
+        <section
+          id="permissoes"
+          class="section"
+        >
+
+          <h2>
+            5. Perfis e permissões
+          </h2>
+
+          <p>
+            O Orvix utiliza diferentes níveis de acesso para
+            separar funções administrativas e operacionais.
+          </p>
+
+          <p>
+            Entre os perfis utilizados pela plataforma estão:
+          </p>
+
+          <ul>
+
+            <li>
+              <strong>DEV:</strong>
+              acesso administrativo interno da plataforma.
+            </li>
+
+            <li>
+              <strong>Administrador:</strong>
+              responsável pela administração da empresa dentro
+              do sistema.
+            </li>
+
+            <li>
+              <strong>Funcionário:</strong>
+              acesso às funcionalidades disponibilizadas de
+              acordo com suas permissões.
+            </li>
+
+          </ul>
+
+          <p>
+            O princípio de menor privilégio deve ser utilizado
+            sempre que aplicável, concedendo ao usuário apenas
+            os acessos necessários para o desempenho de suas
+            atividades.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             6
+        ===================================================== -->
+
+        <section
+          id="dados"
+          class="section"
+        >
+
+          <h2>
+            6. Proteção dos dados
+          </h2>
+
+          <p>
+            O Orvix adota medidas técnicas destinadas a reduzir
+            riscos relacionados ao tratamento de informações e
+            dados pessoais.
+          </p>
+
+          <p>
+            Entre essas medidas estão:
+          </p>
+
+          <ul>
+
+            <li>
+              autenticação dos usuários;
+            </li>
+
+            <li>
+              controle de autorização;
+            </li>
+
+            <li>
+              separação dos dados por empresa;
+            </li>
+
+            <li>
+              utilização de conexão segura;
+            </li>
+
+            <li>
+              proteção das senhas por hash;
+            </li>
+
+            <li>
+              utilização de variáveis de ambiente para
+              informações sensíveis;
+            </li>
+
+            <li>
+              controle de acesso às funcionalidades
+              administrativas;
+            </li>
+
+            <li>
+              registros de determinadas operações do sistema.
+            </li>
+
+          </ul>
+
+        </section>
+
+
+        <!-- ====================================================
+             7
+        ===================================================== -->
+
+        <section
+          id="banco"
+          class="section"
+        >
+
+          <h2>
+            7. Banco de dados
+          </h2>
+
+          <p>
+            Os dados da plataforma são armazenados em banco de
+            dados PostgreSQL.
+          </p>
+
+          <p>
+            A conexão utilizada pelo backend é protegida por
+            SSL/TLS, reduzindo o risco de exposição dos dados
+            durante a comunicação entre a aplicação e o banco.
+          </p>
+
+          <p>
+            O acesso ao banco de dados é realizado pelo backend
+            da aplicação, evitando que as credenciais do banco
+            sejam disponibilizadas diretamente no código do
+            frontend.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             8
+        ===================================================== -->
+
+        <section
+          id="segredos"
+          class="section"
+        >
+
+          <h2>
+            8. Credenciais e informações sensíveis
+          </h2>
+
+          <p>
+            Informações sensíveis utilizadas pela aplicação,
+            como credenciais de banco de dados, chaves de
+            autenticação e outras configurações privadas, devem
+            ser armazenadas por meio de variáveis de ambiente ou
+            mecanismos equivalentes de configuração segura.
+          </p>
+
+          <p>
+            Essas informações não devem ser inseridas
+            diretamente no código-fonte ou disponibilizadas
+            publicamente em repositórios.
+          </p>
+
+          <div class="warning">
+
+            <p>
+              Em caso de exposição acidental de uma credencial,
+              ela deve ser revogada ou substituída assim que o
+              incidente for identificado.
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             9
+        ===================================================== -->
+
+        <section
+          id="logs"
+          class="section"
+        >
+
+          <h2>
+            9. Logs e auditoria
+          </h2>
+
+          <p>
+            O sistema possui mecanismos de registro de operações
+            para auxiliar na identificação de atividades,
+            diagnóstico de problemas e auditoria técnica.
+          </p>
+
+          <p>
+            Os registros devem ser utilizados de forma
+            proporcional à finalidade de segurança e operação
+            do sistema.
+          </p>
+
+          <p>
+            Informações desnecessárias ou dados pessoais que não
+            sejam necessários para a finalidade do registro
+            devem ser evitados.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             10
+        ===================================================== -->
+
+        <section
+          id="backups"
+          class="section"
+        >
+
+          <h2>
+            10. Backups e recuperação
+          </h2>
+
+          <p>
+            A disponibilidade e recuperação dos dados dependem
+            dos mecanismos de backup e infraestrutura utilizados
+            para hospedar o ambiente do Orvix.
+          </p>
+
+          <p>
+            Os procedimentos de backup devem considerar,
+            conforme aplicável:
+          </p>
+
+          <ul>
+
+            <li>
+              frequência dos backups;
+            </li>
+
+            <li>
+              proteção contra acesso não autorizado;
+            </li>
+
+            <li>
+              período de retenção;
+            </li>
+
+            <li>
+              possibilidade de restauração;
+            </li>
+
+            <li>
+              controle de acesso aos arquivos ou serviços de
+              backup.
+            </li>
+
+          </ul>
+
+          <div class="warning">
+
+            <p>
+              Os procedimentos operacionais de backup e
+              restauração devem ser definidos e revisados de
+              acordo com a infraestrutura efetivamente utilizada
+              pelo Orvix.
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             11
+        ===================================================== -->
+
+        <section
+          id="atualizacoes"
+          class="section"
+        >
+
+          <h2>
+            11. Atualizações e correções
+          </h2>
+
+          <p>
+            O sistema deve ser mantido atualizado de acordo com
+            as necessidades técnicas e de segurança identificadas
+            durante sua operação.
+          </p>
+
+          <p>
+            Dependências de software, bibliotecas, frameworks e
+            componentes utilizados pelo sistema devem ser
+            avaliados e atualizados quando necessário.
+          </p>
+
+          <p>
+            Correções relacionadas a vulnerabilidades de
+            segurança devem receber prioridade adequada ao risco
+            identificado.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             12
+        ===================================================== -->
+
+        <section
+          id="incidentes"
+          class="section"
+        >
+
+          <h2>
+            12. Incidentes de segurança
+          </h2>
+
+          <p>
+            Um incidente de segurança pode incluir situações
+            como acesso não autorizado, exposição indevida de
+            informações, comprometimento de credenciais, perda
+            de dados ou outras situações que possam afetar a
+            segurança das informações.
+          </p>
+
+          <p>
+            Ao identificar um possível incidente, devem ser
+            consideradas medidas como:
+          </p>
+
+          <ul>
+
+            <li>
+              identificação e registro do ocorrido;
+            </li>
+
+            <li>
+              análise dos sistemas e informações potencialmente
+              afetados;
+            </li>
+
+            <li>
+              contenção do problema;
+            </li>
+
+            <li>
+              correção da causa identificada;
+            </li>
+
+            <li>
+              avaliação dos riscos aos titulares;
+            </li>
+
+            <li>
+              documentação das medidas adotadas;
+            </li>
+
+            <li>
+              comunicação às partes pertinentes quando houver
+              obrigação legal ou regulatória.
+            </li>
+
+          </ul>
+
+          <div class="highlight">
+
+            <p>
+              O Orvix deve manter procedimento específico para
+              registro, análise e tratamento de incidentes de
+              segurança, conforme a evolução da plataforma e dos
+              requisitos aplicáveis.
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             13
+        ===================================================== -->
+
+        <section
+          id="responsabilidades"
+          class="section"
+        >
+
+          <h2>
+            13. Responsabilidades
+          </h2>
+
+          <h3>
+            Usuários
+          </h3>
+
+          <p>
+            Os usuários devem manter suas credenciais protegidas,
+            utilizar o sistema de acordo com suas permissões e
+            comunicar situações suspeitas ou incidentes de
+            segurança.
+          </p>
+
+          <h3>
+            Administradores das empresas
+          </h3>
+
+          <p>
+            Os administradores devem gerenciar adequadamente os
+            usuários vinculados à sua empresa, evitando conceder
+            permissões desnecessárias.
+          </p>
+
+          <h3>
+            Administração da plataforma
+          </h3>
+
+          <p>
+            A administração do Orvix é responsável por manter os
+            controles técnicos e administrativos compatíveis com
+            a operação da plataforma e revisar os mecanismos de
+            segurança quando necessário.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             14
+        ===================================================== -->
+
+        <section
+          id="revisao"
+          class="section"
+        >
+
+          <h2>
+            14. Revisão da política
+          </h2>
+
+          <p>
+            Esta política deve ser revisada periodicamente e
+            sempre que ocorrerem mudanças relevantes na
+            arquitetura, nos processos, nos riscos ou nos
+            requisitos legais e regulatórios aplicáveis.
+          </p>
+
+          <p>
+            Alterações relevantes na forma de tratamento e
+            proteção das informações devem ser refletidas na
+            documentação correspondente.
+          </p>
+
+        </section>
+
+
+        <!-- ====================================================
+             15
+        ===================================================== -->
+
+        <section
+          id="contato"
+          class="section"
+        >
+
+          <h2>
+            15. Contato
+          </h2>
+
+          <p>
+            Questões relacionadas à segurança da informação,
+            proteção de dados ou identificação de incidentes
+            devem ser encaminhadas pelo canal oficial de contato
+            disponibilizado pelo Orvix.
+          </p>
+
+          <p>
+            Para solicitações relacionadas especificamente aos
+            direitos de proteção de dados pessoais, o titular
+            também pode utilizar a área de
+            <a href="/privacidade.html">
+              Privacidade e Dados
+            </a>
+            da plataforma.
+          </p>
+
+          <div class="highlight">
+
+            <p>
+              O canal oficial de contato deverá ser mantido
+              atualizado na documentação pública do Orvix.
+            </p>
+
+          </div>
+
+        </section>
+
+
+      </article>
+
+    </div>
+
+
+    <div class="footer">
+
+      © 2026 Orvix. Todos os direitos reservados.
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    function voltar() {
+
+      if (
+        document.referrer &&
+        document.referrer.startsWith(
+          window.location.origin
+        )
+      ) {
+        history.back();
+        return;
+      }
+
+      window.location.href = '/';
+    }
+
+  </script>
+
+</body>
+
+</html>

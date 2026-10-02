@@ -1018,7 +1018,19 @@
             </span>
           </button>
 
+          <button
+  class="menu-btn"
+  data-page="incidentes"
+  type="button"
+>
+  <span class="menu-icon">
+    ⚠
+  </span>
 
+  <span>
+    Incidentes
+  </span>
+</button>
 
 
         <div class="menu-title">
@@ -2186,7 +2198,11 @@
                   return;
                 }
 
-
+                if (page === 'incidentes') {
+                window.location.href =
+                  '/admin/incidentes.html';
+                return;
+              }
 
                 if (
                   page === 'sistema'

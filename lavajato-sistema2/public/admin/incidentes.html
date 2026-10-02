@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Incidentes de Segurança | Orvix</title>
+
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/apple-touch-icon.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="icon"
+    href="/favicon.ico"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
+
+  <style>
+
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+
+      --primary: #111827;
+      --primary-hover: #1f2937;
+
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+
+      --warning: #d97706;
+      --warning-bg: #fef3c7;
+
+      --success: #15803d;
+      --success-bg: #dcfce7;
+
+      --info: #2563eb;
+      --info-bg: #dbeafe;
+
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* ========================================================
+       TOPBAR
+       ======================================================== */
+
+    .topbar {
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 28px;
+
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 15px;
+
+      font-weight: 600;
+
+      transition:
+        background .15s ease,
+        transform .15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    /* ========================================================
+       LAYOUT
+       ======================================================== */
+
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.7px;
+    }
+
+    .page-subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ========================================================
+       CARDS
+       ======================================================== */
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      padding: 18px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    /* ========================================================
+       TABLE
+       ======================================================== */
+
+    .table-header {
+      padding: 18px 20px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-title {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filters select {
+      border: 1px solid var(--border);
+      background: #ffffff;
+
+      border-radius: 8px;
+      padding: 8px 10px;
+
+      outline: none;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 950px;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+
+      border-bottom: 1px solid var(--border);
+
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      background: #fafafa;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+
+    .empty {
+      padding: 50px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    /* ========================================================
+       BADGES
+       ======================================================== */
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+
+      border-radius: 999px;
+      padding: 5px 9px;
+
+      font-size: 12px;
+      font-weight: 700;
+
+      white-space: nowrap;
+    }
+
+    .gravidade-baixa {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .gravidade-media {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .gravidade-alta,
+    .gravidade-critica {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .status-aberto {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .status-em_analise {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .status-contido {
+      background: var(--info-bg);
+      color: var(--info);
+    }
+
+    .status-resolvido,
+    .status-encerrado {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    /* ========================================================
+       ACTIONS
+       ======================================================== */
+
+    .actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .action-btn {
+      border: 1px solid var(--border);
+      background: #ffffff;
+
+      border-radius: 7px;
+      padding: 7px 10px;
+
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .action-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .action-btn.delete {
+      color: var(--danger);
+    }
+
+    /* ========================================================
+       MODAL
+       ======================================================== */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+
+      background: rgba(15, 23, 42, .55);
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 900px;
+      max-height: 92vh;
+
+      background: #ffffff;
+      border-radius: 14px;
+
+      display: flex;
+      flex-direction: column;
+
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 20px;
+
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .modal-close {
+      border: 0;
+      background: transparent;
+
+      font-size: 24px;
+      line-height: 1;
+
+      color: var(--muted);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+
+      border-top: 1px solid var(--border);
+
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* ========================================================
+       FORM
+       ======================================================== */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+
+      border: 1px solid var(--border);
+      border-radius: 8px;
+
+      padding: 10px 11px;
+
+      background: #ffffff;
+
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #9ca3af;
+      box-shadow:
+        0 0 0 3px rgba(156, 163, 175, .15);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ========================================================
+       ALERT
+       ======================================================== */
+
+    .alert {
+      display: none;
+
+      padding: 12px 14px;
+
+      border-radius: 8px;
+      margin-bottom: 16px;
+
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert.error {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .alert.success {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    /* ========================================================
+       RESPONSIVO
+       ======================================================== */
+
+    @media (max-width: 900px) {
+
+      .stats {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+
+      .page-header {
+        flex-direction: column;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+    }
+
+    @media (max-width: 600px) {
+
+      .topbar {
+        padding: 0 16px;
+      }
+
+      .container {
+        padding: 18px 14px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .top-actions .btn-secondary {
+        display: none;
+      }
+
+      .page-title {
+        font-size: 23px;
+      }
+
+      .modal-overlay {
+        padding: 8px;
+      }
+
+      .modal {
+        max-height: 96vh;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ======================================================
+       TOPBAR
+       ====================================================== -->
+
+  <header class="topbar">
+
+    <div class="brand">
+      Orvix
+      <span>Admin</span>
+    </div>
+
+    <div class="top-actions">
+
+      <button
+        class="btn btn-secondary"
+        type="button"
+        onclick="voltarDashboard()"
+      >
+        Dashboard
+      </button>
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        onclick="abrirNovo()"
+      >
+        + Novo incidente
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- ======================================================
+       CONTEÚDO
+       ====================================================== -->
+
+  <main class="container">
+
+    <div class="page-header">
+
+      <div>
+        <h1 class="page-title">
+          Incidentes de segurança
+        </h1>
+
+        <p class="page-subtitle">
+          Registro, acompanhamento e tratamento de incidentes
+          relacionados à segurança da informação e proteção de dados.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div
+      id="alert"
+      class="alert"
+    ></div>
+
+
+    <!-- ====================================================
+         ESTATÍSTICAS
+         ==================================================== -->
+
+    <section class="stats">
+
+      <div class="card stat">
+
+        <div class="stat-label">
+          Total
+        </div>
+
+        <div
+          id="stat-total"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card stat">
+
+        <div class="stat-label">
+          Abertos
+        </div>
+
+        <div
+          id="stat-abertos"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card stat">
+
+        <div class="stat-label">
+          Em análise
+        </div>
+
+        <div
+          id="stat-analise"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card stat">
+
+        <div class="stat-label">
+          Alta / crítica
+        </div>
+
+        <div
+          id="stat-graves"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ====================================================
+         TABELA
+         ==================================================== -->
+
+    <section class="card">
+
+      <div class="table-header">
+
+        <h2 class="table-title">
+          Incidentes registrados
+        </h2>
+
+        <div class="filters">
+
+          <select
+            id="filtro-status"
+            onchange="renderizarTabela()"
+          >
+            <option value="">
+              Todos os status
+            </option>
+
+            <option value="aberto">
+              Aberto
+            </option>
+
+            <option value="em_analise">
+              Em análise
+            </option>
+
+            <option value="contido">
+              Contido
+            </option>
+
+            <option value="resolvido">
+              Resolvido
+            </option>
+
+            <option value="encerrado">
+              Encerrado
+            </option>
+
+          </select>
+
+
+          <select
+            id="filtro-gravidade"
+            onchange="renderizarTabela()"
+          >
+            <option value="">
+              Todas as gravidades
+            </option>
+
+            <option value="baixa">
+              Baixa
+            </option>
+
+            <option value="media">
+              Média
+            </option>
+
+            <option value="alta">
+              Alta
+            </option>
+
+            <option value="critica">
+              Crítica
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Incidente
+              </th>
+
+              <th>
+                Tipo
+              </th>
+
+              <th>
+                Data
+              </th>
+
+              <th>
+                Gravidade
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Titulares
+              </th>
+
+              <th>
+                Ações
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="tabela-incidentes">
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ======================================================
+       MODAL
+       ====================================================== -->
+
+  <div
+    id="modal-overlay"
+    class="modal-overlay"
+  >
+
+    <div class="modal">
+
+      <div class="modal-header">
+
+        <h2
+          id="modal-title"
+          class="modal-title"
+        >
+          Novo incidente
+        </h2>
+
+        <button
+          class="modal-close"
+          type="button"
+          onclick="fecharModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <form
+        id="form-incidente"
+        onsubmit="salvarIncidente(event)"
+      >
+
+        <div class="modal-body">
+
+          <div
+            id="modal-alert"
+            class="alert"
+          ></div>
+
+
+          <div class="form-grid">
+
+            <!-- TÍTULO -->
+
+            <div class="field full">
+
+              <label for="titulo">
+                Título *
+              </label>
+
+              <input
+                id="titulo"
+                name="titulo"
+                type="text"
+                maxlength="200"
+                required
+                placeholder="Ex.: Acesso não autorizado detectado"
+              >
+
+            </div>
+
+
+            <!-- TIPO -->
+
+            <div class="field">
+
+              <label for="tipo">
+                Tipo *
+              </label>
+
+              <input
+                id="tipo"
+                name="tipo"
+                type="text"
+                maxlength="80"
+                required
+                placeholder="Ex.: acesso indevido"
+              >
+
+            </div>
+
+
+            <!-- DATA -->
+
+            <div class="field">
+
+              <label for="data_identificacao">
+                Data de identificação
+              </label>
+
+              <input
+                id="data_identificacao"
+                name="data_identificacao"
+                type="datetime-local"
+              >
+
+            </div>
+
+
+            <!-- GRAVIDADE -->
+
+            <div class="field">
+
+              <label for="gravidade">
+                Gravidade *
+              </label>
+
+              <select
+                id="gravidade"
+                name="gravidade"
+              >
+
+                <option value="baixa">
+                  Baixa
+                </option>
+
+                <option
+                  value="media"
+                  selected
+                >
+                  Média
+                </option>
+
+                <option value="alta">
+                  Alta
+                </option>
+
+                <option value="critica">
+                  Crítica
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="field">
+
+              <label for="status">
+                Status *
+              </label>
+
+              <select
+                id="status"
+                name="status"
+              >
+
+                <option
+                  value="aberto"
+                  selected
+                >
+                  Aberto
+                </option>
+
+                <option value="em_analise">
+                  Em análise
+                </option>
+
+                <option value="contido">
+                  Contido
+                </option>
+
+                <option value="resolvido">
+                  Resolvido
+                </option>
+
+                <option value="encerrado">
+                  Encerrado
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <!-- RESPONSÁVEL -->
+
+            <div class="field">
+
+              <label for="responsavel">
+                Responsável
+              </label>
+
+              <input
+                id="responsavel"
+                name="responsavel"
+                type="text"
+                maxlength="150"
+                placeholder="Pessoa responsável pelo tratamento"
+              >
+
+            </div>
+
+
+            <!-- TITULARES -->
+
+            <div class="field">
+
+              <label for="titulares_afetados">
+                Titulares afetados
+              </label>
+
+              <input
+                id="titulares_afetados"
+                name="titulares_afetados"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="Ex.: 10"
+              >
+
+              <span class="help">
+                Informe uma estimativa quando conhecida.
+              </span>
+
+            </div>
+
+
+            <!-- DESCRIÇÃO -->
+
+            <div class="field full">
+
+              <label for="descricao">
+                Descrição do incidente *
+              </label>
+
+              <textarea
+                id="descricao"
+                name="descricao"
+                required
+                placeholder="Descreva o que aconteceu, como foi identificado e o contexto conhecido."
+              ></textarea>
+
+            </div>
+
+
+            <!-- SISTEMAS -->
+
+            <div class="field full">
+
+              <label for="sistemas_afetados">
+                Sistemas ou ambientes afetados
+              </label>
+
+              <textarea
+                id="sistemas_afetados"
+                name="sistemas_afetados"
+                placeholder="Ex.: API, banco de dados, painel administrativo..."
+              ></textarea>
+
+            </div>
+
+
+            <!-- DADOS -->
+
+            <div class="field full">
+
+              <label for="dados_afetados">
+                Dados potencialmente afetados
+              </label>
+
+              <textarea
+                id="dados_afetados"
+                name="dados_afetados"
+                placeholder="Descreva as categorias de dados que podem ter sido afetadas."
+              ></textarea>
+
+            </div>
+
+
+            <!-- MEDIDAS -->
+
+            <div class="field full">
+
+              <label for="medidas_adotadas">
+                Medidas adotadas
+              </label>
+
+              <textarea
+                id="medidas_adotadas"
+                name="medidas_adotadas"
+                placeholder="Descreva as medidas tomadas para conter, investigar ou reduzir o impacto."
+              ></textarea>
+
+            </div>
+
+
+            <!-- CONCLUSÃO -->
+
+            <div class="field full">
+
+              <label for="conclusao">
+                Conclusão
+              </label>
+
+              <textarea
+                id="conclusao"
+                name="conclusao"
+                placeholder="Registre a conclusão da investigação e as providências finais."
+              ></textarea>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="fecharModal()"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Salvar incidente
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    // ==========================================================
+    // CONFIGURAÇÃO
+    // ==========================================================
+
+    const API = '/api';
+
+    const TOKEN_KEY = 'lavajato_auth_token';
+
+    let incidentes = [];
+
+    let incidenteEditando = null;
+
+
+    // ==========================================================
+    // AUTENTICAÇÃO
+    // ==========================================================
+
+    async function verificarAcesso() {
+
+      const token =
+        localStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        window.location.href = '/index.html';
+        return false;
+      }
+
+      try {
+
+        const response = await fetch(
+          `${API}/auth/me`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+        if (!response.ok) {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.href = '/index.html';
+          return false;
+        }
+
+        const data =
+          await response.json();
+
+        if (
+          !data.usuario ||
+          data.usuario.perfil !== 'dev'
+        ) {
+          window.location.href = '/dashboard.html';
+          return false;
+        }
+
+        return true;
+
+      } catch (err) {
+
+        console.error(
+          'Erro ao verificar acesso:',
+          err
+        );
+
+        window.location.href =
+          '/index.html';
+
+        return false;
+      }
+    }
+
+
+    // ==========================================================
+    // HEADERS
+    // ==========================================================
+
+    function headersJSON() {
+
+      const token =
+        localStorage.getItem(TOKEN_KEY);
+
+      return {
+        'Content-Type': 'application/json',
+
+        Authorization:
+          `Bearer ${token}`
+      };
+    }
+
+
+    // ==========================================================
+    // CARREGAR INCIDENTES
+    // ==========================================================
+
+    async function carregarIncidentes() {
+
+      try {
+
+        const response = await fetch(
+          `${API}/admin/incidentes`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${
+                  localStorage.getItem(TOKEN_KEY)
+                }`
+            }
+          }
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.erro ||
+            'Erro ao carregar incidentes.'
+          );
+        }
+
+        incidentes = Array.isArray(data)
+          ? data
+          : [];
+
+        atualizarEstatisticas();
+
+        renderizarTabela();
+
+      } catch (err) {
+
+        console.error(err);
+
+        mostrarAlert(
+          err.message,
+          'error'
+        );
+      }
+    }
+
+
+    // ==========================================================
+    // ESTATÍSTICAS
+    // ==========================================================
+
+    function atualizarEstatisticas() {
+
+      const total =
+        incidentes.length;
+
+      const abertos =
+        incidentes.filter(
+          item =>
+            item.status === 'aberto'
+        ).length;
+
+      const analise =
+        incidentes.filter(
+          item =>
+            item.status === 'em_analise'
+        ).length;
+
+      const graves =
+        incidentes.filter(
+          item =>
+            item.gravidade === 'alta' ||
+            item.gravidade === 'critica'
+        ).length;
+
+      document.getElementById(
+        'stat-total'
+      ).textContent = total;
+
+      document.getElementById(
+        'stat-abertos'
+      ).textContent = abertos;
+
+      document.getElementById(
+        'stat-analise'
+      ).textContent = analise;
+
+      document.getElementById(
+        'stat-graves'
+      ).textContent = graves;
+    }
+
+
+    // ==========================================================
+    // TABELA
+    // ==========================================================
+
+    function renderizarTabela() {
+
+      const tbody =
+        document.getElementById(
+          'tabela-incidentes'
+        );
+
+      const filtroStatus =
+        document.getElementById(
+          'filtro-status'
+        ).value;
+
+      const filtroGravidade =
+        document.getElementById(
+          'filtro-gravidade'
+        ).value;
+
+      let lista =
+        [...incidentes];
+
+      if (filtroStatus) {
+
+        lista =
+          lista.filter(
+            item =>
+              item.status ===
+              filtroStatus
+          );
+      }
+
+      if (filtroGravidade) {
+
+        lista =
+          lista.filter(
+            item =>
+              item.gravidade ===
+              filtroGravidade
+          );
+      }
+
+      if (!lista.length) {
+
+        tbody.innerHTML = `
+          <tr>
+            <td
+              colspan="7"
+              class="empty"
+            >
+              Nenhum incidente encontrado.
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+      tbody.innerHTML =
+        lista.map(
+          incidente =>
+            `
+            <tr>
+
+              <td>
+
+                <strong>
+                  ${escapeHTML(
+                    incidente.titulo
+                  )}
+                </strong>
+
+              </td>
+
+              <td>
+                ${escapeHTML(
+                  incidente.tipo
+                )}
+              </td>
+
+              <td>
+                ${formatarData(
+                  incidente.data_identificacao
+                )}
+              </td>
+
+              <td>
+
+                <span
+                  class="badge gravidade-${incidente.gravidade}"
+                >
+                  ${formatarGravidade(
+                    incidente.gravidade
+                  )}
+                </span>
+
+              </td>
+
+              <td>
+
+                <span
+                  class="badge status-${incidente.status}"
+                >
+                  ${formatarStatus(
+                    incidente.status
+                  )}
+                </span>
+
+              </td>
+
+              <td>
+                ${
+                  incidente.titulares_afetados ??
+                  '—'
+                }
+              </td>
+
+              <td>
+
+                <div class="actions">
+
+                  <button
+                    class="action-btn"
+                    type="button"
+                    onclick="editarIncidente(${incidente.id})"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="action-btn delete"
+                    type="button"
+                    onclick="excluirIncidente(${incidente.id})"
+                  >
+                    Excluir
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+            `
+        ).join('');
+    }
+
+
+    // ==========================================================
+    // NOVO
+    // ==========================================================
+
+    function abrirNovo() {
+
+      incidenteEditando = null;
+
+      document.getElementById(
+        'modal-title'
+      ).textContent =
+        'Novo incidente';
+
+      document.getElementById(
+        'form-incidente'
+      ).reset();
+
+      document.getElementById(
+        'gravidade'
+      ).value = 'media';
+
+      document.getElementById(
+        'status'
+      ).value = 'aberto';
+
+      limparModalAlert();
+
+      document.getElementById(
+        'modal-overlay'
+      ).classList.add('active');
+    }
+
+
+    // ==========================================================
+    // EDITAR
+    // ==========================================================
+
+    function editarIncidente(id) {
+
+      const incidente =
+        incidentes.find(
+          item =>
+            Number(item.id) ===
+            Number(id)
+        );
+
+      if (!incidente) {
+        return;
+      }
+
+      incidenteEditando =
+        incidente.id;
+
+      document.getElementById(
+        'modal-title'
+      ).textContent =
+        'Editar incidente';
+
+      document.getElementById(
+        'titulo'
+      ).value =
+        incidente.titulo || '';
+
+      document.getElementById(
+        'tipo'
+      ).value =
+        incidente.tipo || '';
+
+      document.getElementById(
+        'descricao'
+      ).value =
+        incidente.descricao || '';
+
+      document.getElementById(
+        'sistemas_afetados'
+      ).value =
+        incidente.sistemas_afetados || '';
+
+      document.getElementById(
+        'dados_afetados'
+      ).value =
+        incidente.dados_afetados || '';
+
+      document.getElementById(
+        'titulares_afetados'
+      ).value =
+        incidente.titulares_afetados ?? '';
+
+      document.getElementById(
+        'gravidade'
+      ).value =
+        incidente.gravidade || 'media';
+
+      document.getElementById(
+        'status'
+      ).value =
+        incidente.status || 'aberto';
+
+      document.getElementById(
+        'medidas_adotadas'
+      ).value =
+        incidente.medidas_adotadas || '';
+
+      document.getElementById(
+        'responsavel'
+      ).value =
+        incidente.responsavel || '';
+
+      document.getElementById(
+        'conclusao'
+      ).value =
+        incidente.conclusao || '';
+
+      document.getElementById(
+        'data_identificacao'
+      ).value =
+        formatarParaInputDateTime(
+          incidente.data_identificacao
+        );
+
+      limparModalAlert();
+
+      document.getElementById(
+        'modal-overlay'
+      ).classList.add('active');
+    }
+
+
+    // ==========================================================
+    // SALVAR
+    // ==========================================================
+
+    async function salvarIncidente(event) {
+
+      event.preventDefault();
+
+      limparModalAlert();
+
+      const body = {
+
+        titulo:
+          document.getElementById(
+            'titulo'
+          ).value.trim(),
+
+        tipo:
+          document.getElementById(
+            'tipo'
+          ).value.trim(),
+
+        descricao:
+          document.getElementById(
+            'descricao'
+          ).value.trim(),
+
+        data_identificacao:
+          document.getElementById(
+            'data_identificacao'
+          ).value || null,
+
+        sistemas_afetados:
+          document.getElementById(
+            'sistemas_afetados'
+          ).value.trim() || null,
+
+        dados_afetados:
+          document.getElementById(
+            'dados_afetados'
+          ).value.trim() || null,
+
+        titulares_afetados:
+          document.getElementById(
+            'titulares_afetados'
+          ).value || null,
+
+        gravidade:
+          document.getElementById(
+            'gravidade'
+          ).value,
+
+        medidas_adotadas:
+          document.getElementById(
+            'medidas_adotadas'
+          ).value.trim() || null,
+
+        status:
+          document.getElementById(
+            'status'
+          ).value,
+
+        responsavel:
+          document.getElementById(
+            'responsavel'
+          ).value.trim() || null,
+
+        conclusao:
+          document.getElementById(
+            'conclusao'
+          ).value.trim() || null
+      };
+
+
+      const editando =
+        incidenteEditando !== null;
+
+      const url =
+        editando
+          ? `${API}/admin/incidentes/${incidenteEditando}`
+          : `${API}/admin/incidentes`;
+
+      const method =
+        editando
+          ? 'PATCH'
+          : 'POST';
+
+
+      try {
+
+        const response =
+          await fetch(
+            url,
+            {
+              method,
+              headers: headersJSON(),
+              body: JSON.stringify(body)
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.erro ||
+            'Não foi possível salvar o incidente.'
+          );
+        }
+
+        fecharModal();
+
+        mostrarAlert(
+          editando
+            ? 'Incidente atualizado com sucesso.'
+            : 'Incidente registrado com sucesso.',
+          'success'
+        );
+
+        await carregarIncidentes();
+
+      } catch (err) {
+
+        console.error(err);
+
+        mostrarModalAlert(
+          err.message,
+          'error'
+        );
+      }
+    }
+
+
+    // ==========================================================
+    // EXCLUIR
+    // ==========================================================
+
+    async function excluirIncidente(id) {
+
+      const incidente =
+        incidentes.find(
+          item =>
+            Number(item.id) ===
+            Number(id)
+        );
+
+      if (!incidente) {
+        return;
+      }
+
+      const confirmar =
+        confirm(
+          `Deseja realmente excluir o incidente "${incidente.titulo}"?`
+        );
+
+      if (!confirmar) {
+        return;
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            `${API}/admin/incidentes/${id}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization:
+                  `Bearer ${
+                    localStorage.getItem(
+                      TOKEN_KEY
+                    )
+                  }`
+              }
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.erro ||
+            'Não foi possível excluir o incidente.'
+          );
+        }
+
+        mostrarAlert(
+          'Incidente excluído com sucesso.',
+          'success'
+        );
+
+        await carregarIncidentes();
+
+      } catch (err) {
+
+        console.error(err);
+
+        mostrarAlert(
+          err.message,
+          'error'
+        );
+      }
+    }
+
+
+    // ==========================================================
+    // MODAL
+    // ==========================================================
+
+    function fecharModal() {
+
+      document.getElementById(
+        'modal-overlay'
+      ).classList.remove('active');
+
+      incidenteEditando = null;
+    }
+
+
+    // ==========================================================
+    // ALERTAS
+    // ==========================================================
+
+    function mostrarAlert(
+      mensagem,
+      tipo
+    ) {
+
+      const alert =
+        document.getElementById(
+          'alert'
+        );
+
+      alert.textContent =
+        mensagem;
+
+      alert.className =
+        `alert show ${tipo}`;
+
+      setTimeout(() => {
+
+        alert.className =
+          'alert';
+
+      }, 5000);
+    }
+
+
+    function mostrarModalAlert(
+      mensagem,
+      tipo
+    ) {
+
+      const alert =
+        document.getElementById(
+          'modal-alert'
+        );
+
+      alert.textContent =
+        mensagem;
+
+      alert.className =
+        `alert show ${tipo}`;
+    }
+
+
+    function limparModalAlert() {
+
+      const alert =
+        document.getElementById(
+          'modal-alert'
+        );
+
+      alert.textContent =
+        '';
+
+      alert.className =
+        'alert';
+    }
+
+
+    // ==========================================================
+    // FORMATAÇÃO
+    // ==========================================================
+
+    function formatarGravidade(
+      gravidade
+    ) {
+
+      const mapa = {
+        baixa: 'Baixa',
+        media: 'Média',
+        alta: 'Alta',
+        critica: 'Crítica'
+      };
+
+      return mapa[gravidade]
+        || gravidade
+        || '—';
+    }
+
+
+    function formatarStatus(
+      status
+    ) {
+
+      const mapa = {
+        aberto: 'Aberto',
+        em_analise: 'Em análise',
+        contido: 'Contido',
+        resolvido: 'Resolvido',
+        encerrado: 'Encerrado'
+      };
+
+      return mapa[status]
+        || status
+        || '—';
+    }
+
+
+    function formatarData(
+      valor
+    ) {
+
+      if (!valor) {
+        return '—';
+      }
+
+      const data =
+        new Date(valor);
+
+      if (
+        Number.isNaN(
+          data.getTime()
+        )
+      ) {
+        return '—';
+      }
+
+      return data.toLocaleString(
+        'pt-BR',
+        {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        }
+      );
+    }
+
+
+    function formatarParaInputDateTime(
+      valor
+    ) {
+
+      if (!valor) {
+        return '';
+      }
+
+      const data =
+        new Date(valor);
+
+      if (
+        Number.isNaN(
+          data.getTime()
+        )
+      ) {
+        return '';
+      }
+
+      const ano =
+        data.getFullYear();
+
+      const mes =
+        String(
+          data.getMonth() + 1
+        ).padStart(2, '0');
+
+      const dia =
+        String(
+          data.getDate()
+        ).padStart(2, '0');
+
+      const hora =
+        String(
+          data.getHours()
+        ).padStart(2, '0');
+
+      const minuto =
+        String(
+          data.getMinutes()
+        ).padStart(2, '0');
+
+      return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+    }
+
+
+    function escapeHTML(
+      valor
+    ) {
+
+      return String(
+        valor ?? ''
+      )
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+
+    // ==========================================================
+    // DASHBOARD
+    // ==========================================================
+
+    function voltarDashboard() {
+
+      window.location.href =
+        '/dashboard.html';
+    }
+
+
+    // ==========================================================
+    // INICIALIZAÇÃO
+    // ==========================================================
+
+    async function iniciar() {
+
+      const autorizado =
+        await verificarAcesso();
+
+      if (!autorizado) {
+        return;
+      }
+
+      await carregarIncidentes();
+    }
+
+    iniciar();
+
+  </script>
+
+</body>
+
+</html>
