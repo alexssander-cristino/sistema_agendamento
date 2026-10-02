@@ -31,52 +31,32 @@ router.use(somenteDev);
 // TESTAR MERCADO PAGO
 // GET /api/mercado-pago/teste
 // ============================================================
-
 router.get('/teste', async (req, res) => {
   try {
+    const resultado = await mercadoPagoRequest(
+      '/v1/payment_methods',
+      {
+        method: 'GET'
+      }
+    );
 
-    const resposta =
-      await mercadoPagoRequest(
-        '/v1/payment_methods',
-        {
-          method: 'GET'
-        }
-      );
-
-    return res.json({
+    res.json({
       ok: true,
-
-      mercado_pago:
-        'conectado',
-
-      quantidade_meios_pagamento:
-        Array.isArray(resposta)
-          ? resposta.length
-          : 0
+      mercado_pago: 'conectado',
+      quantidade_metodos: Array.isArray(resultado)
+        ? resultado.length
+        : null
     });
 
   } catch (err) {
-
     console.error(
-      'Erro ao testar Mercado Pago:',
+      'Erro no teste Mercado Pago:',
       err
     );
 
-    return res.status(
-      err.status || 500
-    ).json({
-
+    res.status(err.status || 500).json({
       ok: false,
-
-      mercado_pago:
-        'erro',
-
-      erro:
-        err.message,
-
-      detalhes:
-        err.data || null
-
+      erro: err.message
     });
   }
 });
