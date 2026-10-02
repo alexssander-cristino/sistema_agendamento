@@ -5,10 +5,10 @@ const exigirPermissao = require('../middleware/permissao');
 
 const verificarAssinatura = require('../middleware/assinatura');
 
+const router = express.Router();
+
 router.use(autenticar);
 router.use(verificarAssinatura);
-
-const router = express.Router();
 
 // Todas as rotas de despesas exigem autenticação
 router.use(autenticar);

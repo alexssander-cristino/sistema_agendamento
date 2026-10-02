@@ -4,10 +4,10 @@ const autenticar = require('../middleware/auth');
 
 const verificarAssinatura = require('../middleware/assinatura');
 
+const router = express.Router();
+
 router.use(autenticar);
 router.use(verificarAssinatura);
-
-const router = express.Router();
 
 // ============================================================
 // PERMISSÃO NECESSÁRIA

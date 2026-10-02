@@ -5,9 +5,6 @@ const autenticar = require('../middleware/auth');
 
 const verificarAssinatura = require('../middleware/assinatura');
 
-router.use(autenticar);
-router.use(verificarAssinatura);
-
 const {
   buscarCodigosPermissoesUsuario,
   substituirPermissoesUsuario,
@@ -17,6 +14,7 @@ const {
 const router = express.Router();
 
 router.use(autenticar);
+
 
 // ============================================================
 // CONSTANTES
