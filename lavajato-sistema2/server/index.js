@@ -124,9 +124,8 @@ app.get('/api/status', async (req, res) => {
 // FRONT-END
 // ============================================================
 
-const publicPath = path.join(
-  __dirname,
-  '..',
+const publicPath = path.resolve(
+  process.cwd(),
   'public'
 );
 
