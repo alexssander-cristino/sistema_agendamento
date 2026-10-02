@@ -205,10 +205,7 @@ async function criarPlano({
 
   const body = {
 
-    reason:
-      descricao
-        ? `${nome} - ${descricao}`
-        : nome,
+    reason : nome,
 
     auto_recurring: {
 
