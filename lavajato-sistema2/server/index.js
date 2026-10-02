@@ -20,7 +20,7 @@ const configuracoesRouter = require('./routes/configuracoes');
 const planosRouter = require('./routes/planos');
 const adminRouter = require('./routes/admin');
 const mercadoPagoRouter = require('./routes/mercadoPago')
-const mercadoPagoRouter = require('./routes/mercadoPagoWebhook')
+const mercadoPagoWebhookRouter = require('./routes/mercadoPagoWebhook')
 
 
 // ============================================================
