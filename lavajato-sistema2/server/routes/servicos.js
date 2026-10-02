@@ -1,17 +1,21 @@
 const express = require('express');
 const pool = require('../db');
+
 const autenticar = require('../middleware/auth');
 const exigirPermissao = require('../middleware/permissao');
-
 const verificarAssinatura = require('../middleware/assinatura');
-
-router.use(autenticar);
-router.use(verificarAssinatura);
 
 const router = express.Router();
 
+// ============================================================
+// MIDDLEWARES
+// ============================================================
+
 // Todas as rotas de serviços exigem autenticação
 router.use(autenticar);
+
+// Todas as rotas de serviços exigem assinatura válida
+router.use(verificarAssinatura);
 
 
 // ============================================================
