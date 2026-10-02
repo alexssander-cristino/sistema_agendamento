@@ -83,6 +83,8 @@ app.use('/api/configuracoes', configuracoesRouter);
 
 app.use('/api/planos', planosRouter);
 
+app.use('/api/admin/privacidade', adminPrivacidadeRouter);
+
 app.use('/api/admin', adminRouter);
 
 app.use('/api/mercado-pago', mercadoPagoRouter);
@@ -90,8 +92,6 @@ app.use('/api/mercado-pago', mercadoPagoRouter);
 app.use('/api/mercado-pago/webhook', mercadoPagoWebhookRouter);
 
 app.use('/api/admin/assinaturas', adminAssinaturasRouter);
-
-app.use('/api/admin/privacidade', adminPrivacidadeRouter);
 
 app.use('/api/privacidade', privacidadeRouter);
 
