@@ -7,14 +7,65 @@ const somenteDev = require('../middleware/dev');
 const router = express.Router();
 
 // ============================================================
-// PROTEÇÃO
+// AUTENTICAÇÃO
 // ============================================================
 
 router.use(autenticar);
+
+// ============================================================
+// PLANOS DISPONÍVEIS PARA EMPRESAS
+// ============================================================
+
+router.get('/disponiveis', async (req, res) => {
+  try {
+    // DEV não precisa utilizar a tela de assinatura.
+    // Empresas podem visualizar somente planos ativos.
+    if (req.usuario.perfil === 'dev') {
+      return res.status(403).json({
+        erro: 'A tela de assinatura é destinada às empresas.'
+      });
+    }
+
+    if (!req.usuario.empresa_id) {
+      return res.status(403).json({
+        erro: 'Usuário não está vinculado a uma empresa.'
+      });
+    }
+
+    const { rows } = await pool.query(`
+      SELECT
+        id,
+        nome,
+        descricao,
+        valor,
+        periodo
+      FROM planos
+      WHERE ativo = true
+      ORDER BY valor ASC, id ASC
+    `);
+
+    return res.json(rows);
+
+  } catch (err) {
+    console.error(
+      'Erro ao listar planos disponíveis:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível listar os planos disponíveis.'
+    });
+  }
+});
+
+// ============================================================
+// PROTEÇÃO DAS ROTAS ADMINISTRATIVAS
+// ============================================================
+
 router.use(somenteDev);
 
 // ============================================================
-// LISTAR PLANOS
+// LISTAR TODOS OS PLANOS
 // ============================================================
 
 router.get('/', async (req, res) => {

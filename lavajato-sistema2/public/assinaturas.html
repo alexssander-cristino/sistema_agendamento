@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
 
   <meta charset="UTF-8">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-
->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Minha assinatura | Lavajato</title>
 
@@ -69,7 +67,7 @@ content="width=device-width, initial-scale=1.0"
 
     .container {
       width: 100%;
-      max-width: 650px;
+      max-width: 850px;
       margin: 0 auto;
     }
 
@@ -125,74 +123,6 @@ content="width=device-width, initial-scale=1.0"
       padding: 22px;
     }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    input,
-    select {
-      width: 100%;
-      min-height: 44px;
-      padding: 10px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      background: #fff;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: var(--primary);
-      box-shadow:
-        0 0 0 3px rgba(37, 99, 235, .12);
-    }
-
-    .mp-field {
-      min-height: 44px;
-      padding: 11px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      background: #fff;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .plan-box {
-      margin-bottom: 22px;
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fafafa;
-    }
-
-    .plan-name {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .plan-price {
-      margin-top: 5px;
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .plan-period {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
     .company-info {
       margin-bottom: 22px;
       padding: 14px 16px;
@@ -237,6 +167,151 @@ content="width=device-width, initial-scale=1.0"
       border: 1px solid #bbf7d0;
     }
 
+    .loading {
+      padding: 35px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .plan {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+    }
+
+    .plan:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, .08);
+      transform: translateY(-2px);
+    }
+
+    .plan-name {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .plan-description {
+      min-height: 42px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .plan-price {
+      margin-top: 18px;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .plan-period {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .plan-button {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .plan-button:hover {
+      background: var(--primary-dark);
+    }
+
+    .selected-plan {
+      margin-bottom: 22px;
+      padding: 18px;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      background: #eff6ff;
+    }
+
+    .selected-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .selected-name {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .selected-price {
+      margin-top: 5px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .selected-period {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow:
+        0 0 0 3px rgba(37, 99, 235, .12);
+    }
+
+    .mp-field {
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
     .actions {
       display: flex;
       gap: 10px;
@@ -272,12 +347,6 @@ content="width=device-width, initial-scale=1.0"
       cursor: not-allowed;
     }
 
-    .loading {
-      padding: 35px;
-      text-align: center;
-      color: var(--muted);
-    }
-
     .security {
       margin-top: 16px;
       color: var(--muted);
@@ -291,7 +360,19 @@ content="width=device-width, initial-scale=1.0"
       font-size: 12px;
     }
 
-    @media (max-width: 600px) {
+    .empty {
+      padding: 30px 20px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
 
       .page {
         padding: 18px;
@@ -300,6 +381,14 @@ content="width=device-width, initial-scale=1.0"
       h1 {
         font-size: 25px;
       }
+
+      .plans {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (max-width: 600px) {
 
       .grid {
         grid-template-columns: 1fr;
@@ -323,270 +412,284 @@ content="width=device-width, initial-scale=1.0"
 
   <main class="page">
 
+    <div class="container">
 
-<div class="container">
+      <header class="header">
 
-  <header class="header">
+        <p class="eyebrow">
+          Lavajato SaaS
+        </p>
 
-    <p class="eyebrow">
-      Lavajato SaaS
-    </p>
+        <h1>
+          Minha assinatura
+        </h1>
 
-    <h1>
-      Minha assinatura
-    </h1>
+        <p class="subtitle">
+          Escolha o plano que deseja utilizar no seu lavajato.
+        </p>
 
-    <p class="subtitle">
-      Escolha seu plano e cadastre o cartão para ativar sua assinatura.
-    </p>
-
-  </header>
-
-
-  <div
-    id="alert-error"
-    class="alert alert-error"
-  ></div>
-
-  <div
-    id="alert-success"
-    class="alert alert-success"
-  ></div>
-
-
-  <section class="card">
-
-    <div class="card-header">
-
-      <h2 class="card-title">
-        Dados da assinatura
-      </h2>
-
-      <p class="card-description">
-        A cobrança será realizada automaticamente conforme o plano escolhido.
-      </p>
-
-    </div>
-
-
-    <div class="body">
+      </header>
 
       <div
-        id="loading"
-        class="loading"
-      >
-        Carregando...
-      </div>
-
+        id="alert-error"
+        class="alert alert-error"
+      ></div>
 
       <div
-        id="content"
-        style="display:none;"
-      >
+        id="alert-success"
+        class="alert alert-success"
+      ></div>
 
-        <div
-          id="company-info"
-          class="company-info"
-        >
+      <section class="card">
 
-          <div class="company-label">
-            Empresa
-          </div>
+        <div class="card-header">
+
+          <h2 class="card-title">
+            Assinatura
+          </h2>
+
+          <p class="card-description">
+            Selecione um plano para continuar.
+          </p>
+
+        </div>
+
+        <div class="body">
 
           <div
-            id="company-name"
-            class="company-name"
+            id="loading"
+            class="loading"
           >
             Carregando...
           </div>
 
-        </div>
-
-
-        <div
-          id="plan-box"
-          class="plan-box"
-        ></div>
-
-
-        <form
-          id="card-form"
-          autocomplete="off"
-        >
-
-          <div class="form-group">
-
-            <label for="email">
-              E-mail
-            </label>
-
-            <input
-              type="email"
-              id="email"
-              placeholder="cliente@email.com"
-              autocomplete="email"
-              required
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="cardholder-name">
-              Nome no cartão
-            </label>
-
-            <input
-              type="text"
-              id="cardholder-name"
-              placeholder="Nome completo"
-              autocomplete="cc-name"
-              required
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              Número do cartão
-            </label>
+          <div
+            id="content"
+            class="hidden"
+          >
 
             <div
-              id="card-number"
-              class="mp-field"
-            ></div>
+              id="company-info"
+              class="company-info"
+            >
 
-          </div>
-
-
-          <div class="grid">
-
-            <div class="form-group">
-
-              <label>
-                Validade
-              </label>
+              <div class="company-label">
+                Empresa
+              </div>
 
               <div
-                id="expiration-date"
-                class="mp-field"
+                id="company-name"
+                class="company-name"
+              >
+                Carregando...
+              </div>
+
+            </div>
+
+            <!-- ==================================================
+                 SELEÇÃO DE PLANO
+                 ================================================== -->
+
+            <div id="plans-section">
+
+              <h3
+                style="
+                  margin: 0 0 14px;
+                  font-size: 17px;
+                "
+              >
+                Planos disponíveis
+              </h3>
+
+              <div
+                id="plans"
+                class="plans"
               ></div>
 
             </div>
 
+            <!-- ==================================================
+                 PAGAMENTO
+                 ================================================== -->
 
-            <div class="form-group">
-
-              <label>
-                Código de segurança
-              </label>
+            <div
+              id="payment-section"
+              class="hidden"
+            >
 
               <div
-                id="security-code"
-                class="mp-field"
+                id="selected-plan"
+                class="selected-plan"
+              ></div>
+
+              <form
+                id="card-form"
+                autocomplete="off"
+              >
+
+                <div class="form-group">
+
+                  <label for="email">
+                    E-mail
+                  </label>
+
+                  <input
+                    type="email"
+                    id="email"
+                    placeholder="cliente@email.com"
+                    autocomplete="email"
+                    required
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label for="cardholder-name">
+                    Nome no cartão
+                  </label>
+
+                  <input
+                    type="text"
+                    id="cardholder-name"
+                    placeholder="Nome completo"
+                    autocomplete="cc-name"
+                    required
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label>
+                    Número do cartão
+                  </label>
+
+                  <div
+                    id="card-number"
+                    class="mp-field"
+                  ></div>
+
+                </div>
+
+                <div class="grid">
+
+                  <div class="form-group">
+
+                    <label>
+                      Validade
+                    </label>
+
+                    <div
+                      id="expiration-date"
+                      class="mp-field"
+                    ></div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label>
+                      Código de segurança
+                    </label>
+
+                    <div
+                      id="security-code"
+                      class="mp-field"
+                    ></div>
+
+                  </div>
+
+                </div>
+
+                <div class="form-group">
+
+                  <label for="issuer">
+                    Banco emissor
+                  </label>
+
+                  <select id="issuer"></select>
+
+                </div>
+
+                <div class="form-group">
+
+                  <label for="installments">
+                    Parcelas
+                  </label>
+
+                  <select id="installments"></select>
+
+                </div>
+
+                <div class="form-group">
+
+                  <label for="identification-type">
+                    Tipo de documento
+                  </label>
+
+                  <select id="identification-type"></select>
+
+                </div>
+
+                <div class="form-group">
+
+                  <label for="identification-number">
+                    CPF
+                  </label>
+
+                  <input
+                    type="text"
+                    id="identification-number"
+                    placeholder="00000000000"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    required
+                  >
+
+                </div>
+
+                <div class="actions">
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btn-voltar-planos"
+                  >
+                    Voltar para planos
+                  </button>
+
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="btn-assinar"
+                  >
+                    Assinar plano
+                  </button>
+
+                </div>
+
+              </form>
+
+              <p class="security">
+                Os dados do cartão são processados diretamente pelo Mercado Pago.
+                O número completo do cartão não é enviado para o servidor do Lavajato.
+              </p>
+
+              <div
+                id="mp-loading"
+                class="mp-loading"
               ></div>
 
             </div>
 
           </div>
 
+        </div>
 
-          <div class="form-group">
-
-            <label for="issuer">
-              Banco emissor
-            </label>
-
-            <select id="issuer"></select>
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="installments">
-              Parcelas
-            </label>
-
-            <select id="installments"></select>
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="identification-type">
-              Tipo de documento
-            </label>
-
-            <select id="identification-type"></select>
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="identification-number">
-              CPF
-            </label>
-
-            <input
-              type="text"
-              id="identification-number"
-              placeholder="00000000000"
-              inputmode="numeric"
-              autocomplete="off"
-              required
-            >
-
-          </div>
-
-
-          <div class="actions">
-
-            <button
-              type="button"
-              class="btn btn-secondary"
-              id="btn-voltar"
-            >
-              Voltar
-            </button>
-
-            <button
-              type="submit"
-              class="btn btn-primary"
-              id="btn-assinar"
-            >
-              Assinar plano
-            </button>
-
-          </div>
-
-        </form>
-
-
-        <p class="security">
-          Os dados do cartão são processados diretamente pelo Mercado Pago.
-          O número completo do cartão não é enviado para o servidor do Lavajato.
-        </p>
-
-
-        <div
-          id="mp-loading"
-          class="mp-loading"
-        ></div>
-
-      </div>
+      </section>
 
     </div>
-
-  </section>
-
-</div>
-
 
   </main>
 
@@ -596,12 +699,18 @@ content="width=device-width, initial-scale=1.0"
 
       'use strict';
 
+      // ============================================================
+      // CONFIGURAÇÃO
+      // ============================================================
 
       const API = '/api';
 
       const AUTH_TOKEN_KEY =
         'lavajato_auth_token';
 
+      // ============================================================
+      // ELEMENTOS
+      // ============================================================
 
       const loading =
         document.getElementById('loading');
@@ -609,8 +718,17 @@ content="width=device-width, initial-scale=1.0"
       const content =
         document.getElementById('content');
 
-      const planBox =
-        document.getElementById('plan-box');
+      const plans =
+        document.getElementById('plans');
+
+      const plansSection =
+        document.getElementById('plans-section');
+
+      const paymentSection =
+        document.getElementById('payment-section');
+
+      const selectedPlan =
+        document.getElementById('selected-plan');
 
       const companyName =
         document.getElementById('company-name');
@@ -638,18 +756,31 @@ content="width=device-width, initial-scale=1.0"
       const btnAssinar =
         document.getElementById('btn-assinar');
 
+      const btnVoltarPlanos =
+        document.getElementById(
+          'btn-voltar-planos'
+        );
+
       const mpLoading =
         document.getElementById('mp-loading');
 
-
-      let plano = null;
+      // ============================================================
+      // ESTADO
+      // ============================================================
 
       let usuario = null;
+
+      let planos = [];
+
+      let planoSelecionado = null;
 
       let mp = null;
 
       let cardForm = null;
 
+      // ============================================================
+      // ALERTAS
+      // ============================================================
 
       function mostrarErro(message) {
 
@@ -668,7 +799,6 @@ content="width=device-width, initial-scale=1.0"
 
       }
 
-
       function mostrarSucesso(message) {
 
         alertError.classList.remove('show');
@@ -686,7 +816,6 @@ content="width=device-width, initial-scale=1.0"
 
       }
 
-
       function limparAlertas() {
 
         alertError.classList.remove('show');
@@ -699,6 +828,9 @@ content="width=device-width, initial-scale=1.0"
 
       }
 
+      // ============================================================
+      // UTILITÁRIOS
+      // ============================================================
 
       function formatarMoeda(value) {
 
@@ -712,7 +844,6 @@ content="width=device-width, initial-scale=1.0"
           );
 
       }
-
 
       function escapeHtml(value) {
 
@@ -731,6 +862,9 @@ content="width=device-width, initial-scale=1.0"
 
       }
 
+      // ============================================================
+      // API
+      // ============================================================
 
       async function api(
         path,
@@ -742,7 +876,6 @@ content="width=device-width, initial-scale=1.0"
             AUTH_TOKEN_KEY
           );
 
-
         const headers = {
           ...(options.body
             ? {
@@ -753,14 +886,12 @@ content="width=device-width, initial-scale=1.0"
           ...(options.headers || {})
         };
 
-
         if (token) {
 
           headers.Authorization =
             `Bearer ${token}`;
 
         }
-
 
         const response =
           await fetch(
@@ -771,9 +902,7 @@ content="width=device-width, initial-scale=1.0"
             }
           );
 
-
         let data = null;
-
 
         try {
 
@@ -785,7 +914,6 @@ content="width=device-width, initial-scale=1.0"
           data = null;
 
         }
-
 
         if (response.status === 401) {
 
@@ -800,7 +928,6 @@ content="width=device-width, initial-scale=1.0"
           );
 
         }
-
 
         if (!response.ok) {
 
@@ -821,11 +948,13 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         return data;
 
       }
 
+      // ============================================================
+      // USUÁRIO
+      // ============================================================
 
       async function verificarUsuario() {
 
@@ -833,7 +962,6 @@ content="width=device-width, initial-scale=1.0"
           localStorage.getItem(
             AUTH_TOKEN_KEY
           );
-
 
         if (!token) {
 
@@ -843,10 +971,8 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         const data =
           await api('/auth/me');
-
 
         if (!data?.usuario) {
 
@@ -856,10 +982,8 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         usuario =
           data.usuario;
-
 
         if (
           usuario.perfil === 'dev'
@@ -871,7 +995,6 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         if (!usuario.empresa_id) {
 
           throw new Error(
@@ -880,110 +1003,236 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
-        return usuario;
+        return data;
 
       }
 
+      // ============================================================
+      // EMPRESA
+      // ============================================================
 
-      async function carregarEmpresa() {
+      function carregarEmpresa(data) {
 
-        /*
-         * O nome da empresa deve vir do backend
-         * usando req.usuario.empresa_id.
-         *
-         * Caso o /api/auth/me já retorne empresa_nome,
-         * usamos diretamente.
-         */
-
-        if (usuario.empresa_nome) {
+        if (data?.empresa?.nome) {
 
           companyName.textContent =
-            usuario.empresa_nome;
+            data.empresa.nome;
 
           return;
 
         }
-
-
-        /*
-         * Se o /auth/me ainda não retornar o nome,
-         * não inventamos nenhum ID no frontend.
-         */
 
         companyName.textContent =
           'Sua empresa';
 
       }
 
+      // ============================================================
+      // PLANOS
+      // ============================================================
 
-      async function carregarPlano() {
+      async function carregarPlanos() {
 
-        const params =
-          new URLSearchParams(
-            window.location.search
-          );
-
-
-        const planoId =
-          Number(
-            params.get('plano_id')
-          );
-
-
-        if (
-          !Number.isInteger(planoId) ||
-          planoId <= 0
-        ) {
-
-          throw new Error(
-            'Informe um plano válido.'
-          );
-
-        }
-
+        plans.innerHTML = `
+          <div class="loading">
+            Carregando planos...
+          </div>
+        `;
 
         const data =
           await api(
-            `/planos/${planoId}`
+            '/planos/disponiveis'
           );
 
-
-        if (!data) {
+        if (!Array.isArray(data)) {
 
           throw new Error(
-            'Plano não encontrado.'
+            'Resposta inválida ao carregar os planos.'
           );
 
         }
 
+        planos = data;
 
-        plano =
-          data;
+        renderizarPlanos();
 
+      }
 
-        planBox.innerHTML = `
+      function renderizarPlanos() {
 
-          <div class="plan-name">
+        if (planos.length === 0) {
+
+          plans.innerHTML = `
+            <div class="empty">
+              Nenhum plano está disponível no momento.
+            </div>
+          `;
+
+          return;
+
+        }
+
+        plans.innerHTML =
+          planos.map(plano => {
+
+            const periodo =
+              plano.periodo === 'anual'
+                ? 'Cobrança anual'
+                : 'Cobrança mensal';
+
+            return `
+
+              <article class="plan">
+
+                <div class="plan-name">
+                  ${escapeHtml(plano.nome)}
+                </div>
+
+                <div class="plan-description">
+                  ${
+                    escapeHtml(
+                      plano.descricao ||
+                      'Plano para utilização do sistema.'
+                    )
+                  }
+                </div>
+
+                <div class="plan-price">
+                  ${formatarMoeda(plano.valor)}
+                </div>
+
+                <div class="plan-period">
+                  ${periodo}
+                </div>
+
+                <button
+                  type="button"
+                  class="plan-button"
+                  data-plano-id="${Number(plano.id)}"
+                >
+                  Escolher plano
+                </button>
+
+              </article>
+
+            `;
+
+          }).join('');
+
+        document
+          .querySelectorAll('[data-plano-id]')
+          .forEach(button => {
+
+            button.addEventListener(
+              'click',
+              () => {
+
+                const planoId =
+                  Number(
+                    button.dataset.planoId
+                  );
+
+                selecionarPlano(planoId);
+
+              }
+            );
+
+          });
+
+      }
+
+      // ============================================================
+      // SELECIONAR PLANO
+      // ============================================================
+
+      async function selecionarPlano(planoId) {
+
+        limparAlertas();
+
+        const plano =
+          planos.find(
+            item =>
+              Number(item.id) ===
+              Number(planoId)
+          );
+
+        if (!plano) {
+
+          mostrarErro(
+            'Plano selecionado não encontrado.'
+          );
+
+          return;
+
+        }
+
+        planoSelecionado =
+          plano;
+
+        const periodo =
+          plano.periodo === 'anual'
+            ? 'Cobrança anual'
+            : 'Cobrança mensal';
+
+        selectedPlan.innerHTML = `
+
+          <div class="selected-label">
+            Plano selecionado
+          </div>
+
+          <div class="selected-name">
             ${escapeHtml(plano.nome)}
           </div>
 
-          <div class="plan-price">
+          <div class="selected-price">
             ${formatarMoeda(plano.valor)}
           </div>
 
-          <div class="plan-period">
-            ${
-              plano.periodo === 'anual'
-                ? 'Cobrança anual'
-                : 'Cobrança mensal'
-            }
+          <div class="selected-period">
+            ${periodo}
           </div>
 
         `;
 
+        plansSection.classList.add(
+          'hidden'
+        );
+
+        paymentSection.classList.remove(
+          'hidden'
+        );
+
+        email.value =
+          usuario?.email || '';
+
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+
+        try {
+
+          await iniciarMercadoPago();
+
+        } catch (error) {
+
+          console.error(
+            'Erro ao iniciar Mercado Pago:',
+            error
+          );
+
+          mostrarErro(
+            error.message ||
+            'Não foi possível carregar o pagamento.'
+          );
+
+        }
+
       }
 
+      // ============================================================
+      // MERCADO PAGO
+      // ============================================================
 
       async function obterPublicKey() {
 
@@ -991,7 +1240,6 @@ content="width=device-width, initial-scale=1.0"
           await api(
             '/mercado-pago/public-key'
           );
-
 
         if (
           !data ||
@@ -1004,13 +1252,19 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         return data.public_key;
 
       }
 
-
       async function iniciarMercadoPago() {
+
+        if (!planoSelecionado) {
+
+          throw new Error(
+            'Selecione um plano antes de continuar.'
+          );
+
+        }
 
         if (
           typeof MercadoPago ===
@@ -1023,14 +1277,21 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
+        /*
+         * Evita criar vários CardForms caso
+         * o usuário volte e escolha novamente.
+         */
+        if (cardForm) {
+
+          return;
+
+        }
 
         mpLoading.textContent =
           'Carregando formulário seguro do Mercado Pago...';
 
-
         const publicKey =
           await obterPublicKey();
-
 
         mp =
           new MercadoPago(
@@ -1040,13 +1301,12 @@ content="width=device-width, initial-scale=1.0"
             }
           );
 
-
         cardForm =
           mp.cardForm({
 
             amount:
               Number(
-                plano.valor
+                planoSelecionado.valor
               ).toFixed(2),
 
             iframe: true,
@@ -1139,28 +1399,60 @@ content="width=device-width, initial-scale=1.0"
 
           });
 
-
         email.value =
           usuario.email || '';
 
       }
 
+      // ============================================================
+      // VOLTAR PARA PLANOS
+      // ============================================================
+
+      btnVoltarPlanos.addEventListener(
+        'click',
+        () => {
+
+          limparAlertas();
+
+          plansSection.classList.remove(
+            'hidden'
+          );
+
+          paymentSection.classList.add(
+            'hidden'
+          );
+
+          planoSelecionado = null;
+
+          /*
+           * O CardForm antigo não deve ser reutilizado
+           * para outro plano porque o amount muda.
+           */
+          cardForm = null;
+          mp = null;
+
+          mpLoading.textContent = '';
+
+        }
+      );
+
+      // ============================================================
+      // ASSINAR
+      // ============================================================
 
       async function assinar() {
 
         limparAlertas();
 
-
-        if (!plano) {
+        if (!planoSelecionado) {
 
           mostrarErro(
-            'Plano não carregado.'
+            'Selecione um plano.'
           );
 
           return;
 
         }
-
 
         if (!usuario?.empresa_id) {
 
@@ -1172,7 +1464,6 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         const emailValue =
           email.value.trim();
 
@@ -1181,7 +1472,6 @@ content="width=device-width, initial-scale=1.0"
 
         const cpfValue =
           identificationNumber.value.trim();
-
 
         if (!emailValue) {
 
@@ -1195,7 +1485,6 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         if (!nomeValue) {
 
           mostrarErro(
@@ -1207,7 +1496,6 @@ content="width=device-width, initial-scale=1.0"
           return;
 
         }
-
 
         if (!cpfValue) {
 
@@ -1221,7 +1509,6 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         if (!cardForm) {
 
           mostrarErro(
@@ -1232,9 +1519,7 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         let cardFormData;
-
 
         try {
 
@@ -1256,7 +1541,6 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         if (
           !cardFormData ||
           !cardFormData.token
@@ -1270,13 +1554,11 @@ content="width=device-width, initial-scale=1.0"
 
         }
 
-
         btnAssinar.disabled =
           true;
 
         btnAssinar.textContent =
           'Processando...';
-
 
         try {
 
@@ -1290,7 +1572,9 @@ content="width=device-width, initial-scale=1.0"
                   JSON.stringify({
 
                     plano_id:
-                      Number(plano.id),
+                      Number(
+                        planoSelecionado.id
+                      ),
 
                     email:
                       emailValue,
@@ -1305,21 +1589,17 @@ content="width=device-width, initial-scale=1.0"
               }
             );
 
-
           console.log(
             'Assinatura criada:',
             resultado
           );
 
-
           mostrarSucesso(
             'Assinatura criada. Aguardando confirmação do pagamento.'
           );
 
-
           btnAssinar.textContent =
             'Assinatura criada';
-
 
           setTimeout(() => {
 
@@ -1328,7 +1608,6 @@ content="width=device-width, initial-scale=1.0"
 
           }, 2500);
 
-
         } catch (error) {
 
           console.error(
@@ -1336,12 +1615,10 @@ content="width=device-width, initial-scale=1.0"
             error
           );
 
-
           mostrarErro(
             error.message ||
             'Não foi possível criar a assinatura.'
           );
-
 
           btnAssinar.disabled =
             false;
@@ -1353,6 +1630,9 @@ content="width=device-width, initial-scale=1.0"
 
       }
 
+      // ============================================================
+      // SUBMIT
+      // ============================================================
 
       form.addEventListener(
         'submit',
@@ -1365,47 +1645,31 @@ content="width=device-width, initial-scale=1.0"
         }
       );
 
-
-      document
-        .getElementById('btn-voltar')
-        .addEventListener(
-          'click',
-          () => {
-
-            window.location.href =
-              '/dashboard.html';
-
-          }
-        );
-
+      // ============================================================
+      // INICIALIZAÇÃO
+      // ============================================================
 
       async function iniciar() {
 
         try {
 
-          const usuarioAtual =
+          const data =
             await verificarUsuario();
 
-
-          if (!usuarioAtual) {
+          if (!data) {
             return;
           }
 
+          carregarEmpresa(data);
 
-          await carregarEmpresa();
-
-          await carregarPlano();
-
+          await carregarPlanos();
 
           loading.style.display =
             'none';
 
-          content.style.display =
-            'block';
-
-
-          await iniciarMercadoPago();
-
+          content.classList.remove(
+            'hidden'
+          );
 
         } catch (error) {
 
@@ -1414,12 +1678,12 @@ content="width=device-width, initial-scale=1.0"
             error
           );
 
-
           loading.style.display =
             'none';
 
-          content.style.display =
-            'block';
+          content.classList.remove(
+            'hidden'
+          );
 
           mostrarErro(
             error.message ||
@@ -1430,7 +1694,6 @@ content="width=device-width, initial-scale=1.0"
 
       }
 
-
       iniciar();
 
     })();
@@ -1440,3 +1703,4 @@ content="width=device-width, initial-scale=1.0"
 </body>
 
 </html>
+
