@@ -126,6 +126,33 @@
     abrirPrivacidade;
 
 
+// ============================================================
+// BOTÃO PRIVACIDADE
+// ============================================================
+
+const btnPrivacidade =
+  document.getElementById(
+    'btn-privacidade'
+  );
+
+if(btnPrivacidade){
+
+  btnPrivacidade.addEventListener(
+    'click',
+    function(event){
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      abrirPrivacidade();
+
+    }
+  );
+
+}
+
+
+
   // ============================================================
   // PERMISSÕES POR FUNCIONÁRIO
   // ------------------------------------------------------------
