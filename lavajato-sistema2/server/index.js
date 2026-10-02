@@ -22,6 +22,7 @@ const adminRouter = require('./routes/admin');
 const mercadoPagoRouter = require('./routes/mercadoPago')
 const mercadoPagoWebhookRouter = require('./routes/mercadoPagoWebhook')
 const adminAssinaturasRouter = require('./routes/adminAssinaturas');
+const privacidadeRouter = require('./routes/privacidade');
 
 
 // ============================================================
@@ -88,6 +89,8 @@ app.use('/api/mercado-pago', mercadoPagoRouter);
 app.use('/api/mercado-pago/webhook', mercadoPagoWebhookRouter);
 
 app.use('/api/admin/assinaturas', adminAssinaturasRouter);
+
+app.use('/api/privacidade', privacidadeRouter);
 
 
 // ============================================================

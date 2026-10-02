@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Privacidade e Dados | Orvix</title>
+
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --border: #e5e7eb;
+      --success: #15803d;
+      --warning: #b45309;
+      --danger: #dc2626;
+      --shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 32px));
+      margin: 40px auto;
+    }
+
+    .topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .topo h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topo p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .btn-voltar {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .btn-voltar:hover {
+      background: #f9fafb;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 20px;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .solicitacoes {
+      grid-column: 1 / -1;
+    }
+
+    .opcoes {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .opcao {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #fff;
+    }
+
+    .opcao:hover {
+      border-color: var(--primary);
+      background: #f8fbff;
+    }
+
+    .opcao strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .opcao span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      margin-top: 18px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .mensagem {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .mensagem.sucesso {
+      display: block;
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .mensagem.erro {
+      display: block;
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .lista {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .solicitacao {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .solicitacao-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .solicitacao-tipo {
+      font-weight: 700;
+    }
+
+    .status {
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .status-pendente {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .status-em_analise {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-atendida {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .status-recusada,
+    .status-cancelada {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .solicitacao p {
+      margin: 8px 0;
+      color: var(--text);
+    }
+
+    .solicitacao small {
+      color: var(--muted);
+    }
+
+    .solicitacao-acoes {
+      margin-top: 14px;
+    }
+
+    .vazio {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--muted);
+      padding: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        width: min(100% - 20px, 1100px);
+        margin: 20px auto;
+      }
+
+      .topo {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .solicitacoes {
+        grid-column: auto;
+      }
+
+      .solicitacao-topo {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <header class="topo">
+      <div>
+        <h1>Privacidade e Dados</h1>
+        <p>
+          Gerencie solicitações relacionadas aos seus dados pessoais.
+        </p>
+      </div>
+
+      <a
+        href="/dashboard.html"
+        class="btn-voltar"
+      >
+        Voltar
+      </a>
+    </header>
+
+    <section class="grid">
+
+      <!-- =====================================================
+           NOVA SOLICITAÇÃO
+      ====================================================== -->
+
+      <div class="card">
+        <h2>Solicitar atendimento</h2>
+
+        <p>
+          Você pode enviar uma solicitação relacionada aos
+          seus dados pessoais.
+        </p>
+
+        <div class="opcoes">
+
+          <div
+            class="opcao"
+            onclick="selecionarTipo('acesso')"
+          >
+            <strong>Acesso aos meus dados</strong>
+            <span>
+              Solicitar informações sobre os dados pessoais
+              associados à sua conta.
+            </span>
+          </div>
+
+          <div
+            class="opcao"
+            onclick="selecionarTipo('correcao')"
+          >
+            <strong>Correção de dados</strong>
+            <span>
+              Solicitar correção ou atualização de informações.
+            </span>
+          </div>
+
+          <div
+            class="opcao"
+            onclick="selecionarTipo('exclusao')"
+          >
+            <strong>Exclusão de dados</strong>
+            <span>
+              Solicitar a exclusão dos seus dados, quando aplicável.
+            </span>
+          </div>
+
+          <div
+            class="opcao"
+            onclick="selecionarTipo('informacoes')"
+          >
+            <strong>Informações sobre o tratamento</strong>
+            <span>
+              Solicitar informações sobre como seus dados são tratados.
+            </span>
+          </div>
+
+          <div
+            class="opcao"
+            onclick="selecionarTipo('revogacao')"
+          >
+            <strong>Revogação</strong>
+            <span>
+              Solicitar a revogação de consentimentos, quando aplicável.
+            </span>
+          </div>
+
+          <div
+            class="opcao"
+            onclick="selecionarTipo('outro')"
+          >
+            <strong>Outra solicitação</strong>
+            <span>
+              Enviar uma solicitação relacionada à privacidade.
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =====================================================
+           FORMULÁRIO
+      ====================================================== -->
+
+      <div class="card">
+
+        <h2>Nova solicitação</h2>
+
+        <p>
+          Informe o tipo e, se necessário, explique o que deseja.
+        </p>
+
+        <form id="formSolicitacao">
+
+          <label for="tipo">
+            Tipo de solicitação
+          </label>
+
+          <select
+            id="tipo"
+            required
+          >
+            <option value="">
+              Selecione
+            </option>
+
+            <option value="acesso">
+              Acesso aos meus dados
+            </option>
+
+            <option value="correcao">
+              Correção de dados
+            </option>
+
+            <option value="exclusao">
+              Exclusão de dados
+            </option>
+
+            <option value="informacoes">
+              Informações sobre o tratamento
+            </option>
+
+            <option value="revogacao">
+              Revogação
+            </option>
+
+            <option value="outro">
+              Outro
+            </option>
+          </select>
+
+          <label for="descricao">
+            Descrição
+          </label>
+
+          <textarea
+            id="descricao"
+            maxlength="5000"
+            placeholder="Explique sua solicitação..."
+          ></textarea>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btnEnviar"
+          >
+            Enviar solicitação
+          </button>
+
+          <div
+            id="mensagem"
+            class="mensagem"
+          ></div>
+
+        </form>
+
+      </div>
+
+      <!-- =====================================================
+           SOLICITAÇÕES
+      ====================================================== -->
+
+      <div class="card solicitacoes">
+
+        <h2>Minhas solicitações</h2>
+
+        <p>
+          Acompanhe aqui as solicitações relacionadas aos seus dados.
+        </p>
+
+        <div
+          id="listaSolicitacoes"
+          class="lista"
+        >
+          <div class="loading">
+            Carregando solicitações...
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    const API = '/api';
+
+    const token = localStorage.getItem(
+      'lavajato_auth_token'
+    );
+
+    const form = document.getElementById(
+      'formSolicitacao'
+    );
+
+    const tipo = document.getElementById(
+      'tipo'
+    );
+
+    const descricao = document.getElementById(
+      'descricao'
+    );
+
+    const btnEnviar = document.getElementById(
+      'btnEnviar'
+    );
+
+    const mensagem = document.getElementById(
+      'mensagem'
+    );
+
+    const lista = document.getElementById(
+      'listaSolicitacoes'
+    );
+
+    // ==========================================================
+    // AUTENTICAÇÃO
+    // ==========================================================
+
+    async function verificarUsuario() {
+      if (!token) {
+        window.location.href = '/login.html';
+        return false;
+      }
+
+      try {
+        const resposta = await fetch(
+          `${API}/auth/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        if (!resposta.ok) {
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.href = '/login.html';
+
+          return false;
+        }
+
+        const dados = await resposta.json();
+
+        if (
+          dados.usuario &&
+          dados.usuario.perfil === 'dev'
+        ) {
+          alert(
+            'Esta página é destinada aos usuários de empresas.'
+          );
+
+          window.location.href = '/dashboard.html';
+
+          return false;
+        }
+
+        return true;
+
+      } catch (err) {
+        console.error(
+          'Erro ao verificar usuário:',
+          err
+        );
+
+        mostrarMensagem(
+          'Não foi possível verificar sua sessão.',
+          'erro'
+        );
+
+        return false;
+      }
+    }
+
+    // ==========================================================
+    // SELECIONAR TIPO
+    // ==========================================================
+
+    function selecionarTipo(valor) {
+      tipo.value = valor;
+
+      descricao.focus();
+    }
+
+    // ==========================================================
+    // MENSAGEM
+    // ==========================================================
+
+    function mostrarMensagem(
+      texto,
+      tipoMensagem
+    ) {
+      mensagem.textContent = texto;
+
+      mensagem.className =
+        `mensagem ${tipoMensagem}`;
+    }
+
+    function limparMensagem() {
+      mensagem.textContent = '';
+
+      mensagem.className =
+        'mensagem';
+    }
+
+    // ==========================================================
+    // FORMATAR TIPO
+    // ==========================================================
+
+    function nomeTipo(tipo) {
+      const tipos = {
+        acesso: 'Acesso aos dados',
+        correcao: 'Correção de dados',
+        exclusao: 'Exclusão de dados',
+        informacoes: 'Informações sobre o tratamento',
+        revogacao: 'Revogação',
+        outro: 'Outra solicitação'
+      };
+
+      return tipos[tipo] || tipo;
+    }
+
+    // ==========================================================
+    // FORMATAR STATUS
+    // ==========================================================
+
+    function nomeStatus(status) {
+      const statuses = {
+        pendente: 'Pendente',
+        em_analise: 'Em análise',
+        atendida: 'Atendida',
+        recusada: 'Recusada',
+        cancelada: 'Cancelada'
+      };
+
+      return statuses[status] || status;
+    }
+
+    // ==========================================================
+    // FORMATAR DATA
+    // ==========================================================
+
+    function formatarData(data) {
+      if (!data) {
+        return '-';
+      }
+
+      const dataObj = new Date(data);
+
+      if (Number.isNaN(dataObj.getTime())) {
+        return data;
+      }
+
+      return dataObj.toLocaleString(
+        'pt-BR',
+        {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        }
+      );
+    }
+
+    // ==========================================================
+    // CARREGAR SOLICITAÇÕES
+    // ==========================================================
+
+    async function carregarSolicitacoes() {
+      lista.innerHTML = `
+        <div class="loading">
+          Carregando solicitações...
+        </div>
+      `;
+
+      try {
+        const resposta = await fetch(
+          `${API}/privacidade`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        if (resposta.status === 401) {
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.href = '/login.html';
+
+          return;
+        }
+
+        if (!resposta.ok) {
+          const erro = await resposta.json()
+            .catch(() => ({}));
+
+          throw new Error(
+            erro.erro ||
+            'Erro ao carregar solicitações.'
+          );
+        }
+
+        const solicitacoes =
+          await resposta.json();
+
+        renderizarSolicitacoes(
+          solicitacoes
+        );
+
+      } catch (err) {
+        console.error(
+          'Erro ao carregar solicitações:',
+          err
+        );
+
+        lista.innerHTML = `
+          <div class="vazio">
+            Não foi possível carregar suas solicitações.
+          </div>
+        `;
+      }
+    }
+
+    // ==========================================================
+    // RENDERIZAR SOLICITAÇÕES
+    // ==========================================================
+
+    function renderizarSolicitacoes(
+      solicitacoes
+    ) {
+      if (
+        !Array.isArray(solicitacoes) ||
+        solicitacoes.length === 0
+      ) {
+        lista.innerHTML = `
+          <div class="vazio">
+            Você ainda não possui solicitações.
+          </div>
+        `;
+
+        return;
+      }
+
+      lista.innerHTML =
+        solicitacoes.map(
+          solicitacao => {
+
+            const statusClass =
+              `status-${solicitacao.status}`;
+
+            const podeCancelar =
+              solicitacao.status === 'pendente';
+
+            return `
+              <div class="solicitacao">
+
+                <div class="solicitacao-topo">
+
+                  <div class="solicitacao-tipo">
+                    ${escapeHtml(
+                      nomeTipo(
+                        solicitacao.tipo
+                      )
+                    )}
+                  </div>
+
+                  <span
+                    class="status ${statusClass}"
+                  >
+                    ${escapeHtml(
+                      nomeStatus(
+                        solicitacao.status
+                      )
+                    )}
+                  </span>
+
+                </div>
+
+                <small>
+                  Solicitação #${solicitacao.id}
+                  ·
+                  ${formatarData(
+                    solicitacao.criado_em
+                  )}
+                </small>
+
+                ${
+                  solicitacao.descricao
+                    ? `
+                      <p>
+                        <strong>Descrição:</strong><br>
+                        ${escapeHtml(
+                          solicitacao.descricao
+                        )}
+                      </p>
+                    `
+                    : ''
+                }
+
+                ${
+                  solicitacao.resposta
+                    ? `
+                      <p>
+                        <strong>Resposta:</strong><br>
+                        ${escapeHtml(
+                          solicitacao.resposta
+                        )}
+                      </p>
+                    `
+                    : ''
+                }
+
+                ${
+                  podeCancelar
+                    ? `
+                      <div class="solicitacao-acoes">
+
+                        <button
+                          class="btn btn-danger"
+                          onclick="cancelarSolicitacao(${solicitacao.id})"
+                        >
+                          Cancelar solicitação
+                        </button>
+
+                      </div>
+                    `
+                    : ''
+                }
+
+              </div>
+            `;
+          }
+        ).join('');
+    }
+
+    // ==========================================================
+    // ESCAPAR HTML
+    // ==========================================================
+
+    function escapeHtml(valor) {
+      if (valor === null || valor === undefined) {
+        return '';
+      }
+
+      return String(valor)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ==========================================================
+    // ENVIAR SOLICITAÇÃO
+    // ==========================================================
+
+    form.addEventListener(
+      'submit',
+      async event => {
+        event.preventDefault();
+
+        limparMensagem();
+
+        if (!tipo.value) {
+          mostrarMensagem(
+            'Selecione o tipo de solicitação.',
+            'erro'
+          );
+
+          return;
+        }
+
+        btnEnviar.disabled = true;
+        btnEnviar.textContent =
+          'Enviando...';
+
+        try {
+          const resposta = await fetch(
+            `${API}/privacidade/solicitacoes`,
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json',
+
+                Authorization:
+                  `Bearer ${token}`
+              },
+
+              body: JSON.stringify({
+                tipo: tipo.value,
+                descricao:
+                  descricao.value.trim()
+              })
+            }
+          );
+
+          if (resposta.status === 401) {
+            localStorage.removeItem(
+              'lavajato_auth_token'
+            );
+
+            window.location.href =
+              '/login.html';
+
+            return;
+          }
+
+          const dados =
+            await resposta.json()
+              .catch(() => ({}));
+
+          if (!resposta.ok) {
+            throw new Error(
+              dados.erro ||
+              'Não foi possível registrar a solicitação.'
+            );
+          }
+
+          mostrarMensagem(
+            'Solicitação enviada com sucesso.',
+            'sucesso'
+          );
+
+          form.reset();
+
+          await carregarSolicitacoes();
+
+        } catch (err) {
+          console.error(
+            'Erro ao enviar solicitação:',
+            err
+          );
+
+          mostrarMensagem(
+            err.message ||
+            'Erro ao enviar solicitação.',
+            'erro'
+          );
+
+        } finally {
+          btnEnviar.disabled = false;
+
+          btnEnviar.textContent =
+            'Enviar solicitação';
+        }
+      }
+    );
+
+    // ==========================================================
+    // CANCELAR SOLICITAÇÃO
+    // ==========================================================
+
+    async function cancelarSolicitacao(id) {
+      const confirmar =
+        window.confirm(
+          'Deseja realmente cancelar esta solicitação?'
+        );
+
+      if (!confirmar) {
+        return;
+      }
+
+      try {
+        const resposta = await fetch(
+          `${API}/privacidade/solicitacoes/${id}/cancelar`,
+          {
+            method: 'PATCH',
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+        if (resposta.status === 401) {
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.href =
+            '/login.html';
+
+          return;
+        }
+
+        const dados =
+          await resposta.json()
+            .catch(() => ({}));
+
+        if (!resposta.ok) {
+          throw new Error(
+            dados.erro ||
+            'Não foi possível cancelar a solicitação.'
+          );
+        }
+
+        await carregarSolicitacoes();
+
+      } catch (err) {
+        console.error(
+          'Erro ao cancelar solicitação:',
+          err
+        );
+
+        alert(
+          err.message ||
+          'Erro ao cancelar solicitação.'
+        );
+      }
+    }
+
+    // ==========================================================
+    // INICIALIZAÇÃO
+    // ==========================================================
+
+    async function iniciar() {
+      const autenticado =
+        await verificarUsuario();
+
+      if (!autenticado) {
+        return;
+      }
+
+      await carregarSolicitacoes();
+    }
+
+    iniciar();
+  </script>
+
+</body>
+</html>

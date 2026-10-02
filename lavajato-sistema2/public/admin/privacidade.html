@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Privacidade e Dados | Orvix</title>
+
+  <style>
+
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --border: #e5e7eb;
+      --success: #15803d;
+      --warning: #b45309;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(
+        1200px,
+        calc(100% - 32px)
+      );
+
+      margin: 40px auto;
+    }
+
+    .topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 20px;
+
+      margin-bottom: 30px;
+    }
+
+    .topo h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topo p {
+      margin: 7px 0 0;
+      color: var(--muted);
+    }
+
+    .btn-voltar {
+      display: inline-block;
+
+      padding: 10px 16px;
+
+      border: 1px solid var(--border);
+      border-radius: 8px;
+
+      background: #fff;
+      color: var(--text);
+
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card);
+
+      border: 1px solid var(--border);
+      border-radius: 12px;
+
+      padding: 24px;
+
+      margin-bottom: 20px;
+    }
+
+    .filtros {
+      display: grid;
+
+      grid-template-columns:
+        minmax(180px, 250px)
+        1fr;
+
+      gap: 15px;
+
+      margin-bottom: 20px;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+
+      padding: 11px 12px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 8px;
+
+      background: #fff;
+
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    select:focus,
+    textarea:focus {
+      outline: none;
+
+      border-color:
+        var(--primary);
+    }
+
+    .lista {
+      display: grid;
+      gap: 14px;
+    }
+
+    .solicitacao {
+      border:
+        1px solid var(--border);
+
+      border-radius: 10px;
+
+      padding: 18px;
+    }
+
+    .solicitacao-topo {
+      display: flex;
+
+      justify-content: space-between;
+      align-items: flex-start;
+
+      gap: 15px;
+    }
+
+    .tipo {
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .usuario {
+      margin-top: 5px;
+
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status {
+      display: inline-block;
+
+      padding: 5px 10px;
+
+      border-radius: 999px;
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-pendente {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .status-em_analise {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-atendida {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .status-recusada,
+    .status-cancelada {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .descricao {
+      margin-top: 16px;
+
+      padding: 14px;
+
+      background: #f9fafb;
+
+      border-radius: 8px;
+
+      line-height: 1.5;
+    }
+
+    .data {
+      margin-top: 10px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    .acoes {
+      margin-top: 18px;
+
+      padding-top: 18px;
+
+      border-top:
+        1px solid var(--border);
+    }
+
+    .acoes-grid {
+      display: grid;
+
+      grid-template-columns:
+        220px 1fr;
+
+      gap: 12px;
+    }
+
+    .btn {
+      border: 0;
+
+      border-radius: 8px;
+
+      padding: 11px 17px;
+
+      cursor: pointer;
+
+      font-weight: 600;
+
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background:
+        var(--primary-hover);
+    }
+
+    .mensagem {
+      display: none;
+
+      padding: 12px 14px;
+
+      border-radius: 8px;
+
+      margin-bottom: 20px;
+
+      font-size: 14px;
+    }
+
+    .mensagem.sucesso {
+      display: block;
+
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .mensagem.erro {
+      display: block;
+
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .vazio {
+      padding: 45px 20px;
+
+      text-align: center;
+
+      color: var(--muted);
+
+      border:
+        1px dashed var(--border);
+
+      border-radius: 10px;
+    }
+
+    .loading {
+      text-align: center;
+
+      color: var(--muted);
+
+      padding: 30px;
+    }
+
+    @media (max-width: 700px) {
+
+      .container {
+        width:
+          calc(100% - 20px);
+
+        margin: 20px auto;
+      }
+
+      .topo {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .filtros {
+        grid-template-columns: 1fr;
+      }
+
+      .acoes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .solicitacao-topo {
+        flex-direction: column;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="container">
+
+    <header class="topo">
+
+      <div>
+
+        <h1>
+          Privacidade e Dados
+        </h1>
+
+        <p>
+          Gerencie as solicitações de privacidade da empresa.
+        </p>
+
+      </div>
+
+      <a
+        href="/admin/dashboard.html"
+        class="btn-voltar"
+      >
+        Voltar
+      </a>
+
+    </header>
+
+    <div
+      id="mensagem"
+      class="mensagem"
+    ></div>
+
+    <section class="card">
+
+      <div class="filtros">
+
+        <select id="filtroStatus">
+
+          <option value="">
+            Todos os status
+          </option>
+
+          <option value="pendente">
+            Pendentes
+          </option>
+
+          <option value="em_analise">
+            Em análise
+          </option>
+
+          <option value="atendida">
+            Atendidas
+          </option>
+
+          <option value="recusada">
+            Recusadas
+          </option>
+
+          <option value="cancelada">
+            Canceladas
+          </option>
+
+        </select>
+
+        <input
+          type="text"
+          id="filtroTexto"
+          placeholder="Pesquisar por usuário, e-mail ou descrição..."
+          style="
+            width:100%;
+            padding:11px 12px;
+            border:1px solid var(--border);
+            border-radius:8px;
+            font-size:14px;
+          "
+        >
+
+      </div>
+
+      <div
+        id="lista"
+        class="lista"
+      >
+
+        <div class="loading">
+          Carregando solicitações...
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+
+    const API = '/api';
+
+    const token =
+      localStorage.getItem(
+        'lavajato_auth_token'
+      );
+
+    const lista =
+      document.getElementById(
+        'lista'
+      );
+
+    const filtroStatus =
+      document.getElementById(
+        'filtroStatus'
+      );
+
+    const filtroTexto =
+      document.getElementById(
+        'filtroTexto'
+      );
+
+    const mensagem =
+      document.getElementById(
+        'mensagem'
+      );
+
+    let solicitacoes = [];
+
+    // ==========================================================
+    // MENSAGEM
+    // ==========================================================
+
+    function mostrarMensagem(
+      texto,
+      tipo
+    ) {
+
+      mensagem.textContent = texto;
+
+      mensagem.className =
+        `mensagem ${tipo}`;
+
+    }
+
+    function limparMensagem() {
+
+      mensagem.textContent = '';
+
+      mensagem.className =
+        'mensagem';
+
+    }
+
+    // ==========================================================
+    // AUTENTICAÇÃO
+    // ==========================================================
+
+    async function verificarAdministrador() {
+
+      if (!token) {
+
+        window.location.href =
+          '/login.html';
+
+        return false;
+      }
+
+      try {
+
+        const resposta =
+          await fetch(
+            `${API}/auth/me`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
+            }
+          );
+
+        if (!resposta.ok) {
+
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.href =
+            '/login.html';
+
+          return false;
+        }
+
+        const dados =
+          await resposta.json();
+
+        if (
+          !dados.usuario ||
+          dados.usuario.perfil !==
+            'administrador'
+        ) {
+
+          alert(
+            'Acesso permitido somente para administradores.'
+          );
+
+          window.location.href =
+            '/dashboard.html';
+
+          return false;
+        }
+
+        return true;
+
+      } catch (err) {
+
+        console.error(
+          'Erro ao verificar usuário:',
+          err
+        );
+
+        mostrarMensagem(
+          'Não foi possível verificar sua sessão.',
+          'erro'
+        );
+
+        return false;
+      }
+
+    }
+
+    // ==========================================================
+    // FORMATAR TIPO
+    // ==========================================================
+
+    function nomeTipo(tipo) {
+
+      const tipos = {
+
+        acesso:
+          'Acesso aos dados',
+
+        correcao:
+          'Correção de dados',
+
+        exclusao:
+          'Exclusão de dados',
+
+        informacoes:
+          'Informações sobre o tratamento',
+
+        revogacao:
+          'Revogação',
+
+        outro:
+          'Outra solicitação'
+
+      };
+
+      return tipos[tipo] || tipo;
+
+    }
+
+    // ==========================================================
+    // FORMATAR STATUS
+    // ==========================================================
+
+    function nomeStatus(status) {
+
+      const statuses = {
+
+        pendente:
+          'Pendente',
+
+        em_analise:
+          'Em análise',
+
+        atendida:
+          'Atendida',
+
+        recusada:
+          'Recusada',
+
+        cancelada:
+          'Cancelada'
+
+      };
+
+      return (
+        statuses[status] ||
+        status
+      );
+
+    }
+
+    // ==========================================================
+    // DATA
+    // ==========================================================
+
+    function formatarData(data) {
+
+      if (!data) {
+        return '-';
+      }
+
+      const valor =
+        new Date(data);
+
+      if (
+        Number.isNaN(
+          valor.getTime()
+        )
+      ) {
+
+        return data;
+      }
+
+      return valor.toLocaleString(
+        'pt-BR',
+        {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        }
+      );
+
+    }
+
+    // ==========================================================
+    // ESCAPE HTML
+    // ==========================================================
+
+    function escapeHtml(valor) {
+
+      if (
+        valor === null ||
+        valor === undefined
+      ) {
+
+        return '';
+      }
+
+      return String(valor)
+        .replace(
+          /&/g,
+          '&amp;'
+        )
+        .replace(
+          /</g,
+          '&lt;'
+        )
+        .replace(
+          />/g,
+          '&gt;'
+        )
+        .replace(
+          /"/g,
+          '&quot;'
+        )
+        .replace(
+          /'/g,
+          '&#039;'
+        );
+
+    }
+
+    // ==========================================================
+    // CARREGAR
+    // ==========================================================
+
+    async function carregarSolicitacoes() {
+
+      lista.innerHTML = `
+        <div class="loading">
+          Carregando solicitações...
+        </div>
+      `;
+
+      try {
+
+        const resposta =
+          await fetch(
+            `${API}/admin/privacidade`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
+            }
+          );
+
+        if (
+          resposta.status === 401
+        ) {
+
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.href =
+            '/login.html';
+
+          return;
+        }
+
+        if (
+          resposta.status === 403
+        ) {
+
+          window.location.href =
+            '/dashboard.html';
+
+          return;
+        }
+
+        const dados =
+          await resposta.json();
+
+        if (!resposta.ok) {
+
+          throw new Error(
+            dados.erro ||
+            'Erro ao carregar solicitações.'
+          );
+
+        }
+
+        solicitacoes =
+          Array.isArray(dados)
+            ? dados
+            : [];
+
+        renderizar();
+
+      } catch (err) {
+
+        console.error(
+          'Erro ao carregar solicitações:',
+          err
+        );
+
+        lista.innerHTML = `
+          <div class="vazio">
+            Não foi possível carregar as solicitações.
+          </div>
+        `;
+
+      }
+
+    }
+
+    // ==========================================================
+    // FILTRAR
+    // ==========================================================
+
+    function obterFiltradas() {
+
+      const status =
+        filtroStatus.value;
+
+      const texto =
+        filtroTexto.value
+          .trim()
+          .toLowerCase();
+
+      return solicitacoes.filter(
+        solicitacao => {
+
+          if (
+            status &&
+            solicitacao.status !==
+              status
+          ) {
+
+            return false;
+          }
+
+          if (!texto) {
+            return true;
+          }
+
+          const conteudo = [
+
+            solicitacao.usuario_nome,
+
+            solicitacao.usuario_email,
+
+            solicitacao.descricao,
+
+            solicitacao.tipo,
+
+            solicitacao.status
+
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+          return conteudo.includes(
+            texto
+          );
+
+        }
+      );
+
+    }
+
+    // ==========================================================
+    // RENDERIZAR
+    // ==========================================================
+
+    function renderizar() {
+
+      const listaFiltrada =
+        obterFiltradas();
+
+      if (
+        listaFiltrada.length === 0
+      ) {
+
+        lista.innerHTML = `
+          <div class="vazio">
+            Nenhuma solicitação encontrada.
+          </div>
+        `;
+
+        return;
+      }
+
+      lista.innerHTML =
+        listaFiltrada
+          .map(
+            solicitacao => {
+
+              const statusClass =
+                `status-${solicitacao.status}`;
+
+              return `
+
+                <article
+                  class="solicitacao"
+                >
+
+                  <div
+                    class="solicitacao-topo"
+                  >
+
+                    <div>
+
+                      <div class="tipo">
+                        ${escapeHtml(
+                          nomeTipo(
+                            solicitacao.tipo
+                          )
+                        )}
+                      </div>
+
+                      <div class="usuario">
+
+                        ${escapeHtml(
+                          solicitacao.usuario_nome ||
+                          'Usuário'
+                        )}
+
+                        ${
+                          solicitacao.usuario_email
+                            ? `
+                              ·
+                              ${escapeHtml(
+                                solicitacao.usuario_email
+                              )}
+                            `
+                            : ''
+                        }
+
+                      </div>
+
+                    </div>
+
+                    <span
+                      class="status ${statusClass}"
+                    >
+                      ${escapeHtml(
+                        nomeStatus(
+                          solicitacao.status
+                        )
+                      )}
+                    </span>
+
+                  </div>
+
+                  ${
+                    solicitacao.descricao
+                      ? `
+                        <div class="descricao">
+
+                          <strong>
+                            Solicitação:
+                          </strong>
+
+                          <br><br>
+
+                          ${escapeHtml(
+                            solicitacao.descricao
+                          )}
+
+                        </div>
+                      `
+                      : ''
+                  }
+
+                  ${
+                    solicitacao.resposta
+                      ? `
+                        <div
+                          class="descricao"
+                          style="margin-top:10px;"
+                        >
+
+                          <strong>
+                            Resposta atual:
+                          </strong>
+
+                          <br><br>
+
+                          ${escapeHtml(
+                            solicitacao.resposta
+                          )}
+
+                        </div>
+                      `
+                      : ''
+                  }
+
+                  <div class="data">
+
+                    Solicitação #${solicitacao.id}
+
+                    ·
+
+                    ${formatarData(
+                      solicitacao.criado_em
+                    )}
+
+                  </div>
+
+                  ${
+                    solicitacao.status !==
+                      'cancelada'
+                      ? `
+
+                        <div class="acoes">
+
+                          <div
+                            class="acoes-grid"
+                          >
+
+                            <select
+                              id="status-${solicitacao.id}"
+                            >
+
+                              <option
+                                value="pendente"
+                                ${
+                                  solicitacao.status ===
+                                  'pendente'
+                                    ? 'selected'
+                                    : ''
+                                }
+                              >
+                                Pendente
+                              </option>
+
+                              <option
+                                value="em_analise"
+                                ${
+                                  solicitacao.status ===
+                                  'em_analise'
+                                    ? 'selected'
+                                    : ''
+                                }
+                              >
+                                Em análise
+                              </option>
+
+                              <option
+                                value="atendida"
+                                ${
+                                  solicitacao.status ===
+                                  'atendida'
+                                    ? 'selected'
+                                    : ''
+                                }
+                              >
+                                Atendida
+                              </option>
+
+                              <option
+                                value="recusada"
+                                ${
+                                  solicitacao.status ===
+                                  'recusada'
+                                    ? 'selected'
+                                    : ''
+                                }
+                              >
+                                Recusada
+                              </option>
+
+                            </select>
+
+                            <textarea
+                              id="resposta-${solicitacao.id}"
+                              maxlength="5000"
+                              placeholder="Digite uma resposta para o usuário..."
+                            >${escapeHtml(
+                              solicitacao.resposta || ''
+                            )}</textarea>
+
+                          </div>
+
+                          <button
+                            class="btn btn-primary"
+                            style="margin-top:12px;"
+                            onclick="atualizarSolicitacao(${solicitacao.id})"
+                          >
+                            Salvar atualização
+                          </button>
+
+                        </div>
+
+                      `
+                      : ''
+                  }
+
+                </article>
+
+              `;
+
+            }
+          )
+          .join('');
+
+    }
+
+    // ==========================================================
+    // ATUALIZAR
+    // ==========================================================
+
+    async function atualizarSolicitacao(
+      id
+    ) {
+
+      limparMensagem();
+
+      const statusElement =
+        document.getElementById(
+          `status-${id}`
+        );
+
+      const respostaElement =
+        document.getElementById(
+          `resposta-${id}`
+        );
+
+      if (
+        !statusElement ||
+        !respostaElement
+      ) {
+
+        return;
+      }
+
+      const status =
+        statusElement.value;
+
+      const resposta =
+        respostaElement.value.trim();
+
+      try {
+
+        const response =
+          await fetch(
+            `${API}/admin/privacidade/${id}`,
+            {
+              method: 'PATCH',
+
+              headers: {
+
+                'Content-Type':
+                  'application/json',
+
+                Authorization:
+                  `Bearer ${token}`
+
+              },
+
+              body: JSON.stringify({
+
+                status,
+
+                resposta
+
+              })
+
+            }
+          );
+
+        if (
+          response.status === 401
+        ) {
+
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+          window.location.href =
+            '/login.html';
+
+          return;
+        }
+
+        const dados =
+          await response.json();
+
+        if (!response.ok) {
+
+          throw new Error(
+            dados.erro ||
+            'Não foi possível atualizar a solicitação.'
+          );
+
+        }
+
+        mostrarMensagem(
+          'Solicitação atualizada com sucesso.',
+          'sucesso'
+        );
+
+        await carregarSolicitacoes();
+
+      } catch (err) {
+
+        console.error(
+          'Erro ao atualizar solicitação:',
+          err
+        );
+
+        mostrarMensagem(
+          err.message ||
+          'Erro ao atualizar solicitação.',
+          'erro'
+        );
+
+      }
+
+    }
+
+    // ==========================================================
+    // FILTROS
+    // ==========================================================
+
+    filtroStatus.addEventListener(
+      'change',
+      renderizar
+    );
+
+    filtroTexto.addEventListener(
+      'input',
+      renderizar
+    );
+
+    // ==========================================================
+    // INICIALIZAÇÃO
+    // ==========================================================
+
+    async function iniciar() {
+
+      const autorizado =
+        await verificarAdministrador();
+
+      if (!autorizado) {
+        return;
+      }
+
+      await carregarSolicitacoes();
+
+    }
+
+    iniciar();
+
+  </script>
+
+</body>
+
+</html>
