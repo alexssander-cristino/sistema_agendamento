@@ -1005,6 +1005,22 @@
         </button>
 
 
+          <button
+            class="menu-btn"
+            data-page="tratamentos"
+            type="button"
+          >
+            <span class="menu-icon">
+              ▣
+            </span>
+            <span>
+              Tratamentos
+            </span>
+          </button>
+
+
+
+
         <div class="menu-title">
           Sistema
         </div>
@@ -2160,6 +2176,16 @@
                   return;
 
                 }
+
+                
+                if (
+                  page === 'tratamentos'
+                ) {
+                  window.location.href =
+                    '/admin/tratamentos.html';
+                  return;
+                }
+
 
 
                 if (
