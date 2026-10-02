@@ -2,35 +2,29 @@ require('dotenv').config();
 
 const { Pool, types } = require('pg');
 
-// PostgreSQL DATE como texto YYYY-MM-DD
+// PostgreSQL DATE como string YYYY-MM-DD
 types.setTypeParser(1082, (val) => val);
 
-const isProduction = process.env.NODE_ENV === 'production';
-
-const poolConfig = {
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 
-  ssl: isProduction
-    ? {
-        rejectUnauthorized: false,
-      }
-    : false,
+  ssl: {
+    rejectUnauthorized: false
+  },
 
-  // Vercel + Supabase
-  max: 5,
+  // Vercel = serverless
+  // Pool pequeno para não abrir várias conexões por instância
+  max: 1,
 
   idleTimeoutMillis: 10000,
-
-  connectionTimeoutMillis: 10000,
-};
+  connectionTimeoutMillis: 10000
+});
 
 if (!process.env.DATABASE_URL) {
   console.error(
     'ERRO: DATABASE_URL não foi definida nas variáveis de ambiente.'
   );
 }
-
-const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
   console.error(
@@ -40,3 +34,4 @@ pool.on('error', (err) => {
 });
 
 module.exports = pool;
+
