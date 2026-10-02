@@ -1,4 +1,4 @@
-# Lavajato — Agenda &amp; Faturamento
+# Orvix — Agenda &amp; Faturamento
 
 Sistema de agendamento e faturamento para lavação automotiva, com banco de
 dados PostgreSQL, API própria em Node.js e front-end responsivo (funciona
@@ -7,7 +7,7 @@ bem em computador, tablet e celular).
 ## Estrutura do projeto
 
 ```
-lavajato/
+Orvix/
 ├── database/schema.sql     → script para rodar no pgAdmin
 ├── server/                 → API em Node.js + Express
 │   ├── index.js
@@ -22,8 +22,8 @@ lavajato/
 
 1. Abra o pgAdmin e conecte no seu servidor PostgreSQL.
 2. Clique com o botão direito em **Databases** → **Create** → **Database…**
-   e chame de `lavajato` (pode usar outro nome, mas lembre de ajustar o `.env`).
-3. Clique com o botão direito no banco `lavajato` → **Query Tool**.
+   e chame de `Orvix` (pode usar outro nome, mas lembre de ajustar o `.env`).
+3. Clique com o botão direito no banco `Orvix` → **Query Tool**.
 4. Abra o arquivo `database/schema.sql`, copie todo o conteúdo, cole no
    Query Tool e clique em **Execute (F5)**.
    - Isso cria as tabelas `servicos` e `agendamentos`, os índices, um
@@ -40,12 +40,7 @@ lavajato/
    você usa para conectar no pgAdmin — clique com o botão direito no
    servidor → **Properties** → aba **Connection**):
    ```
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=lavajato
-   DB_USER=postgres
-   DB_PASSWORD=sua_senha
-   PORT=3000
+   
    ```
 
 ## 3. Instalar e rodar

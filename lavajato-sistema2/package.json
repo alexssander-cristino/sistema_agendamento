@@ -1,5 +1,5 @@
 {
-  "name": "lavajato-sistema",
+  "name": "Orvix-sistema",
   "version": "1.0.0",
   "description": "Sistema de agendamento e faturamento para lavação automotiva",
   "main": "server/index.js",
