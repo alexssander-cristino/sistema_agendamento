@@ -1,30 +1,13 @@
 {
 "version": 2,
-"builds": [
+"rewrites": [
 {
-"src": "api/index.js",
-"use": "@vercel/node"
+"source": "/api/:path*",
+"destination": "/api/index"
 },
 {
-"src": "public/**",
-"use": "@vercel/static"
-}
-],
-"routes": [
-{
-"src": "/api/(.*)",
-"dest": "/api/index.js"
-},
-{
-"src": "/(.*\.(html|css|js|png|jpg|jpeg|svg|ico|webp))",
-"headers": {
-"cache-control": "public, max-age=0, must-revalidate"
-},
-"continue": true
-},
-{
-"src": "/(.*)",
-"dest": "/api/index.js"
+"source": "/(.*)",
+"destination": "/api/index"
 }
 ]
 }
