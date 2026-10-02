@@ -391,10 +391,24 @@ async function buscarPagamentoAutorizado(
 
 }
 
+/**
+ * Testa a comunicação com o Mercado Pago.
+ */
+async function testarConexao() {
+
+  return mercadoPagoRequest(
+    '/v1/payment_methods',
+    {
+      method: 'GET'
+    }
+  );
+
+}
 
 module.exports = {
 
   mercadoPagoRequest,
+  testarConexao,
 
   criarPlano,
 
