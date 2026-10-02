@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
+
+  <title>Minha assinatura | Lavajato</title>
+
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+
+  <style>
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 32px 18px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .card-description {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .body {
+      padding: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow:
+        0 0 0 3px rgba(37, 99, 235, .12);
+    }
+
+    .mp-field {
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .plan-box {
+      margin-bottom: 22px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .plan-price {
+      margin-top: 5px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .plan-period {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .company-info {
+      margin-bottom: 22px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+
+    .company-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .company-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .alert {
+      display: none;
+      margin-bottom: 18px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-error {
+      color: #991b1b;
+      background: var(--danger-bg);
+      border: 1px solid #fecaca;
+    }
+
+    .alert-success {
+      color: #166534;
+      background: var(--success-bg);
+      border: 1px solid #bbf7d0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      flex: 1;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      padding: 35px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .security {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .mp-loading {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+
+      .page {
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn-secondary {
+        width: 100%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="page">
+
+
+<div class="container">
+
+  <header class="header">
+
+    <p class="eyebrow">
+      Lavajato SaaS
+    </p>
+
+    <h1>
+      Minha assinatura
+    </h1>
+
+    <p class="subtitle">
+      Escolha seu plano e cadastre o cartão para ativar sua assinatura.
+    </p>
+
+  </header>
+
+
+  <div
+    id="alert-error"
+    class="alert alert-error"
+  ></div>
+
+  <div
+    id="alert-success"
+    class="alert alert-success"
+  ></div>
+
+
+  <section class="card">
+
+    <div class="card-header">
+
+      <h2 class="card-title">
+        Dados da assinatura
+      </h2>
+
+      <p class="card-description">
+        A cobrança será realizada automaticamente conforme o plano escolhido.
+      </p>
+
+    </div>
+
+
+    <div class="body">
+
+      <div
+        id="loading"
+        class="loading"
+      >
+        Carregando...
+      </div>
+
+
+      <div
+        id="content"
+        style="display:none;"
+      >
+
+        <div
+          id="company-info"
+          class="company-info"
+        >
+
+          <div class="company-label">
+            Empresa
+          </div>
+
+          <div
+            id="company-name"
+            class="company-name"
+          >
+            Carregando...
+          </div>
+
+        </div>
+
+
+        <div
+          id="plan-box"
+          class="plan-box"
+        ></div>
+
+
+        <form
+          id="card-form"
+          autocomplete="off"
+        >
+
+          <div class="form-group">
+
+            <label for="email">
+              E-mail
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              placeholder="cliente@email.com"
+              autocomplete="email"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="cardholder-name">
+              Nome no cartão
+            </label>
+
+            <input
+              type="text"
+              id="cardholder-name"
+              placeholder="Nome completo"
+              autocomplete="cc-name"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Número do cartão
+            </label>
+
+            <div
+              id="card-number"
+              class="mp-field"
+            ></div>
+
+          </div>
+
+
+          <div class="grid">
+
+            <div class="form-group">
+
+              <label>
+                Validade
+              </label>
+
+              <div
+                id="expiration-date"
+                class="mp-field"
+              ></div>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                Código de segurança
+              </label>
+
+              <div
+                id="security-code"
+                class="mp-field"
+              ></div>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="issuer">
+              Banco emissor
+            </label>
+
+            <select id="issuer"></select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="installments">
+              Parcelas
+            </label>
+
+            <select id="installments"></select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="identification-type">
+              Tipo de documento
+            </label>
+
+            <select id="identification-type"></select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="identification-number">
+              CPF
+            </label>
+
+            <input
+              type="text"
+              id="identification-number"
+              placeholder="00000000000"
+              inputmode="numeric"
+              autocomplete="off"
+              required
+            >
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="btn-voltar"
+            >
+              Voltar
+            </button>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="btn-assinar"
+            >
+              Assinar plano
+            </button>
+
+          </div>
+
+        </form>
+
+
+        <p class="security">
+          Os dados do cartão são processados diretamente pelo Mercado Pago.
+          O número completo do cartão não é enviado para o servidor do Lavajato.
+        </p>
+
+
+        <div
+          id="mp-loading"
+          class="mp-loading"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+  </main>
+
+  <script>
+
+    (() => {
+
+      'use strict';
+
+
+      const API = '/api';
+
+      const AUTH_TOKEN_KEY =
+        'lavajato_auth_token';
+
+
+      const loading =
+        document.getElementById('loading');
+
+      const content =
+        document.getElementById('content');
+
+      const planBox =
+        document.getElementById('plan-box');
+
+      const companyName =
+        document.getElementById('company-name');
+
+      const alertError =
+        document.getElementById('alert-error');
+
+      const alertSuccess =
+        document.getElementById('alert-success');
+
+      const form =
+        document.getElementById('card-form');
+
+      const email =
+        document.getElementById('email');
+
+      const cardholderName =
+        document.getElementById('cardholder-name');
+
+      const identificationNumber =
+        document.getElementById(
+          'identification-number'
+        );
+
+      const btnAssinar =
+        document.getElementById('btn-assinar');
+
+      const mpLoading =
+        document.getElementById('mp-loading');
+
+
+      let plano = null;
+
+      let usuario = null;
+
+      let mp = null;
+
+      let cardForm = null;
+
+
+      function mostrarErro(message) {
+
+        alertSuccess.classList.remove('show');
+
+        alertError.textContent =
+          message ||
+          'Ocorreu um erro.';
+
+        alertError.classList.add('show');
+
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+
+      }
+
+
+      function mostrarSucesso(message) {
+
+        alertError.classList.remove('show');
+
+        alertSuccess.textContent =
+          message ||
+          'Operação realizada com sucesso.';
+
+        alertSuccess.classList.add('show');
+
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+
+      }
+
+
+      function limparAlertas() {
+
+        alertError.classList.remove('show');
+
+        alertSuccess.classList.remove('show');
+
+        alertError.textContent = '';
+
+        alertSuccess.textContent = '';
+
+      }
+
+
+      function formatarMoeda(value) {
+
+        return Number(value || 0)
+          .toLocaleString(
+            'pt-BR',
+            {
+              style: 'currency',
+              currency: 'BRL'
+            }
+          );
+
+      }
+
+
+      function escapeHtml(value) {
+
+        return String(
+          value ?? ''
+        ).replace(
+          /[&<>"']/g,
+          character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+          })[character]
+        );
+
+      }
+
+
+      async function api(
+        path,
+        options = {}
+      ) {
+
+        const token =
+          localStorage.getItem(
+            AUTH_TOKEN_KEY
+          );
+
+
+        const headers = {
+          ...(options.body
+            ? {
+                'Content-Type':
+                  'application/json'
+              }
+            : {}),
+          ...(options.headers || {})
+        };
+
+
+        if (token) {
+
+          headers.Authorization =
+            `Bearer ${token}`;
+
+        }
+
+
+        const response =
+          await fetch(
+            API + path,
+            {
+              ...options,
+              headers
+            }
+          );
+
+
+        let data = null;
+
+
+        try {
+
+          data =
+            await response.json();
+
+        } catch (_) {
+
+          data = null;
+
+        }
+
+
+        if (response.status === 401) {
+
+          localStorage.removeItem(
+            AUTH_TOKEN_KEY
+          );
+
+          window.location.href = '/';
+
+          throw new Error(
+            'Sessão expirada.'
+          );
+
+        }
+
+
+        if (!response.ok) {
+
+          const error =
+            new Error(
+              data?.erro ||
+              data?.message ||
+              'Erro na requisição.'
+            );
+
+          error.status =
+            response.status;
+
+          error.data =
+            data;
+
+          throw error;
+
+        }
+
+
+        return data;
+
+      }
+
+
+      async function verificarUsuario() {
+
+        const token =
+          localStorage.getItem(
+            AUTH_TOKEN_KEY
+          );
+
+
+        if (!token) {
+
+          window.location.href = '/';
+
+          return null;
+
+        }
+
+
+        const data =
+          await api('/auth/me');
+
+
+        if (!data?.usuario) {
+
+          throw new Error(
+            'Não foi possível identificar o usuário.'
+          );
+
+        }
+
+
+        usuario =
+          data.usuario;
+
+
+        if (
+          usuario.perfil === 'dev'
+        ) {
+
+          throw new Error(
+            'A tela de assinatura deve ser acessada por uma empresa.'
+          );
+
+        }
+
+
+        if (!usuario.empresa_id) {
+
+          throw new Error(
+            'Seu usuário não está vinculado a uma empresa.'
+          );
+
+        }
+
+
+        return usuario;
+
+      }
+
+
+      async function carregarEmpresa() {
+
+        /*
+         * O nome da empresa deve vir do backend
+         * usando req.usuario.empresa_id.
+         *
+         * Caso o /api/auth/me já retorne empresa_nome,
+         * usamos diretamente.
+         */
+
+        if (usuario.empresa_nome) {
+
+          companyName.textContent =
+            usuario.empresa_nome;
+
+          return;
+
+        }
+
+
+        /*
+         * Se o /auth/me ainda não retornar o nome,
+         * não inventamos nenhum ID no frontend.
+         */
+
+        companyName.textContent =
+          'Sua empresa';
+
+      }
+
+
+      async function carregarPlano() {
+
+        const params =
+          new URLSearchParams(
+            window.location.search
+          );
+
+
+        const planoId =
+          Number(
+            params.get('plano_id')
+          );
+
+
+        if (
+          !Number.isInteger(planoId) ||
+          planoId <= 0
+        ) {
+
+          throw new Error(
+            'Informe um plano válido.'
+          );
+
+        }
+
+
+        const data =
+          await api(
+            `/planos/${planoId}`
+          );
+
+
+        if (!data) {
+
+          throw new Error(
+            'Plano não encontrado.'
+          );
+
+        }
+
+
+        plano =
+          data;
+
+
+        planBox.innerHTML = `
+
+          <div class="plan-name">
+            ${escapeHtml(plano.nome)}
+          </div>
+
+          <div class="plan-price">
+            ${formatarMoeda(plano.valor)}
+          </div>
+
+          <div class="plan-period">
+            ${
+              plano.periodo === 'anual'
+                ? 'Cobrança anual'
+                : 'Cobrança mensal'
+            }
+          </div>
+
+        `;
+
+      }
+
+
+      async function obterPublicKey() {
+
+        const data =
+          await api(
+            '/mercado-pago/public-key'
+          );
+
+
+        if (
+          !data ||
+          !data.public_key
+        ) {
+
+          throw new Error(
+            'Chave pública do Mercado Pago não configurada.'
+          );
+
+        }
+
+
+        return data.public_key;
+
+      }
+
+
+      async function iniciarMercadoPago() {
+
+        if (
+          typeof MercadoPago ===
+          'undefined'
+        ) {
+
+          throw new Error(
+            'Mercado Pago.js não foi carregado.'
+          );
+
+        }
+
+
+        mpLoading.textContent =
+          'Carregando formulário seguro do Mercado Pago...';
+
+
+        const publicKey =
+          await obterPublicKey();
+
+
+        mp =
+          new MercadoPago(
+            publicKey,
+            {
+              locale: 'pt-BR'
+            }
+          );
+
+
+        cardForm =
+          mp.cardForm({
+
+            amount:
+              Number(
+                plano.valor
+              ).toFixed(2),
+
+            iframe: true,
+
+            form: {
+
+              id:
+                'card-form',
+
+              cardNumber: {
+                id:
+                  'card-number',
+                placeholder:
+                  'Número do cartão'
+              },
+
+              expirationDate: {
+                id:
+                  'expiration-date',
+                placeholder:
+                  'MM/AA'
+              },
+
+              securityCode: {
+                id:
+                  'security-code',
+                placeholder:
+                  'CVV'
+              },
+
+              cardholderName: {
+                id:
+                  'cardholder-name'
+              },
+
+              issuer: {
+                id:
+                  'issuer'
+              },
+
+              installments: {
+                id:
+                  'installments'
+              },
+
+              identificationType: {
+                id:
+                  'identification-type'
+              },
+
+              identificationNumber: {
+                id:
+                  'identification-number'
+              },
+
+              cardholderEmail: {
+                id:
+                  'email'
+              }
+
+            },
+
+            callbacks: {
+
+              onFormMounted:
+                error => {
+
+                  if (error) {
+
+                    console.error(
+                      'Erro ao montar CardForm:',
+                      error
+                    );
+
+                    mpLoading.textContent = '';
+
+                    mostrarErro(
+                      'Não foi possível carregar os campos do cartão.'
+                    );
+
+                    return;
+
+                  }
+
+                  mpLoading.textContent = '';
+
+                }
+
+            }
+
+          });
+
+
+        email.value =
+          usuario.email || '';
+
+      }
+
+
+      async function assinar() {
+
+        limparAlertas();
+
+
+        if (!plano) {
+
+          mostrarErro(
+            'Plano não carregado.'
+          );
+
+          return;
+
+        }
+
+
+        if (!usuario?.empresa_id) {
+
+          mostrarErro(
+            'A empresa do usuário não foi identificada.'
+          );
+
+          return;
+
+        }
+
+
+        const emailValue =
+          email.value.trim();
+
+        const nomeValue =
+          cardholderName.value.trim();
+
+        const cpfValue =
+          identificationNumber.value.trim();
+
+
+        if (!emailValue) {
+
+          mostrarErro(
+            'Informe o e-mail.'
+          );
+
+          email.focus();
+
+          return;
+
+        }
+
+
+        if (!nomeValue) {
+
+          mostrarErro(
+            'Informe o nome do titular do cartão.'
+          );
+
+          cardholderName.focus();
+
+          return;
+
+        }
+
+
+        if (!cpfValue) {
+
+          mostrarErro(
+            'Informe o CPF do titular do cartão.'
+          );
+
+          identificationNumber.focus();
+
+          return;
+
+        }
+
+
+        if (!cardForm) {
+
+          mostrarErro(
+            'O formulário do cartão ainda não foi carregado.'
+          );
+
+          return;
+
+        }
+
+
+        let cardFormData;
+
+
+        try {
+
+          cardFormData =
+            cardForm.getCardFormData();
+
+        } catch (error) {
+
+          console.error(
+            'Erro ao obter dados do cartão:',
+            error
+          );
+
+          mostrarErro(
+            'Não foi possível validar os dados do cartão.'
+          );
+
+          return;
+
+        }
+
+
+        if (
+          !cardFormData ||
+          !cardFormData.token
+        ) {
+
+          mostrarErro(
+            'Não foi possível gerar o token do cartão. Verifique os dados informados.'
+          );
+
+          return;
+
+        }
+
+
+        btnAssinar.disabled =
+          true;
+
+        btnAssinar.textContent =
+          'Processando...';
+
+
+        try {
+
+          const resultado =
+            await api(
+              '/mercado-pago/assinaturas',
+              {
+                method: 'POST',
+
+                body:
+                  JSON.stringify({
+
+                    plano_id:
+                      Number(plano.id),
+
+                    email:
+                      emailValue,
+
+                    nome:
+                      nomeValue,
+
+                    card_token_id:
+                      cardFormData.token
+
+                  })
+              }
+            );
+
+
+          console.log(
+            'Assinatura criada:',
+            resultado
+          );
+
+
+          mostrarSucesso(
+            'Assinatura criada. Aguardando confirmação do pagamento.'
+          );
+
+
+          btnAssinar.textContent =
+            'Assinatura criada';
+
+
+          setTimeout(() => {
+
+            window.location.href =
+              '/dashboard.html';
+
+          }, 2500);
+
+
+        } catch (error) {
+
+          console.error(
+            'Erro ao criar assinatura:',
+            error
+          );
+
+
+          mostrarErro(
+            error.message ||
+            'Não foi possível criar a assinatura.'
+          );
+
+
+          btnAssinar.disabled =
+            false;
+
+          btnAssinar.textContent =
+            'Assinar plano';
+
+        }
+
+      }
+
+
+      form.addEventListener(
+        'submit',
+        event => {
+
+          event.preventDefault();
+
+          assinar();
+
+        }
+      );
+
+
+      document
+        .getElementById('btn-voltar')
+        .addEventListener(
+          'click',
+          () => {
+
+            window.location.href =
+              '/dashboard.html';
+
+          }
+        );
+
+
+      async function iniciar() {
+
+        try {
+
+          const usuarioAtual =
+            await verificarUsuario();
+
+
+          if (!usuarioAtual) {
+            return;
+          }
+
+
+          await carregarEmpresa();
+
+          await carregarPlano();
+
+
+          loading.style.display =
+            'none';
+
+          content.style.display =
+            'block';
+
+
+          await iniciarMercadoPago();
+
+
+        } catch (error) {
+
+          console.error(
+            'Erro ao iniciar assinatura:',
+            error
+          );
+
+
+          loading.style.display =
+            'none';
+
+          content.style.display =
+            'block';
+
+          mostrarErro(
+            error.message ||
+            'Não foi possível carregar a página de assinatura.'
+          );
+
+        }
+
+      }
+
+
+      iniciar();
+
+    })();
+
+  </script>
+
+</body>
+
+</html>
