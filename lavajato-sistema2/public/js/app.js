@@ -5639,6 +5639,378 @@ if(btnPrivacidade){
         );
     }
 
+  
+// ============================================================
+// MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
+// ============================================================
+
+let assinaturaVerificada = false;
+
+
+function mostrarModalPlano(){
+
+  const modal =
+    document.getElementById(
+      'modal-plano-obrigatorio'
+    );
+
+  if(!modal){
+    return;
+  }
+
+  modal.style.display = 'flex';
+
+  document.body.style.overflow = 'hidden';
+
+}
+
+
+function esconderModalPlano(){
+
+  const modal =
+    document.getElementById(
+      'modal-plano-obrigatorio'
+    );
+
+  if(!modal){
+    return;
+  }
+
+  modal.style.display = 'none';
+
+  document.body.style.overflow = '';
+
+}
+
+
+async function carregarPlanosObrigatorios(){
+
+  const loading =
+    document.getElementById(
+      'modal-plano-loading'
+    );
+
+  const lista =
+    document.getElementById(
+      'modal-plano-lista'
+    );
+
+  const erro =
+    document.getElementById(
+      'modal-plano-erro'
+    );
+
+
+  if(!lista){
+    return;
+  }
+
+
+  try{
+
+    if(loading){
+      loading.style.display = 'block';
+    }
+
+    lista.innerHTML = '';
+
+    if(erro){
+      erro.style.display = 'none';
+      erro.textContent = '';
+    }
+
+
+    const planos =
+      await api(
+        '/planos/disponiveis'
+      );
+
+
+    if(loading){
+      loading.style.display = 'none';
+    }
+
+
+    if(
+      !Array.isArray(planos) ||
+      planos.length === 0
+    ){
+
+      if(erro){
+
+        erro.textContent =
+          'Nenhum plano está disponível no momento.';
+
+        erro.style.display = 'block';
+
+      }
+
+      return;
+    }
+
+
+    planos.forEach(plano => {
+
+      const card =
+        document.createElement('div');
+
+      card.className =
+        'modal-plano-card';
+
+
+      const nome =
+        document.createElement('h3');
+
+      nome.textContent =
+        plano.nome || 'Plano';
+
+
+      const descricao =
+        document.createElement('div');
+
+      descricao.className =
+        'modal-plano-card-descricao';
+
+      descricao.textContent =
+        plano.descricao ||
+        'Plano para sua empresa.';
+
+
+      const preco =
+        document.createElement('div');
+
+      preco.className =
+        'modal-plano-card-preco';
+
+
+      const valor =
+        Number(plano.valor || 0);
+
+
+      preco.innerHTML =
+        'R$ ' +
+        valor.toLocaleString(
+          'pt-BR',
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }
+        ) +
+        ' <small>/' +
+        (plano.periodo || 'mês') +
+        '</small>';
+
+
+      const botao =
+        document.createElement('button');
+
+      botao.type = 'button';
+
+      botao.className =
+        'modal-plano-btn';
+
+      botao.textContent =
+        'Escolher plano';
+
+
+      botao.addEventListener(
+        'click',
+        () => {
+
+          selecionarPlanoObrigatorio(
+            plano
+          );
+
+        }
+      );
+
+
+      card.appendChild(nome);
+
+      card.appendChild(
+        descricao
+      );
+
+      card.appendChild(
+        preco
+      );
+
+      card.appendChild(
+        botao
+      );
+
+      lista.appendChild(card);
+
+    });
+
+
+  }catch(error){
+
+    console.error(
+      'Erro ao carregar planos:',
+      error
+    );
+
+
+    if(loading){
+      loading.style.display = 'none';
+    }
+
+
+    if(erro){
+
+      erro.textContent =
+        error.message ||
+        'Não foi possível carregar os planos.';
+
+      erro.style.display = 'block';
+
+    }
+
+  }
+
+}
+
+
+function selecionarPlanoObrigatorio(
+  plano
+){
+
+  /*
+   * O checkout existente do sistema
+   * deverá ser aberto aqui.
+   *
+   * Como você já possui a página
+   * /assinaturas.html com o CardForm
+   * do Mercado Pago, enviamos o usuário
+   * para ela com o plano selecionado.
+   */
+
+  if(!plano || !plano.id){
+    return;
+  }
+
+
+  sessionStorage.setItem(
+    'orvix_plano_selecionado',
+    JSON.stringify(plano)
+  );
+
+
+  window.location.href =
+    '/assinaturas.html';
+
+}
+
+
+// ============================================================
+// VERIFICAÇÃO DA ASSINATURA
+// ============================================================
+
+async function verificarAssinaturaObrigatoria(){
+
+  /*
+   * DEV não possui assinatura de empresa.
+   */
+
+  if(
+    !usuarioLogado ||
+    usuarioLogado.perfil === 'dev'
+  ){
+
+    assinaturaVerificada = true;
+
+    return;
+  }
+
+
+  /*
+   * Usuário precisa estar vinculado
+   * a uma empresa.
+   */
+
+  if(!usuarioLogado.empresa_id){
+
+    assinaturaVerificada = false;
+
+    mostrarModalPlano();
+
+    return;
+  }
+
+
+  try{
+
+    /*
+     * Busca as assinaturas da empresa
+     * diretamente pelo backend.
+     *
+     * O backend é quem determina
+     * se existe assinatura válida.
+     */
+
+    const resposta =
+      await api(
+        '/mercado-pago/minha-assinatura'
+      );
+
+
+    const status =
+      resposta?.status;
+
+
+    const assinaturaValida =
+      [
+        'ativa',
+        'authorized',
+        'active'
+      ].includes(
+        String(status || '').toLowerCase()
+      );
+
+
+    if(assinaturaValida){
+
+      assinaturaVerificada = true;
+
+      esconderModalPlano();
+
+      return;
+    }
+
+
+    assinaturaVerificada = false;
+
+    mostrarModalPlano();
+
+    await carregarPlanosObrigatorios();
+
+
+  }catch(error){
+
+    /*
+     * Se o backend informar que não existe
+     * assinatura, mantemos o bloqueio.
+     */
+
+    console.warn(
+      'Empresa sem assinatura válida:',
+      error.message
+    );
+
+
+    assinaturaVerificada = false;
+
+    mostrarModalPlano();
+
+    await carregarPlanosObrigatorios();
+
+  }
+
+}
+
+
+
 
     atualizarSidebarUsuario();
 
