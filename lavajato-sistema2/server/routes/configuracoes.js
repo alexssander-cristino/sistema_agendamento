@@ -168,7 +168,7 @@ router.put(
 
     if (!nome || typeof nome !== 'string' || !nome.trim()) {
       return res.status(400).json({
-        erro: 'Informe o nome da lavação.'
+        erro: 'Informe o nome da empresa.'
       });
     }
 

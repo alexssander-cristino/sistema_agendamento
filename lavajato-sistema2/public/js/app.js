@@ -485,7 +485,7 @@
       if(subtitle){
 
         subtitle.textContent =
-          'Crie sua conta e sua lavação';
+          'Crie sua conta e sua empresa para começar a usar o sistema';
       }
     }
   );
