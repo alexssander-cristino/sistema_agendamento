@@ -3,6 +3,11 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
 
+const verificarAssinatura = require('../middleware/assinatura');
+
+router.use(autenticar);
+router.use(verificarAssinatura);
+
 const {
   buscarCodigosPermissoesUsuario,
   substituirPermissoesUsuario,

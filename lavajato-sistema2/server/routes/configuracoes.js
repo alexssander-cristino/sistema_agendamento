@@ -2,6 +2,11 @@ const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
 
+const verificarAssinatura = require('../middleware/assinatura');
+
+router.use(autenticar);
+router.use(verificarAssinatura);
+
 const router = express.Router();
 
 // ============================================================

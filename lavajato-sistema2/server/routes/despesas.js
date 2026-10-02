@@ -3,6 +3,11 @@ const pool = require('../db');
 const autenticar = require('../middleware/auth');
 const exigirPermissao = require('../middleware/permissao');
 
+const verificarAssinatura = require('../middleware/assinatura');
+
+router.use(autenticar);
+router.use(verificarAssinatura);
+
 const router = express.Router();
 
 // Todas as rotas de despesas exigem autenticação
