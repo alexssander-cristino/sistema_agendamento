@@ -4,9 +4,11 @@ const router = express.Router();
 
 const pool = require('../db');
 
-const autenticar = require('../middleware/auth');
+const autenticar =
+  require('../middleware/auth');
 
-const somenteDev = require('../middleware/dev');
+const somenteDev =
+  require('../middleware/dev');
 
 const {
   mercadoPagoRequest,
@@ -17,65 +19,574 @@ const {
   buscarPagamentoAutorizado
 } = require('../services/mercadoPago');
 
+
 // ============================================================
 // AUTENTICAÇÃO
 // ============================================================
 
 router.use(autenticar);
 
-router.use(somenteDev);
 
+// ============================================================
+// CHAVE PÚBLICA
+// GET /api/mercado-pago/public-key
+//
+// Pode ser usada pelo frontend.
+// Nunca retorna o Access Token.
+// ============================================================
+
+router.get(
+  '/public-key',
+  (req, res) => {
+
+    const publicKey =
+      process.env.MERCADO_PAGO_PUBLIC_KEY;
+
+    if (!publicKey) {
+      return res.status(500).json({
+        erro:
+          'MERCADO_PAGO_PUBLIC_KEY não foi configurada.'
+      });
+    }
+
+    return res.json({
+      public_key:
+        publicKey
+    });
+  }
+);
+
+
+// ============================================================
+// CRIAR ASSINATURA
+//
+// IMPORTANTE:
+// Esta rota NÃO é somente DEV.
+//
+// Usuário normal:
+// empresa_id vem do token.
+//
+// DEV:
+// empresa_id pode ser enviado no body
+// para escolher qual empresa será testada.
+// ============================================================
+
+router.post(
+  '/assinaturas',
+  async (req, res) => {
+
+    const {
+      plano_id,
+      email,
+      nome,
+      card_token_id,
+      empresa_id
+    } = req.body;
+
+
+    if (
+      !plano_id ||
+      !email ||
+      !card_token_id
+    ) {
+      return res.status(400).json({
+        erro:
+          'plano_id, email e card_token_id são obrigatórios.'
+      });
+    }
+
+
+    // ========================================================
+    // DEFINIR EMPRESA
+    // ========================================================
+
+    let empresaId =
+      req.usuario.empresa_id;
+
+
+    if (
+      req.usuario.perfil === 'dev' &&
+      empresa_id
+    ) {
+      empresaId =
+        Number(empresa_id);
+    }
+
+
+    if (!empresaId) {
+      return res.status(400).json({
+        erro:
+          'É necessário informar a empresa da assinatura.'
+      });
+    }
+
+
+    if (
+      !Number.isInteger(
+        Number(empresaId)
+      ) ||
+      Number(empresaId) <= 0
+    ) {
+      return res.status(400).json({
+        erro:
+          'empresa_id inválido.'
+      });
+    }
+
+
+    try {
+
+      // ======================================================
+      // BUSCAR EMPRESA
+      // ======================================================
+
+      const empresaResult =
+        await pool.query(
+          `
+            SELECT
+              id,
+              nome,
+              ativo
+
+            FROM empresas
+
+            WHERE id = $1
+
+            LIMIT 1
+          `,
+          [
+            Number(empresaId)
+          ]
+        );
+
+
+      if (
+        empresaResult.rows.length === 0
+      ) {
+        return res.status(404).json({
+          erro:
+            'Empresa não encontrada.'
+        });
+      }
+
+
+      const empresa =
+        empresaResult.rows[0];
+
+
+      if (!empresa.ativo) {
+        return res.status(400).json({
+          erro:
+            'A empresa está desativada.'
+        });
+      }
+
+
+      // ======================================================
+      // BUSCAR PLANO
+      // ======================================================
+
+      const planoResult =
+        await pool.query(
+          `
+            SELECT
+              id,
+              nome,
+              descricao,
+              valor,
+              periodo,
+              ativo,
+              mercado_pago_plan_id
+
+            FROM planos
+
+            WHERE id = $1
+
+            LIMIT 1
+          `,
+          [
+            Number(plano_id)
+          ]
+        );
+
+
+      if (
+        planoResult.rows.length === 0
+      ) {
+        return res.status(404).json({
+          erro:
+            'Plano não encontrado.'
+        });
+      }
+
+
+      const plano =
+        planoResult.rows[0];
+
+
+      if (!plano.ativo) {
+        return res.status(400).json({
+          erro:
+            'Este plano está inativo.'
+        });
+      }
+
+
+      if (
+        !plano.mercado_pago_plan_id
+      ) {
+        return res.status(400).json({
+          erro:
+            'Este plano ainda não está integrado ao Mercado Pago.'
+        });
+      }
+
+
+      // ======================================================
+      // VERIFICAR ASSINATURA EXISTENTE
+      // ======================================================
+
+      const assinaturaExistente =
+        await pool.query(
+          `
+            SELECT
+              id,
+              status,
+              mercado_pago_id
+
+            FROM assinaturas
+
+            WHERE empresa_id = $1
+
+              AND status IN (
+                'pendente',
+                'ativa',
+                'pausada',
+                'inadimplente'
+              )
+
+            ORDER BY id DESC
+
+            LIMIT 1
+          `,
+          [
+            Number(empresaId)
+          ]
+        );
+
+
+      if (
+        assinaturaExistente.rows.length > 0
+      ) {
+
+        const existente =
+          assinaturaExistente.rows[0];
+
+        return res.status(409).json({
+          erro:
+            'A empresa já possui uma assinatura em andamento.',
+
+          assinatura: {
+            id:
+              existente.id,
+
+            status:
+              existente.status,
+
+            mercado_pago_id:
+              existente.mercado_pago_id
+          }
+        });
+      }
+
+
+      // ======================================================
+      // CRIAR REGISTRO LOCAL
+      // ======================================================
+
+      const assinaturaLocal =
+        await pool.query(
+          `
+            INSERT INTO assinaturas (
+              empresa_id,
+              plano_id,
+              status,
+              criado_em,
+              atualizado_em
+            )
+
+            VALUES (
+              $1,
+              $2,
+              'pendente',
+              NOW(),
+              NOW()
+            )
+
+            RETURNING
+              id,
+              empresa_id,
+              plano_id,
+              status,
+              criado_em,
+              atualizado_em
+          `,
+          [
+            Number(empresaId),
+            Number(plano_id)
+          ]
+        );
+
+
+      const assinatura =
+        assinaturaLocal.rows[0];
+
+
+      try {
+
+        // ====================================================
+        // CRIAR ASSINATURA NO MERCADO PAGO
+        // ====================================================
+
+        const mercadoPagoAssinatura =
+          await criarAssinatura({
+
+            planoMercadoPagoId:
+              plano.mercado_pago_plan_id,
+
+            email:
+              String(email).trim(),
+
+            nome:
+              nome ||
+              plano.nome,
+
+            cardTokenId:
+              card_token_id,
+
+            externalReference:
+              String(
+                assinatura.id
+              ),
+
+            backUrl:
+              process.env.APP_URL
+          });
+
+
+        if (
+          !mercadoPagoAssinatura ||
+          !mercadoPagoAssinatura.id
+        ) {
+
+          throw new Error(
+            'Mercado Pago não retornou o ID da assinatura.'
+          );
+        }
+
+
+        // ====================================================
+        // ATUALIZAR ASSINATURA LOCAL
+        // ====================================================
+
+        const proximaCobranca =
+          mercadoPagoAssinatura
+            ?.auto_recurring
+            ?.next_payment_date ||
+          mercadoPagoAssinatura
+            ?.next_payment_date ||
+          null;
+
+
+        const inicio =
+          mercadoPagoAssinatura
+            ?.date_created ||
+          new Date();
+
+
+        const statusMercadoPago =
+          String(
+            mercadoPagoAssinatura.status ||
+            ''
+          ).toLowerCase();
+
+
+        const statusLocal =
+          statusMercadoPago ===
+            'authorized'
+            ? 'ativa'
+            : 'pendente';
+
+
+        const atualizada =
+          await pool.query(
+            `
+              UPDATE assinaturas
+
+              SET
+                status = $1,
+                mercado_pago_id = $2,
+                inicio_em = $3,
+                proxima_cobranca_em = $4,
+                atualizado_em = NOW()
+
+              WHERE id = $5
+
+              RETURNING
+                id,
+                empresa_id,
+                plano_id,
+                status,
+                mercado_pago_id,
+                inicio_em,
+                proxima_cobranca_em,
+                cancelada_em,
+                criado_em,
+                atualizado_em
+            `,
+            [
+              statusLocal,
+
+              String(
+                mercadoPagoAssinatura.id
+              ),
+
+              inicio,
+
+              proximaCobranca,
+
+              assinatura.id
+            ]
+          );
+
+
+        return res.status(201).json({
+
+          ok: true,
+
+          mensagem:
+            'Assinatura criada com sucesso.',
+
+          assinatura:
+            atualizada.rows[0],
+
+          mercado_pago:
+            mercadoPagoAssinatura
+        });
+
+
+      } catch (mercadoPagoError) {
+
+        // ================================================
+        // SE MERCADO PAGO FALHAR,
+        // REMOVE A ASSINATURA LOCAL
+        // ================================================
+
+        await pool.query(
+          `
+            DELETE FROM assinaturas
+
+            WHERE id = $1
+          `,
+          [
+            assinatura.id
+          ]
+        );
+
+
+        throw mercadoPagoError;
+      }
+
+
+    } catch (err) {
+
+      console.error(
+        'Erro ao criar assinatura:',
+        err
+      );
+
+
+      return res.status(
+        err.status || 500
+      ).json({
+
+        erro:
+          err.message ||
+          'Não foi possível criar a assinatura.',
+
+        detalhes:
+          err.data || null
+      });
+    }
+  }
+);
+
+
+// ============================================================
+// ROTAS EXCLUSIVAS DO DEV
+// ============================================================
+
+router.use(somenteDev);
 
 
 // ============================================================
 // TESTAR MERCADO PAGO
 // GET /api/mercado-pago/teste
-//
-// ATENÇÃO:
-// Esta rota está temporariamente antes da autenticação
-// apenas para testar a conexão com o Mercado Pago.
-// Depois do teste, ela deve voltar para baixo da autenticação.
 // ============================================================
 
-router.get('/teste', async (req, res) => {
-  try {
-    const resultado =
-      await mercadoPagoRequest(
-        '/v1/payment_methods',
-        {
-          method: 'GET'
-        }
+router.get(
+  '/teste',
+  async (req, res) => {
+
+    try {
+
+      const resultado =
+        await mercadoPagoRequest(
+          '/v1/payment_methods',
+          {
+            method: 'GET'
+          }
+        );
+
+
+      return res.json({
+
+        ok: true,
+
+        mercado_pago:
+          'conectado',
+
+        quantidade_metodos:
+          Array.isArray(resultado)
+            ? resultado.length
+            : null
+      });
+
+
+    } catch (err) {
+
+      console.error(
+        'Erro no teste Mercado Pago:',
+        err
       );
 
-    return res.json({
-      ok: true,
-      mercado_pago: 'conectado',
-      quantidade_metodos:
-        Array.isArray(resultado)
-          ? resultado.length
-          : null
-    });
 
-  } catch (err) {
-    console.error(
-      'Erro no teste Mercado Pago:',
-      err
-    );
+      return res.status(
+        err.status || 500
+      ).json({
 
-    return res.status(
-      err.status || 500
-    ).json({
-      ok: false,
-      erro:
-        err.message ||
-        'Erro ao conectar com o Mercado Pago.',
-      detalhes:
-        err.data || null
-    });
+        ok: false,
+
+        erro:
+          err.message ||
+          'Erro ao conectar com o Mercado Pago.',
+
+        detalhes:
+          err.data || null
+      });
+    }
   }
-});
-
-
+);
 
 
 // ============================================================
@@ -90,6 +601,7 @@ router.post(
     const planoId =
       Number(req.params.id);
 
+
     if (
       !Number.isInteger(planoId) ||
       planoId <= 0
@@ -99,6 +611,7 @@ router.post(
           'ID do plano inválido.'
       });
     }
+
 
     try {
 
@@ -120,8 +633,11 @@ router.post(
 
             LIMIT 1
           `,
-          [planoId]
+          [
+            planoId
+          ]
         );
+
 
       if (
         result.rows.length === 0
@@ -132,13 +648,16 @@ router.post(
         });
       }
 
+
       const plano =
         result.rows[0];
+
 
       if (
         plano.mercado_pago_plan_id
       ) {
         return res.status(409).json({
+
           erro:
             'Este plano já está vinculado ao Mercado Pago.',
 
@@ -147,6 +666,7 @@ router.post(
         });
       }
 
+
       if (!plano.ativo) {
         return res.status(400).json({
           erro:
@@ -154,8 +674,10 @@ router.post(
         });
       }
 
+
       const mercadoPagoPlano =
         await criarPlano({
+
           nome:
             plano.nome,
 
@@ -172,11 +694,13 @@ router.post(
             process.env.APP_URL
         });
 
+
       if (
         !mercadoPagoPlano ||
         !mercadoPagoPlano.id
       ) {
         return res.status(502).json({
+
           erro:
             'Mercado Pago não retornou o ID do plano.',
 
@@ -184,6 +708,7 @@ router.post(
             mercadoPagoPlano
         });
       }
+
 
       await pool.query(
         `
@@ -204,6 +729,7 @@ router.post(
         ]
       );
 
+
       return res.status(201).json({
 
         ok: true,
@@ -221,13 +747,12 @@ router.post(
 
           mercado_pago_plan_id:
             mercadoPagoPlano.id
-
         },
 
         mercado_pago:
           mercadoPagoPlano
-
       });
+
 
     } catch (err) {
 
@@ -235,6 +760,7 @@ router.post(
         'Erro ao criar plano no Mercado Pago:',
         err
       );
+
 
       return res.status(
         err.status || 500
@@ -246,7 +772,6 @@ router.post(
 
         detalhes:
           err.data || null
-
       });
     }
   }
@@ -265,6 +790,7 @@ router.get(
     const planoId =
       Number(req.params.id);
 
+
     if (
       !Number.isInteger(planoId) ||
       planoId <= 0
@@ -274,6 +800,7 @@ router.get(
           'ID do plano inválido.'
       });
     }
+
 
     try {
 
@@ -291,8 +818,11 @@ router.get(
 
             LIMIT 1
           `,
-          [planoId]
+          [
+            planoId
+          ]
         );
+
 
       if (
         result.rows.length === 0
@@ -303,8 +833,10 @@ router.get(
         });
       }
 
+
       const plano =
         result.rows[0];
+
 
       if (
         !plano.mercado_pago_plan_id
@@ -315,10 +847,12 @@ router.get(
         });
       }
 
+
       const mercadoPagoPlano =
         await buscarPlano(
           plano.mercado_pago_plan_id
         );
+
 
       return res.json({
 
@@ -334,13 +868,12 @@ router.get(
 
           mercado_pago_plan_id:
             plano.mercado_pago_plan_id
-
         },
 
         mercado_pago:
           mercadoPagoPlano
-
       });
+
 
     } catch (err) {
 
@@ -348,6 +881,7 @@ router.get(
         'Erro ao consultar plano no Mercado Pago:',
         err
       );
+
 
       return res.status(
         err.status || 500
@@ -359,125 +893,6 @@ router.get(
 
         detalhes:
           err.data || null
-
-      });
-    }
-  }
-);
-
-
-// ============================================================
-// CRIAR ASSINATURA
-// POST /api/mercado-pago/assinaturas
-// ============================================================
-
-router.post(
-  '/assinaturas',
-  async (req, res) => {
-
-    const {
-      plano_id,
-      email,
-      nome
-    } = req.body;
-
-    if (
-      !plano_id ||
-      !email
-    ) {
-      return res.status(400).json({
-        erro:
-          'plano_id e email são obrigatórios.'
-      });
-    }
-
-    try {
-
-      const result =
-        await pool.query(
-          `
-            SELECT
-              id,
-              nome,
-              mercado_pago_plan_id
-
-            FROM planos
-
-            WHERE id = $1
-
-            LIMIT 1
-          `,
-          [Number(plano_id)]
-        );
-
-      if (
-        result.rows.length === 0
-      ) {
-        return res.status(404).json({
-          erro:
-            'Plano não encontrado.'
-        });
-      }
-
-      const plano =
-        result.rows[0];
-
-      if (
-        !plano.mercado_pago_plan_id
-      ) {
-        return res.status(400).json({
-          erro:
-            'O plano ainda não possui integração com o Mercado Pago.'
-        });
-      }
-
-      const assinatura =
-        await criarAssinatura({
-
-          planoMercadoPagoId:
-            plano.mercado_pago_plan_id,
-
-          email,
-
-          nome:
-            nome ||
-            plano.nome,
-
-          backUrl:
-            process.env.APP_URL
-
-        });
-
-      return res.status(201).json({
-
-        ok: true,
-
-        mensagem:
-          'Assinatura criada no Mercado Pago.',
-
-        assinatura:
-          assinatura
-
-      });
-
-    } catch (err) {
-
-      console.error(
-        'Erro ao criar assinatura:',
-        err
-      );
-
-      return res.status(
-        err.status || 500
-      ).json({
-
-        erro:
-          err.message ||
-          'Não foi possível criar a assinatura.',
-
-        detalhes:
-          err.data || null
-
       });
     }
   }
@@ -500,13 +915,14 @@ router.get(
           req.params.id
         );
 
+
       return res.json({
 
         ok: true,
 
         assinatura
-
       });
+
 
     } catch (err) {
 
@@ -514,6 +930,7 @@ router.get(
         'Erro ao consultar assinatura:',
         err
       );
+
 
       return res.status(
         err.status || 500
@@ -525,7 +942,6 @@ router.get(
 
         detalhes:
           err.data || null
-
       });
     }
   }
@@ -548,13 +964,14 @@ router.get(
           req.params.id
         );
 
+
       return res.json({
 
         ok: true,
 
         pagamento
-
       });
+
 
     } catch (err) {
 
@@ -562,6 +979,7 @@ router.get(
         'Erro ao consultar pagamento:',
         err
       );
+
 
       return res.status(
         err.status || 500
@@ -573,7 +991,6 @@ router.get(
 
         detalhes:
           err.data || null
-
       });
     }
   }
@@ -585,3 +1002,4 @@ router.get(
 // ============================================================
 
 module.exports = router;
+
