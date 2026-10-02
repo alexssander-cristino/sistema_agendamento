@@ -23,6 +23,8 @@
 
   let connectionInterval = null;
 
+  let assinaturaVerificada = false;
+
 
   // ============================================================
   // UTILITÁRIOS
@@ -121,47 +123,38 @@
   }
 
 
-  // Disponibiliza a função para o onclick do index.html
   window.abrirPrivacidade =
     abrirPrivacidade;
 
 
-// ============================================================
-// BOTÃO PRIVACIDADE
-// ============================================================
+  // ============================================================
+  // BOTÃO PRIVACIDADE
+  // ============================================================
 
-const btnPrivacidade =
-  document.getElementById(
-    'btn-privacidade'
-  );
+  const btnPrivacidade =
+    document.getElementById(
+      'btn-privacidade'
+    );
 
-if(btnPrivacidade){
+  if(btnPrivacidade){
 
-  btnPrivacidade.addEventListener(
-    'click',
-    function(event){
+    btnPrivacidade.addEventListener(
+      'click',
+      function(event){
 
-      event.preventDefault();
-      event.stopPropagation();
+        event.preventDefault();
+        event.stopPropagation();
 
-      abrirPrivacidade();
+        abrirPrivacidade();
 
-    }
-  );
+      }
+    );
 
-}
-
+  }
 
 
   // ============================================================
   // PERMISSÕES POR FUNCIONÁRIO
-  // ------------------------------------------------------------
-  // Cada aba do sistema (exceto "Usuários", que é sempre exclusiva
-  // do administrador) só aparece para quem tem essa permissão
-  // liberada. O administrador enxerga tudo, sempre — só o perfil
-  // "funcionario" é limitado pela lista `usuarioLogado.permissoes`
-  // que deve vir do back-end dentro do objeto `usuario` (em
-  // /auth/login, /auth/cadastro, /auth/me e em /usuarios).
   // ============================================================
 
   const PERMISSOES_DISPONIVEIS = [
@@ -180,7 +173,6 @@ if(btnPrivacidade){
       return false;
     }
 
-    // administrador sempre vê tudo, independente da lista
     if(usuarioLogado.perfil === 'administrador'){
       return true;
     }
@@ -223,10 +215,6 @@ if(btnPrivacidade){
     const res =
       await fetch(API + path, requestOptions);
 
-
-    // ----------------------------------------------------------
-    // TOKEN EXPIRADO / NÃO AUTORIZADO
-    // ----------------------------------------------------------
 
     if(res.status === 401){
 
@@ -467,12 +455,6 @@ if(btnPrivacidade){
     }
 
 
-    // ------------------------------------------------------------
-    // Demais abas: só aparecem se o usuário tiver a permissão.
-    // "usuarios" já foi tratado acima e nunca é liberável por
-    // permissão — é sempre exclusivo do administrador.
-    // ------------------------------------------------------------
-
     document
       .querySelectorAll('.nav-btn, .bn-btn')
       .forEach(navBtn => {
@@ -492,9 +474,6 @@ if(btnPrivacidade){
       });
 
 
-    // se a aba aberta no momento deixou de ser permitida
-    // (por exemplo, o administrador acabou de revogar o acesso),
-    // manda o usuário para a primeira aba que ele ainda pode ver
     if(
       activeTab !== 'usuarios' &&
       !temPermissao(activeTab)
@@ -514,9 +493,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // MOSTRAR CADASTRO
-  // ------------------------------------------------------------
+  // ============================================================
 
   showRegisterBtn?.addEventListener(
     'click',
@@ -547,9 +526,9 @@ if(btnPrivacidade){
   );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // MOSTRAR LOGIN
-  // ------------------------------------------------------------
+  // ============================================================
 
   showLoginBtn?.addEventListener(
     'click',
@@ -580,9 +559,9 @@ if(btnPrivacidade){
   );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // LOGIN
-  // ------------------------------------------------------------
+  // ============================================================
 
   loginForm?.addEventListener(
     'submit',
@@ -677,9 +656,9 @@ if(btnPrivacidade){
   );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // CADASTRO
-  // ------------------------------------------------------------
+  // ============================================================
 
   registerForm?.addEventListener(
     'submit',
@@ -788,9 +767,9 @@ if(btnPrivacidade){
   );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // VERIFICAR SESSÃO
-  // ------------------------------------------------------------
+  // ============================================================
 
   async function verificarSessao(){
 
@@ -1633,7 +1612,6 @@ if(btnPrivacidade){
 
     }catch(e){
 
-      // mantém os últimos valores
     }
   }
 
@@ -4363,9 +4341,9 @@ if(btnPrivacidade){
     );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // ABRIR NOVO USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   document
     .getElementById(
@@ -4491,9 +4469,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // CANCELAR USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   document
     .getElementById(
@@ -4531,9 +4509,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // CHECKBOXES DE PERMISSÃO NO MODAL DE USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   function marcarPermissoesNoFormulario(selecionadas){
 
@@ -4547,6 +4525,7 @@ if(btnPrivacidade){
         ? selecionadas.map(String)
         : [];
 
+
     checkboxes.forEach(cb => {
 
       const codigo =
@@ -4554,6 +4533,7 @@ if(btnPrivacidade){
         cb.dataset.permission ||
         cb.dataset.permissao ||
         '';
+
 
       cb.checked =
         lista.includes(String(codigo));
@@ -4570,11 +4550,13 @@ if(btnPrivacidade){
 
     const permissoes = [];
 
+
     checkboxes.forEach(cb => {
 
       if(!cb.checked){
         return;
       }
+
 
       const codigo =
         cb.value ||
@@ -4582,23 +4564,26 @@ if(btnPrivacidade){
         cb.dataset.permissao ||
         '';
 
+
       if(codigo && !permissoes.includes(codigo)){
         permissoes.push(codigo);
       }
     });
+
 
     console.log(
       '[PERMISSÕES] Permissões selecionadas:',
       permissoes
     );
 
+
     return permissoes;
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // VISIBILIDADE DAS PERMISSÕES
-  // ------------------------------------------------------------
+  // ============================================================
 
   function atualizarVisibilidadePermissoes(){
 
@@ -4612,9 +4597,11 @@ if(btnPrivacidade){
         'user-permissions-field'
       );
 
+
     if(!profileEl || !field){
       return;
     }
+
 
     field.style.display =
       profileEl.value === 'administrador'
@@ -4631,9 +4618,9 @@ if(btnPrivacidade){
     );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // FORMULÁRIO USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   formUser?.addEventListener(
     'submit',
@@ -4823,9 +4810,9 @@ if(btnPrivacidade){
   );
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // LISTAR USUÁRIOS
-  // ------------------------------------------------------------
+  // ============================================================
 
   async function refreshUsuarios(){
 
@@ -4874,9 +4861,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // RENDERIZAR USUÁRIOS
-  // ------------------------------------------------------------
+  // ============================================================
 
   function renderUsuarios(usuarios){
 
@@ -4963,9 +4950,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // RENDERIZAR UM USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   function renderUsuario(
     usuario,
@@ -5025,10 +5012,6 @@ if(btnPrivacidade){
     let actions = '';
 
 
-    // ----------------------------------------------------------
-    // BOTÃO EDITAR
-    // ----------------------------------------------------------
-
     actions +=
       `<button
         class="btn btn-small btn-ghost"
@@ -5037,10 +5020,6 @@ if(btnPrivacidade){
         Editar
       </button>`;
 
-
-    // ----------------------------------------------------------
-    // PROMOVER / REBAIXAR
-    // ----------------------------------------------------------
 
     if(!isCurrentUser){
 
@@ -5073,10 +5052,6 @@ if(btnPrivacidade){
     }
 
 
-    // ----------------------------------------------------------
-    // BLOQUEAR / ATIVAR
-    // ----------------------------------------------------------
-
     if(!isCurrentUser){
 
       actions +=
@@ -5092,10 +5067,6 @@ if(btnPrivacidade){
         </button>`;
     }
 
-
-    // ----------------------------------------------------------
-    // EXCLUIR
-    // ----------------------------------------------------------
 
     if(!isCurrentUser){
 
@@ -5190,9 +5161,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // EDITAR USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   async function editUser(id){
 
@@ -5380,9 +5351,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // ALTERAR PERFIL
-  // ------------------------------------------------------------
+  // ============================================================
 
   async function changeUserProfile(
     id,
@@ -5444,9 +5415,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // ATIVAR / BLOQUEAR
-  // ------------------------------------------------------------
+  // ============================================================
 
   async function toggleUserStatus(
     id,
@@ -5520,9 +5491,9 @@ if(btnPrivacidade){
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // EXCLUIR USUÁRIO
-  // ------------------------------------------------------------
+  // ============================================================
 
   async function deleteUser(id){
 
@@ -5583,6 +5554,379 @@ if(btnPrivacidade){
 
 
   // ============================================================
+  // MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
+  // ============================================================
+
+  function mostrarModalPlano(){
+
+    const modal =
+      document.getElementById(
+        'modal-plano-obrigatorio'
+      );
+
+
+    if(!modal){
+      console.warn(
+        'Modal obrigatório de plano não encontrado no HTML.'
+      );
+
+      return;
+    }
+
+
+    modal.style.display = 'flex';
+
+    document.body.style.overflow = 'hidden';
+  }
+
+
+  function esconderModalPlano(){
+
+    const modal =
+      document.getElementById(
+        'modal-plano-obrigatorio'
+      );
+
+
+    if(!modal){
+      return;
+    }
+
+
+    modal.style.display = 'none';
+
+    document.body.style.overflow = '';
+  }
+
+
+  async function carregarPlanosObrigatorios(){
+
+    const loading =
+      document.getElementById(
+        'modal-plano-loading'
+      );
+
+
+    const lista =
+      document.getElementById(
+        'modal-plano-lista'
+      );
+
+
+    const erro =
+      document.getElementById(
+        'modal-plano-erro'
+      );
+
+
+    if(!lista){
+      return;
+    }
+
+
+    try{
+
+      if(loading){
+        loading.style.display = 'block';
+      }
+
+
+      lista.innerHTML = '';
+
+
+      if(erro){
+
+        erro.style.display = 'none';
+        erro.textContent = '';
+
+      }
+
+
+      const planos =
+        await api(
+          '/planos/disponiveis'
+        );
+
+
+      if(loading){
+        loading.style.display = 'none';
+      }
+
+
+      if(
+        !Array.isArray(planos) ||
+        planos.length === 0
+      ){
+
+        if(erro){
+
+          erro.textContent =
+            'Nenhum plano está disponível no momento.';
+
+          erro.style.display = 'block';
+
+        }
+
+        return;
+      }
+
+
+      planos.forEach(plano => {
+
+        const card =
+          document.createElement('div');
+
+
+        card.className =
+          'modal-plano-card';
+
+
+        const nome =
+          document.createElement('h3');
+
+
+        nome.textContent =
+          plano.nome || 'Plano';
+
+
+        const descricao =
+          document.createElement('div');
+
+
+        descricao.className =
+          'modal-plano-card-descricao';
+
+
+        descricao.textContent =
+          plano.descricao ||
+          'Plano para sua empresa.';
+
+
+        const preco =
+          document.createElement('div');
+
+
+        preco.className =
+          'modal-plano-card-preco';
+
+
+        const valor =
+          Number(plano.valor || 0);
+
+
+        preco.innerHTML =
+          'R$ ' +
+          valor.toLocaleString(
+            'pt-BR',
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }
+          ) +
+          ' <small>/' +
+          (plano.periodo || 'mês') +
+          '</small>';
+
+
+        const botao =
+          document.createElement('button');
+
+
+        botao.type = 'button';
+
+
+        botao.className =
+          'modal-plano-btn';
+
+
+        botao.textContent =
+          'Escolher plano';
+
+
+        botao.addEventListener(
+          'click',
+          () => {
+
+            selecionarPlanoObrigatorio(
+              plano
+            );
+
+          }
+        );
+
+
+        card.appendChild(nome);
+
+        card.appendChild(
+          descricao
+        );
+
+        card.appendChild(
+          preco
+        );
+
+        card.appendChild(
+          botao
+        );
+
+        lista.appendChild(card);
+
+      });
+
+
+    }catch(error){
+
+      console.error(
+        'Erro ao carregar planos:',
+        error
+      );
+
+
+      if(loading){
+        loading.style.display = 'none';
+      }
+
+
+      if(erro){
+
+        erro.textContent =
+          error.message ||
+          'Não foi possível carregar os planos.';
+
+        erro.style.display = 'block';
+
+      }
+
+    }
+
+  }
+
+
+  function selecionarPlanoObrigatorio(
+    plano
+  ){
+
+    if(!plano || !plano.id){
+      return;
+    }
+
+
+    sessionStorage.setItem(
+      'orvix_plano_selecionado',
+      JSON.stringify(plano)
+    );
+
+
+    window.location.href =
+      '/assinaturas.html';
+  }
+
+
+  // ============================================================
+  // VERIFICAÇÃO DA ASSINATURA
+  // ============================================================
+
+  async function verificarAssinaturaObrigatoria(){
+
+    /*
+     * DEV não possui assinatura.
+     */
+
+    if(
+      !usuarioLogado ||
+      usuarioLogado.perfil === 'dev'
+    ){
+
+      assinaturaVerificada = true;
+
+      return true;
+    }
+
+
+    /*
+     * Usuário precisa estar vinculado
+     * a uma empresa.
+     */
+
+    if(!usuarioLogado.empresa_id){
+
+      assinaturaVerificada = false;
+
+      mostrarModalPlano();
+
+      await carregarPlanosObrigatorios();
+
+      return false;
+    }
+
+
+    try{
+
+      const resposta =
+        await api(
+          '/mercado-pago/minha-assinatura'
+        );
+
+
+      const status =
+        resposta?.status;
+
+
+      const assinaturaValida =
+        [
+          'ativa',
+          'authorized',
+          'active'
+        ].includes(
+          String(status || '').toLowerCase()
+        );
+
+
+      if(assinaturaValida){
+
+        assinaturaVerificada = true;
+
+        esconderModalPlano();
+
+        return true;
+      }
+
+
+      /*
+       * Sem assinatura ativa.
+       */
+
+      assinaturaVerificada = false;
+
+      mostrarModalPlano();
+
+      await carregarPlanosObrigatorios();
+
+      return false;
+
+
+    }catch(error){
+
+      console.warn(
+        'Empresa sem assinatura válida:',
+        error.message
+      );
+
+
+      assinaturaVerificada = false;
+
+      mostrarModalPlano();
+
+      await carregarPlanosObrigatorios();
+
+      return false;
+
+    }
+
+  }
+
+
+  // ============================================================
   // APP GLOBAL
   // ============================================================
 
@@ -5627,6 +5971,32 @@ if(btnPrivacidade){
 
   async function iniciarSistema(){
 
+    /*
+     * Primeiro verifica a assinatura.
+     *
+     * Sem assinatura válida, o dashboard
+     * não carrega os dados da empresa.
+     */
+
+    const assinaturaLiberada =
+      await verificarAssinaturaObrigatoria();
+
+
+    if(!assinaturaLiberada){
+
+      if(!connectionInterval){
+
+        connectionInterval =
+          setInterval(
+            checkConnection,
+            30000
+          );
+      }
+
+      return;
+    }
+
+
     checkConnection();
 
 
@@ -5638,378 +6008,6 @@ if(btnPrivacidade){
           30000
         );
     }
-
-  
-// ============================================================
-// MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
-// ============================================================
-
-let assinaturaVerificada = false;
-
-
-function mostrarModalPlano(){
-
-  const modal =
-    document.getElementById(
-      'modal-plano-obrigatorio'
-    );
-
-  if(!modal){
-    return;
-  }
-
-  modal.style.display = 'flex';
-
-  document.body.style.overflow = 'hidden';
-
-}
-
-
-function esconderModalPlano(){
-
-  const modal =
-    document.getElementById(
-      'modal-plano-obrigatorio'
-    );
-
-  if(!modal){
-    return;
-  }
-
-  modal.style.display = 'none';
-
-  document.body.style.overflow = '';
-
-}
-
-
-async function carregarPlanosObrigatorios(){
-
-  const loading =
-    document.getElementById(
-      'modal-plano-loading'
-    );
-
-  const lista =
-    document.getElementById(
-      'modal-plano-lista'
-    );
-
-  const erro =
-    document.getElementById(
-      'modal-plano-erro'
-    );
-
-
-  if(!lista){
-    return;
-  }
-
-
-  try{
-
-    if(loading){
-      loading.style.display = 'block';
-    }
-
-    lista.innerHTML = '';
-
-    if(erro){
-      erro.style.display = 'none';
-      erro.textContent = '';
-    }
-
-
-    const planos =
-      await api(
-        '/planos/disponiveis'
-      );
-
-
-    if(loading){
-      loading.style.display = 'none';
-    }
-
-
-    if(
-      !Array.isArray(planos) ||
-      planos.length === 0
-    ){
-
-      if(erro){
-
-        erro.textContent =
-          'Nenhum plano está disponível no momento.';
-
-        erro.style.display = 'block';
-
-      }
-
-      return;
-    }
-
-
-    planos.forEach(plano => {
-
-      const card =
-        document.createElement('div');
-
-      card.className =
-        'modal-plano-card';
-
-
-      const nome =
-        document.createElement('h3');
-
-      nome.textContent =
-        plano.nome || 'Plano';
-
-
-      const descricao =
-        document.createElement('div');
-
-      descricao.className =
-        'modal-plano-card-descricao';
-
-      descricao.textContent =
-        plano.descricao ||
-        'Plano para sua empresa.';
-
-
-      const preco =
-        document.createElement('div');
-
-      preco.className =
-        'modal-plano-card-preco';
-
-
-      const valor =
-        Number(plano.valor || 0);
-
-
-      preco.innerHTML =
-        'R$ ' +
-        valor.toLocaleString(
-          'pt-BR',
-          {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }
-        ) +
-        ' <small>/' +
-        (plano.periodo || 'mês') +
-        '</small>';
-
-
-      const botao =
-        document.createElement('button');
-
-      botao.type = 'button';
-
-      botao.className =
-        'modal-plano-btn';
-
-      botao.textContent =
-        'Escolher plano';
-
-
-      botao.addEventListener(
-        'click',
-        () => {
-
-          selecionarPlanoObrigatorio(
-            plano
-          );
-
-        }
-      );
-
-
-      card.appendChild(nome);
-
-      card.appendChild(
-        descricao
-      );
-
-      card.appendChild(
-        preco
-      );
-
-      card.appendChild(
-        botao
-      );
-
-      lista.appendChild(card);
-
-    });
-
-
-  }catch(error){
-
-    console.error(
-      'Erro ao carregar planos:',
-      error
-    );
-
-
-    if(loading){
-      loading.style.display = 'none';
-    }
-
-
-    if(erro){
-
-      erro.textContent =
-        error.message ||
-        'Não foi possível carregar os planos.';
-
-      erro.style.display = 'block';
-
-    }
-
-  }
-
-}
-
-
-function selecionarPlanoObrigatorio(
-  plano
-){
-
-  /*
-   * O checkout existente do sistema
-   * deverá ser aberto aqui.
-   *
-   * Como você já possui a página
-   * /assinaturas.html com o CardForm
-   * do Mercado Pago, enviamos o usuário
-   * para ela com o plano selecionado.
-   */
-
-  if(!plano || !plano.id){
-    return;
-  }
-
-
-  sessionStorage.setItem(
-    'orvix_plano_selecionado',
-    JSON.stringify(plano)
-  );
-
-
-  window.location.href =
-    '/assinaturas.html';
-
-}
-
-
-// ============================================================
-// VERIFICAÇÃO DA ASSINATURA
-// ============================================================
-
-async function verificarAssinaturaObrigatoria(){
-
-  /*
-   * DEV não possui assinatura de empresa.
-   */
-
-  if(
-    !usuarioLogado ||
-    usuarioLogado.perfil === 'dev'
-  ){
-
-    assinaturaVerificada = true;
-
-    return;
-  }
-
-
-  /*
-   * Usuário precisa estar vinculado
-   * a uma empresa.
-   */
-
-  if(!usuarioLogado.empresa_id){
-
-    assinaturaVerificada = false;
-
-    mostrarModalPlano();
-
-    return;
-  }
-
-
-  try{
-
-    /*
-     * Busca as assinaturas da empresa
-     * diretamente pelo backend.
-     *
-     * O backend é quem determina
-     * se existe assinatura válida.
-     */
-
-    const resposta =
-      await api(
-        '/mercado-pago/minha-assinatura'
-      );
-
-
-    const status =
-      resposta?.status;
-
-
-    const assinaturaValida =
-      [
-        'ativa',
-        'authorized',
-        'active'
-      ].includes(
-        String(status || '').toLowerCase()
-      );
-
-
-    if(assinaturaValida){
-
-      assinaturaVerificada = true;
-
-      esconderModalPlano();
-
-      return;
-    }
-
-
-    assinaturaVerificada = false;
-
-    mostrarModalPlano();
-
-    await carregarPlanosObrigatorios();
-
-
-  }catch(error){
-
-    /*
-     * Se o backend informar que não existe
-     * assinatura, mantemos o bloqueio.
-     */
-
-    console.warn(
-      'Empresa sem assinatura válida:',
-      error.message
-    );
-
-
-    assinaturaVerificada = false;
-
-    mostrarModalPlano();
-
-    await carregarPlanosObrigatorios();
-
-  }
-
-}
-
-
 
 
     atualizarSidebarUsuario();
@@ -6039,6 +6037,7 @@ async function verificarAssinaturaObrigatoria(){
 
           // Usuários será carregado
           // somente quando a aba for aberta.
+
         }
       }
 
@@ -6049,7 +6048,9 @@ async function verificarAssinaturaObrigatoria(){
         'Erro ao iniciar o sistema:',
         error
       );
+
     }
+
   }
 
 
@@ -6295,3 +6296,4 @@ async function verificarAssinaturaObrigatoria(){
   );
 
 })();
+
