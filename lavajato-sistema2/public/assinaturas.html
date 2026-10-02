@@ -19,35 +19,112 @@
     :root {
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
+      --primary-light: #60a5fa;
+
+      --bg: #f4f7fb;
+      --bg-dark: #0b1220;
+
+      --card: rgba(255, 255, 255, .92);
+      --card-solid: #ffffff;
+
+      --text: #0f172a;
+      --text-soft: #334155;
+      --muted: #64748b;
+
+      --border: #e2e8f0;
+      --border-light: #eef2f7;
+
       --success: #15803d;
-      --success-bg: #dcfce7;
+      --success-bg: #ecfdf3;
+
       --danger: #dc2626;
-      --danger-bg: #fee2e2;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 16px;
+      --danger-bg: #fef2f2;
+
+      --shadow-sm:
+        0 4px 14px rgba(15, 23, 42, .05);
+
+      --shadow:
+        0 18px 50px rgba(15, 23, 42, .08);
+
+      --shadow-lg:
+        0 30px 80px rgba(15, 23, 42, .13);
+
+      --radius: 22px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+
       font-family:
         Inter,
+        ui-sans-serif,
         system-ui,
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-      background: var(--bg);
+
       color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(37, 99, 235, .13),
+          transparent 32%
+        ),
+        radial-gradient(
+          circle at 85% 15%,
+          rgba(96, 165, 250, .10),
+          transparent 28%
+        ),
+        linear-gradient(
+          180deg,
+          #f8fafc 0%,
+          #f1f5f9 100%
+        );
+    }
+
+    body::before {
+      content: "";
+
+      position: fixed;
+
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          rgba(255,255,255,.35) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,.35) 1px,
+          transparent 1px
+        );
+
+      background-size: 42px 42px;
+
+      mask-image:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,.5),
+          transparent 75%
+        );
+
+      opacity: .35;
+
+      z-index: -1;
     }
 
     button,
@@ -60,213 +137,1064 @@
       cursor: pointer;
     }
 
+    button,
+    input,
+    select {
+      outline: none;
+    }
+
     .page {
       min-height: 100vh;
-      padding: 32px 18px;
+
+      padding:
+        34px
+        20px
+        70px;
     }
 
     .container {
       width: 100%;
-      max-width: 850px;
+      max-width: 1080px;
+
       margin: 0 auto;
     }
 
-    .header {
-      margin-bottom: 24px;
+    /* ============================================================
+       HEADER
+       ============================================================ */
+
+    .topbar {
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: 30px;
+    }
+
+    .brand {
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 14px;
+
+      color: #fff;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #1d4ed8
+        );
+
+      box-shadow:
+        0 10px 24px
+        rgba(37, 99, 235, .28);
+
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .brand-text strong {
+      display: block;
+
+      font-size: 15px;
+      font-weight: 800;
+
+      letter-spacing: -.02em;
+    }
+
+    .brand-text span {
+      display: block;
+
+      margin-top: 2px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    .secure-badge {
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 7px;
+
+      padding: 9px 13px;
+
+      border:
+        1px solid
+        #dbeafe;
+
+      border-radius: 999px;
+
+      color: #1d4ed8;
+
+      background:
+        rgba(239, 246, 255, .85);
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .secure-dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: #22c55e;
+
+      box-shadow:
+        0 0 0 4px
+        rgba(34, 197, 94, .12);
+    }
+
+    .hero {
+      position: relative;
+
+      overflow: hidden;
+
+      padding: 42px;
+
+      margin-bottom: 22px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.8);
+
+      border-radius: 28px;
+
+      color: #fff;
+
+      background:
+        linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #172554 48%,
+          #1d4ed8 100%
+        );
+
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero::before {
+      content: "";
+
+      position: absolute;
+
+      width: 300px;
+      height: 300px;
+
+      top: -150px;
+      right: -60px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(96, 165, 250, .18);
+
+      filter: blur(2px);
+    }
+
+    .hero::after {
+      content: "";
+
+      position: absolute;
+
+      width: 180px;
+      height: 180px;
+
+      bottom: -100px;
+      left: 30%;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255,255,255,.06);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+
+      max-width: 760px;
     }
 
     .eyebrow {
-      margin: 0 0 6px;
-      color: var(--primary);
-      font-size: 13px;
-      font-weight: 700;
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      margin: 0 0 14px;
+
+      padding: 7px 11px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.16);
+
+      border-radius: 999px;
+
+      color: #bfdbfe;
+
+      background:
+        rgba(255,255,255,.07);
+
+      font-size: 11px;
+      font-weight: 800;
+
       text-transform: uppercase;
-      letter-spacing: .08em;
+
+      letter-spacing: .12em;
+    }
+
+    .eyebrow::before {
+      content: "";
+
+      width: 6px;
+      height: 6px;
+
+      border-radius: 50%;
+
+      background: #60a5fa;
+
+      box-shadow:
+        0 0 0 5px
+        rgba(96,165,250,.12);
     }
 
     h1 {
       margin: 0;
-      font-size: 30px;
+
+      font-size:
+        clamp(30px, 5vw, 46px);
+
+      line-height: 1.05;
+
+      letter-spacing: -.045em;
     }
 
-    .subtitle {
-      margin: 8px 0 0;
-      color: var(--muted);
+    .hero-subtitle {
+      max-width: 680px;
+
+      margin: 15px 0 0;
+
+      color: #cbd5e1;
+
       font-size: 15px;
+
+      line-height: 1.7;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
+    .hero-points {
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      margin-top: 24px;
     }
 
-    .card-header {
-      padding: 22px;
-      border-bottom: 1px solid var(--border);
-    }
+    .hero-point {
+      display: inline-flex;
 
-    .card-title {
-      margin: 0;
-      font-size: 18px;
-    }
+      align-items: center;
 
-    .card-description {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
+      gap: 7px;
 
-    .body {
-      padding: 22px;
-    }
+      padding: 8px 11px;
 
-    .company-info {
-      margin-bottom: 22px;
-      padding: 14px 16px;
       border-radius: 10px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-    }
 
-    .company-label {
-      color: var(--muted);
+      color: #e2e8f0;
+
+      background:
+        rgba(255,255,255,.07);
+
+      border:
+        1px solid
+        rgba(255,255,255,.08);
+
       font-size: 12px;
-      margin-bottom: 3px;
-    }
-
-    .company-name {
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .alert {
-      display: none;
-      margin-bottom: 18px;
-      padding: 13px 15px;
-      border-radius: 10px;
-      font-size: 14px;
       font-weight: 600;
     }
 
+    .hero-point::before {
+      content: "✓";
+
+      color: #60a5fa;
+
+      font-weight: 900;
+    }
+
+    /* ============================================================
+       ALERTS
+       ============================================================ */
+
+    .alert {
+      display: none;
+
+      align-items: flex-start;
+
+      gap: 12px;
+
+      margin-bottom: 18px;
+
+      padding: 15px 17px;
+
+      border-radius: 15px;
+
+      font-size: 13px;
+
+      font-weight: 600;
+
+      line-height: 1.5;
+
+      animation:
+        alertIn .25s ease;
+    }
+
     .alert.show {
-      display: block;
+      display: flex;
+    }
+
+    .alert-icon {
+      flex:
+        0 0
+        30px;
+
+      width: 30px;
+      height: 30px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 9px;
+
+      font-weight: 900;
     }
 
     .alert-error {
       color: #991b1b;
-      background: var(--danger-bg);
-      border: 1px solid #fecaca;
+
+      background:
+        linear-gradient(
+          135deg,
+          #fff7f7,
+          #fef2f2
+        );
+
+      border:
+        1px solid
+        #fecaca;
+    }
+
+    .alert-error .alert-icon {
+      color: #b91c1c;
+      background: #fee2e2;
     }
 
     .alert-success {
       color: #166534;
-      background: var(--success-bg);
-      border: 1px solid #bbf7d0;
+
+      background:
+        linear-gradient(
+          135deg,
+          #f4fff8,
+          #ecfdf3
+        );
+
+      border:
+        1px solid
+        #bbf7d0;
     }
 
-    .loading {
-      padding: 35px;
-      text-align: center;
-      color: var(--muted);
+    .alert-success .alert-icon {
+      color: #15803d;
+      background: #dcfce7;
     }
+
+    @keyframes alertIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================================
+       MAIN CARD
+       ============================================================ */
+
+    .card {
+      position: relative;
+
+      overflow: hidden;
+
+      border:
+        1px solid
+        rgba(226,232,240,.85);
+
+      border-radius: 24px;
+
+      background:
+        rgba(255,255,255,.88);
+
+      box-shadow: var(--shadow);
+
+      backdrop-filter:
+        blur(16px);
+    }
+
+    .card-header {
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 20px;
+
+      padding: 25px 28px;
+
+      border-bottom:
+        1px solid
+        var(--border-light);
+
+      background:
+        rgba(255,255,255,.72);
+    }
+
+    .card-heading {
+      display: flex;
+
+      align-items: center;
+
+      gap: 14px;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+
+      display: grid;
+      place-items: center;
+
+      flex-shrink: 0;
+
+      border-radius: 13px;
+
+      color: #2563eb;
+
+      background:
+        #eff6ff;
+
+      border:
+        1px solid
+        #dbeafe;
+
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .card-title {
+      margin: 0;
+
+      font-size: 18px;
+
+      letter-spacing: -.025em;
+    }
+
+    .card-description {
+      margin: 4px 0 0;
+
+      color: var(--muted);
+
+      font-size: 13px;
+    }
+
+    .card-status {
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 7px;
+
+      padding: 8px 11px;
+
+      border-radius: 999px;
+
+      color: #166534;
+
+      background: #f0fdf4;
+
+      border:
+        1px solid
+        #dcfce7;
+
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .card-status::before {
+      content: "";
+
+      width: 6px;
+      height: 6px;
+
+      border-radius: 50%;
+
+      background: #22c55e;
+    }
+
+    .body {
+      padding: 28px;
+    }
+
+    /* ============================================================
+       COMPANY
+       ============================================================ */
+
+    .company-info {
+      position: relative;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 15px;
+
+      margin-bottom: 30px;
+
+      padding: 17px 18px;
+
+      overflow: hidden;
+
+      border:
+        1px solid
+        #dbeafe;
+
+      border-radius: 16px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #f8fbff,
+          #eff6ff
+        );
+    }
+
+    .company-info::after {
+      content: "";
+
+      position: absolute;
+
+      width: 110px;
+      height: 110px;
+
+      right: -45px;
+      top: -50px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(37,99,235,.06);
+    }
+
+    .company-avatar {
+      width: 43px;
+      height: 43px;
+
+      display: grid;
+      place-items: center;
+
+      flex-shrink: 0;
+
+      border-radius: 13px;
+
+      color: #fff;
+
+      background:
+        linear-gradient(
+          135deg,
+          #3b82f6,
+          #1d4ed8
+        );
+
+      box-shadow:
+        0 8px 18px
+        rgba(37,99,235,.20);
+
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .company-label {
+      margin-bottom: 3px;
+
+      color: #64748b;
+
+      font-size: 11px;
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      letter-spacing: .08em;
+    }
+
+    .company-name {
+      position: relative;
+      z-index: 2;
+
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    /* ============================================================
+       SECTION TITLE
+       ============================================================ */
+
+    .section-heading {
+      display: flex;
+
+      align-items: flex-end;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      margin-bottom: 16px;
+    }
+
+    .section-heading h3 {
+      margin: 0;
+
+      font-size: 17px;
+
+      letter-spacing: -.02em;
+    }
+
+    .section-heading span {
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    /* ============================================================
+       PLANS
+       ============================================================ */
 
     .plans {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+
+      grid-template-columns:
+        repeat(
+          auto-fit,
+          minmax(250px, 1fr)
+        );
+
+      gap: 18px;
     }
 
     .plan {
+      position: relative;
+
       display: flex;
       flex-direction: column;
-      padding: 20px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fff;
+
+      min-height: 310px;
+
+      padding: 24px;
+
+      overflow: hidden;
+
+      border:
+        1px solid
+        var(--border);
+
+      border-radius: 20px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #ffffff 0%,
+          #fbfdff 100%
+        );
+
       transition:
-        border-color .2s ease,
-        box-shadow .2s ease,
-        transform .2s ease;
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
+    }
+
+    .plan::before {
+      content: "";
+
+      position: absolute;
+
+      top: 0;
+      left: 0;
+      right: 0;
+
+      height: 3px;
+
+      background:
+        linear-gradient(
+          90deg,
+          #2563eb,
+          #60a5fa
+        );
+
+      opacity: 0;
+
+      transition:
+        opacity .25s ease;
     }
 
     .plan:hover {
-      border-color: #bfdbfe;
-      box-shadow: 0 8px 25px rgba(15, 23, 42, .08);
-      transform: translateY(-2px);
+      transform:
+        translateY(-5px);
+
+      border-color:
+        #bfdbfe;
+
+      box-shadow:
+        0 20px 45px
+        rgba(37,99,235,.11);
+    }
+
+    .plan:hover::before {
+      opacity: 1;
+    }
+
+    .plan-top {
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 12px;
+    }
+
+    .plan-badge {
+      display: inline-flex;
+
+      padding: 6px 9px;
+
+      border-radius: 8px;
+
+      color: #1d4ed8;
+
+      background: #eff6ff;
+
+      font-size: 10px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: .07em;
     }
 
     .plan-name {
-      font-size: 19px;
-      font-weight: 800;
+      margin-top: 16px;
+
+      font-size: 21px;
+
+      font-weight: 850;
+
+      letter-spacing: -.035em;
     }
 
     .plan-description {
-      min-height: 42px;
-      margin-top: 8px;
+      min-height: 48px;
+
+      margin-top: 9px;
+
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
+
+      font-size: 13px;
+
+      line-height: 1.65;
+    }
+
+    .plan-divider {
+      height: 1px;
+
+      margin: 18px 0;
+
+      background:
+        var(--border-light);
+    }
+
+    .plan-price-label {
+      color: var(--muted);
+
+      font-size: 11px;
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      letter-spacing: .07em;
     }
 
     .plan-price {
-      margin-top: 18px;
-      font-size: 28px;
-      font-weight: 800;
+      margin-top: 4px;
+
+      font-size: 31px;
+
+      font-weight: 900;
+
+      letter-spacing: -.045em;
+    }
+
+    .plan-price small {
+      color: var(--muted);
+
+      font-size: 12px;
+
+      font-weight: 600;
+
+      letter-spacing: 0;
     }
 
     .plan-period {
-      margin-top: 3px;
+      margin-top: 4px;
+
       color: var(--muted);
-      font-size: 13px;
+
+      font-size: 12px;
     }
 
     .plan-button {
       width: 100%;
-      min-height: 44px;
-      margin-top: 20px;
+
+      min-height: 46px;
+
+      margin-top: auto;
+      padding: 0 16px;
+
       border: 0;
-      border-radius: 10px;
-      background: var(--primary);
+
+      border-radius: 12px;
+
       color: #fff;
-      font-weight: 700;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #1d4ed8
+        );
+
+      box-shadow:
+        0 9px 20px
+        rgba(37,99,235,.18);
+
+      font-size: 13px;
+      font-weight: 800;
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        filter .2s ease;
     }
 
     .plan-button:hover {
-      background: var(--primary-dark);
+      transform:
+        translateY(-1px);
+
+      filter:
+        brightness(1.04);
+
+      box-shadow:
+        0 13px 26px
+        rgba(37,99,235,.25);
+    }
+
+    .plan-button:active {
+      transform:
+        translateY(0);
+    }
+
+    /* ============================================================
+       PAYMENT
+       ============================================================ */
+
+    .payment-header {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin-bottom: 20px;
+    }
+
+    .payment-header-icon {
+      width: 34px;
+      height: 34px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 10px;
+
+      color: #2563eb;
+
+      background: #eff6ff;
+
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .payment-header strong {
+      font-size: 15px;
+    }
+
+    .payment-header span {
+      display: block;
+
+      margin-top: 2px;
+
+      color: var(--muted);
+
+      font-size: 11px;
     }
 
     .selected-plan {
-      margin-bottom: 22px;
-      padding: 18px;
-      border: 1px solid #bfdbfe;
-      border-radius: 12px;
-      background: #eff6ff;
+      position: relative;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 20px;
+
+      margin-bottom: 24px;
+
+      padding: 20px;
+
+      overflow: hidden;
+
+      border:
+        1px solid
+        #bfdbfe;
+
+      border-radius: 17px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #eff6ff,
+          #f8fbff
+        );
+    }
+
+    .selected-plan::after {
+      content: "";
+
+      position: absolute;
+
+      width: 140px;
+      height: 140px;
+
+      right: -65px;
+      top: -65px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(37,99,235,.07);
     }
 
     .selected-label {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 5px;
+      color: #64748b;
+
+      font-size: 10px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: .08em;
     }
 
     .selected-name {
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    .selected-price {
       margin-top: 5px;
-      font-size: 24px;
-      font-weight: 800;
+
+      font-size: 19px;
+
+      font-weight: 900;
+
+      letter-spacing: -.025em;
     }
 
     .selected-period {
-      margin-top: 3px;
+      margin-top: 4px;
+
       color: var(--muted);
-      font-size: 13px;
+
+      font-size: 12px;
+    }
+
+    .selected-price {
+      position: relative;
+      z-index: 2;
+
+      font-size: 25px;
+
+      font-weight: 900;
+
+      letter-spacing: -.04em;
+
+      white-space: nowrap;
+    }
+
+    .selected-price small {
+      display: block;
+
+      margin-top: 2px;
+
+      color: var(--muted);
+
+      font-size: 10px;
+
+      font-weight: 600;
+
+      text-align: right;
+
+      letter-spacing: 0;
+    }
+
+    .form-shell {
+      padding: 22px;
+
+      border:
+        1px solid
+        var(--border-light);
+
+      border-radius: 18px;
+
+      background:
+        #fbfdff;
     }
 
     .form-group {
@@ -275,130 +1203,445 @@
 
     label {
       display: block;
+
       margin-bottom: 7px;
-      font-size: 13px;
-      font-weight: 700;
+
+      color: #334155;
+
+      font-size: 12px;
+      font-weight: 800;
     }
 
     input,
     select {
       width: 100%;
-      min-height: 44px;
-      padding: 10px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
+
+      min-height: 46px;
+
+      padding:
+        0 13px;
+
+      border:
+        1px solid
+        #dbe2ea;
+
+      border-radius: 11px;
+
+      color: var(--text);
+
       background: #fff;
-      outline: none;
+
+      transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+    }
+
+    input::placeholder {
+      color: #94a3b8;
+    }
+
+    input:hover,
+    select:hover {
+      border-color:
+        #cbd5e1;
     }
 
     input:focus,
     select:focus {
-      border-color: var(--primary);
+      border-color:
+        var(--primary);
+
       box-shadow:
-        0 0 0 3px rgba(37, 99, 235, .12);
+        0 0 0 4px
+        rgba(37,99,235,.09);
     }
 
     .mp-field {
-      min-height: 44px;
-      padding: 11px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
+      min-height: 46px;
+
+      padding:
+        0 12px;
+
+      display: flex;
+      align-items: center;
+
+      border:
+        1px solid
+        #dbe2ea;
+
+      border-radius: 11px;
+
       background: #fff;
+
+      transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .mp-field:focus-within {
+      border-color:
+        var(--primary);
+
+      box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.09);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 15px;
+    }
+
+    .security-box {
+      display: flex;
+
+      align-items: flex-start;
+
+      gap: 11px;
+
+      margin-top: 18px;
+
+      padding: 14px;
+
+      border:
+        1px solid
+        #e2e8f0;
+
+      border-radius: 13px;
+
+      background: #f8fafc;
+    }
+
+    .security-icon {
+      width: 30px;
+      height: 30px;
+
+      display: grid;
+      place-items: center;
+
+      flex-shrink: 0;
+
+      border-radius: 9px;
+
+      color: #2563eb;
+
+      background: #eff6ff;
+
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .security-text {
+      color: var(--muted);
+
+      font-size: 11px;
+
+      line-height: 1.6;
+    }
+
+    .security-text strong {
+      display: block;
+
+      margin-bottom: 2px;
+
+      color: #334155;
+
+      font-size: 11px;
     }
 
     .actions {
       display: flex;
-      gap: 10px;
-      margin-top: 22px;
+
+      gap: 11px;
+
+      margin-top: 23px;
     }
 
     .btn {
-      min-height: 44px;
+      min-height: 47px;
+
       padding: 0 18px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      font-weight: 700;
+
+      border:
+        1px solid
+        transparent;
+
+      border-radius: 12px;
+
+      font-size: 13px;
+      font-weight: 800;
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
     }
 
     .btn-primary {
       flex: 1;
-      background: var(--primary);
+
       color: #fff;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #1d4ed8
+        );
+
+      box-shadow:
+        0 10px 22px
+        rgba(37,99,235,.18);
     }
 
     .btn-primary:hover {
-      background: var(--primary-dark);
+      transform:
+        translateY(-1px);
+
+      box-shadow:
+        0 14px 28px
+        rgba(37,99,235,.24);
     }
 
     .btn-secondary {
+      color: #334155;
+
       background: #fff;
-      color: var(--text);
-      border-color: var(--border);
+
+      border-color:
+        #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+
+      border-color:
+        #cbd5e1;
     }
 
     .btn:disabled {
       opacity: .6;
-      cursor: not-allowed;
-    }
 
-    .security {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
+      cursor: not-allowed;
+
+      transform: none;
     }
 
     .mp-loading {
-      margin-top: 6px;
+      margin-top: 10px;
+
       color: var(--muted);
-      font-size: 12px;
+
+      font-size: 11px;
+
+      text-align: center;
+    }
+
+    /* ============================================================
+       EMPTY / LOADING
+       ============================================================ */
+
+    .loading {
+      padding: 45px 20px;
+
+      text-align: center;
+
+      color: var(--muted);
+
+      font-size: 13px;
+    }
+
+    .loading::before {
+      content: "";
+
+      display: block;
+
+      width: 28px;
+      height: 28px;
+
+      margin:
+        0 auto
+        12px;
+
+      border:
+        3px solid
+        #dbeafe;
+
+      border-top-color:
+        var(--primary);
+
+      border-radius: 50%;
+
+      animation:
+        spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform:
+          rotate(360deg);
+      }
     }
 
     .empty {
-      padding: 30px 20px;
+      grid-column: 1 / -1;
+
+      padding: 42px 20px;
+
       text-align: center;
+
       color: var(--muted);
-      border: 1px dashed var(--border);
+
+      border:
+        1px dashed
+        #cbd5e1;
+
+      border-radius: 16px;
+
+      background:
+        rgba(248,250,252,.8);
+    }
+
+    .empty::before {
+      content: "—";
+
+      display: grid;
+
+      place-items: center;
+
+      width: 42px;
+      height: 42px;
+
+      margin:
+        0 auto
+        12px;
+
       border-radius: 12px;
+
+      color: #64748b;
+
+      background: #e2e8f0;
+
+      font-weight: 900;
     }
 
     .hidden {
       display: none !important;
     }
 
-    @media (max-width: 700px) {
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    @media (max-width: 760px) {
 
       .page {
-        padding: 18px;
+        padding:
+          18px
+          14px
+          45px;
       }
 
-      h1 {
-        font-size: 25px;
+      .topbar {
+        margin-bottom: 18px;
+      }
+
+      .secure-badge {
+        display: none;
+      }
+
+      .hero {
+        padding: 29px 23px;
+
+        border-radius: 22px;
+
+        margin-bottom: 15px;
+      }
+
+      .hero-subtitle {
+        font-size: 13px;
+      }
+
+      .hero-points {
+        display: none;
+      }
+
+      .card {
+        border-radius: 20px;
+      }
+
+      .card-header {
+        padding: 20px;
+      }
+
+      .body {
+        padding: 20px;
+      }
+
+      .card-status {
+        display: none;
+      }
+
+      .company-info {
+        margin-bottom: 23px;
       }
 
       .plans {
         grid-template-columns: 1fr;
       }
 
-    }
-
-    @media (max-width: 600px) {
-
-      .grid {
-        grid-template-columns: 1fr;
+      .plan {
+        min-height: 285px;
       }
 
-      .actions {
+      .selected-plan {
+        align-items: flex-start;
         flex-direction: column;
       }
 
-      .btn-secondary {
+      .selected-price {
+        text-align: left;
+      }
+
+      .selected-price small {
+        text-align: left;
+      }
+
+      .form-shell {
+        padding: 16px;
+      }
+
+    }
+
+    @media (max-width: 560px) {
+
+      .brand-text span {
+        display: none;
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      h1 {
+        font-size: 31px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .actions {
+        flex-direction: column-reverse;
+      }
+
+      .btn {
         width: 100%;
       }
 
@@ -414,43 +1657,150 @@
 
     <div class="container">
 
-      <header class="header">
+      <!-- ========================================================
+           TOPO
+           ======================================================== -->
 
-        <p class="eyebrow">
-          Lavajato SaaS
-        </p>
+      <div class="topbar">
 
-        <h1>
-          Minha assinatura
-        </h1>
+        <div class="brand">
 
-        <p class="subtitle">
-          Escolha o plano que deseja utilizar no seu lavajato.
-        </p>
+          <div class="brand-icon">
+            L
+          </div>
 
-      </header>
+          <div class="brand-text">
+
+            <strong>
+              Lavajato
+            </strong>
+
+            <span>
+              Gestão inteligente para seu negócio
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="secure-badge">
+
+          <span class="secure-dot"></span>
+
+          Ambiente seguro
+
+        </div>
+
+      </div>
+
+      <!-- ========================================================
+           HERO
+           ======================================================== -->
+
+      <section class="hero">
+
+        <div class="hero-content">
+
+          <div class="eyebrow">
+            Lavajato SaaS
+          </div>
+
+          <h1>
+            Escolha o plano ideal<br>
+            para o seu lavajato.
+          </h1>
+
+          <p class="hero-subtitle">
+            Tenha acesso às ferramentas que ajudam sua empresa
+            a organizar agendamentos, serviços, clientes,
+            faturamento e muito mais.
+          </p>
+
+          <div class="hero-points">
+
+            <div class="hero-point">
+              Gestão completa
+            </div>
+
+            <div class="hero-point">
+              Acesso online
+            </div>
+
+            <div class="hero-point">
+              Pagamento seguro
+            </div>
+
+            <div class="hero-point">
+              Controle simplificado
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================================
+           ALERTAS
+           ======================================================== -->
 
       <div
         id="alert-error"
         class="alert alert-error"
-      ></div>
+      >
+
+        <div class="alert-icon">
+          !
+        </div>
+
+        <div id="alert-error-text"></div>
+
+      </div>
 
       <div
         id="alert-success"
         class="alert alert-success"
-      ></div>
+      >
+
+        <div class="alert-icon">
+          ✓
+        </div>
+
+        <div id="alert-success-text"></div>
+
+      </div>
+
+      <!-- ========================================================
+           CARD PRINCIPAL
+           ======================================================== -->
 
       <section class="card">
 
         <div class="card-header">
 
-          <h2 class="card-title">
-            Assinatura
-          </h2>
+          <div class="card-heading">
 
-          <p class="card-description">
-            Selecione um plano para continuar.
-          </p>
+            <div class="card-icon">
+              $
+            </div>
+
+            <div>
+
+              <h2 class="card-title">
+                Minha assinatura
+              </h2>
+
+              <p class="card-description">
+                Escolha ou gerencie seu plano.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="card-status">
+            Pagamento seguro
+          </div>
 
         </div>
 
@@ -460,7 +1810,7 @@
             id="loading"
             class="loading"
           >
-            Carregando...
+            Carregando informações...
           </div>
 
           <div
@@ -468,38 +1818,57 @@
             class="hidden"
           >
 
+            <!-- ==================================================
+                 EMPRESA
+                 ================================================== -->
+
             <div
               id="company-info"
               class="company-info"
             >
 
-              <div class="company-label">
-                Empresa
+              <div class="company-avatar">
+                L
               </div>
 
-              <div
-                id="company-name"
-                class="company-name"
-              >
-                Carregando...
+              <div>
+
+                <div class="company-label">
+                  Empresa
+                </div>
+
+                <div
+                  id="company-name"
+                  class="company-name"
+                >
+                  Carregando...
+                </div>
+
               </div>
 
             </div>
 
             <!-- ==================================================
-                 SELEÇÃO DE PLANO
+                 PLANOS
                  ================================================== -->
 
             <div id="plans-section">
 
-              <h3
-                style="
-                  margin: 0 0 14px;
-                  font-size: 17px;
-                "
-              >
-                Planos disponíveis
-              </h3>
+              <div class="section-heading">
+
+                <div>
+
+                  <h3>
+                    Planos disponíveis
+                  </h3>
+
+                  <span>
+                    Selecione a opção que melhor atende sua empresa.
+                  </span>
+
+                </div>
+
+              </div>
 
               <div
                 id="plans"
@@ -517,169 +1886,216 @@
               class="hidden"
             >
 
+              <div class="payment-header">
+
+                <div class="payment-header-icon">
+                  $
+                </div>
+
+                <div>
+
+                  <strong>
+                    Finalize sua assinatura
+                  </strong>
+
+                  <span>
+                    Preencha os dados para concluir o pagamento.
+                  </span>
+
+                </div>
+
+              </div>
+
               <div
                 id="selected-plan"
                 class="selected-plan"
               ></div>
 
-              <form
-                id="card-form"
-                autocomplete="off"
-              >
+              <div class="form-shell">
 
-                <div class="form-group">
-
-                  <label for="email">
-                    E-mail
-                  </label>
-
-                  <input
-                    type="email"
-                    id="email"
-                    placeholder="cliente@email.com"
-                    autocomplete="email"
-                    required
-                  >
-
-                </div>
-
-                <div class="form-group">
-
-                  <label for="cardholder-name">
-                    Nome no cartão
-                  </label>
-
-                  <input
-                    type="text"
-                    id="cardholder-name"
-                    placeholder="Nome completo"
-                    autocomplete="cc-name"
-                    required
-                  >
-
-                </div>
-
-                <div class="form-group">
-
-                  <label>
-                    Número do cartão
-                  </label>
-
-                  <div
-                    id="card-number"
-                    class="mp-field"
-                  ></div>
-
-                </div>
-
-                <div class="grid">
+                <form
+                  id="card-form"
+                  autocomplete="off"
+                >
 
                   <div class="form-group">
 
-                    <label>
-                      Validade
+                    <label for="email">
+                      E-mail
                     </label>
 
-                    <div
-                      id="expiration-date"
-                      class="mp-field"
-                    ></div>
+                    <input
+                      type="email"
+                      id="email"
+                      placeholder="cliente@email.com"
+                      autocomplete="email"
+                      required
+                    >
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="cardholder-name">
+                      Nome no cartão
+                    </label>
+
+                    <input
+                      type="text"
+                      id="cardholder-name"
+                      placeholder="Nome completo"
+                      autocomplete="cc-name"
+                      required
+                    >
 
                   </div>
 
                   <div class="form-group">
 
                     <label>
-                      Código de segurança
+                      Número do cartão
                     </label>
 
                     <div
-                      id="security-code"
+                      id="card-number"
                       class="mp-field"
                     ></div>
 
                   </div>
 
+                  <div class="grid">
+
+                    <div class="form-group">
+
+                      <label>
+                        Validade
+                      </label>
+
+                      <div
+                        id="expiration-date"
+                        class="mp-field"
+                      ></div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                      <label>
+                        Código de segurança
+                      </label>
+
+                      <div
+                        id="security-code"
+                        class="mp-field"
+                      ></div>
+
+                    </div>
+
+                  </div>
+
+                  <div class="grid">
+
+                    <div class="form-group">
+
+                      <label for="issuer">
+                        Banco emissor
+                      </label>
+
+                      <select id="issuer"></select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                      <label for="installments">
+                        Parcelas
+                      </label>
+
+                      <select id="installments"></select>
+
+                    </div>
+
+                  </div>
+
+                  <div class="grid">
+
+                    <div class="form-group">
+
+                      <label for="identification-type">
+                        Tipo de documento
+                      </label>
+
+                      <select id="identification-type"></select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                      <label for="identification-number">
+                        CPF
+                      </label>
+
+                      <input
+                        type="text"
+                        id="identification-number"
+                        placeholder="00000000000"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        required
+                      >
+
+                    </div>
+
+                  </div>
+
+                  <div class="actions">
+
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      id="btn-voltar-planos"
+                    >
+                      Voltar para planos
+                    </button>
+
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      id="btn-assinar"
+                    >
+                      Assinar plano
+                    </button>
+
+                  </div>
+
+                </form>
+
+                <div class="security-box">
+
+                  <div class="security-icon">
+                    ✓
+                  </div>
+
+                  <div class="security-text">
+
+                    <strong>
+                      Pagamento protegido
+                    </strong>
+
+                    Os dados do cartão são processados diretamente
+                    pelo Mercado Pago. O número completo do cartão
+                    não é enviado para o servidor do Lavajato.
+
+                  </div>
+
                 </div>
 
-                <div class="form-group">
+                <div
+                  id="mp-loading"
+                  class="mp-loading"
+                ></div>
 
-                  <label for="issuer">
-                    Banco emissor
-                  </label>
-
-                  <select id="issuer"></select>
-
-                </div>
-
-                <div class="form-group">
-
-                  <label for="installments">
-                    Parcelas
-                  </label>
-
-                  <select id="installments"></select>
-
-                </div>
-
-                <div class="form-group">
-
-                  <label for="identification-type">
-                    Tipo de documento
-                  </label>
-
-                  <select id="identification-type"></select>
-
-                </div>
-
-                <div class="form-group">
-
-                  <label for="identification-number">
-                    CPF
-                  </label>
-
-                  <input
-                    type="text"
-                    id="identification-number"
-                    placeholder="00000000000"
-                    inputmode="numeric"
-                    autocomplete="off"
-                    required
-                  >
-
-                </div>
-
-                <div class="actions">
-
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    id="btn-voltar-planos"
-                  >
-                    Voltar para planos
-                  </button>
-
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    id="btn-assinar"
-                  >
-                    Assinar plano
-                  </button>
-
-                </div>
-
-              </form>
-
-              <p class="security">
-                Os dados do cartão são processados diretamente pelo Mercado Pago.
-                O número completo do cartão não é enviado para o servidor do Lavajato.
-              </p>
-
-              <div
-                id="mp-loading"
-                class="mp-loading"
-              ></div>
+              </div>
 
             </div>
 
@@ -739,6 +2155,12 @@
       const alertSuccess =
         document.getElementById('alert-success');
 
+      const alertErrorText =
+        document.getElementById('alert-error-text');
+
+      const alertSuccessText =
+        document.getElementById('alert-success-text');
+
       const form =
         document.getElementById('card-form');
 
@@ -786,7 +2208,7 @@
 
         alertSuccess.classList.remove('show');
 
-        alertError.textContent =
+        alertErrorText.textContent =
           message ||
           'Ocorreu um erro.';
 
@@ -803,7 +2225,7 @@
 
         alertError.classList.remove('show');
 
-        alertSuccess.textContent =
+        alertSuccessText.textContent =
           message ||
           'Operação realizada com sucesso.';
 
@@ -822,9 +2244,9 @@
 
         alertSuccess.classList.remove('show');
 
-        alertError.textContent = '';
+        alertErrorText.textContent = '';
 
-        alertSuccess.textContent = '';
+        alertSuccessText.textContent = '';
 
       }
 
@@ -1080,9 +2502,22 @@
                 ? 'Cobrança anual'
                 : 'Cobrança mensal';
 
+            const periodoCurto =
+              plano.periodo === 'anual'
+                ? '/ ano'
+                : '/ mês';
+
             return `
 
               <article class="plan">
+
+                <div class="plan-top">
+
+                  <span class="plan-badge">
+                    Plano disponível
+                  </span>
+
+                </div>
 
                 <div class="plan-name">
                   ${escapeHtml(plano.nome)}
@@ -1092,13 +2527,20 @@
                   ${
                     escapeHtml(
                       plano.descricao ||
-                      'Plano para utilização do sistema.'
+                      'Plano para utilização completa do sistema.'
                     )
                   }
                 </div>
 
+                <div class="plan-divider"></div>
+
+                <div class="plan-price-label">
+                  Investimento
+                </div>
+
                 <div class="plan-price">
                   ${formatarMoeda(plano.valor)}
+                  <small>${periodoCurto}</small>
                 </div>
 
                 <div class="plan-period">
@@ -1110,7 +2552,7 @@
                   class="plan-button"
                   data-plano-id="${Number(plano.id)}"
                 >
-                  Escolher plano
+                  Escolher este plano
                 </button>
 
               </article>
@@ -1174,22 +2616,37 @@
             ? 'Cobrança anual'
             : 'Cobrança mensal';
 
+        const periodoCurto =
+          plano.periodo === 'anual'
+            ? '/ ano'
+            : '/ mês';
+
         selectedPlan.innerHTML = `
 
-          <div class="selected-label">
-            Plano selecionado
-          </div>
+          <div>
 
-          <div class="selected-name">
-            ${escapeHtml(plano.nome)}
+            <div class="selected-label">
+              Plano selecionado
+            </div>
+
+            <div class="selected-name">
+              ${escapeHtml(plano.nome)}
+            </div>
+
+            <div class="selected-period">
+              ${periodo}
+            </div>
+
           </div>
 
           <div class="selected-price">
-            ${formatarMoeda(plano.valor)}
-          </div>
 
-          <div class="selected-period">
-            ${periodo}
+            ${formatarMoeda(plano.valor)}
+
+            <small>
+              ${periodoCurto}
+            </small>
+
           </div>
 
         `;
@@ -1277,10 +2734,6 @@
 
         }
 
-        /*
-         * Evita criar vários CardForms caso
-         * o usuário volte e escolha novamente.
-         */
         if (cardForm) {
 
           return;
@@ -1405,7 +2858,7 @@
       }
 
       // ============================================================
-      // VOLTAR PARA PLANOS
+      // VOLTAR
       // ============================================================
 
       btnVoltarPlanos.addEventListener(
@@ -1424,11 +2877,8 @@
 
           planoSelecionado = null;
 
-          /*
-           * O CardForm antigo não deve ser reutilizado
-           * para outro plano porque o amount muda.
-           */
           cardForm = null;
+
           mp = null;
 
           mpLoading.textContent = '';
