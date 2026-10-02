@@ -90,10 +90,22 @@
 
 
   function isAdministrador(){
-    return (
-      usuarioLogado &&
-      usuarioLogado.perfil === 'administrador'
-    );
+    function abrirPrivacidade(){
+
+  if(
+    usuarioLogado &&
+    usuarioLogado.perfil === 'administrador'
+  ){
+
+    window.location.href =
+      '/empresa/privacidade.html';
+
+    return;
+  }
+
+  window.location.href =
+    '/privacidade.html';
+}
   }
 
 

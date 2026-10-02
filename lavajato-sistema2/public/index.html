@@ -780,23 +780,6 @@ viewBox="0 0 20 20"
 
 </button>
 
-<script>
-  function abrirPrivacidade() {
-    const usuario = JSON.parse(
-      localStorage.getItem('usuario') || 'null'
-    );
-
-    if (
-      usuario &&
-      usuario.perfil === 'administrador'
-    ) {
-      window.location.href = '/empresa/privacidade.html';
-      return;
-    }
-
-    window.location.href = '/privacidade.html';
-  }
-</script>
 
 
 
