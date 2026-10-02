@@ -5,8 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 
-const registrarLogs =
-  require('./middleware/logger');
+const registrarLogs = require('./middleware/logger');
 
 // ============================================================
 // ROTAS
@@ -20,6 +19,7 @@ const usuariosRouter = require('./routes/usuarios');
 const configuracoesRouter = require('./routes/configuracoes');
 const planosRouter = require('./routes/planos');
 const adminRouter = require('./routes/admin');
+const mercadoPagoRouter = require('./routes/mercadoPago');
 
 // ============================================================
 // APP
@@ -79,6 +79,8 @@ app.use('/api/configuracoes', configuracoesRouter);
 app.use('/api/planos', planosRouter);
 
 app.use('/api/admin', adminRouter);
+
+app.use('/api/mercado-pago', mercadoPagoRouter);
 
 // ============================================================
 // STATUS
