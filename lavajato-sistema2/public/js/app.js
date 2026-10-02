@@ -90,23 +90,40 @@
 
 
   function isAdministrador(){
-    function abrirPrivacidade(){
 
-  if(
-    usuarioLogado &&
-    usuarioLogado.perfil === 'administrador'
-  ){
+    return (
+      usuarioLogado &&
+      usuarioLogado.perfil === 'administrador'
+    );
+
+  }
+
+
+  // ============================================================
+  // PRIVACIDADE
+  // ============================================================
+
+  function abrirPrivacidade(){
+
+    if(
+      usuarioLogado &&
+      usuarioLogado.perfil === 'administrador'
+    ){
+
+      window.location.href =
+        '/empresa/privacidade.html';
+
+      return;
+    }
 
     window.location.href =
-      '/empresa/privacidade.html';
-
-    return;
+      '/privacidade.html';
   }
 
-  window.location.href =
-    '/privacidade.html';
-}
-  }
+
+  // Disponibiliza a função para o onclick do index.html
+  window.abrirPrivacidade =
+    abrirPrivacidade;
 
 
   // ============================================================
@@ -592,16 +609,23 @@
           resposta.empresa || null;
 
 
-        if (usuarioLogado?.perfil === 'dev') {
-  window.location.href = '/admin/dashboard.html';
-  return;
-}
+        if(
+          usuarioLogado?.perfil === 'dev'
+        ){
 
-atualizarSidebarUsuario();
+          window.location.href =
+            '/admin/dashboard.html';
 
-hideAuthScreen();
+          return;
+        }
 
-await iniciarSistema();
+
+        atualizarSidebarUsuario();
+
+        hideAuthScreen();
+
+        await iniciarSistema();
+
 
       }catch(error){
 
@@ -774,16 +798,23 @@ await iniciarSistema();
         resposta.empresa || null;
 
 
-     if (usuarioLogado?.perfil === 'dev') {
-  window.location.href = '/admin/dashboard.html';
-  return false;
-}
+      if(
+        usuarioLogado?.perfil === 'dev'
+      ){
 
-atualizarSidebarUsuario();
+        window.location.href =
+          '/admin/dashboard.html';
 
-hideAuthScreen();
+        return false;
+      }
 
-return true;
+
+      atualizarSidebarUsuario();
+
+      hideAuthScreen();
+
+      return true;
+
 
     }catch(error){
 
@@ -913,9 +944,19 @@ return true;
 
       btn.addEventListener(
         'click',
-        () => goToTab(
-          btn.dataset.tab
-        )
+        () => {
+
+          if(
+            btn.dataset.tab
+          ){
+
+            goToTab(
+              btn.dataset.tab
+            );
+
+          }
+
+        }
       );
 
     });
@@ -1123,7 +1164,7 @@ return true;
       list.innerHTML =
         '<div class="empty">' +
           '<strong>Nenhum agendamento nesta data</strong>' +
-          'Toque em "Novo agendamento" para adicionar o primeiro carro do dia.' +
+          'Toque em "Novo agendamento" para adicionar o primeiro item do dia.' +
         '</div>';
 
     }else{
@@ -1179,7 +1220,7 @@ return true;
 
           const statusLabel = {
             agendado:'agendado',
-            em_andamento:'em lavagem',
+            em_andamento:'em andamento',
             concluido:'concluído',
             cancelado:'cancelado'
           }[ap.status];
@@ -2330,7 +2371,7 @@ return true;
       <div class="recibo-header">
 
         <h2>
-          Lavajato — Recibo
+          Orvix — Recibo
         </h2>
 
         <div>
@@ -2376,7 +2417,9 @@ return true;
 
       <div class="recibo-row">
 
-        <span>Serviço</span>
+        <span>
+          Serviço
+        </span>
 
         <span>
           ${escapeHtml(
@@ -2561,7 +2604,7 @@ return true;
       ).join('') ||
 
       '<div class="recibo-row">' +
-        '<span>Nenhuma lavagem concluída nesta data.</span>' +
+        '<span>Nenhum item concluído nesta data.</span>' +
         '<span></span>' +
       '</div>';
 
@@ -2581,7 +2624,7 @@ return true;
       <div class="recibo-header">
 
         <h2>
-          Lavajato — Fechamento do dia
+          Orvix — Fechamento do dia
         </h2>
 
         <div>
@@ -2601,7 +2644,7 @@ return true;
       >
 
         <span>
-          Lavagens concluídas
+          Itens concluídos
         </span>
 
         <span>
@@ -3633,7 +3676,7 @@ return true;
               Busque um cliente
             </strong>
 
-            Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
+            Digite nome, telefone ou placa e veja todo o histórico.
 
           </div>
         `;
@@ -3697,7 +3740,7 @@ return true;
             Busque um cliente
           </strong>
 
-          Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
+          Digite nome, telefone ou placa e veja todo o histórico.
 
         </div>
       `;
@@ -3851,7 +3894,7 @@ return true;
 
         const statusLabel = {
           agendado:'agendado',
-          em_andamento:'em lavagem',
+          em_andamento:'em andamento',
           concluido:'concluído',
           cancelado:'cancelado'
         }[ap.status];
@@ -4464,77 +4507,72 @@ return true;
   // ------------------------------------------------------------
   // CHECKBOXES DE PERMISSÃO NO MODAL DE USUÁRIO
   // ------------------------------------------------------------
-  // Espera encontrar, dentro do formulário #form-user, um grupo de
-  // checkboxes com a classe "user-permissao-checkbox" e o atributo
-  // value igual à chave da aba (ex: value="agenda"). Ver o bloco de
-  // HTML sugerido ao final desta resposta.
+
+  function marcarPermissoesNoFormulario(selecionadas){
+
+    const checkboxes =
+      document.querySelectorAll(
+        '#form-user .user-permissao-checkbox, #form-user [data-permission]'
+      );
+
+    const lista =
+      Array.isArray(selecionadas)
+        ? selecionadas.map(String)
+        : [];
+
+    checkboxes.forEach(cb => {
+
+      const codigo =
+        cb.value ||
+        cb.dataset.permission ||
+        cb.dataset.permissao ||
+        '';
+
+      cb.checked =
+        lista.includes(String(codigo));
+    });
+  }
 
 
-function marcarPermissoesNoFormulario(selecionadas){
+  function lerPermissoesDoFormulario(){
 
-  const checkboxes =
-    document.querySelectorAll(
-      '#form-user .user-permissao-checkbox, #form-user [data-permission]'
+    const checkboxes =
+      document.querySelectorAll(
+        '#form-user .user-permissao-checkbox, #form-user [data-permission]'
+      );
+
+    const permissoes = [];
+
+    checkboxes.forEach(cb => {
+
+      if(!cb.checked){
+        return;
+      }
+
+      const codigo =
+        cb.value ||
+        cb.dataset.permission ||
+        cb.dataset.permissao ||
+        '';
+
+      if(codigo && !permissoes.includes(codigo)){
+        permissoes.push(codigo);
+      }
+    });
+
+    console.log(
+      '[PERMISSÕES] Permissões selecionadas:',
+      permissoes
     );
 
-  const lista =
-    Array.isArray(selecionadas)
-      ? selecionadas.map(String)
-      : [];
-
-  checkboxes.forEach(cb => {
-
-    const codigo =
-      cb.value ||
-      cb.dataset.permission ||
-      cb.dataset.permissao ||
-      '';
-
-    cb.checked =
-      lista.includes(String(codigo));
-  });
-}
+    return permissoes;
+  }
 
 
-function lerPermissoesDoFormulario(){
+  // ------------------------------------------------------------
+  // VISIBILIDADE DAS PERMISSÕES
+  // ------------------------------------------------------------
 
-  const checkboxes =
-    document.querySelectorAll(
-      '#form-user .user-permissao-checkbox, #form-user [data-permission]'
-    );
-
-  const permissoes = [];
-
-  checkboxes.forEach(cb => {
-
-    if(!cb.checked){
-      return;
-    }
-
-    const codigo =
-      cb.value ||
-      cb.dataset.permission ||
-      cb.dataset.permissao ||
-      '';
-
-    if(codigo && !permissoes.includes(codigo)){
-      permissoes.push(codigo);
-    }
-  });
-
-  console.log(
-    '[PERMISSÕES] Permissões selecionadas:',
-    permissoes
-  );
-
-  return permissoes;
-}
-
-
-
-
-  // some com o bloco de permissões quando o perfil escolhido for
-  // "administrador" (ele sempre tem acesso a tudo, não precisa marcar nada)
   function atualizarVisibilidadePermissoes(){
 
     const profileEl =
@@ -5054,17 +5092,17 @@ function lerPermissoesDoFormulario(){
       >
 
       <div
-  class="sidebar-user-avatar"
-  style="
-    width:40px;
-    height:40px;
-    min-width:40px;
-    font-size:14px;
-    overflow-y:auto;
-  "
->
-  ${escapeHtml(inicial)}
-</div>
+        class="sidebar-user-avatar"
+        style="
+          width:40px;
+          height:40px;
+          min-width:40px;
+          font-size:14px;
+          overflow-y:auto;
+        "
+      >
+        ${escapeHtml(inicial)}
+      </div>
 
 
         <div
