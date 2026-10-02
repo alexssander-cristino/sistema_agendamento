@@ -19,33 +19,32 @@ const {
 
 
 // ============================================================
-// AUTENTICAÇÃO
-// ============================================================
-
-router.use(autenticar);
-
-router.use(somenteDev);
-
-
-// ============================================================
 // TESTAR MERCADO PAGO
 // GET /api/mercado-pago/teste
+//
+// ATENÇÃO:
+// Esta rota está temporariamente antes da autenticação
+// apenas para testar a conexão com o Mercado Pago.
+// Depois do teste, ela deve voltar para baixo da autenticação.
 // ============================================================
+
 router.get('/teste', async (req, res) => {
   try {
-    const resultado = await mercadoPagoRequest(
-      '/v1/payment_methods',
-      {
-        method: 'GET'
-      }
-    );
+    const resultado =
+      await mercadoPagoRequest(
+        '/v1/payment_methods',
+        {
+          method: 'GET'
+        }
+      );
 
-    res.json({
+    return res.json({
       ok: true,
       mercado_pago: 'conectado',
-      quantidade_metodos: Array.isArray(resultado)
-        ? resultado.length
-        : null
+      quantidade_metodos:
+        Array.isArray(resultado)
+          ? resultado.length
+          : null
     });
 
   } catch (err) {
@@ -54,12 +53,27 @@ router.get('/teste', async (req, res) => {
       err
     );
 
-    res.status(err.status || 500).json({
+    return res.status(
+      err.status || 500
+    ).json({
       ok: false,
-      erro: err.message
+      erro:
+        err.message ||
+        'Erro ao conectar com o Mercado Pago.',
+      detalhes:
+        err.data || null
     });
   }
 });
+
+
+// ============================================================
+// AUTENTICAÇÃO
+// ============================================================
+
+router.use(autenticar);
+
+router.use(somenteDev);
 
 
 // ============================================================
@@ -79,7 +93,8 @@ router.post(
       planoId <= 0
     ) {
       return res.status(400).json({
-        erro: 'ID do plano inválido.'
+        erro:
+          'ID do plano inválido.'
       });
     }
 
@@ -110,13 +125,13 @@ router.post(
         result.rows.length === 0
       ) {
         return res.status(404).json({
-          erro: 'Plano não encontrado.'
+          erro:
+            'Plano não encontrado.'
         });
       }
 
       const plano =
         result.rows[0];
-
 
       if (
         plano.mercado_pago_plan_id
@@ -130,14 +145,12 @@ router.post(
         });
       }
 
-
       if (!plano.ativo) {
         return res.status(400).json({
           erro:
             'Não é possível criar um plano inativo.'
         });
       }
-
 
       const mercadoPagoPlano =
         await criarPlano({
@@ -157,7 +170,6 @@ router.post(
             process.env.APP_URL
         });
 
-
       if (
         !mercadoPagoPlano ||
         !mercadoPagoPlano.id
@@ -170,7 +182,6 @@ router.post(
             mercadoPagoPlano
         });
       }
-
 
       await pool.query(
         `
@@ -190,7 +201,6 @@ router.post(
           planoId
         ]
       );
-
 
       return res.status(201).json({
 
@@ -258,7 +268,8 @@ router.get(
       planoId <= 0
     ) {
       return res.status(400).json({
-        erro: 'ID do plano inválido.'
+        erro:
+          'ID do plano inválido.'
       });
     }
 
@@ -293,7 +304,6 @@ router.get(
       const plano =
         result.rows[0];
 
-
       if (
         !plano.mercado_pago_plan_id
       ) {
@@ -303,12 +313,10 @@ router.get(
         });
       }
 
-
       const mercadoPagoPlano =
         await buscarPlano(
           plano.mercado_pago_plan_id
         );
-
 
       return res.json({
 
@@ -371,7 +379,6 @@ router.post(
       nome
     } = req.body;
 
-
     if (
       !plano_id ||
       !email
@@ -381,7 +388,6 @@ router.post(
           'plano_id e email são obrigatórios.'
       });
     }
-
 
     try {
 
@@ -402,7 +408,6 @@ router.post(
           [Number(plano_id)]
         );
 
-
       if (
         result.rows.length === 0
       ) {
@@ -412,10 +417,8 @@ router.post(
         });
       }
 
-
       const plano =
         result.rows[0];
-
 
       if (
         !plano.mercado_pago_plan_id
@@ -425,7 +428,6 @@ router.post(
             'O plano ainda não possui integração com o Mercado Pago.'
         });
       }
-
 
       const assinatura =
         await criarAssinatura({
@@ -443,7 +445,6 @@ router.post(
             process.env.APP_URL
 
         });
-
 
       return res.status(201).json({
 
@@ -493,12 +494,9 @@ router.get(
     try {
 
       const assinatura =
-        await require(
-          '../services/mercadoPago'
-        ).buscarAssinatura(
+        await buscarAssinatura(
           req.params.id
         );
-
 
       return res.json({
 
@@ -520,7 +518,8 @@ router.get(
       ).json({
 
         erro:
-          err.message,
+          err.message ||
+          'Não foi possível consultar a assinatura.',
 
         detalhes:
           err.data || null
@@ -547,7 +546,6 @@ router.get(
           req.params.id
         );
 
-
       return res.json({
 
         ok: true,
@@ -568,7 +566,8 @@ router.get(
       ).json({
 
         erro:
-          err.message,
+          err.message ||
+          'Não foi possível consultar o pagamento.',
 
         detalhes:
           err.data || null
@@ -578,5 +577,9 @@ router.get(
   }
 );
 
+
+// ============================================================
+// EXPORTAR ROUTER
+// ============================================================
 
 module.exports = router;
