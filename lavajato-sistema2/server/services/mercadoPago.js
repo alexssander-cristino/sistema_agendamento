@@ -188,6 +188,104 @@ async function buscarPlano(
 }
 
 /**
+ * Atualiza um plano recorrente
+ * existente no Mercado Pago.
+ */
+async function atualizarPlano({
+  mercadoPagoPlanId,
+  nome,
+  descricao,
+  valor,
+  periodo = 'mensal',
+  backUrl
+}) {
+  if (!mercadoPagoPlanId) {
+    throw new Error(
+      'ID do plano Mercado Pago não informado.'
+    );
+  }
+
+  if (!nome) {
+    throw new Error(
+      'Nome do plano é obrigatório.'
+    );
+  }
+
+  if (
+    valor === undefined ||
+    valor === null ||
+    Number(valor) <= 0
+  ) {
+    throw new Error(
+      'Valor do plano deve ser maior que zero.'
+    );
+  }
+
+  let frequency = 1;
+  let frequencyType = 'months';
+
+  if (periodo === 'mensal') {
+    frequency = 1;
+    frequencyType = 'months';
+  } else if (periodo === 'trimestral') {
+    frequency = 3;
+    frequencyType = 'months';
+  } else if (periodo === 'semestral') {
+    frequency = 6;
+    frequencyType = 'months';
+  } else if (periodo === 'anual') {
+    frequency = 12;
+    frequencyType = 'months';
+  } else {
+    throw new Error(
+      'Período de plano inválido.'
+    );
+  }
+
+  const body = {
+    reason: String(nome).trim(),
+
+    auto_recurring: {
+      frequency,
+
+      frequency_type:
+        frequencyType,
+
+      transaction_amount:
+        Number(valor),
+
+      currency_id:
+        'BRL'
+    }
+  };
+
+  if (backUrl) {
+    body.back_url =
+      backUrl;
+  }
+
+  /*
+   * A descrição não é um campo próprio
+   * do plano no Mercado Pago.
+   *
+   * Ela continua sendo armazenada
+   * normalmente no Orvix.
+   */
+
+  return mercadoPagoRequest(
+    `/preapproval_plan/${encodeURIComponent(
+      mercadoPagoPlanId
+    )}`,
+    {
+      method: 'PUT',
+
+      body:
+        JSON.stringify(body)
+    }
+  );
+}
+
+/**
  * Cria uma assinatura no Mercado Pago.
  *
  * Para assinatura vinculada a plano,
@@ -316,6 +414,7 @@ module.exports = {
 
   criarPlano,
   buscarPlano,
+  atualizarPlano,
 
   criarAssinatura,
   buscarAssinatura,

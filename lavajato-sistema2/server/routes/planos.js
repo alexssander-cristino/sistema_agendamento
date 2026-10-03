@@ -7,7 +7,8 @@ const somenteDev = require('../middleware/dev');
 
 const {
   criarPlano,
-  buscarPlano
+  buscarPlano,
+  atualizarPlano
 } = require('../services/mercadoPago');
 
 const router = express.Router();
@@ -154,7 +155,6 @@ router.get('/:id', async (req, res) => {
 // ============================================================
 // CRIAR PLANO
 //
-// AGORA:
 // 1. Cria no PostgreSQL
 // 2. Cria automaticamente no Mercado Pago
 // 3. Salva o mercado_pago_plan_id
@@ -195,14 +195,16 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const valorNumerico = Number(valor);
+    const valorNumerico =
+      Number(valor);
 
     if (
       !Number.isFinite(valorNumerico) ||
-      valorNumerico < 0
+      valorNumerico <= 0
     ) {
       return res.status(400).json({
-        erro: 'Informe um valor válido.'
+        erro:
+          'Informe um valor válido maior que zero.'
       });
     }
 
@@ -210,9 +212,17 @@ router.post('/', async (req, res) => {
     // VALIDAR PERÍODO
     // ========================================================
 
-    const periodoFinal = periodo || 'mensal';
+    const periodoFinal =
+      periodo || 'mensal';
 
-    if (!['mensal', 'anual'].includes(periodoFinal)) {
+    if (
+      ![
+        'mensal',
+        'trimestral',
+        'semestral',
+        'anual'
+      ].includes(periodoFinal)
+    ) {
       return res.status(400).json({
         erro: 'Período inválido.'
       });
@@ -222,37 +232,42 @@ router.post('/', async (req, res) => {
     // CRIAR PLANO LOCAL
     // ========================================================
 
-    const { rows } = await pool.query(
-      `
-      INSERT INTO planos (
-        nome,
-        descricao,
-        valor,
-        periodo
-      )
-      VALUES ($1, $2, $3, $4)
-      RETURNING
-        id,
-        nome,
-        descricao,
-        valor,
-        periodo,
-        ativo,
-        mercado_pago_plan_id,
-        criado_em,
-        atualizado_em
-      `,
-      [
-        String(nome).trim(),
-        descricao
-          ? String(descricao).trim()
-          : null,
-        valorNumerico,
-        periodoFinal
-      ]
-    );
+    const { rows } =
+      await pool.query(
+        `
+        INSERT INTO planos (
+          nome,
+          descricao,
+          valor,
+          periodo
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING
+          id,
+          nome,
+          descricao,
+          valor,
+          periodo,
+          ativo,
+          mercado_pago_plan_id,
+          criado_em,
+          atualizado_em
+        `,
+        [
+          String(nome).trim(),
 
-    planoCriado = rows[0];
+          descricao
+            ? String(descricao).trim()
+            : null,
+
+          valorNumerico,
+
+          periodoFinal
+        ]
+      );
+
+    planoCriado =
+      rows[0];
 
     // ========================================================
     // CRIAR PLANO NO MERCADO PAGO
@@ -261,21 +276,23 @@ router.post('/', async (req, res) => {
     let mercadoPagoPlano;
 
     try {
-      mercadoPagoPlano = await criarPlano({
-        nome: planoCriado.nome,
+      mercadoPagoPlano =
+        await criarPlano({
+          nome:
+            planoCriado.nome,
 
-        descricao:
-          planoCriado.descricao,
+          descricao:
+            planoCriado.descricao,
 
-        valor:
-          Number(planoCriado.valor),
+          valor:
+            Number(planoCriado.valor),
 
-        periodo:
-          planoCriado.periodo,
+          periodo:
+            planoCriado.periodo,
 
-        backUrl:
-          process.env.APP_URL
-      });
+          backUrl:
+            process.env.APP_URL
+        });
 
     } catch (mercadoPagoError) {
       console.error(
@@ -287,15 +304,20 @@ router.post('/', async (req, res) => {
       // DESFAZER PLANO LOCAL
       // ======================================================
 
-      await pool.query(
-        `
-        DELETE FROM planos
-        WHERE id = $1
-        `,
-        [
-          planoCriado.id
-        ]
-      );
+      try {
+        await pool.query(
+          `
+          DELETE FROM planos
+          WHERE id = $1
+          `,
+          [planoCriado.id]
+        );
+      } catch (deleteError) {
+        console.error(
+          'Erro ao desfazer plano após falha no Mercado Pago:',
+          deleteError
+        );
+      }
 
       return res.status(
         mercadoPagoError.status || 502
@@ -322,15 +344,20 @@ router.post('/', async (req, res) => {
         mercadoPagoPlano
       );
 
-      await pool.query(
-        `
-        DELETE FROM planos
-        WHERE id = $1
-        `,
-        [
-          planoCriado.id
-        ]
-      );
+      try {
+        await pool.query(
+          `
+          DELETE FROM planos
+          WHERE id = $1
+          `,
+          [planoCriado.id]
+        );
+      } catch (deleteError) {
+        console.error(
+          'Erro ao desfazer plano local:',
+          deleteError
+        );
+      }
 
       return res.status(502).json({
         erro:
@@ -408,7 +435,7 @@ router.post('/', async (req, res) => {
     );
 
     // ========================================================
-    // TENTAR LIMPAR PLANO LOCAL EM CASO DE ERRO
+    // TENTAR LIMPAR PLANO LOCAL
     // ========================================================
 
     if (
@@ -421,9 +448,7 @@ router.post('/', async (req, res) => {
           DELETE FROM planos
           WHERE id = $1
           `,
-          [
-            planoCriado.id
-          ]
+          [planoCriado.id]
         );
       } catch (deleteError) {
         console.error(
@@ -445,6 +470,13 @@ router.post('/', async (req, res) => {
 
 // ============================================================
 // EDITAR PLANO
+//
+// 1. Busca o plano atual
+// 2. Valida os novos dados
+// 3. Atualiza o plano no Mercado Pago
+// 4. Se o Mercado Pago confirmar, atualiza o PostgreSQL
+//
+// Dessa forma, evitamos deixar o Orvix diferente do Mercado Pago.
 // ============================================================
 
 router.put('/:id', async (req, res) => {
@@ -457,6 +489,22 @@ router.put('/:id', async (req, res) => {
       valor,
       periodo
     } = req.body;
+
+    // ========================================================
+    // VALIDAR ID
+    // ========================================================
+
+    const planoId =
+      Number(id);
+
+    if (
+      !Number.isInteger(planoId) ||
+      planoId <= 0
+    ) {
+      return res.status(400).json({
+        erro: 'ID do plano inválido.'
+      });
+    }
 
     // ========================================================
     // BUSCAR PLANO ATUAL
@@ -477,7 +525,7 @@ router.put('/:id', async (req, res) => {
         WHERE id = $1
         LIMIT 1
         `,
-        [id]
+        [planoId]
       );
 
     if (
@@ -495,7 +543,10 @@ router.put('/:id', async (req, res) => {
     // VALIDAR NOME
     // ========================================================
 
-    if (!nome || !String(nome).trim()) {
+    if (
+      !nome ||
+      !String(nome).trim()
+    ) {
       return res.status(400).json({
         erro: 'Informe o nome do plano.'
       });
@@ -515,14 +566,16 @@ router.put('/:id', async (req, res) => {
       });
     }
 
-    const valorNumerico = Number(valor);
+    const valorNumerico =
+      Number(valor);
 
     if (
       !Number.isFinite(valorNumerico) ||
-      valorNumerico < 0
+      valorNumerico <= 0
     ) {
       return res.status(400).json({
-        erro: 'Informe um valor válido.'
+        erro:
+          'Informe um valor válido maior que zero.'
       });
     }
 
@@ -530,85 +583,169 @@ router.put('/:id', async (req, res) => {
     // VALIDAR PERÍODO
     // ========================================================
 
-    const periodoFinal = periodo || 'mensal';
+    const periodoFinal =
+      periodo || 'mensal';
 
-    if (!['mensal', 'anual'].includes(periodoFinal)) {
+    if (
+      ![
+        'mensal',
+        'trimestral',
+        'semestral',
+        'anual'
+      ].includes(periodoFinal)
+    ) {
       return res.status(400).json({
         erro: 'Período inválido.'
       });
     }
 
     // ========================================================
-    // ATUALIZAR PLANO LOCAL
+    // ATUALIZAR MERCADO PAGO
     // ========================================================
 
-    const { rows } = await pool.query(
-      `
-      UPDATE planos
+    let mercadoPagoPlano = null;
 
-      SET
-        nome = $1,
-        descricao = $2,
-        valor = $3,
-        periodo = $4,
-        atualizado_em = NOW()
+    if (
+      planoAtual.mercado_pago_plan_id
+    ) {
+      try {
+        mercadoPagoPlano =
+          await atualizarPlano({
+            mercadoPagoPlanId:
+              planoAtual.mercado_pago_plan_id,
 
-      WHERE id = $5
+            nome:
+              String(nome).trim(),
 
-      RETURNING
-        id,
-        nome,
-        descricao,
-        valor,
-        periodo,
-        ativo,
-        mercado_pago_plan_id,
-        criado_em,
-        atualizado_em
-      `,
-      [
-        String(nome).trim(),
+            descricao:
+              descricao
+                ? String(descricao).trim()
+                : null,
 
-        descricao
-          ? String(descricao).trim()
-          : null,
+            valor:
+              valorNumerico,
 
-        valorNumerico,
+            periodo:
+              periodoFinal,
 
-        periodoFinal,
+            backUrl:
+              process.env.APP_URL
+          });
 
-        id
-      ]
-    );
+      } catch (mercadoPagoError) {
+        console.error(
+          'Erro ao atualizar plano no Mercado Pago:',
+          mercadoPagoError
+        );
+
+        return res.status(
+          mercadoPagoError.status || 502
+        ).json({
+          erro:
+            mercadoPagoError.message ||
+            'Não foi possível atualizar o plano no Mercado Pago.',
+
+          detalhes:
+            mercadoPagoError.data || null
+        });
+      }
+
+      // ======================================================
+      // VALIDAR RESPOSTA
+      // ======================================================
+
+      if (
+        !mercadoPagoPlano ||
+        !mercadoPagoPlano.id
+      ) {
+        console.error(
+          'Mercado Pago não retornou o plano atualizado:',
+          mercadoPagoPlano
+        );
+
+        return res.status(502).json({
+          erro:
+            'Mercado Pago não retornou o plano atualizado.',
+
+          resposta:
+            mercadoPagoPlano || null
+        });
+      }
+    }
+
+    // ========================================================
+    // ATUALIZAR PLANO NO POSTGRESQL
+    // ========================================================
+
+    const { rows } =
+      await pool.query(
+        `
+        UPDATE planos
+
+        SET
+          nome = $1,
+          descricao = $2,
+          valor = $3,
+          periodo = $4,
+          atualizado_em = NOW()
+
+        WHERE id = $5
+
+        RETURNING
+          id,
+          nome,
+          descricao,
+          valor,
+          periodo,
+          ativo,
+          mercado_pago_plan_id,
+          criado_em,
+          atualizado_em
+        `,
+        [
+          String(nome).trim(),
+
+          descricao
+            ? String(descricao).trim()
+            : null,
+
+          valorNumerico,
+
+          periodoFinal,
+
+          planoId
+        ]
+      );
 
     const planoAtualizado =
       rows[0];
 
     // ========================================================
-    // IMPORTANTE
-    //
-    // O Mercado Pago não deve ser alterado automaticamente
-    // aqui porque uma alteração local de preço/período pode
-    // exigir tratamento específico do plano de assinatura
-    // já existente no Mercado Pago.
-    //
-    // O plano local continua atualizado normalmente.
+    // RESPOSTA
     // ========================================================
 
     return res.json({
       ok: true,
 
       mensagem:
-        'Plano atualizado com sucesso.',
+        planoAtual.mercado_pago_plan_id
+          ? 'Plano atualizado no Orvix e no Mercado Pago com sucesso.'
+          : 'Plano atualizado no Orvix com sucesso.',
 
       plano:
         planoAtualizado,
 
       mercado_pago:
-        planoAtual.mercado_pago_plan_id
+        mercadoPagoPlano
           ? {
-              sincronizacao:
-                'O plano já possui vínculo com o Mercado Pago. A alteração do plano no Mercado Pago não foi realizada automaticamente.'
+              id:
+                mercadoPagoPlano.id,
+
+              status:
+                mercadoPagoPlano.status || null,
+
+              init_point:
+                mercadoPagoPlano.init_point || null
             }
           : null
     });
@@ -619,8 +756,12 @@ router.put('/:id', async (req, res) => {
       err
     );
 
-    return res.status(500).json({
-      erro: 'Não foi possível editar o plano.'
+    return res.status(
+      err.status || 500
+    ).json({
+      erro:
+        err.message ||
+        'Não foi possível editar o plano.'
     });
   }
 });
@@ -633,41 +774,45 @@ router.patch('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { ativo } = req.body;
+    const { ativo } =
+      req.body;
 
-    if (typeof ativo !== 'boolean') {
+    if (
+      typeof ativo !== 'boolean'
+    ) {
       return res.status(400).json({
         erro:
           'O campo ativo deve ser verdadeiro ou falso.'
       });
     }
 
-    const { rows } = await pool.query(
-      `
-      UPDATE planos
+    const { rows } =
+      await pool.query(
+        `
+        UPDATE planos
 
-      SET
-        ativo = $1,
-        atualizado_em = NOW()
+        SET
+          ativo = $1,
+          atualizado_em = NOW()
 
-      WHERE id = $2
+        WHERE id = $2
 
-      RETURNING
-        id,
-        nome,
-        descricao,
-        valor,
-        periodo,
-        ativo,
-        mercado_pago_plan_id,
-        criado_em,
-        atualizado_em
-      `,
-      [
-        ativo,
-        id
-      ]
-    );
+        RETURNING
+          id,
+          nome,
+          descricao,
+          valor,
+          periodo,
+          ativo,
+          mercado_pago_plan_id,
+          criado_em,
+          atualizado_em
+        `,
+        [
+          ativo,
+          id
+        ]
+      );
 
     if (rows.length === 0) {
       return res.status(404).json({
@@ -696,13 +841,16 @@ router.patch('/:id/status', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } =
+      req.params;
 
     // ========================================================
     // VERIFICAR ASSINATURAS
     // ========================================================
 
-    const { rows: assinaturas } =
+    const {
+      rows: assinaturas
+    } =
       await pool.query(
         `
         SELECT
@@ -714,7 +862,9 @@ router.delete('/:id', async (req, res) => {
         [id]
       );
 
-    if (assinaturas.length > 0) {
+    if (
+      assinaturas.length > 0
+    ) {
       return res.status(409).json({
         erro:
           'Este plano possui assinaturas e não pode ser excluído. Desative o plano em vez disso.'
@@ -739,7 +889,9 @@ router.delete('/:id', async (req, res) => {
         [id]
       );
 
-    if (planoResult.rows.length === 0) {
+    if (
+      planoResult.rows.length === 0
+    ) {
       return res.status(404).json({
         erro: 'Plano não encontrado.'
       });
@@ -766,13 +918,17 @@ router.delete('/:id', async (req, res) => {
         [id]
       );
 
-    if (rows.length === 0) {
+    if (
+      rows.length === 0
+    ) {
       return res.status(404).json({
         erro: 'Plano não encontrado.'
       });
     }
 
     return res.json({
+      ok: true,
+
       mensagem:
         'Plano excluído do Orvix com sucesso.',
 
@@ -801,10 +957,10 @@ router.delete('/:id', async (req, res) => {
 // ============================================================
 // SINCRONIZAR / CRIAR PLANO MANUALMENTE NO MERCADO PAGO
 //
-// Mantida para planos antigos que foram criados antes da
-// alteração automática.
-//
 // POST /api/planos/:id/mercado-pago
+//
+// Mantida para planos antigos que foram criados antes da
+// criação automática no Mercado Pago.
 // ============================================================
 
 router.post(
@@ -841,7 +997,9 @@ router.post(
           [planoId]
         );
 
-      if (result.rows.length === 0) {
+      if (
+        result.rows.length === 0
+      ) {
         return res.status(404).json({
           erro: 'Plano não encontrado.'
         });
@@ -849,6 +1007,10 @@ router.post(
 
       const plano =
         result.rows[0];
+
+      // ======================================================
+      // JÁ POSSUI VÍNCULO
+      // ======================================================
 
       if (
         plano.mercado_pago_plan_id
@@ -861,6 +1023,10 @@ router.post(
             plano.mercado_pago_plan_id
         });
       }
+
+      // ======================================================
+      // PLANO PRECISA ESTAR ATIVO
+      // ======================================================
 
       if (!plano.ativo) {
         return res.status(400).json({
@@ -890,6 +1056,10 @@ router.post(
           backUrl:
             process.env.APP_URL
         });
+
+      // ======================================================
+      // VALIDAR RESPOSTA
+      // ======================================================
 
       if (
         !mercadoPagoPlano ||
@@ -1008,7 +1178,9 @@ router.get(
           [planoId]
         );
 
-      if (result.rows.length === 0) {
+      if (
+        result.rows.length === 0
+      ) {
         return res.status(404).json({
           erro: 'Plano não encontrado.'
         });
