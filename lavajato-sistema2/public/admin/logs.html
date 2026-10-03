@@ -298,23 +298,61 @@
 
 
     <!-- ========================================================
-         CONTENT
+         CONTEÚDO
     ========================================================= -->
 
-    <main class="content">
+    <main class="main">
 
 
-      <header class="page-header">
+      <!-- ======================================================
+           TOPBAR
+      ======================================================= -->
 
-        <div>
+      <header class="topbar">
 
-          <h2>
-            Logs do sistema
-          </h2>
+        <div class="topbar-left">
 
-          <p>
-            Acompanhe requisições, acessos, erros e atividades do sistema.
-          </p>
+          <button
+            type="button"
+            class="mobile-menu-btn"
+            id="mobile-menu-btn"
+            aria-label="Abrir menu"
+          >
+            ☰
+          </button>
+
+          <div>
+
+            <strong>
+              Administração SaaS
+            </strong>
+
+            <span>
+              Logs e atividades do sistema
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="topbar-user">
+
+          <div class="avatar">
+            D
+          </div>
+
+          <div>
+
+            <strong id="topbar-user-name">
+              DEV
+            </strong>
+
+            <span>
+              Administrador
+            </span>
+
+          </div>
 
         </div>
 
@@ -322,297 +360,376 @@
 
 
       <!-- ======================================================
-           ESTATÍSTICAS
+           CONTENT
       ======================================================= -->
 
-      <section class="stats">
+      <section class="content">
 
 
-        <div class="stat-card">
+        <!-- ====================================================
+             CABEÇALHO DA PÁGINA
+        ===================================================== -->
 
-          <span class="stat-label">
-            Total de requisições
-          </span>
+        <div class="page-header">
 
-          <strong id="totalRequisicoes">
-            0
-          </strong>
+          <div>
 
-        </div>
+            <h1>
+              Logs do sistema
+            </h1>
 
+            <p>
+              Acompanhe requisições, acessos, erros e atividades do sistema.
+            </p>
 
-        <div class="stat-card">
+          </div>
 
-          <span class="stat-label">
-            Requisições hoje
-          </span>
+          <div class="page-header-actions">
 
-          <strong id="requisicoesHoje">
-            0
-          </strong>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="LogsAdmin.carregar()"
+            >
+              Atualizar
+            </button>
 
-        </div>
-
-
-        <div class="stat-card">
-
-          <span class="stat-label">
-            Requisições com erro
-          </span>
-
-          <strong id="requisicoesErro">
-            0
-          </strong>
+          </div>
 
         </div>
 
 
-        <div class="stat-card">
+        <!-- ====================================================
+             ESTATÍSTICAS
+        ===================================================== -->
 
-          <span class="stat-label">
-            IPs únicos
-          </span>
+        <section class="dashboard-stats">
 
-          <strong id="ipsUnicos">
-            0
-          </strong>
 
-        </div>
+          <div class="dashboard-stat">
 
+            <div class="dashboard-stat-info">
 
-        <div class="stat-card">
+              <span>
+                Total de requisições
+              </span>
 
-          <span class="stat-label">
-            Login com sucesso
-          </span>
+              <strong id="totalRequisicoes">
+                0
+              </strong>
 
-          <strong id="loginSucesso">
-            0
-          </strong>
+            </div>
 
-        </div>
+          </div>
 
 
-        <div class="stat-card">
+          <div class="dashboard-stat">
 
-          <span class="stat-label">
-            Login recusado
-          </span>
+            <div class="dashboard-stat-info">
 
-          <strong id="loginFalhou">
-            0
-          </strong>
+              <span>
+                Requisições hoje
+              </span>
 
-        </div>
+              <strong id="requisicoesHoje">
+                0
+              </strong>
 
+            </div>
 
-      </section>
+          </div>
 
 
-      <!-- ======================================================
-           FILTROS
-      ======================================================= -->
+          <div class="dashboard-stat">
 
-      <section class="filters">
+            <div class="dashboard-stat-info">
 
+              <span>
+                Requisições com erro
+              </span>
 
-        <div class="filter-group">
+              <strong id="requisicoesErro">
+                0
+              </strong>
 
-          <label for="busca">
-            Buscar
-          </label>
+            </div>
 
-          <input
-            type="text"
-            id="busca"
-            placeholder="Usuário, empresa, IP, rota..."
-            autocomplete="off"
-          >
+          </div>
 
-        </div>
 
+          <div class="dashboard-stat">
 
-        <div class="filter-group">
+            <div class="dashboard-stat-info">
 
-          <label for="metodo">
-            Método
-          </label>
+              <span>
+                IPs únicos
+              </span>
 
-          <select id="metodo">
+              <strong id="ipsUnicos">
+                0
+              </strong>
 
-            <option value="">
-              Todos
-            </option>
+            </div>
 
-            <option value="GET">
-              GET
-            </option>
+          </div>
 
-            <option value="POST">
-              POST
-            </option>
 
-            <option value="PUT">
-              PUT
-            </option>
+          <div class="dashboard-stat">
 
-            <option value="PATCH">
-              PATCH
-            </option>
+            <div class="dashboard-stat-info">
 
-            <option value="DELETE">
-              DELETE
-            </option>
+              <span>
+                Login com sucesso
+              </span>
 
-          </select>
+              <strong id="loginSucesso">
+                0
+              </strong>
 
-        </div>
+            </div>
 
+          </div>
 
-        <div class="filter-group">
 
-          <label for="acao">
-            Ação
-          </label>
+          <div class="dashboard-stat">
 
-          <select id="acao">
+            <div class="dashboard-stat-info">
 
-            <option value="">
-              Todas
-            </option>
+              <span>
+                Login recusado
+              </span>
 
-            <option value="login_sucesso">
-              Login com sucesso
-            </option>
+              <strong id="loginFalhou">
+                0
+              </strong>
 
-            <option value="login_falhou">
-              Login recusado
-            </option>
+            </div>
 
-            <option value="erro_servidor">
-              Erro do servidor
-            </option>
+          </div>
 
-            <option value="requisicao_falhou">
-              Requisição com erro
-            </option>
 
-            <option value="requisicao">
-              Requisição
-            </option>
+        </section>
 
-          </select>
 
-        </div>
+        <!-- ====================================================
+             FILTROS
+        ===================================================== -->
 
+        <section class="card logs-filters">
 
-        <div class="filter-actions">
+          <div class="filters">
 
-          <button
-            class="btn btn-secondary"
-            id="limparFiltros"
-            type="button"
-          >
-            Limpar filtros
-          </button>
 
-        </div>
+            <div class="field">
 
+              <label for="busca">
+                Buscar
+              </label>
 
-      </section>
+              <input
+                type="text"
+                id="busca"
+                placeholder="Usuário, empresa, IP, rota..."
+                autocomplete="off"
+              >
 
+            </div>
 
-      <!-- ======================================================
-           TABELA
-      ======================================================= -->
 
-      <section class="table-card">
+            <div class="field">
 
+              <label for="metodo">
+                Método
+              </label>
 
-        <div class="table-header">
+              <select id="metodo">
 
-          <h3>
-            Registros
-          </h3>
+                <option value="">
+                  Todos
+                </option>
 
-          <span id="quantidadeLogs">
-            Carregando...
-          </span>
+                <option value="GET">
+                  GET
+                </option>
 
-        </div>
+                <option value="POST">
+                  POST
+                </option>
 
+                <option value="PUT">
+                  PUT
+                </option>
 
-        <div class="table-wrapper">
+                <option value="PATCH">
+                  PATCH
+                </option>
 
+                <option value="DELETE">
+                  DELETE
+                </option>
 
-          <table>
+              </select>
 
+            </div>
 
-            <thead>
 
-              <tr>
+            <div class="field">
 
-                <th>
-                  Data
-                </th>
+              <label for="acao">
+                Ação
+              </label>
 
-                <th>
-                  Usuário
-                </th>
+              <select id="acao">
 
-                <th>
-                  Perfil
-                </th>
+                <option value="">
+                  Todas
+                </option>
 
-                <th>
-                  Empresa
-                </th>
+                <option value="login_sucesso">
+                  Login com sucesso
+                </option>
 
-                <th>
-                  Ação
-                </th>
+                <option value="login_falhou">
+                  Login recusado
+                </option>
 
-                <th>
-                  Método
-                </th>
+                <option value="erro_servidor">
+                  Erro do servidor
+                </option>
 
-                <th>
-                  Rota
-                </th>
+                <option value="requisicao_falhou">
+                  Requisição com erro
+                </option>
 
-                <th>
-                  Status
-                </th>
+                <option value="requisicao">
+                  Requisição
+                </option>
 
-                <th>
-                  Detalhes
-                </th>
+              </select>
 
-              </tr>
+            </div>
 
-            </thead>
 
+            <div class="logs-filter-actions">
 
-            <tbody id="tabela">
+              <button
+                class="btn btn-secondary"
+                id="limparFiltros"
+                type="button"
+              >
+                Limpar filtros
+              </button>
 
-              <tr>
+            </div>
 
-                <td
-                  colspan="9"
-                  class="loading"
-                >
-                  Carregando logs...
-                </td>
 
-              </tr>
+          </div>
 
-            </tbody>
+        </section>
 
 
-          </table>
+        <!-- ====================================================
+             TABELA
+        ===================================================== -->
 
+        <section class="card table-card">
 
-        </div>
+
+          <div class="table-header">
+
+            <div>
+
+              <h3>
+                Registros
+              </h3>
+
+              <p>
+                Histórico das atividades registradas pelo sistema.
+              </p>
+
+            </div>
+
+
+            <span
+              id="quantidadeLogs"
+              class="table-count"
+            >
+              Carregando...
+            </span>
+
+          </div>
+
+
+          <div class="table-wrapper">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Data
+                  </th>
+
+                  <th>
+                    Usuário
+                  </th>
+
+                  <th>
+                    Perfil
+                  </th>
+
+                  <th>
+                    Empresa
+                  </th>
+
+                  <th>
+                    Ação
+                  </th>
+
+                  <th>
+                    Método
+                  </th>
+
+                  <th>
+                    Rota
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Detalhes
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="tabela">
+
+                <tr>
+
+                  <td
+                    colspan="9"
+                    class="loading"
+                  >
+                    Carregando logs...
+                  </td>
+
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+        </section>
 
 
       </section>
@@ -634,21 +751,29 @@
     onclick="if(event.target === this) LogsAdmin.fecharModal()"
   >
 
-
-    <div class="modal-card">
+    <div class="modal-content">
 
 
       <div class="modal-header">
 
-        <h2>
-          Detalhes do log
-        </h2>
+        <div>
+
+          <span class="modal-eyebrow">
+            Registro
+          </span>
+
+          <h2>
+            Detalhes do log
+          </h2>
+
+        </div>
 
 
         <button
-          class="close"
+          class="modal-close"
           type="button"
           onclick="LogsAdmin.fecharModal()"
+          aria-label="Fechar"
         >
           ×
         </button>
@@ -656,7 +781,10 @@
       </div>
 
 
-      <div id="modalConteudo">
+      <div
+        id="modalConteudo"
+        class="modal-body"
+      >
 
         <div class="loading">
           Carregando...
@@ -666,7 +794,6 @@
 
 
     </div>
-
 
   </div>
 
@@ -680,7 +807,6 @@
     document.addEventListener(
       'DOMContentLoaded',
       () => {
-
 
         /*
          * Limpar filtros
@@ -698,18 +824,15 @@
             'click',
             () => {
 
-
               const busca =
                 document.getElementById(
                   'busca'
                 );
 
-
               const metodo =
                 document.getElementById(
                   'metodo'
                 );
-
 
               const acao =
                 document.getElementById(
@@ -750,7 +873,7 @@
 
 
         /*
-         * Fecha o modal com ESC.
+         * Fechar modal com ESC
          */
 
         document.addEventListener(
@@ -776,7 +899,6 @@
 
           }
         );
-
 
       }
     );
