@@ -15,7 +15,6 @@ if (!JWT_SECRET) {
   );
 }
 
-
 // ============================================================
 // PERMISSÕES DO ADMINISTRADOR
 // ============================================================
@@ -31,13 +30,11 @@ const PERMISSOES_ADMINISTRADOR = [
   'configuracoes'
 ];
 
-
 // ============================================================
 // FUNÇÃO - OBTER PERMISSÕES DO USUÁRIO
 // ============================================================
 
 async function obterPermissoesUsuario(usuario) {
-
   /*
    * DEV
    *
@@ -45,11 +42,9 @@ async function obterPermissoesUsuario(usuario) {
    * O acesso às rotas DEV é controlado pelo middleware
    * somenteDev.
    */
-
   if (usuario.perfil === 'dev') {
     return [];
   }
-
 
   /*
    * ADMINISTRADOR
@@ -57,11 +52,9 @@ async function obterPermissoesUsuario(usuario) {
    * Administrador possui todas as permissões
    * disponíveis para a própria empresa.
    */
-
   if (usuario.perfil === 'administrador') {
     return PERMISSOES_ADMINISTRADOR;
   }
-
 
   /*
    * FUNCIONÁRIO
@@ -69,55 +62,39 @@ async function obterPermissoesUsuario(usuario) {
    * Funcionário possui somente as permissões
    * cadastradas em usuario_permissoes.
    */
-
-  const {
-    rows
-  } = await pool.query(
+  const { rows } = await pool.query(
     `
     SELECT
       p.codigo
-
     FROM usuario_permissoes up
-
     INNER JOIN permissoes p
       ON p.id = up.permissao_id
-
     WHERE up.usuario_id = $1
-
     ORDER BY p.codigo
     `,
-    [
-      usuario.id
-    ]
+    [usuario.id]
   );
 
-
-  return rows.map(
-    row => row.codigo
-  );
+  return rows.map(row => row.codigo);
 }
-
 
 // ============================================================
 // FUNÇÃO - GERAR TOKEN
 // ============================================================
 
 function gerarToken(usuario) {
-
   if (!JWT_SECRET) {
     throw new Error(
       'JWT_SECRET não configurado.'
     );
   }
 
-
   return jwt.sign(
     {
       id: usuario.id,
 
       empresa_id:
-        usuario.empresa_id ??
-        null,
+        usuario.empresa_id ?? null,
 
       nome:
         usuario.nome,
@@ -128,15 +105,12 @@ function gerarToken(usuario) {
       perfil:
         usuario.perfil
     },
-
     JWT_SECRET,
-
     {
       expiresIn: '7d'
     }
   );
 }
-
 
 // ============================================================
 // CADASTRO
@@ -145,15 +119,11 @@ function gerarToken(usuario) {
 router.post(
   '/cadastro',
   async (req, res) => {
-
-    const client =
-      await pool.connect();
-
+    const client = await pool.connect();
 
     try {
-
       /*
-       * Aceita os dois formatos:
+       * Aceita os formatos:
        *
        * {
        *   empresa: {
@@ -164,11 +134,14 @@ router.post(
        * ou:
        *
        * {
-       *   empresa_nome: "Minha Empresa"
+       *   empresa: "Minha Empresa"
        * }
        *
-       * Isso evita problemas caso o frontend utilize
-       * uma estrutura diferente.
+       * ou:
+       *
+       * {
+       *   empresa_nome: "Minha Empresa"
+       * }
        */
 
       const empresaRecebida =
@@ -183,7 +156,6 @@ router.post(
                 : req.body?.empresa_nome
             );
 
-
       const nomeRecebido =
         req.body?.nome;
 
@@ -192,7 +164,6 @@ router.post(
 
       const senhaRecebida =
         req.body?.senha;
-
 
       // ======================================================
       // VALIDAÇÃO INICIAL
@@ -204,14 +175,11 @@ router.post(
         !emailRecebido ||
         !senhaRecebida
       ) {
-
         return res.status(400).json({
           erro:
             'Preencha todos os campos obrigatórios.'
         });
-
       }
-
 
       // ======================================================
       // NORMALIZAÇÃO
@@ -231,79 +199,64 @@ router.post(
         String(
           emailRecebido
         )
-        .trim()
-        .toLowerCase();
+          .trim()
+          .toLowerCase();
 
       const senha =
         String(
           senhaRecebida
         );
 
-
       // ======================================================
       // VALIDAÇÃO DOS CAMPOS
       // ======================================================
 
       if (!nomeEmpresa) {
-
         return res.status(400).json({
           erro:
             'Informe o nome da empresa.'
         });
-
       }
 
-
       if (!nomeUsuario) {
-
         return res.status(400).json({
           erro:
             'Informe seu nome.'
         });
-
       }
 
-
       if (!emailNormalizado) {
-
         return res.status(400).json({
           erro:
             'Informe um e-mail válido.'
         });
-
       }
 
-
-      /*
-       * Validação simples de e-mail.
-       */
+      // ======================================================
+      // VALIDAÇÃO DE E-MAIL
+      // ======================================================
 
       const emailValido =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-          .test(
-            emailNormalizado
-          );
-
+          .test(emailNormalizado);
 
       if (!emailValido) {
-
         return res.status(400).json({
           erro:
             'Informe um e-mail válido.'
         });
-
       }
 
+      // ======================================================
+      // VALIDAÇÃO DA SENHA
+      // ======================================================
 
       if (senha.length < 6) {
-
         return res.status(400).json({
           erro:
             'A senha deve possuir pelo menos 6 caracteres.'
         });
-
       }
-
 
       // ======================================================
       // INICIA TRANSAÇÃO
@@ -313,22 +266,20 @@ router.post(
         'BEGIN'
       );
 
-
       // ======================================================
-      // VERIFICA E-MAIL EXISTENTE
+      // VERIFICA E-MAIL EXISTENTE EM USUÁRIOS
       // ======================================================
 
       const usuarioExistente =
         await client.query(
           `
           SELECT
-            id
-
+            id,
+            empresa_id,
+            nome,
+            email
           FROM usuarios
-
-          WHERE LOWER(email) =
-                LOWER($1)
-
+          WHERE LOWER(email) = LOWER($1)
           LIMIT 1
           `,
           [
@@ -336,24 +287,51 @@ router.post(
           ]
         );
 
-
       if (
-        usuarioExistente.rows.length >
-        0
+        usuarioExistente.rows.length > 0
       ) {
-
         await client.query(
           'ROLLBACK'
         );
-
 
         return res.status(409).json({
           erro:
             'Este e-mail já está cadastrado.'
         });
-
       }
 
+      // ======================================================
+      // VERIFICA E-MAIL EXISTENTE EM EMPRESAS
+      // ======================================================
+
+      const empresaExistente =
+        await client.query(
+          `
+          SELECT
+            id,
+            nome,
+            email
+          FROM empresas
+          WHERE LOWER(email) = LOWER($1)
+          LIMIT 1
+          `,
+          [
+            emailNormalizado
+          ]
+        );
+
+      if (
+        empresaExistente.rows.length > 0
+      ) {
+        await client.query(
+          'ROLLBACK'
+        );
+
+        return res.status(409).json({
+          erro:
+            'Este e-mail já está cadastrado em uma empresa.'
+        });
+      }
 
       // ======================================================
       // CRIA EMPRESA
@@ -366,12 +344,10 @@ router.post(
             nome,
             email
           )
-
           VALUES (
             $1,
             $2
           )
-
           RETURNING
             id,
             nome,
@@ -383,10 +359,8 @@ router.post(
           ]
         );
 
-
       const novaEmpresa =
         empresaResult.rows[0];
-
 
       // ======================================================
       // CRIPTOGRAFA SENHA
@@ -397,7 +371,6 @@ router.post(
           senha,
           10
         );
-
 
       // ======================================================
       // CRIA USUÁRIO ADMINISTRADOR
@@ -414,7 +387,6 @@ router.post(
             perfil,
             ativo
           )
-
           VALUES (
             $1,
             $2,
@@ -423,7 +395,6 @@ router.post(
             'administrador',
             TRUE
           )
-
           RETURNING
             id,
             empresa_id,
@@ -440,10 +411,8 @@ router.post(
           ]
         );
 
-
       const novoUsuario =
         usuarioResult.rows[0];
-
 
       // ======================================================
       // FINALIZA TRANSAÇÃO
@@ -452,7 +421,6 @@ router.post(
       await client.query(
         'COMMIT'
       );
-
 
       // ======================================================
       // PERMISSÕES
@@ -463,7 +431,6 @@ router.post(
           novoUsuario
         );
 
-
       // ======================================================
       // TOKEN
       // ======================================================
@@ -473,20 +440,17 @@ router.post(
           novoUsuario
         );
 
-
       // ======================================================
       // RESPOSTA
       // ======================================================
 
       return res.status(201).json({
-
         mensagem:
           'Cadastro realizado com sucesso.',
 
         token,
 
         usuario: {
-
           id:
             novoUsuario.id,
 
@@ -503,11 +467,9 @@ router.post(
             novoUsuario.empresa_id,
 
           permissoes
-
         },
 
         empresa: {
-
           id:
             novaEmpresa.id,
 
@@ -516,51 +478,75 @@ router.post(
 
           email:
             novaEmpresa.email
-
         }
-
       });
 
-
     } catch (err) {
-
       /*
        * Caso qualquer operação da transação falhe,
        * tenta desfazer tudo.
        */
 
       try {
-
         await client.query(
           'ROLLBACK'
         );
-
       } catch (_) {
         // Ignora erro do rollback.
       }
-
 
       console.error(
         'Erro no cadastro:',
         err
       );
 
+      // ======================================================
+      // DUPLICIDADE DE E-MAIL
+      // ======================================================
+
+      if (
+        err?.code === '23505'
+      ) {
+        /*
+         * A constraint atual do banco é:
+         *
+         * idx_empresas_email_unique
+         *
+         * Portanto, quando ela for atingida,
+         * informamos corretamente que o e-mail já
+         * pertence a uma empresa.
+         */
+
+        if (
+          err.constraint ===
+          'idx_empresas_email_unique'
+        ) {
+          return res.status(409).json({
+            erro:
+              'Este e-mail já está cadastrado em uma empresa.'
+          });
+        }
+
+        return res.status(409).json({
+          erro:
+            'Este e-mail já está cadastrado.'
+        });
+      }
+
+      // ======================================================
+      // ERRO INTERNO
+      // ======================================================
 
       return res.status(500).json({
         erro:
           'Não foi possível realizar o cadastro.'
       });
 
-
     } finally {
-
       client.release();
-
     }
-
   }
 );
-
 
 // ============================================================
 // LOGIN
@@ -569,15 +555,12 @@ router.post(
 router.post(
   '/login',
   async (req, res) => {
-
     try {
-
       const emailRecebido =
         req.body?.email;
 
       const senhaRecebida =
         req.body?.senha;
-
 
       // ======================================================
       // VALIDAÇÃO
@@ -587,67 +570,59 @@ router.post(
         !emailRecebido ||
         !senhaRecebida
       ) {
-
         return res.status(400).json({
           erro:
             'Informe e-mail e senha.'
         });
-
       }
-
 
       const emailNormalizado =
         String(
           emailRecebido
         )
-        .trim()
-        .toLowerCase();
+          .trim()
+          .toLowerCase();
 
       const senha =
         String(
           senhaRecebida
         );
 
-
       // ======================================================
       // BUSCA USUÁRIO
       // ======================================================
 
-      const {
-        rows
-      } = await pool.query(
-        `
-        SELECT
+      const { rows } =
+        await pool.query(
+          `
+          SELECT
+            u.id,
+            u.empresa_id,
+            u.nome,
+            u.email,
+            u.senha,
+            u.perfil,
+            u.ativo,
 
-          u.id,
-          u.empresa_id,
-          u.nome,
-          u.email,
-          u.senha,
-          u.perfil,
-          u.ativo,
+            e.id AS empresa_id_join,
+            e.nome AS empresa_nome,
+            e.email AS empresa_email,
+            e.telefone AS empresa_telefone,
+            e.ativo AS empresa_ativo
 
-          e.id AS empresa_id_join,
-          e.nome AS empresa_nome,
-          e.email AS empresa_email,
-          e.telefone AS empresa_telefone,
-          e.ativo AS empresa_ativo
+          FROM usuarios u
 
-        FROM usuarios u
+          LEFT JOIN empresas e
+            ON e.id = u.empresa_id
 
-        LEFT JOIN empresas e
-          ON e.id = u.empresa_id
+          WHERE LOWER(u.email) = LOWER($1)
 
-        WHERE LOWER(u.email) =
-              LOWER($1)
-
-        LIMIT 1
-        `,
-        [
-          emailNormalizado
-        ]
-      );
-
+          LIMIT 1
+          `,
+          [
+            emailNormalizado
+          ]
+        );
 
       // ======================================================
       // USUÁRIO NÃO ENCONTRADO
@@ -656,18 +631,14 @@ router.post(
       if (
         rows.length === 0
       ) {
-
         return res.status(401).json({
           erro:
             'E-mail ou senha inválidos.'
         });
-
       }
-
 
       const usuario =
         rows[0];
-
 
       // ======================================================
       // USUÁRIO ATIVO
@@ -676,14 +647,11 @@ router.post(
       if (
         !usuario.ativo
       ) {
-
         return res.status(403).json({
           erro:
             'Este usuário está desativado.'
         });
-
       }
-
 
       // ======================================================
       // EMPRESA OBRIGATÓRIA
@@ -693,14 +661,11 @@ router.post(
         usuario.perfil !== 'dev' &&
         !usuario.empresa_id
       ) {
-
         return res.status(403).json({
           erro:
             'Usuário não está vinculado a uma empresa.'
         });
-
       }
-
 
       // ======================================================
       // EMPRESA ATIVA
@@ -710,14 +675,11 @@ router.post(
         usuario.perfil !== 'dev' &&
         usuario.empresa_ativo === false
       ) {
-
         return res.status(403).json({
           erro:
             'A empresa deste usuário está desativada.'
         });
-
       }
-
 
       // ======================================================
       // COMPARA SENHA
@@ -729,16 +691,12 @@ router.post(
           usuario.senha
         );
 
-
       if (!senhaValida) {
-
         return res.status(401).json({
           erro:
             'E-mail ou senha inválidos.'
         });
-
       }
-
 
       // ======================================================
       // PERMISSÕES
@@ -748,7 +706,6 @@ router.post(
         await obterPermissoesUsuario(
           usuario
         );
-
 
       // ======================================================
       // TOKEN
@@ -759,21 +716,16 @@ router.post(
           usuario
         );
 
-
       // ======================================================
       // EMPRESA
       // ======================================================
 
-      let empresa =
-        null;
-
+      let empresa = null;
 
       if (
         usuario.empresa_id
       ) {
-
         empresa = {
-
           id:
             usuario.empresa_id,
 
@@ -788,25 +740,20 @@ router.post(
 
           ativo:
             usuario.empresa_ativo
-
         };
-
       }
-
 
       // ======================================================
       // RESPOSTA
       // ======================================================
 
       return res.status(200).json({
-
         mensagem:
           'Login realizado com sucesso.',
 
         token,
 
         usuario: {
-
           id:
             usuario.id,
 
@@ -820,36 +767,27 @@ router.post(
             usuario.perfil,
 
           empresa_id:
-            usuario.empresa_id ??
-            null,
+            usuario.empresa_id ?? null,
 
           permissoes
-
         },
 
         empresa
-
       });
 
-
     } catch (err) {
-
       console.error(
         'Erro no login:',
         err
       );
 
-
       return res.status(500).json({
         erro:
           'Não foi possível realizar o login.'
       });
-
     }
-
   }
 );
-
 
 // ============================================================
 // ME
@@ -859,46 +797,41 @@ router.get(
   '/me',
   autenticar,
   async (req, res) => {
-
     try {
-
       // ======================================================
       // BUSCA USUÁRIO
       // ======================================================
 
-      const {
-        rows
-      } = await pool.query(
-        `
-        SELECT
+      const { rows } =
+        await pool.query(
+          `
+          SELECT
+            u.id,
+            u.empresa_id,
+            u.nome,
+            u.email,
+            u.perfil,
+            u.ativo,
 
-          u.id,
-          u.empresa_id,
-          u.nome,
-          u.email,
-          u.perfil,
-          u.ativo,
+            e.id AS empresa_id_join,
+            e.nome AS empresa_nome,
+            e.email AS empresa_email,
+            e.telefone AS empresa_telefone,
+            e.ativo AS empresa_ativo
 
-          e.id AS empresa_id_join,
-          e.nome AS empresa_nome,
-          e.email AS empresa_email,
-          e.telefone AS empresa_telefone,
-          e.ativo AS empresa_ativo
+          FROM usuarios u
 
-        FROM usuarios u
+          LEFT JOIN empresas e
+            ON e.id = u.empresa_id
 
-        LEFT JOIN empresas e
-          ON e.id = u.empresa_id
+          WHERE u.id = $1
 
-        WHERE u.id = $1
-
-        LIMIT 1
-        `,
-        [
-          req.usuario.id
-        ]
-      );
-
+          LIMIT 1
+          `,
+          [
+            req.usuario.id
+          ]
+        );
 
       // ======================================================
       // USUÁRIO NÃO ENCONTRADO
@@ -907,18 +840,14 @@ router.get(
       if (
         rows.length === 0
       ) {
-
         return res.status(401).json({
           erro:
             'Usuário não encontrado.'
         });
-
       }
-
 
       const usuario =
         rows[0];
-
 
       // ======================================================
       // USUÁRIO ATIVO
@@ -927,14 +856,11 @@ router.get(
       if (
         !usuario.ativo
       ) {
-
         return res.status(403).json({
           erro:
             'Este usuário está desativado.'
         });
-
       }
-
 
       // ======================================================
       // EMPRESA OBRIGATÓRIA
@@ -944,14 +870,11 @@ router.get(
         usuario.perfil !== 'dev' &&
         !usuario.empresa_id
       ) {
-
         return res.status(403).json({
           erro:
             'Usuário não está vinculado a uma empresa.'
         });
-
       }
-
 
       // ======================================================
       // EMPRESA ATIVA
@@ -961,14 +884,11 @@ router.get(
         usuario.perfil !== 'dev' &&
         usuario.empresa_ativo === false
       ) {
-
         return res.status(403).json({
           erro:
             'A empresa deste usuário está desativada.'
         });
-
       }
-
 
       // ======================================================
       // PERMISSÕES
@@ -979,21 +899,16 @@ router.get(
           usuario
         );
 
-
       // ======================================================
       // EMPRESA
       // ======================================================
 
-      let empresa =
-        null;
-
+      let empresa = null;
 
       if (
         usuario.empresa_id
       ) {
-
         empresa = {
-
           id:
             usuario.empresa_id,
 
@@ -1008,20 +923,15 @@ router.get(
 
           ativo:
             usuario.empresa_ativo
-
         };
-
       }
-
 
       // ======================================================
       // RESPOSTA
       // ======================================================
 
       return res.status(200).json({
-
         usuario: {
-
           id:
             usuario.id,
 
@@ -1035,36 +945,27 @@ router.get(
             usuario.perfil,
 
           empresa_id:
-            usuario.empresa_id ??
-            null,
+            usuario.empresa_id ?? null,
 
           permissoes
-
         },
 
         empresa
-
       });
 
-
     } catch (err) {
-
       console.error(
         'Erro ao obter usuário autenticado:',
         err
       );
 
-
       return res.status(500).json({
         erro:
           'Não foi possível obter os dados do usuário.'
       });
-
     }
-
   }
 );
-
 
 // ============================================================
 // EXPORT
