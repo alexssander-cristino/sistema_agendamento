@@ -5822,109 +5822,139 @@
   }
 
 
-  // ============================================================
-  // VERIFICAÇÃO DA ASSINATURA
-  // ============================================================
+// ============================================================
+// VERIFICAÇÃO DA ASSINATURA
+// ============================================================
 
-  async function verificarAssinaturaObrigatoria(){
+async function verificarAssinaturaObrigatoria(){
+
+  /*
+   * DEV não possui assinatura.
+   */
+
+  if(
+    !usuarioLogado ||
+    usuarioLogado.perfil === 'dev'
+  ){
+
+    assinaturaVerificada = true;
+
+    esconderModalPlano();
+
+    return true;
+  }
+
+
+  /*
+   * Usuário precisa estar vinculado
+   * a uma empresa.
+   */
+
+  if(!usuarioLogado.empresa_id){
+
+    assinaturaVerificada = false;
+
+    mostrarModalPlano();
+
+    await carregarPlanosObrigatorios();
+
+    return false;
+  }
+
+
+  try{
+
+    const resposta =
+      await api(
+        '/mercado-pago/minha-assinatura'
+      );
+
 
     /*
-     * DEV não possui assinatura.
+     * O endpoint retorna:
+     *
+     * {
+     *   ok: true,
+     *   possui_assinatura: true,
+     *   assinatura: {
+     *     status: "ativa"
+     *   }
+     * }
+     *
+     * Portanto, precisamos verificar
+     * resposta.possui_assinatura e
+     * resposta.assinatura.status.
      */
 
-    if(
-      !usuarioLogado ||
-      usuarioLogado.perfil === 'dev'
-    ){
+    const possuiAssinatura =
+      resposta?.possui_assinatura === true;
+
+
+    const status =
+      resposta?.assinatura?.status;
+
+
+    const assinaturaValida =
+      possuiAssinatura &&
+      [
+        'ativa',
+        'authorized',
+        'active'
+      ].includes(
+        String(status || '').toLowerCase()
+      );
+
+
+    /*
+     * Empresa possui assinatura válida.
+     *
+     * Fecha o modal automaticamente.
+     */
+
+    if(assinaturaValida){
 
       assinaturaVerificada = true;
+
+      esconderModalPlano();
 
       return true;
     }
 
 
     /*
-     * Usuário precisa estar vinculado
-     * a uma empresa.
+     * Empresa não possui assinatura ativa.
+     *
+     * Abre o modal e carrega os planos.
      */
 
-    if(!usuarioLogado.empresa_id){
+    assinaturaVerificada = false;
 
-      assinaturaVerificada = false;
+    mostrarModalPlano();
 
-      mostrarModalPlano();
+    await carregarPlanosObrigatorios();
 
-      await carregarPlanosObrigatorios();
-
-      return false;
-    }
+    return false;
 
 
-    try{
+  }catch(error){
 
-      const resposta =
-        await api(
-          '/mercado-pago/minha-assinatura'
-        );
-
-
-      const status =
-        resposta?.status;
+    console.warn(
+      'Empresa sem assinatura válida:',
+      error.message
+    );
 
 
-      const assinaturaValida =
-        [
-          'ativa',
-          'authorized',
-          'active'
-        ].includes(
-          String(status || '').toLowerCase()
-        );
+    assinaturaVerificada = false;
 
+    mostrarModalPlano();
 
-      if(assinaturaValida){
+    await carregarPlanosObrigatorios();
 
-        assinaturaVerificada = true;
-
-        esconderModalPlano();
-
-        return true;
-      }
-
-
-      /*
-       * Sem assinatura ativa.
-       */
-
-      assinaturaVerificada = false;
-
-      mostrarModalPlano();
-
-      await carregarPlanosObrigatorios();
-
-      return false;
-
-
-    }catch(error){
-
-      console.warn(
-        'Empresa sem assinatura válida:',
-        error.message
-      );
-
-
-      assinaturaVerificada = false;
-
-      mostrarModalPlano();
-
-      await carregarPlanosObrigatorios();
-
-      return false;
-
-    }
+    return false;
 
   }
 
+}
 
   // ============================================================
   // APP GLOBAL
