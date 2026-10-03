@@ -76,6 +76,10 @@
       <nav class="menu">
 
 
+        <!-- ====================================================
+             GERAL
+        ===================================================== -->
+
         <div class="menu-title">
           Geral
         </div>
@@ -114,6 +118,10 @@
 
         </button>
 
+
+        <!-- ====================================================
+             SAAS
+        ===================================================== -->
 
         <div class="menu-title">
           SaaS
@@ -239,6 +247,10 @@
         </button>
 
 
+        <!-- ====================================================
+             SISTEMA
+        ===================================================== -->
+
         <div class="menu-title">
           Sistema
         </div>
@@ -281,6 +293,10 @@
       </nav>
 
 
+      <!-- ======================================================
+           SIDEBAR FOOTER
+      ======================================================= -->
+
       <div class="sidebar-footer">
 
         <button
@@ -298,7 +314,7 @@
 
 
     <!-- ========================================================
-         CONTEÚDO
+         MAIN
     ========================================================= -->
 
     <main class="main">
@@ -311,6 +327,15 @@
       <header class="topbar">
 
         <div class="topbar-left">
+
+          <button
+            type="button"
+            class="mobile-menu-btn"
+            id="mobile-menu-btn"
+            aria-label="Abrir menu"
+          >
+            ☰
+          </button>
 
 
           <div>
@@ -328,9 +353,16 @@
         </div>
 
 
+        <!-- ====================================================
+             USUÁRIO
+        ===================================================== -->
+
         <div class="topbar-user">
 
-          <div class="avatar">
+          <div
+            class="avatar"
+            id="topbar-user-avatar"
+          >
             D
           </div>
 
@@ -359,7 +391,7 @@
 
 
         <!-- ====================================================
-             CABEÇALHO DA PÁGINA
+             CABEÇALHO
         ===================================================== -->
 
         <div class="page-header">
@@ -375,6 +407,7 @@
             </p>
 
           </div>
+
 
           <div class="page-header-actions">
 
@@ -398,6 +431,8 @@
         <section class="dashboard-stats">
 
 
+          <!-- TOTAL -->
+
           <div class="dashboard-stat">
 
             <div class="dashboard-stat-info">
@@ -414,6 +449,8 @@
 
           </div>
 
+
+          <!-- HOJE -->
 
           <div class="dashboard-stat">
 
@@ -432,6 +469,8 @@
           </div>
 
 
+          <!-- ERROS -->
+
           <div class="dashboard-stat">
 
             <div class="dashboard-stat-info">
@@ -448,6 +487,8 @@
 
           </div>
 
+
+          <!-- IPS -->
 
           <div class="dashboard-stat">
 
@@ -466,6 +507,8 @@
           </div>
 
 
+          <!-- LOGIN SUCESSO -->
+
           <div class="dashboard-stat">
 
             <div class="dashboard-stat-info">
@@ -482,6 +525,8 @@
 
           </div>
 
+
+          <!-- LOGIN FALHOU -->
 
           <div class="dashboard-stat">
 
@@ -512,6 +557,8 @@
           <div class="filters">
 
 
+            <!-- BUSCA -->
+
             <div class="field">
 
               <label for="busca">
@@ -527,6 +574,8 @@
 
             </div>
 
+
+            <!-- MÉTODO -->
 
             <div class="field">
 
@@ -565,6 +614,8 @@
             </div>
 
 
+            <!-- AÇÃO -->
+
             <div class="field">
 
               <label for="acao">
@@ -602,6 +653,8 @@
             </div>
 
 
+            <!-- AÇÕES -->
+
             <div class="logs-filter-actions">
 
               <button
@@ -627,6 +680,8 @@
         <section class="card table-card">
 
 
+          <!-- CABEÇALHO DA TABELA -->
+
           <div class="table-header">
 
             <div>
@@ -651,6 +706,8 @@
 
           </div>
 
+
+          <!-- TABELA -->
 
           <div class="table-wrapper">
 
@@ -734,17 +791,20 @@
 
 
   <!-- ==========================================================
-       MODAL
+       MODAL DE DETALHES
   =========================================================== -->
 
   <div
     class="modal"
     id="modal"
-    onclick="if(event.target === this) LogsAdmin.fecharModal()"
   >
 
     <div class="modal-content">
 
+
+      <!-- ======================================================
+           MODAL HEADER
+      ======================================================= -->
 
       <div class="modal-header">
 
@@ -773,6 +833,10 @@
       </div>
 
 
+      <!-- ======================================================
+           MODAL BODY
+      ======================================================= -->
+
       <div
         id="modalConteudo"
         class="modal-body"
@@ -800,9 +864,10 @@
       'DOMContentLoaded',
       () => {
 
-        /*
-         * Limpar filtros
-         */
+
+        /* ======================================================
+           LIMPAR FILTROS
+        ====================================================== */
 
         const limpar =
           document.getElementById(
@@ -816,15 +881,18 @@
             'click',
             () => {
 
+
               const busca =
                 document.getElementById(
                   'busca'
                 );
 
+
               const metodo =
                 document.getElementById(
                   'metodo'
                 );
+
 
               const acao =
                 document.getElementById(
@@ -864,17 +932,19 @@
         }
 
 
-        /*
-         * Fechar modal com ESC
-         */
+        /* ======================================================
+           FECHAR MODAL COM ESC
+        ====================================================== */
 
         document.addEventListener(
           'keydown',
           (event) => {
 
+
             if (
               event.key === 'Escape'
             ) {
+
 
               if (
                 typeof LogsAdmin !==
@@ -891,6 +961,40 @@
 
           }
         );
+
+
+        /* ======================================================
+           FECHAR MODAL CLICANDO FORA
+        ====================================================== */
+
+        const modal =
+          document.getElementById(
+            'modal'
+          );
+
+
+        if (modal) {
+
+          modal.addEventListener(
+            'click',
+            (event) => {
+
+              if (
+                event.target === modal &&
+                typeof LogsAdmin !==
+                'undefined' &&
+                typeof LogsAdmin.fecharModal ===
+                'function'
+              ) {
+
+                LogsAdmin.fecharModal();
+
+              }
+
+            }
+          );
+
+        }
 
       }
     );
