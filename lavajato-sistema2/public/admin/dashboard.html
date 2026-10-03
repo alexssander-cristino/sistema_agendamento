@@ -13,9 +13,9 @@
   <title>Dashboard | Orvix SaaS</title>
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 
   <link
     rel="stylesheet"
@@ -65,7 +65,7 @@
 
 
         <button
-          class="menu-btn active"
+          class="menu-btn"
           data-page="dashboard"
           type="button"
         >
@@ -188,32 +188,38 @@
         </button>
 
 
-          <button
-            class="menu-btn"
-            data-page="tratamentos"
-            type="button"
-          >
-            <span class="menu-icon">
-              ▣
-            </span>
-            <span>
-              Tratamentos
-            </span>
-          </button>
+        <button
+          class="menu-btn"
+          data-page="tratamentos"
+          type="button"
+        >
 
-          <button
-  class="menu-btn"
-  data-page="incidentes"
-  type="button"
->
-  <span class="menu-icon">
-    ⚠
-  </span>
+          <span class="menu-icon">
+            ▣
+          </span>
 
-  <span>
-    Incidentes
-  </span>
-</button>
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="incidentes"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
+        </button>
 
 
         <div class="menu-title">
@@ -796,6 +802,10 @@
   </div>
 
 
+  <!-- ==========================================================
+       JS DO DASHBOARD
+  =========================================================== -->
+
   <script>
 
     (() => {
@@ -1271,160 +1281,6 @@
 
 
       // ==========================================================
-      // MENU
-      // ==========================================================
-
-      document
-        .querySelectorAll(
-          '.menu-btn[data-page]'
-        )
-        .forEach(
-          button => {
-
-            button.addEventListener(
-              'click',
-              () => {
-
-                const page =
-                  button.dataset.page;
-
-
-                if (
-                  page === 'dashboard'
-                ) {
-
-                  window.location.href =
-                    '/admin/dashboard.html';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'planos'
-                ) {
-
-                  window.location.href =
-                    '/admin/planos.html';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'empresas'
-                ) {
-
-                  window.location.href =
-                    '/admin/empresas.html';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'assinaturas'
-                ) {
-
-                  window.location.href =
-                    '/admin/assinaturas.html';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'pagamentos'
-                ) {
-
-                  window.location.href =
-                    '/admin/pagamentos.html';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'usuarios'
-                ) {
-
-                  window.location.href =
-                    '/admin/usuarios.html';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'logs'
-                ) {
-
-                  window.location.href =
-                    '/admin/logs.html';
-
-                  return;
-
-                }
-
-                
-                if (
-                  page === 'tratamentos'
-                ) {
-                  window.location.href =
-                    '/admin/tratamentos.html';
-                  return;
-                }
-
-                if (page === 'incidentes') {
-                window.location.href =
-                  '/admin/incidentes.html';
-                return;
-              }
-
-                if (
-                  page === 'sistema'
-                ) {
-
-                  window.location.href =
-                    '/';
-
-                  return;
-
-                }
-
-
-                if (
-                  page === 'status'
-                ) {
-
-                  carregarStatus();
-
-                  document
-                    .getElementById(
-                      'status-api'
-                    )
-                    .scrollIntoView({
-                      behavior: 'smooth'
-                    });
-
-                  return;
-
-                }
-
-              }
-            );
-
-          }
-        );
-
-
-      // ==========================================================
       // ATALHOS
       // ==========================================================
 
@@ -1464,16 +1320,17 @@
         )
         .addEventListener(
           'click',
-          () => {
+          async () => {
 
-            carregarStatus();
+            await carregarStatus();
 
             document
               .getElementById(
                 'status-api'
               )
               .scrollIntoView({
-                behavior: 'smooth'
+                behavior: 'smooth',
+                block: 'center'
               });
 
           }
@@ -1491,59 +1348,6 @@
             await carregarDashboard();
 
             await carregarStatus();
-
-          }
-        );
-
-
-      // ==========================================================
-      // LOGOUT
-      // ==========================================================
-
-      document
-        .getElementById(
-          'logout-btn'
-        )
-        .addEventListener(
-          'click',
-          () => {
-
-            localStorage.removeItem(
-              AUTH_TOKEN_KEY
-            );
-
-
-            localStorage.removeItem(
-              'dev_empresa_contexto'
-            );
-
-
-            window.location.href =
-              '/';
-
-          }
-        );
-
-
-      // ==========================================================
-      // MENU MOBILE
-      // ==========================================================
-
-      document
-        .getElementById(
-          'mobile-menu'
-        )
-        .addEventListener(
-          'click',
-          () => {
-
-            document
-              .getElementById(
-                'sidebar'
-              )
-              .classList.toggle(
-                'open'
-              );
 
           }
         );
@@ -1577,6 +1381,11 @@
     })();
 
   </script>
+
+
+  <!-- ==========================================================
+       SIDEBAR COMPARTILHADA
+  =========================================================== -->
 
   <script src="/js/dev-sidebar.js"></script>
 

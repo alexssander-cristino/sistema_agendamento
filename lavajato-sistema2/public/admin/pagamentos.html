@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
   <meta charset="UTF-8">
@@ -11,10 +12,30 @@
 
   <title>Pagamentos | Orvix</title>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/apple-touch-icon.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
 
   <link
     rel="stylesheet"
@@ -23,225 +44,563 @@
 
 </head>
 
+
 <body>
 
-<div class="layout">
+  <div class="layout">
 
-  <aside class="sidebar">
 
-    <div class="logo">
-      Lava<span>jato</span>
-    </div>
+    <!-- ========================================================
+         SIDEBAR
+    ========================================================= -->
 
-    <div class="menu">
+    <aside class="sidebar">
 
-      <div class="menu-title">
-        Geral
-      </div>
 
-      <a href="/admin/dashboard.html">
-        Dashboard
-      </a>
+      <div class="brand">
 
-      <a href="/admin/planos.html">
-        Planos
-      </a>
+        <h1>
+          Orvix
+        </h1>
 
-      <div class="menu-title">
-        SaaS
-      </div>
+        <span>
+          Administração do SaaS
+        </span>
 
-      <a href="/admin/empresas.html">
-        Empresas
-      </a>
-
-      <a href="/admin/assinaturas.html">
-        Assinaturas
-      </a>
-
-      <a
-        href="/admin/pagamentos.html"
-        class="active"
-      >
-        Pagamentos
-      </a>
-
-      <a href="/admin/usuarios.html">
-        Usuários
-      </a>
-
-      <div class="menu-title">
-        Sistema
-      </div>
-
-      <a href="/">
-        Abrir sistema
-      </a>
-
-    </div>
-
-    <button
-      class="logout"
-      onclick="logout()"
-    >
-      Sair
-    </button>
-
-  </aside>
-
-  <main class="main">
-
-    <h1>Pagamentos</h1>
-
-    <p class="subtitle">
-      Histórico de pagamentos das assinaturas.
-    </p>
-
-    <section class="cards">
-
-      <div class="card">
-        <div class="card-title">
-          Pagamentos
-        </div>
-
-        <div class="card-value">
-          0
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          Aprovados
-        </div>
-
-        <div class="card-value">
-          0
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          Pendentes
-        </div>
-
-        <div class="card-value">
-          0
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          Receita
-        </div>
-
-        <div class="card-value">
-          R$ 0,00
-        </div>
-      </div>
-
-    </section>
-
-    <div class="filters">
-
-      <input
-        type="text"
-        id="busca"
-        placeholder="Pesquisar empresa..."
-      >
-
-      <select id="status">
-        <option value="">
-          Todos os status
-        </option>
-
-        <option value="aprovado">
-          Aprovados
-        </option>
-
-        <option value="pendente">
-          Pendentes
-        </option>
-
-        <option value="rejeitado">
-          Rejeitados
-        </option>
-
-      </select>
-
-      <button
-        class="btn"
-        onclick="filtrar()"
-      >
-        Filtrar
-      </button>
-
-    </div>
-
-    <div class="table-card">
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-
-            <tr>
-              <th>Empresa</th>
-              <th>Valor</th>
-              <th>Data</th>
-              <th>Status</th>
-              <th>Método</th>
-              <th>ID da transação</th>
-            </tr>
-
-          </thead>
-
-          <tbody id="tabela">
-
-            <tr>
-
-              <td>Orvix Exemplo</td>
-
-              <td>
-                R$ 29,90
-              </td>
-
-              <td>
-                01/09/2026
-              </td>
-
-              <td>
-
-                <span class="status aprovado">
-                  Aprovado
-                </span>
-
-              </td>
-
-              <td>
-                Mercado Pago
-              </td>
-
-              <td>
-                MP-000001
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
+        <span class="dev-badge">
+          DEV
+        </span>
 
       </div>
 
-    </div>
 
-  </main>
+      <nav class="menu">
 
-</div>
 
-<script src="/admin/js/pagamentos.js"></script>
-<script src="/js/dev-sidebar.js"></script>
+        <div class="menu-title">
+          Geral
+        </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="dashboard"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="planos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ◆
+          </span>
+
+          <span>
+            Planos
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          SaaS
+        </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="empresas"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="assinaturas"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="pagamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="usuarios"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="logs"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ≡
+          </span>
+
+          <span>
+            Logs
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="tratamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ▣
+          </span>
+
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="incidentes"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          Sistema
+        </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="sistema"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="status"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+
+        </button>
+
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          id="logout-btn"
+          class="logout-btn"
+        >
+          Sair do painel DEV
+        </button>
+
+      </div>
+
+
+    </aside>
+
+
+    <!-- ========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="main">
+
+
+      <!-- ======================================================
+           TOPBAR
+      ======================================================= -->
+
+      <header class="topbar">
+
+
+        <button
+          type="button"
+          id="mobile-menu"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+
+        <div class="topbar-title">
+          Administração SaaS
+        </div>
+
+
+        <div class="topbar-user">
+
+          <span id="user-name">
+            Desenvolvedor
+          </span>
+
+          <div
+            id="user-avatar"
+            class="avatar"
+          >
+            D
+          </div>
+
+        </div>
+
+
+      </header>
+
+
+      <!-- ======================================================
+           CONTENT
+      ======================================================= -->
+
+      <section class="content">
+
+
+        <div class="page-header">
+
+
+          <div>
+
+            <h1>
+              Pagamentos
+            </h1>
+
+            <p>
+              Histórico de pagamentos das assinaturas.
+            </p>
+
+          </div>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             CARDS
+        ===================================================== -->
+
+        <section class="cards">
+
+
+          <div class="card">
+
+            <div class="card-title">
+              Pagamentos
+            </div>
+
+            <div class="card-value">
+              0
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              Aprovados
+            </div>
+
+            <div class="card-value">
+              0
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              Pendentes
+            </div>
+
+            <div class="card-value">
+              0
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              Receita
+            </div>
+
+            <div class="card-value">
+              R$ 0,00
+            </div>
+
+          </div>
+
+
+        </section>
+
+
+        <!-- ====================================================
+             FILTROS
+        ===================================================== -->
+
+        <section class="filters">
+
+
+          <input
+            type="text"
+            id="busca"
+            placeholder="Pesquisar empresa..."
+          >
+
+
+          <select id="status">
+
+            <option value="">
+              Todos os status
+            </option>
+
+            <option value="aprovado">
+              Aprovados
+            </option>
+
+            <option value="pendente">
+              Pendentes
+            </option>
+
+            <option value="rejeitado">
+              Rejeitados
+            </option>
+
+          </select>
+
+
+          <button
+            class="btn"
+            type="button"
+            onclick="filtrar()"
+          >
+            Filtrar
+          </button>
+
+
+        </section>
+
+
+        <!-- ====================================================
+             TABELA
+        ===================================================== -->
+
+        <section class="table-card">
+
+
+          <div class="table-header">
+
+            <h3>
+              Pagamentos registrados
+            </h3>
+
+          </div>
+
+
+          <div class="table-wrapper">
+
+
+            <table>
+
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Empresa
+                  </th>
+
+                  <th>
+                    Valor
+                  </th>
+
+                  <th>
+                    Data
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Método
+                  </th>
+
+                  <th>
+                    ID da transação
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="tabela">
+
+
+                <tr>
+
+                  <td>
+                    Orvix Exemplo
+                  </td>
+
+                  <td>
+                    R$ 29,90
+                  </td>
+
+                  <td>
+                    01/09/2026
+                  </td>
+
+                  <td>
+
+                    <span class="status aprovado">
+                      Aprovado
+                    </span>
+
+                  </td>
+
+                  <td>
+                    Mercado Pago
+                  </td>
+
+                  <td>
+                    MP-000001
+                  </td>
+
+                </tr>
+
+
+              </tbody>
+
+
+            </table>
+
+
+          </div>
+
+
+        </section>
+
+
+      </section>
+
+
+    </main>
+
+
+  </div>
+
+
+  <!-- ==========================================================
+       SCRIPTS
+  =========================================================== -->
+
+  <script src="/admin/js/pagamentos.js"></script>
+
+  <script src="/js/dev-sidebar.js"></script>
+
 
 </body>
+
 </html>

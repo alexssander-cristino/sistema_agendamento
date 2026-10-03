@@ -12,10 +12,30 @@
 
   <title>Logs | Orvix</title>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/apple-touch-icon.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
 
   <link
     rel="stylesheet"
@@ -24,9 +44,11 @@
 
 </head>
 
+
 <body>
 
   <div class="layout">
+
 
     <!-- ========================================================
          SIDEBAR
@@ -36,36 +58,60 @@
 
       <div class="brand">
 
-        <h1>Orvix</h1>
+        <h1>
+          Orvix
+        </h1>
 
         <span>
-          Painel administrativo
+          Administração do SaaS
+        </span>
+
+        <span class="dev-badge">
+          DEV
         </span>
 
       </div>
 
+
       <nav class="menu">
+
 
         <div class="menu-title">
           Geral
         </div>
+
 
         <button
           class="menu-btn"
           data-page="dashboard"
           type="button"
         >
-          <span class="menu-icon">⌂</span>
-          <span>Dashboard</span>
+
+          <span class="menu-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
         </button>
+
 
         <button
           class="menu-btn"
           data-page="planos"
           type="button"
         >
-          <span class="menu-icon">◆</span>
-          <span>Planos</span>
+
+          <span class="menu-icon">
+            ◆
+          </span>
+
+          <span>
+            Planos
+          </span>
+
         </button>
 
 
@@ -73,49 +119,123 @@
           SaaS
         </div>
 
+
         <button
           class="menu-btn"
           data-page="empresas"
           type="button"
         >
-          <span class="menu-icon">◉</span>
-          <span>Empresas</span>
+
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+
         </button>
+
 
         <button
           class="menu-btn"
           data-page="assinaturas"
           type="button"
         >
-          <span class="menu-icon">↻</span>
-          <span>Assinaturas</span>
+
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+
         </button>
+
 
         <button
           class="menu-btn"
           data-page="pagamentos"
           type="button"
         >
-          <span class="menu-icon">$</span>
-          <span>Pagamentos</span>
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+
         </button>
+
 
         <button
           class="menu-btn"
           data-page="usuarios"
           type="button"
         >
-          <span class="menu-icon">◇</span>
-          <span>Usuários</span>
+
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+
         </button>
 
+
         <button
-          class="menu-btn active"
+          class="menu-btn"
           data-page="logs"
           type="button"
         >
-          <span class="menu-icon">≡</span>
-          <span>Logs</span>
+
+          <span class="menu-icon">
+            ≡
+          </span>
+
+          <span>
+            Logs
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="tratamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ▣
+          </span>
+
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="incidentes"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
         </button>
 
 
@@ -123,39 +243,56 @@
           Sistema
         </div>
 
+
         <button
           class="menu-btn"
           data-page="sistema"
           type="button"
         >
-          <span class="menu-icon">↗</span>
-          <span>Abrir sistema</span>
+
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+
         </button>
+
 
         <button
           class="menu-btn"
           data-page="status"
           type="button"
         >
-          <span class="menu-icon">●</span>
-          <span>Status da API</span>
+
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+
         </button>
 
-
-        <div class="menu-title">
-          Conta
-        </div>
-
-        <button
-          class="menu-btn"
-          data-page="sair"
-          type="button"
-        >
-          <span class="menu-icon">↪</span>
-          <span>Sair</span>
-        </button>
 
       </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          id="logout-btn"
+          class="logout-btn"
+        >
+          Sair do painel DEV
+        </button>
+
+      </div>
+
 
     </aside>
 
@@ -165,6 +302,7 @@
     ========================================================= -->
 
     <main class="content">
+
 
       <header class="page-header">
 
@@ -188,6 +326,7 @@
       ======================================================= -->
 
       <section class="stats">
+
 
         <div class="stat-card">
 
@@ -266,6 +405,7 @@
 
         </div>
 
+
       </section>
 
 
@@ -274,6 +414,7 @@
       ======================================================= -->
 
       <section class="filters">
+
 
         <div class="filter-group">
 
@@ -358,7 +499,6 @@
 
             <option value="requisicao">
               Requisição
-
             </option>
 
           </select>
@@ -378,6 +518,7 @@
 
         </div>
 
+
       </section>
 
 
@@ -386,6 +527,7 @@
       ======================================================= -->
 
       <section class="table-card">
+
 
         <div class="table-header">
 
@@ -402,7 +544,9 @@
 
         <div class="table-wrapper">
 
+
           <table>
+
 
             <thead>
 
@@ -448,6 +592,7 @@
 
             </thead>
 
+
             <tbody id="tabela">
 
               <tr>
@@ -463,13 +608,18 @@
 
             </tbody>
 
+
           </table>
+
 
         </div>
 
+
       </section>
 
+
     </main>
+
 
   </div>
 
@@ -484,13 +634,16 @@
     onclick="if(event.target === this) LogsAdmin.fecharModal()"
   >
 
+
     <div class="modal-card">
+
 
       <div class="modal-header">
 
         <h2>
           Detalhes do log
         </h2>
+
 
         <button
           class="close"
@@ -502,6 +655,7 @@
 
       </div>
 
+
       <div id="modalConteudo">
 
         <div class="loading">
@@ -510,13 +664,15 @@
 
       </div>
 
+
     </div>
+
 
   </div>
 
 
   <!-- ==========================================================
-       JAVASCRIPT
+       JAVASCRIPT DA PÁGINA
   =========================================================== -->
 
   <script>
@@ -525,157 +681,10 @@
       'DOMContentLoaded',
       () => {
 
-        const botoes =
-          document.querySelectorAll(
-            '.menu-btn'
-          );
 
-
-        botoes.forEach(
-          (botao) => {
-
-            botao.addEventListener(
-              'click',
-              () => {
-
-                const pagina =
-                  botao.dataset.page;
-
-
-                if (
-                  pagina === 'dashboard'
-                ) {
-
-                  window.location.href =
-                    '/admin/dashboard.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'planos'
-                ) {
-
-                  window.location.href =
-                    '/admin/planos.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'empresas'
-                ) {
-
-                  window.location.href =
-                    '/admin/empresas.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'assinaturas'
-                ) {
-
-                  window.location.href =
-                    '/admin/assinaturas.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'pagamentos'
-                ) {
-
-                  window.location.href =
-                    '/admin/pagamentos.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'usuarios'
-                ) {
-
-                  window.location.href =
-                    '/admin/usuarios.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'logs'
-                ) {
-
-                  window.location.href =
-                    '/admin/logs.html';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'sistema'
-                ) {
-
-                  window.location.href =
-                    '/';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'status'
-                ) {
-
-                  window.location.href =
-                    '/api/status';
-
-                  return;
-                }
-
-
-                if (
-                  pagina === 'sair'
-                ) {
-
-                  if (
-                    typeof LogsAdmin !==
-                    'undefined' &&
-                    typeof LogsAdmin.logout ===
-                    'function'
-                  ) {
-
-                    LogsAdmin.logout();
-
-                    return;
-                  }
-
-                  localStorage.removeItem(
-                    'token'
-                  );
-
-                  localStorage.removeItem(
-                    'dev_empresa_contexto'
-                  );
-
-                  window.location.href =
-                    '/';
-
-                }
-
-              }
-            );
-
-          }
-        );
-
+        /*
+         * Limpar filtros
+         */
 
         const limpar =
           document.getElementById(
@@ -689,15 +698,18 @@
             'click',
             () => {
 
+
               const busca =
                 document.getElementById(
                   'busca'
                 );
 
+
               const metodo =
                 document.getElementById(
                   'metodo'
                 );
+
 
               const acao =
                 document.getElementById(
@@ -709,9 +721,11 @@
                 busca.value = '';
               }
 
+
               if (metodo) {
                 metodo.value = '';
               }
+
 
               if (acao) {
                 acao.value = '';
@@ -763,16 +777,22 @@
           }
         );
 
+
       }
     );
 
   </script>
 
 
+  <!-- ==========================================================
+       SCRIPTS
+  =========================================================== -->
+
   <script src="/admin/js/logs.js"></script>
+
   <script src="/js/dev-sidebar.js"></script>
+
 
 </body>
 
 </html>
-

@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -44,287 +45,597 @@
   <link
     rel="stylesheet"
     href="/css/dev.css"
->
+  >
 
 </head>
 
+
 <body>
 
-  <!-- ======================================================
-       TOPBAR
-       ====================================================== -->
-
-  <header class="topbar">
-
-    <div class="brand">
-      Orvix
-      <span>Admin</span>
-    </div>
-
-    <div class="top-actions">
-
-      <button
-        class="btn btn-secondary"
-        type="button"
-        onclick="voltarDashboard()"
-      >
-        Dashboard
-      </button>
-
-      <button
-        class="btn btn-primary"
-        type="button"
-        onclick="abrirNovo()"
-      >
-        + Novo incidente
-      </button>
-
-    </div>
-
-  </header>
+  <div class="layout">
 
 
-  <!-- ======================================================
-       CONTEÚDO
-       ====================================================== -->
+    <!-- ========================================================
+         SIDEBAR
+    ========================================================= -->
 
-  <main class="container">
+    <aside
+      id="sidebar"
+      class="sidebar"
+    >
 
-    <div class="page-header">
+      <div class="brand">
 
-      <div>
-        <h1 class="page-title">
-          Incidentes de segurança
+        <h1 class="brand-title">
+          Orvix
         </h1>
 
-        <p class="page-subtitle">
-          Registro, acompanhamento e tratamento de incidentes
-          relacionados à segurança da informação e proteção de dados.
+        <p class="brand-subtitle">
+          Administração do SaaS
         </p>
+
+        <span class="dev-badge">
+          DEV
+        </span>
+
       </div>
 
-    </div>
+
+      <nav class="menu">
 
 
-    <div
-      id="alert"
-      class="alert"
-    ></div>
-
-
-    <!-- ====================================================
-         ESTATÍSTICAS
-         ==================================================== -->
-
-    <section class="stats">
-
-      <div class="card stat">
-
-        <div class="stat-label">
-          Total
+        <div class="menu-title">
+          Geral
         </div>
 
-        <div
-          id="stat-total"
-          class="stat-value"
+
+        <button
+          class="menu-btn"
+          data-page="dashboard"
+          type="button"
         >
-          0
-        </div>
 
-      </div>
+          <span class="menu-icon">
+            ▦
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
+        </button>
 
 
-      <div class="card stat">
-
-        <div class="stat-label">
-          Abertos
-        </div>
-
-        <div
-          id="stat-abertos"
-          class="stat-value"
+        <button
+          class="menu-btn"
+          data-page="planos"
+          type="button"
         >
-          0
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Planos
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          SaaS
         </div>
 
-      </div>
 
-
-      <div class="card stat">
-
-        <div class="stat-label">
-          Em análise
-        </div>
-
-        <div
-          id="stat-analise"
-          class="stat-value"
+        <button
+          class="menu-btn"
+          data-page="empresas"
+          type="button"
         >
-          0
-        </div>
 
-      </div>
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+
+        </button>
 
 
-      <div class="card stat">
-
-        <div class="stat-label">
-          Alta / crítica
-        </div>
-
-        <div
-          id="stat-graves"
-          class="stat-value"
+        <button
+          class="menu-btn"
+          data-page="assinaturas"
+          type="button"
         >
-          0
+
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="pagamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="usuarios"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="logs"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ≡
+          </span>
+
+          <span>
+            Logs
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="tratamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ▣
+          </span>
+
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="incidentes"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          Sistema
         </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="sistema"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="status"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+
+        </button>
+
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          id="logout-btn"
+          class="logout-btn"
+        >
+          Sair do painel DEV
+        </button>
 
       </div>
 
-    </section>
+
+    </aside>
 
 
-    <!-- ====================================================
-         TABELA
-         ==================================================== -->
+    <!-- ========================================================
+         MAIN
+    ========================================================= -->
 
-    <section class="card">
+    <main class="main">
 
-      <div class="table-header">
 
-        <h2 class="table-title">
-          Incidentes registrados
-        </h2>
+      <!-- ======================================================
+           TOPBAR
+      ======================================================= -->
 
-        <div class="filters">
+      <header class="topbar">
 
-          <select
-            id="filtro-status"
-            onchange="renderizarTabela()"
+
+        <button
+          type="button"
+          id="mobile-menu"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+
+        <div class="topbar-title">
+          Administração SaaS
+        </div>
+
+
+        <div class="topbar-user">
+
+          <span id="user-name">
+            Desenvolvedor
+          </span>
+
+          <div
+            id="user-avatar"
+            class="avatar"
           >
-            <option value="">
-              Todos os status
-            </option>
+            D
+          </div>
 
-            <option value="aberto">
-              Aberto
-            </option>
+        </div>
 
-            <option value="em_analise">
+
+      </header>
+
+
+      <!-- ======================================================
+           CONTENT
+      ======================================================= -->
+
+      <section class="content">
+
+
+        <div class="page-header">
+
+
+          <div>
+
+            <h1 class="page-title">
+              Incidentes de segurança
+            </h1>
+
+            <p class="page-subtitle">
+              Registro, acompanhamento e tratamento de incidentes
+              relacionados à segurança da informação e proteção de dados.
+            </p>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              class="btn btn-primary"
+              type="button"
+              onclick="abrirNovo()"
+            >
+              + Novo incidente
+            </button>
+
+          </div>
+
+
+        </div>
+
+
+        <div
+          id="alert"
+          class="alert"
+        ></div>
+
+
+        <!-- ====================================================
+             ESTATÍSTICAS
+        ===================================================== -->
+
+        <section class="stats">
+
+
+          <div class="card stat">
+
+            <div class="stat-label">
+              Total
+            </div>
+
+            <div
+              id="stat-total"
+              class="stat-value"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="card stat">
+
+            <div class="stat-label">
+              Abertos
+            </div>
+
+            <div
+              id="stat-abertos"
+              class="stat-value"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="card stat">
+
+            <div class="stat-label">
               Em análise
-            </option>
+            </div>
 
-            <option value="contido">
-              Contido
-            </option>
+            <div
+              id="stat-analise"
+              class="stat-value"
+            >
+              0
+            </div>
 
-            <option value="resolvido">
-              Resolvido
-            </option>
-
-            <option value="encerrado">
-              Encerrado
-            </option>
-
-          </select>
+          </div>
 
 
-          <select
-            id="filtro-gravidade"
-            onchange="renderizarTabela()"
-          >
-            <option value="">
-              Todas as gravidades
-            </option>
+          <div class="card stat">
 
-            <option value="baixa">
-              Baixa
-            </option>
+            <div class="stat-label">
+              Alta / crítica
+            </div>
 
-            <option value="media">
-              Média
-            </option>
+            <div
+              id="stat-graves"
+              class="stat-value"
+            >
+              0
+            </div>
 
-            <option value="alta">
-              Alta
-            </option>
-
-            <option value="critica">
-              Crítica
-            </option>
-
-          </select>
-
-        </div>
-
-      </div>
+          </div>
 
 
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                Incidente
-              </th>
-
-              <th>
-                Tipo
-              </th>
-
-              <th>
-                Data
-              </th>
-
-              <th>
-                Gravidade
-              </th>
-
-              <th>
-                Status
-              </th>
-
-              <th>
-                Titulares
-              </th>
-
-              <th>
-                Ações
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody id="tabela-incidentes">
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
-
-  </main>
+        </section>
 
 
-  <!-- ======================================================
+        <!-- ====================================================
+             TABELA
+        ===================================================== -->
+
+        <section class="card">
+
+
+          <div class="table-header">
+
+
+            <h2 class="table-title">
+              Incidentes registrados
+            </h2>
+
+
+            <div class="filters">
+
+
+              <select
+                id="filtro-status"
+                onchange="renderizarTabela()"
+              >
+
+                <option value="">
+                  Todos os status
+                </option>
+
+                <option value="aberto">
+                  Aberto
+                </option>
+
+                <option value="em_analise">
+                  Em análise
+                </option>
+
+                <option value="contido">
+                  Contido
+                </option>
+
+                <option value="resolvido">
+                  Resolvido
+                </option>
+
+                <option value="encerrado">
+                  Encerrado
+                </option>
+
+              </select>
+
+
+              <select
+                id="filtro-gravidade"
+                onchange="renderizarTabela()"
+              >
+
+                <option value="">
+                  Todas as gravidades
+                </option>
+
+                <option value="baixa">
+                  Baixa
+                </option>
+
+                <option value="media">
+                  Média
+                </option>
+
+                <option value="alta">
+                  Alta
+                </option>
+
+                <option value="critica">
+                  Crítica
+                </option>
+
+              </select>
+
+
+            </div>
+
+
+          </div>
+
+
+          <div class="table-wrapper">
+
+
+            <table>
+
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Incidente
+                  </th>
+
+                  <th>
+                    Tipo
+                  </th>
+
+                  <th>
+                    Data
+                  </th>
+
+                  <th>
+                    Gravidade
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Titulares
+                  </th>
+
+                  <th>
+                    Ações
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="tabela-incidentes">
+              </tbody>
+
+
+            </table>
+
+
+          </div>
+
+
+        </section>
+
+
+      </section>
+
+
+    </main>
+
+
+  </div>
+
+
+  <!-- ==========================================================
        MODAL
-       ====================================================== -->
+  =========================================================== -->
 
   <div
     id="modal-overlay"
     class="modal-overlay"
   >
 
+
     <div class="modal">
 
+
       <div class="modal-header">
+
 
         <h2
           id="modal-title"
@@ -332,6 +643,7 @@
         >
           Novo incidente
         </h2>
+
 
         <button
           class="modal-close"
@@ -341,6 +653,7 @@
           ×
         </button>
 
+
       </div>
 
 
@@ -349,7 +662,9 @@
         onsubmit="salvarIncidente(event)"
       >
 
+
         <div class="modal-body">
+
 
           <div
             id="modal-alert"
@@ -358,6 +673,7 @@
 
 
           <div class="form-grid">
+
 
             <!-- TÍTULO -->
 
@@ -622,12 +938,15 @@
 
             </div>
 
+
           </div>
+
 
         </div>
 
 
         <div class="modal-footer">
+
 
           <button
             type="button"
@@ -637,6 +956,7 @@
             Cancelar
           </button>
 
+
           <button
             type="submit"
             class="btn btn-primary"
@@ -644,14 +964,22 @@
             Salvar incidente
           </button>
 
+
         </div>
+
 
       </form>
 
+
     </div>
+
 
   </div>
 
+
+  <!-- ==========================================================
+       JAVASCRIPT DA PÁGINA
+  =========================================================== -->
 
   <script>
 
@@ -661,7 +989,8 @@
 
     const API = '/api';
 
-    const TOKEN_KEY = 'lavajato_auth_token';
+    const TOKEN_KEY =
+      'lavajato_auth_token';
 
     let incidentes = [];
 
@@ -675,43 +1004,103 @@
     async function verificarAcesso() {
 
       const token =
-        localStorage.getItem(TOKEN_KEY);
+        localStorage.getItem(
+          TOKEN_KEY
+        );
+
 
       if (!token) {
-        window.location.href = '/index.html';
+
+        window.location.href =
+          '/';
+
         return false;
+
       }
+
 
       try {
 
-        const response = await fetch(
-          `${API}/auth/me`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
+        const response =
+          await fetch(
+            `${API}/auth/me`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
             }
-          }
-        );
+          );
+
 
         if (!response.ok) {
-          localStorage.removeItem(TOKEN_KEY);
-          window.location.href = '/index.html';
+
+          localStorage.removeItem(
+            TOKEN_KEY
+          );
+
+          window.location.href =
+            '/';
+
           return false;
+
         }
+
 
         const data =
           await response.json();
+
 
         if (
           !data.usuario ||
           data.usuario.perfil !== 'dev'
         ) {
-          window.location.href = '/dashboard.html';
+
+          window.location.href =
+            '/';
+
           return false;
+
         }
 
+
+        const nome =
+          data.usuario.nome ||
+          'Desenvolvedor';
+
+
+        const nomeElement =
+          document.getElementById(
+            'user-name'
+          );
+
+
+        const avatarElement =
+          document.getElementById(
+            'user-avatar'
+          );
+
+
+        if (nomeElement) {
+
+          nomeElement.textContent =
+            nome;
+
+        }
+
+
+        if (avatarElement) {
+
+          avatarElement.textContent =
+            nome
+              .charAt(0)
+              .toUpperCase();
+
+        }
+
+
         return true;
+
 
       } catch (err) {
 
@@ -720,11 +1109,14 @@
           err
         );
 
+
         window.location.href =
-          '/index.html';
+          '/';
 
         return false;
+
       }
+
     }
 
 
@@ -735,14 +1127,21 @@
     function headersJSON() {
 
       const token =
-        localStorage.getItem(TOKEN_KEY);
+        localStorage.getItem(
+          TOKEN_KEY
+        );
+
 
       return {
-        'Content-Type': 'application/json',
+
+        'Content-Type':
+          'application/json',
 
         Authorization:
           `Bearer ${token}`
+
       };
+
     }
 
 
@@ -754,35 +1153,46 @@
 
       try {
 
-        const response = await fetch(
-          `${API}/admin/incidentes`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${
-                  localStorage.getItem(TOKEN_KEY)
-                }`
+        const response =
+          await fetch(
+            `${API}/admin/incidentes`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${
+                    localStorage.getItem(
+                      TOKEN_KEY
+                    )
+                  }`
+              }
             }
-          }
-        );
+          );
+
 
         const data =
           await response.json();
 
+
         if (!response.ok) {
+
           throw new Error(
             data.erro ||
             'Erro ao carregar incidentes.'
           );
+
         }
 
-        incidentes = Array.isArray(data)
-          ? data
-          : [];
+
+        incidentes =
+          Array.isArray(data)
+            ? data
+            : [];
+
 
         atualizarEstatisticas();
 
         renderizarTabela();
+
 
       } catch (err) {
 
@@ -792,7 +1202,9 @@
           err.message,
           'error'
         );
+
       }
+
     }
 
 
@@ -805,17 +1217,20 @@
       const total =
         incidentes.length;
 
+
       const abertos =
         incidentes.filter(
           item =>
             item.status === 'aberto'
         ).length;
 
+
       const analise =
         incidentes.filter(
           item =>
             item.status === 'em_analise'
         ).length;
+
 
       const graves =
         incidentes.filter(
@@ -824,21 +1239,30 @@
             item.gravidade === 'critica'
         ).length;
 
+
       document.getElementById(
         'stat-total'
-      ).textContent = total;
+      ).textContent =
+        total;
+
 
       document.getElementById(
         'stat-abertos'
-      ).textContent = abertos;
+      ).textContent =
+        abertos;
+
 
       document.getElementById(
         'stat-analise'
-      ).textContent = analise;
+      ).textContent =
+        analise;
+
 
       document.getElementById(
         'stat-graves'
-      ).textContent = graves;
+      ).textContent =
+        graves;
+
     }
 
 
@@ -853,18 +1277,22 @@
           'tabela-incidentes'
         );
 
+
       const filtroStatus =
         document.getElementById(
           'filtro-status'
         ).value;
+
 
       const filtroGravidade =
         document.getElementById(
           'filtro-gravidade'
         ).value;
 
+
       let lista =
         [...incidentes];
+
 
       if (filtroStatus) {
 
@@ -874,7 +1302,9 @@
               item.status ===
               filtroStatus
           );
+
       }
+
 
       if (filtroGravidade) {
 
@@ -884,28 +1314,37 @@
               item.gravidade ===
               filtroGravidade
           );
+
       }
+
 
       if (!lista.length) {
 
         tbody.innerHTML = `
+
           <tr>
+
             <td
               colspan="7"
               class="empty"
             >
               Nenhum incidente encontrado.
             </td>
+
           </tr>
+
         `;
 
         return;
+
       }
+
 
       tbody.innerHTML =
         lista.map(
           incidente =>
             `
+
             <tr>
 
               <td>
@@ -918,17 +1357,20 @@
 
               </td>
 
+
               <td>
                 ${escapeHTML(
                   incidente.tipo
                 )}
               </td>
 
+
               <td>
                 ${formatarData(
                   incidente.data_identificacao
                 )}
               </td>
+
 
               <td>
 
@@ -942,6 +1384,7 @@
 
               </td>
 
+
               <td>
 
                 <span
@@ -954,12 +1397,14 @@
 
               </td>
 
+
               <td>
                 ${
                   incidente.titulares_afetados ??
                   '—'
                 }
               </td>
+
 
               <td>
 
@@ -972,6 +1417,7 @@
                   >
                     Editar
                   </button>
+
 
                   <button
                     class="action-btn delete"
@@ -986,8 +1432,10 @@
               </td>
 
             </tr>
+
             `
         ).join('');
+
     }
 
 
@@ -999,28 +1447,39 @@
 
       incidenteEditando = null;
 
+
       document.getElementById(
         'modal-title'
       ).textContent =
         'Novo incidente';
 
+
       document.getElementById(
         'form-incidente'
       ).reset();
 
+
       document.getElementById(
         'gravidade'
-      ).value = 'media';
+      ).value =
+        'media';
+
 
       document.getElementById(
         'status'
-      ).value = 'aberto';
+      ).value =
+        'aberto';
+
 
       limparModalAlert();
 
+
       document.getElementById(
         'modal-overlay'
-      ).classList.add('active');
+      ).classList.add(
+        'active'
+      );
+
     }
 
 
@@ -1037,72 +1496,89 @@
             Number(id)
         );
 
+
       if (!incidente) {
         return;
       }
 
+
       incidenteEditando =
         incidente.id;
+
 
       document.getElementById(
         'modal-title'
       ).textContent =
         'Editar incidente';
 
+
       document.getElementById(
         'titulo'
       ).value =
         incidente.titulo || '';
+
 
       document.getElementById(
         'tipo'
       ).value =
         incidente.tipo || '';
 
+
       document.getElementById(
         'descricao'
       ).value =
         incidente.descricao || '';
+
 
       document.getElementById(
         'sistemas_afetados'
       ).value =
         incidente.sistemas_afetados || '';
 
+
       document.getElementById(
         'dados_afetados'
       ).value =
         incidente.dados_afetados || '';
+
 
       document.getElementById(
         'titulares_afetados'
       ).value =
         incidente.titulares_afetados ?? '';
 
+
       document.getElementById(
         'gravidade'
       ).value =
-        incidente.gravidade || 'media';
+        incidente.gravidade ||
+        'media';
+
 
       document.getElementById(
         'status'
       ).value =
-        incidente.status || 'aberto';
+        incidente.status ||
+        'aberto';
+
 
       document.getElementById(
         'medidas_adotadas'
       ).value =
         incidente.medidas_adotadas || '';
 
+
       document.getElementById(
         'responsavel'
       ).value =
         incidente.responsavel || '';
 
+
       document.getElementById(
         'conclusao'
       ).value =
         incidente.conclusao || '';
+
 
       document.getElementById(
         'data_identificacao'
@@ -1111,11 +1587,16 @@
           incidente.data_identificacao
         );
 
+
       limparModalAlert();
+
 
       document.getElementById(
         'modal-overlay'
-      ).classList.add('active');
+      ).classList.add(
+        'active'
+      );
+
     }
 
 
@@ -1127,7 +1608,9 @@
 
       event.preventDefault();
 
+
       limparModalAlert();
+
 
       const body = {
 
@@ -1136,70 +1619,91 @@
             'titulo'
           ).value.trim(),
 
+
         tipo:
           document.getElementById(
             'tipo'
           ).value.trim(),
+
 
         descricao:
           document.getElementById(
             'descricao'
           ).value.trim(),
 
+
         data_identificacao:
           document.getElementById(
             'data_identificacao'
-          ).value || null,
+          ).value ||
+          null,
+
 
         sistemas_afetados:
           document.getElementById(
             'sistemas_afetados'
-          ).value.trim() || null,
+          ).value.trim() ||
+          null,
+
 
         dados_afetados:
           document.getElementById(
             'dados_afetados'
-          ).value.trim() || null,
+          ).value.trim() ||
+          null,
+
 
         titulares_afetados:
           document.getElementById(
             'titulares_afetados'
-          ).value || null,
+          ).value ||
+          null,
+
 
         gravidade:
           document.getElementById(
             'gravidade'
           ).value,
 
+
         medidas_adotadas:
           document.getElementById(
             'medidas_adotadas'
-          ).value.trim() || null,
+          ).value.trim() ||
+          null,
+
 
         status:
           document.getElementById(
             'status'
           ).value,
 
+
         responsavel:
           document.getElementById(
             'responsavel'
-          ).value.trim() || null,
+          ).value.trim() ||
+          null,
+
 
         conclusao:
           document.getElementById(
             'conclusao'
-          ).value.trim() || null
+          ).value.trim() ||
+          null
+
       };
 
 
       const editando =
         incidenteEditando !== null;
 
+
       const url =
         editando
           ? `${API}/admin/incidentes/${incidenteEditando}`
           : `${API}/admin/incidentes`;
+
 
       const method =
         editando
@@ -1219,17 +1723,23 @@
             }
           );
 
+
         const data =
           await response.json();
 
+
         if (!response.ok) {
+
           throw new Error(
             data.erro ||
             'Não foi possível salvar o incidente.'
           );
+
         }
 
+
         fecharModal();
+
 
         mostrarAlert(
           editando
@@ -1238,17 +1748,22 @@
           'success'
         );
 
+
         await carregarIncidentes();
+
 
       } catch (err) {
 
         console.error(err);
 
+
         mostrarModalAlert(
           err.message,
           'error'
         );
+
       }
+
     }
 
 
@@ -1265,14 +1780,17 @@
             Number(id)
         );
 
+
       if (!incidente) {
         return;
       }
+
 
       const confirmar =
         confirm(
           `Deseja realmente excluir o incidente "${incidente.titulo}"?`
         );
+
 
       if (!confirmar) {
         return;
@@ -1286,6 +1804,7 @@
             `${API}/admin/incidentes/${id}`,
             {
               method: 'DELETE',
+
               headers: {
                 Authorization:
                   `Bearer ${
@@ -1294,35 +1813,46 @@
                     )
                   }`
               }
+
             }
           );
+
 
         const data =
           await response.json();
 
+
         if (!response.ok) {
+
           throw new Error(
             data.erro ||
             'Não foi possível excluir o incidente.'
           );
+
         }
+
 
         mostrarAlert(
           'Incidente excluído com sucesso.',
           'success'
         );
 
+
         await carregarIncidentes();
+
 
       } catch (err) {
 
         console.error(err);
 
+
         mostrarAlert(
           err.message,
           'error'
         );
+
       }
+
     }
 
 
@@ -1334,9 +1864,14 @@
 
       document.getElementById(
         'modal-overlay'
-      ).classList.remove('active');
+      ).classList.remove(
+        'active'
+      );
 
-      incidenteEditando = null;
+
+      incidenteEditando =
+        null;
+
     }
 
 
@@ -1354,11 +1889,14 @@
           'alert'
         );
 
+
       alert.textContent =
         mensagem;
 
+
       alert.className =
         `alert show ${tipo}`;
+
 
       setTimeout(() => {
 
@@ -1366,6 +1904,7 @@
           'alert';
 
       }, 5000);
+
     }
 
 
@@ -1379,11 +1918,14 @@
           'modal-alert'
         );
 
+
       alert.textContent =
         mensagem;
 
+
       alert.className =
         `alert show ${tipo}`;
+
     }
 
 
@@ -1394,11 +1936,14 @@
           'modal-alert'
         );
 
+
       alert.textContent =
         '';
 
+
       alert.className =
         'alert';
+
     }
 
 
@@ -1411,15 +1956,24 @@
     ) {
 
       const mapa = {
+
         baixa: 'Baixa',
+
         media: 'Média',
+
         alta: 'Alta',
+
         critica: 'Crítica'
+
       };
 
+
       return mapa[gravidade]
-        || gravidade
-        || '—';
+        ||
+        gravidade
+        ||
+        '—';
+
     }
 
 
@@ -1428,16 +1982,26 @@
     ) {
 
       const mapa = {
+
         aberto: 'Aberto',
+
         em_analise: 'Em análise',
+
         contido: 'Contido',
+
         resolvido: 'Resolvido',
+
         encerrado: 'Encerrado'
+
       };
 
+
       return mapa[status]
-        || status
-        || '—';
+        ||
+        status
+        ||
+        '—';
+
     }
 
 
@@ -1449,16 +2013,21 @@
         return '—';
       }
 
+
       const data =
         new Date(valor);
+
 
       if (
         Number.isNaN(
           data.getTime()
         )
       ) {
+
         return '—';
+
       }
+
 
       return data.toLocaleString(
         'pt-BR',
@@ -1467,6 +2036,7 @@
           timeStyle: 'short'
         }
       );
+
     }
 
 
@@ -1478,41 +2048,64 @@
         return '';
       }
 
+
       const data =
         new Date(valor);
+
 
       if (
         Number.isNaN(
           data.getTime()
         )
       ) {
+
         return '';
+
       }
+
 
       const ano =
         data.getFullYear();
 
+
       const mes =
         String(
           data.getMonth() + 1
-        ).padStart(2, '0');
+        ).padStart(
+          2,
+          '0'
+        );
+
 
       const dia =
         String(
           data.getDate()
-        ).padStart(2, '0');
+        ).padStart(
+          2,
+          '0'
+        );
+
 
       const hora =
         String(
           data.getHours()
-        ).padStart(2, '0');
+        ).padStart(
+          2,
+          '0'
+        );
+
 
       const minuto =
         String(
           data.getMinutes()
-        ).padStart(2, '0');
+        ).padStart(
+          2,
+          '0'
+        );
+
 
       return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+
     }
 
 
@@ -1523,11 +2116,27 @@
       return String(
         valor ?? ''
       )
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+        .replaceAll(
+          '&',
+          '&amp;'
+        )
+        .replaceAll(
+          '<',
+          '&lt;'
+        )
+        .replaceAll(
+          '>',
+          '&gt;'
+        )
+        .replaceAll(
+          '"',
+          '&quot;'
+        )
+        .replaceAll(
+          "'",
+          '&#039;'
+        );
+
     }
 
 
@@ -1538,7 +2147,8 @@
     function voltarDashboard() {
 
       window.location.href =
-        '/dashboard.html';
+        '/admin/dashboard.html';
+
     }
 
 
@@ -1551,18 +2161,28 @@
       const autorizado =
         await verificarAcesso();
 
+
       if (!autorizado) {
         return;
       }
 
+
       await carregarIncidentes();
+
     }
+
 
     iniciar();
 
   </script>
 
+
+  <!-- ==========================================================
+       SIDEBAR COMPARTILHADA
+  =========================================================== -->
+
   <script src="/js/dev-sidebar.js"></script>
+
 
 </body>
 

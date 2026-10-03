@@ -1,199 +1,609 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Empresas | Orvix</title>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/apple-touch-icon.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
 
   <link
     rel="stylesheet"
     href="/css/dev.css"
   >
+
 </head>
+
 
 <body>
 
-<div class="layout">
+  <div class="layout">
 
-  <aside class="sidebar">
 
-    <div class="logo">
-      Or<span>vix</span>
-    </div>
+    <!-- ========================================================
+         SIDEBAR
+    ========================================================= -->
 
-    <div class="menu">
+    <aside
+      id="sidebar"
+      class="sidebar"
+    >
 
-      <div class="menu-title">Geral</div>
+      <div class="brand">
 
-      <a href="/admin/dashboard.html">
-        Dashboard
-      </a>
+        <h1 class="brand-title">
+          Orvix
+        </h1>
 
-      <a href="/admin/planos.html">
-        Planos
-      </a>
-
-      <div class="menu-title">SaaS</div>
-
-      <a href="/admin/empresas.html" class="active">
-        Empresas
-      </a>
-
-      <a href="/admin/assinaturas.html">
-        Assinaturas
-      </a>
-
-      <a href="/admin/pagamentos.html">
-        Pagamentos
-      </a>
-
-      <a href="/admin/usuarios.html">
-        Usuários
-      </a>
-
-      <div class="menu-title">Sistema</div>
-
-      <a href="/">
-        Abrir sistema
-      </a>
-
-    </div>
-
-    <button class="logout" onclick="logout()">
-      Sair
-    </button>
-
-  </aside>
-
-  <main class="main">
-
-    <div class="topbar">
-
-      <div>
-        <h1>Empresas</h1>
-        <p class="subtitle">
-          Empresas cadastradas no sistema SaaS.
+        <p class="brand-subtitle">
+          Administração do SaaS
         </p>
-      </div>
 
-      <button class="btn btn-primary" onclick="novaEmpresa()">
-        + Nova empresa
-      </button>
-
-    </div>
-
-    <div class="filters">
-
-      <input
-        type="text"
-        class="input"
-        id="busca"
-        placeholder="Pesquisar empresa..."
-      >
-
-      <select class="select" id="status">
-        <option value="">Todos os status</option>
-        <option value="ativa">Ativas</option>
-        <option value="pendente">Pendentes</option>
-        <option value="inativa">Inativas</option>
-      </select>
-
-      <button class="btn btn-primary" onclick="filtrar()">
-        Filtrar
-      </button>
-
-    </div>
-
-    <div class="table-card">
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>Empresa</th>
-              <th>Administrador</th>
-              <th>E-mail</th>
-              <th>Plano</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody id="empresasTabela">
-
-            <tr>
-              <td>
-                Orvix Exemplo
-              </td>
-
-              <td>
-                João da Silva
-              </td>
-
-              <td>
-                joao@email.com
-              </td>
-
-              <td>
-                Plano Mensal
-              </td>
-
-              <td>
-                <span class="status active">
-                  Ativa
-                </span>
-              </td>
-
-              <td>
-                <div class="actions">
-                  <button
-                    class="action"
-                    onclick="detalhesEmpresa(1)"
-                  >
-                    Detalhes
-                  </button>
-
-                  <button
-                    class="action"
-                    onclick="testarEmpresa(1)"
-                  >
-                    Entrar como teste
-                  </button>
-                </div>
-              </td>
-
-            </tr>
-
-            <tr id="emptyRow" style="display:none;">
-              <td colspan="6">
-                <div class="empty">
-                  Nenhuma empresa encontrada.
-                </div>
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
+        <span class="dev-badge">
+          DEV
+        </span>
 
       </div>
 
-    </div>
 
-  </main>
+      <nav class="menu">
 
-</div>
 
-<script src="/admin/js/empresas.js"></script>
-<script src="/js/dev-sidebar.js"></script>
+        <div class="menu-title">
+          Geral
+        </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="dashboard"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ▦
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="planos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Planos
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          SaaS
+        </div>
+
+
+        <button
+          class="menu-btn active"
+          data-page="empresas"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="assinaturas"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="pagamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="usuarios"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="logs"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ≡
+          </span>
+
+          <span>
+            Logs
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="tratamentos"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ▣
+          </span>
+
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="incidentes"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          Sistema
+        </div>
+
+
+        <button
+          class="menu-btn"
+          data-page="sistema"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+
+        </button>
+
+
+        <button
+          class="menu-btn"
+          data-page="status"
+          type="button"
+        >
+
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+
+        </button>
+
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          id="logout-btn"
+          class="logout-btn"
+        >
+          Sair do painel DEV
+        </button>
+
+      </div>
+
+
+    </aside>
+
+
+    <!-- ========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="main">
+
+
+      <!-- ======================================================
+           TOPBAR
+      ======================================================= -->
+
+      <header class="topbar">
+
+
+        <button
+          type="button"
+          id="mobile-menu"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+
+        <div class="topbar-title">
+          Administração SaaS
+        </div>
+
+
+        <div class="topbar-user">
+
+          <span id="user-name">
+            Desenvolvedor
+          </span>
+
+          <div
+            id="user-avatar"
+            class="avatar"
+          >
+            D
+          </div>
+
+        </div>
+
+
+      </header>
+
+
+      <!-- ======================================================
+           CONTENT
+      ======================================================= -->
+
+      <section class="content">
+
+
+        <div class="page-header">
+
+
+          <div>
+
+            <h1>
+              Empresas
+            </h1>
+
+            <p>
+              Empresas cadastradas no sistema SaaS.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="novaEmpresa()"
+          >
+            + Nova empresa
+          </button>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             FILTROS
+        ===================================================== -->
+
+        <div class="filters">
+
+
+          <input
+            type="text"
+            class="input"
+            id="busca"
+            placeholder="Pesquisar empresa..."
+          >
+
+
+          <select
+            class="select"
+            id="status"
+          >
+
+            <option value="">
+              Todos os status
+            </option>
+
+            <option value="ativa">
+              Ativas
+            </option>
+
+            <option value="pendente">
+              Pendentes
+            </option>
+
+            <option value="inativa">
+              Inativas
+            </option>
+
+          </select>
+
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="filtrar()"
+          >
+            Filtrar
+          </button>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             TABELA
+        ===================================================== -->
+
+        <div class="table-card">
+
+
+          <div class="table-wrapper">
+
+
+            <table>
+
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Empresa
+                  </th>
+
+                  <th>
+                    Administrador
+                  </th>
+
+                  <th>
+                    E-mail
+                  </th>
+
+                  <th>
+                    Plano
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Ações
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="empresasTabela">
+
+
+                <!--
+                  Conteúdo real carregado pelo
+                  /admin/js/empresas.js
+                -->
+
+
+                <tr>
+
+                  <td>
+                    <div class="company-name">
+                      Orvix Exemplo
+                    </div>
+                  </td>
+
+
+                  <td>
+                    João da Silva
+                  </td>
+
+
+                  <td>
+                    joao@email.com
+                  </td>
+
+
+                  <td>
+                    <div class="plan-name">
+                      Plano Mensal
+                    </div>
+                  </td>
+
+
+                  <td>
+
+                    <span class="status active">
+                      Ativa
+                    </span>
+
+                  </td>
+
+
+                  <td>
+
+                    <div class="actions">
+
+
+                      <button
+                        type="button"
+                        class="action"
+                        onclick="detalhesEmpresa(1)"
+                      >
+                        Detalhes
+                      </button>
+
+
+                      <button
+                        type="button"
+                        class="action"
+                        onclick="testarEmpresa(1)"
+                      >
+                        Entrar como teste
+                      </button>
+
+
+                    </div>
+
+                  </td>
+
+
+                </tr>
+
+
+                <!--
+                  Estado vazio
+                -->
+
+                <tr
+                  id="emptyRow"
+                  style="display:none;"
+                >
+
+                  <td colspan="6">
+
+                    <div class="empty">
+                      Nenhuma empresa encontrada.
+                    </div>
+
+                  </td>
+
+                </tr>
+
+
+              </tbody>
+
+
+            </table>
+
+
+          </div>
+
+
+        </div>
+
+
+      </section>
+
+
+    </main>
+
+
+  </div>
+
+
+  <!-- ==========================================================
+       SCRIPTS
+  =========================================================== -->
+
+  <script src="/admin/js/empresas.js"></script>
+
+  <script src="/js/dev-sidebar.js"></script>
+
 
 </body>
+
 </html>

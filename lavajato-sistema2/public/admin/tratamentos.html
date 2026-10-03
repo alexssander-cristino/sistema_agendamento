@@ -12,10 +12,30 @@
 
   <title>Tratamento de Dados | Orvix</title>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/apple-touch-icon.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
 
   <link
     rel="stylesheet"
@@ -24,486 +44,850 @@
 
 </head>
 
+
 <body>
 
-<header>
+  <div class="layout">
 
-  <div class="header-content">
 
-    <a
-      href="/"
-      class="logo"
-    >
-      Orvix
-    </a>
+    <!-- ========================================================
+         SIDEBAR
+    ========================================================= -->
 
-    <a
-      href="/"
-      class="back"
-    >
-      Voltar
-    </a>
+    <aside class="sidebar">
 
-  </div>
 
-</header>
+      <div class="brand">
 
+        <h1>
+          Orvix
+        </h1>
 
-<main>
+        <span>
+          Administração do SaaS
+        </span>
 
-  <div class="page-header">
-
-    <h1>
-      Registro das Operações de Tratamento
-    </h1>
-
-    <p>
-      Controle interno das atividades de tratamento
-      de dados pessoais realizadas pelo Orvix.
-    </p>
-
-    <div class="actions">
-
-      <button
-        class="btn-primary"
-        type="button"
-        onclick="abrirNovo()"
-      >
-        Novo tratamento
-      </button>
-
-      <button
-        class="btn-secondary"
-        type="button"
-        onclick="carregar()"
-      >
-        Atualizar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div
-      id="loading"
-      class="loading"
-    >
-      Carregando registros...
-    </div>
-
-    <div
-      id="empty"
-      class="empty"
-      style="display:none;"
-    >
-      Nenhum registro cadastrado.
-    </div>
-
-    <div
-      id="table-wrapper"
-      class="table-wrapper"
-      style="display:none;"
-    >
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>Processo</th>
-
-            <th>Finalidade</th>
-
-            <th>Hipótese legal</th>
-
-            <th>Dados pessoais</th>
-
-            <th>Armazenamento</th>
-
-            <th>Status</th>
-
-            <th>Ações</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="lista"></tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-</main>
-
-
-<div
-  id="modal"
-  class="modal"
->
-
-  <div class="modal-content">
-
-    <div class="modal-header">
-
-      <h2 id="modal-title">
-        Novo tratamento
-      </h2>
-
-      <button
-        class="close"
-        type="button"
-        onclick="fecharModal()"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <form id="form">
-
-      <input
-        type="hidden"
-        id="registro-id"
-      >
-
-
-      <div class="form-grid">
-
-        <div class="field full">
-
-          <label for="processo">
-            Processo / atividade
-          </label>
-
-          <input
-            id="processo"
-            type="text"
-            maxlength="150"
-            placeholder="Ex.: Cadastro de usuários"
-            required
-          >
-
-        </div>
-
-
-        <div class="field full">
-
-          <label for="finalidade">
-            Finalidade
-          </label>
-
-          <textarea
-            id="finalidade"
-            placeholder="Descreva por que os dados são tratados."
-            required
-          ></textarea>
-
-        </div>
-
-
-        <div class="field">
-
-          <label for="hipotese-legal">
-            Hipótese legal
-          </label>
-
-          <input
-            id="hipotese-legal"
-            type="text"
-            placeholder="Ex.: Execução de contrato"
-            required
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label for="categorias-titulares">
-            Categorias de titulares
-          </label>
-
-          <input
-            id="categorias-titulares"
-            type="text"
-            placeholder="Ex.: Usuários e clientes"
-          >
-
-        </div>
-
-
-        <div class="field full">
-
-          <label for="dados-pessoais">
-            Dados pessoais tratados
-          </label>
-
-          <textarea
-            id="dados-pessoais"
-            placeholder="Ex.: Nome, e-mail, telefone..."
-            required
-          ></textarea>
-
-        </div>
-
-
-        <div class="field full">
-
-          <label for="compartilhamento">
-            Compartilhamento
-          </label>
-
-          <textarea
-            id="compartilhamento"
-            placeholder="Descreva com quem ou quais tipos de fornecedores os dados podem ser compartilhados."
-          ></textarea>
-
-        </div>
-
-
-        <div class="field">
-
-          <label for="periodo">
-            Período de armazenamento
-          </label>
-
-          <input
-            id="periodo"
-            type="text"
-            placeholder="Ex.: Enquanto a conta estiver ativa"
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label for="seguranca">
-            Medidas de segurança
-          </label>
-
-          <textarea
-            id="seguranca"
-            placeholder="Ex.: HTTPS, autenticação, controle de acesso..."
-          ></textarea>
-
-        </div>
-
-
-        <div class="field full">
-
-          <label for="observacoes">
-            Observações
-          </label>
-
-          <textarea
-            id="observacoes"
-            placeholder="Informações adicionais."
-          ></textarea>
-
-        </div>
-
-
-        <div class="field full">
-
-          <label class="checkbox-field">
-
-            <input
-              id="ativo"
-              type="checkbox"
-              checked
-            >
-
-            Registro ativo
-
-          </label>
-
-        </div>
+        <span class="dev-badge">
+          DEV
+        </span>
 
       </div>
 
 
-      <div class="modal-footer">
+      <nav class="menu">
+
+
+        <div class="menu-title">
+          Geral
+        </div>
+
 
         <button
           type="button"
-          class="btn-secondary"
-          onclick="fecharModal()"
+          class="menu-btn"
+          data-page="dashboard"
         >
-          Cancelar
+
+          <span class="menu-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
         </button>
 
+
         <button
-          type="submit"
-          class="btn-primary"
+          type="button"
+          class="menu-btn"
+          data-page="planos"
         >
-          Salvar
+
+          <span class="menu-icon">
+            ◆
+          </span>
+
+          <span>
+            Planos
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          SaaS
+        </div>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="empresas"
+        >
+
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="assinaturas"
+        >
+
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="pagamentos"
+        >
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="usuarios"
+        >
+
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="logs"
+        >
+
+          <span class="menu-icon">
+            ≡
+          </span>
+
+          <span>
+            Logs
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="tratamentos"
+        >
+
+          <span class="menu-icon">
+            ▣
+          </span>
+
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="incidentes"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          Sistema
+        </div>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="sistema"
+        >
+
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="status"
+        >
+
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+
+        </button>
+
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          class="logout-btn"
+          id="logout-btn"
+        >
+          Sair do painel DEV
         </button>
 
       </div>
 
-    </form>
+
+    </aside>
+
+
+    <!-- ========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="main">
+
+
+      <!-- ======================================================
+           TOPBAR
+      ======================================================= -->
+
+      <header class="topbar">
+
+
+        <button
+          type="button"
+          id="mobile-menu"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+
+        <div class="topbar-title">
+          Administração SaaS
+        </div>
+
+
+        <div class="topbar-user">
+
+          <span id="user-name">
+            Desenvolvedor
+          </span>
+
+          <div
+            id="user-avatar"
+            class="avatar"
+          >
+            D
+          </div>
+
+        </div>
+
+
+      </header>
+
+
+      <!-- ======================================================
+           CONTENT
+      ======================================================= -->
+
+      <section class="content">
+
+
+        <!-- ====================================================
+             PAGE HEADER
+        ===================================================== -->
+
+        <div class="page-header">
+
+
+          <div>
+
+            <h1>
+              Registro das Operações de Tratamento
+            </h1>
+
+            <p>
+              Controle interno das atividades de tratamento
+              de dados pessoais realizadas pelo Orvix.
+            </p>
+
+          </div>
+
+
+          <div class="page-header-actions">
+
+
+            <button
+              class="btn btn-secondary"
+              type="button"
+              onclick="carregar()"
+            >
+              Atualizar
+            </button>
+
+
+            <button
+              class="btn btn-primary"
+              type="button"
+              onclick="abrirNovo()"
+            >
+              Novo tratamento
+            </button>
+
+
+          </div>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             LISTA
+        ===================================================== -->
+
+        <section class="card">
+
+
+          <div
+            id="loading"
+            class="loading"
+          >
+            Carregando registros...
+          </div>
+
+
+          <div
+            id="empty"
+            class="empty"
+            style="display:none;"
+          >
+            Nenhum registro cadastrado.
+          </div>
+
+
+          <div
+            id="table-wrapper"
+            class="table-wrapper"
+            style="display:none;"
+          >
+
+
+            <table>
+
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Processo
+                  </th>
+
+                  <th>
+                    Finalidade
+                  </th>
+
+                  <th>
+                    Hipótese legal
+                  </th>
+
+                  <th>
+                    Dados pessoais
+                  </th>
+
+                  <th>
+                    Armazenamento
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Ações
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="lista"></tbody>
+
+
+            </table>
+
+
+          </div>
+
+
+        </section>
+
+
+      </section>
+
+
+    </main>
+
 
   </div>
 
-</div>
+
+  <!-- ==========================================================
+       MODAL
+  =========================================================== -->
+
+  <div
+    id="modal"
+    class="modal"
+  >
 
 
-<div
-  id="message"
-  class="message"
-></div>
+    <div class="modal-content">
 
 
-<script>
-
-  const API = '/api';
-
-  const token =
-    localStorage.getItem('lavajato_auth_token');
+      <div class="modal-header">
 
 
-  let registros = [];
+        <h2 id="modal-title">
+          Novo tratamento
+        </h2>
 
 
-  // ==========================================================
-  // MENSAGEM
-  // ==========================================================
-
-  function mostrarMensagem(texto, tipo = 'success') {
-
-    const elemento =
-      document.getElementById('message');
-
-    elemento.textContent = texto;
-
-    elemento.className =
-      `message ${tipo}`;
-
-    setTimeout(() => {
-
-      elemento.className = 'message';
-
-    }, 3500);
-  }
+        <button
+          class="close"
+          type="button"
+          onclick="fecharModal()"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
 
 
-  // ==========================================================
-  // REQUISIÇÃO
-  // ==========================================================
-
-  async function requisicao(url, opcoes = {}) {
-
-    const headers = {
-      ...(opcoes.headers || {}),
-      Authorization: `Bearer ${token}`
-    };
-
-    if (
-      opcoes.body &&
-      typeof opcoes.body !== 'string'
-    ) {
-      headers['Content-Type'] =
-        'application/json';
-
-      opcoes.body =
-        JSON.stringify(opcoes.body);
-    }
-
-    const resposta =
-      await fetch(url, {
-        ...opcoes,
-        headers
-      });
+      </div>
 
 
-    if (
-      resposta.status === 401 ||
-      resposta.status === 403
-    ) {
+      <form id="form">
 
-      window.location.href =
-        '/login.html';
 
-      throw new Error(
-        'Acesso não autorizado.'
+        <input
+          type="hidden"
+          id="registro-id"
+        >
+
+
+        <div class="form-grid">
+
+
+          <div class="field full">
+
+            <label for="processo">
+              Processo / atividade
+            </label>
+
+            <input
+              id="processo"
+              type="text"
+              maxlength="150"
+              placeholder="Ex.: Cadastro de usuários"
+              required
+            >
+
+          </div>
+
+
+          <div class="field full">
+
+            <label for="finalidade">
+              Finalidade
+            </label>
+
+            <textarea
+              id="finalidade"
+              placeholder="Descreva por que os dados são tratados."
+              required
+            ></textarea>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="hipotese-legal">
+              Hipótese legal
+            </label>
+
+            <input
+              id="hipotese-legal"
+              type="text"
+              placeholder="Ex.: Execução de contrato"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="categorias-titulares">
+              Categorias de titulares
+            </label>
+
+            <input
+              id="categorias-titulares"
+              type="text"
+              placeholder="Ex.: Usuários e clientes"
+            >
+
+          </div>
+
+
+          <div class="field full">
+
+            <label for="dados-pessoais">
+              Dados pessoais tratados
+            </label>
+
+            <textarea
+              id="dados-pessoais"
+              placeholder="Ex.: Nome, e-mail, telefone..."
+              required
+            ></textarea>
+
+          </div>
+
+
+          <div class="field full">
+
+            <label for="compartilhamento">
+              Compartilhamento
+            </label>
+
+            <textarea
+              id="compartilhamento"
+              placeholder="Descreva com quem ou quais tipos de fornecedores os dados podem ser compartilhados."
+            ></textarea>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="periodo">
+              Período de armazenamento
+            </label>
+
+            <input
+              id="periodo"
+              type="text"
+              placeholder="Ex.: Enquanto a conta estiver ativa"
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="seguranca">
+              Medidas de segurança
+            </label>
+
+            <textarea
+              id="seguranca"
+              placeholder="Ex.: HTTPS, autenticação, controle de acesso..."
+            ></textarea>
+
+          </div>
+
+
+          <div class="field full">
+
+            <label for="observacoes">
+              Observações
+            </label>
+
+            <textarea
+              id="observacoes"
+              placeholder="Informações adicionais."
+            ></textarea>
+
+          </div>
+
+
+          <div class="field full">
+
+            <label class="checkbox-field">
+
+              <input
+                id="ativo"
+                type="checkbox"
+                checked
+              >
+
+              Registro ativo
+
+            </label>
+
+          </div>
+
+
+        </div>
+
+
+        <div class="modal-footer">
+
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="fecharModal()"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Salvar
+          </button>
+
+
+        </div>
+
+
+      </form>
+
+
+    </div>
+
+
+  </div>
+
+
+  <div
+    id="message"
+    class="message"
+  ></div>
+
+
+  <!-- ==========================================================
+       JAVASCRIPT
+  =========================================================== -->
+
+  <script>
+
+    const API = '/api';
+
+    const token =
+      localStorage.getItem(
+        'lavajato_auth_token'
       );
 
-    }
+
+    let registros = [];
 
 
-    const texto =
-      await resposta.text();
+    // ==========================================================
+    // MENSAGEM
+    // ==========================================================
 
-    let dados = null;
+    function mostrarMensagem(
+      texto,
+      tipo = 'success'
+    ) {
 
-    try {
-      dados = texto
-        ? JSON.parse(texto)
-        : null;
-    } catch {
-      dados = null;
-    }
-
-
-    if (!resposta.ok) {
-
-      throw new Error(
-        dados?.erro ||
-        'Não foi possível realizar a operação.'
-      );
-
-    }
+      const elemento =
+        document.getElementById(
+          'message'
+        );
 
 
-    return dados;
+      elemento.textContent =
+        texto;
 
-  }
+
+      elemento.className =
+        `message ${tipo}`;
 
 
-  // ==========================================================
-  // VERIFICAR DEV
-  // ==========================================================
+      setTimeout(() => {
 
-  async function verificarDev() {
+        elemento.className =
+          'message';
 
-    if (!token) {
-
-      window.location.href =
-        '/login.html';
-
-      return false;
+      }, 3500);
 
     }
 
 
-    try {
+    // ==========================================================
+    // REQUISIÇÃO
+    // ==========================================================
+
+    async function requisicao(
+      url,
+      opcoes = {}
+    ) {
+
+      const headers = {
+
+        ...(opcoes.headers || {}),
+
+        Authorization:
+          `Bearer ${token}`
+
+      };
+
+
+      if (
+        opcoes.body &&
+        typeof opcoes.body !== 'string'
+      ) {
+
+        headers[
+          'Content-Type'
+        ] =
+          'application/json';
+
+
+        opcoes.body =
+          JSON.stringify(
+            opcoes.body
+          );
+
+      }
+
 
       const resposta =
         await fetch(
-          `${API}/auth/me`,
+          url,
           {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            ...opcoes,
+            headers
           }
         );
 
 
+      if (
+        resposta.status === 401 ||
+        resposta.status === 403
+      ) {
+
+        window.location.href =
+          '/login.html';
+
+
+        throw new Error(
+          'Acesso não autorizado.'
+        );
+
+      }
+
+
+      const texto =
+        await resposta.text();
+
+
+      let dados = null;
+
+
+      try {
+
+        dados =
+          texto
+            ? JSON.parse(texto)
+            : null;
+
+      } catch {
+
+        dados = null;
+
+      }
+
+
       if (!resposta.ok) {
 
-        localStorage.removeItem(
-          'lavajato_auth_token'
+        throw new Error(
+          dados?.erro ||
+          'Não foi possível realizar a operação.'
         );
+
+      }
+
+
+      return dados;
+
+    }
+
+
+    // ==========================================================
+    // VERIFICAR DEV
+    // ==========================================================
+
+    async function verificarDev() {
+
+      if (!token) {
 
         window.location.href =
           '/login.html';
@@ -513,593 +897,740 @@
       }
 
 
-      const dados =
-        await resposta.json();
+      try {
+
+        const resposta =
+          await fetch(
+            `${API}/auth/me`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
+            }
+          );
 
 
-      if (
-        !dados.usuario ||
-        dados.usuario.perfil !== 'dev'
-      ) {
+        if (!resposta.ok) {
 
-        alert(
-          'Acesso permitido somente ao DEV.'
+          localStorage.removeItem(
+            'lavajato_auth_token'
+          );
+
+
+          window.location.href =
+            '/login.html';
+
+
+          return false;
+
+        }
+
+
+        const dados =
+          await resposta.json();
+
+
+        if (
+          !dados.usuario ||
+          dados.usuario.perfil !== 'dev'
+        ) {
+
+          alert(
+            'Acesso permitido somente ao DEV.'
+          );
+
+
+          window.location.href =
+            '/dashboard.html';
+
+
+          return false;
+
+        }
+
+
+        return true;
+
+
+      } catch (err) {
+
+        console.error(
+          'Erro ao verificar usuário:',
+          err
         );
 
+
         window.location.href =
-          '/dashboard.html';
+          '/login.html';
+
 
         return false;
 
       }
 
-
-      return true;
-
-    } catch (err) {
-
-      console.error(
-        'Erro ao verificar usuário:',
-        err
-      );
-
-      window.location.href =
-        '/login.html';
-
-      return false;
-
     }
 
-  }
 
+    // ==========================================================
+    // CARREGAR
+    // ==========================================================
 
-  // ==========================================================
-  // CARREGAR
-  // ==========================================================
+    async function carregar() {
 
-  async function carregar() {
-
-    const loading =
-      document.getElementById('loading');
-
-    const empty =
-      document.getElementById('empty');
-
-    const wrapper =
-      document.getElementById('table-wrapper');
-
-    loading.style.display = 'block';
-    empty.style.display = 'none';
-    wrapper.style.display = 'none';
-
-
-    try {
-
-      registros =
-        await requisicao(
-          `${API}/admin/tratamentos`
+      const loading =
+        document.getElementById(
+          'loading'
         );
 
 
-      renderizar();
-
-    } catch (err) {
-
-      console.error(err);
-
-      mostrarMensagem(
-        err.message,
-        'error'
-      );
-
-    } finally {
-
-      loading.style.display = 'none';
-
-    }
-
-  }
-
-
-  // ==========================================================
-  // RENDERIZAR
-  // ==========================================================
-
-  function renderizar() {
-
-    const lista =
-      document.getElementById('lista');
-
-    const empty =
-      document.getElementById('empty');
-
-    const wrapper =
-      document.getElementById('table-wrapper');
-
-
-    lista.innerHTML = '';
-
-
-    if (!registros.length) {
-
-      empty.style.display = 'block';
-
-      wrapper.style.display = 'none';
-
-      return;
-
-    }
-
-
-    empty.style.display = 'none';
-
-    wrapper.style.display = 'block';
-
-
-    registros.forEach(registro => {
-
-      const tr =
-        document.createElement('tr');
-
-
-      tr.innerHTML = `
-
-        <td>
-          <strong>
-            ${escapar(registro.processo)}
-          </strong>
-        </td>
-
-        <td>
-          ${escapar(registro.finalidade)}
-        </td>
-
-        <td>
-          ${escapar(registro.hipotese_legal)}
-        </td>
-
-        <td>
-          ${escapar(registro.dados_pessoais)}
-        </td>
-
-        <td>
-          ${escapar(
-            registro.periodo_armazenamento ||
-            '-'
-          )}
-        </td>
-
-        <td>
-
-          <span
-            class="status ${
-              registro.ativo
-                ? 'ativo'
-                : 'inativo'
-            }"
-          >
-            ${
-              registro.ativo
-                ? 'Ativo'
-                : 'Inativo'
-            }
-          </span>
-
-        </td>
-
-        <td class="actions-cell">
-
-          <button
-            class="btn-edit"
-            type="button"
-            onclick="editar(${registro.id})"
-          >
-            Editar
-          </button>
-
-          <button
-            class="btn-danger"
-            type="button"
-            onclick="excluir(${registro.id})"
-          >
-            Excluir
-          </button>
-
-        </td>
-
-      `;
-
-
-      lista.appendChild(tr);
-
-    });
-
-  }
-
-
-  // ==========================================================
-  // ESCAPAR HTML
-  // ==========================================================
-
-  function escapar(valor) {
-
-    if (
-      valor === null ||
-      valor === undefined
-    ) {
-      return '';
-    }
-
-
-    return String(valor)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-
-  }
-
-
-  // ==========================================================
-  // NOVO
-  // ==========================================================
-
-  function abrirNovo() {
-
-    document.getElementById(
-      'modal-title'
-    ).textContent =
-      'Novo tratamento';
-
-
-    document.getElementById(
-      'form'
-    ).reset();
-
-
-    document.getElementById(
-      'registro-id'
-    ).value = '';
-
-
-    document.getElementById(
-      'ativo'
-    ).checked = true;
-
-
-    document.getElementById(
-      'modal'
-    ).classList.add('active');
-
-  }
-
-
-  // ==========================================================
-  // EDITAR
-  // ==========================================================
-
-  async function editar(id) {
-
-    try {
-
-      const registro =
-        await requisicao(
-          `${API}/admin/tratamentos/${id}`
+      const empty =
+        document.getElementById(
+          'empty'
         );
 
+
+      const wrapper =
+        document.getElementById(
+          'table-wrapper'
+        );
+
+
+      loading.style.display =
+        'block';
+
+
+      empty.style.display =
+        'none';
+
+
+      wrapper.style.display =
+        'none';
+
+
+      try {
+
+        registros =
+          await requisicao(
+            `${API}/admin/tratamentos`
+          );
+
+
+        renderizar();
+
+
+      } catch (err) {
+
+        console.error(err);
+
+
+        mostrarMensagem(
+          err.message,
+          'error'
+        );
+
+
+      } finally {
+
+        loading.style.display =
+          'none';
+
+      }
+
+    }
+
+
+    // ==========================================================
+    // RENDERIZAR
+    // ==========================================================
+
+    function renderizar() {
+
+      const lista =
+        document.getElementById(
+          'lista'
+        );
+
+
+      const empty =
+        document.getElementById(
+          'empty'
+        );
+
+
+      const wrapper =
+        document.getElementById(
+          'table-wrapper'
+        );
+
+
+      lista.innerHTML =
+        '';
+
+
+      if (!registros.length) {
+
+        empty.style.display =
+          'block';
+
+
+        wrapper.style.display =
+          'none';
+
+
+        return;
+
+      }
+
+
+      empty.style.display =
+        'none';
+
+
+      wrapper.style.display =
+        'block';
+
+
+      registros.forEach(
+        registro => {
+
+          const tr =
+            document.createElement(
+              'tr'
+            );
+
+
+          tr.innerHTML = `
+
+            <td>
+
+              <strong>
+                ${escapar(
+                  registro.processo
+                )}
+              </strong>
+
+            </td>
+
+
+            <td>
+              ${escapar(
+                registro.finalidade
+              )}
+            </td>
+
+
+            <td>
+              ${escapar(
+                registro.hipotese_legal
+              )}
+            </td>
+
+
+            <td>
+              ${escapar(
+                registro.dados_pessoais
+              )}
+            </td>
+
+
+            <td>
+              ${escapar(
+                registro.periodo_armazenamento ||
+                '-'
+              )}
+            </td>
+
+
+            <td>
+
+              <span
+                class="status ${
+                  registro.ativo
+                    ? 'ativo'
+                    : 'inativo'
+                }"
+              >
+                ${
+                  registro.ativo
+                    ? 'Ativo'
+                    : 'Inativo'
+                }
+              </span>
+
+            </td>
+
+
+            <td class="actions-cell">
+
+
+              <button
+                class="btn-edit"
+                type="button"
+                onclick="editar(${registro.id})"
+              >
+                Editar
+              </button>
+
+
+              <button
+                class="btn-danger"
+                type="button"
+                onclick="excluir(${registro.id})"
+              >
+                Excluir
+              </button>
+
+
+            </td>
+
+          `;
+
+
+          lista.appendChild(
+            tr
+          );
+
+        }
+      );
+
+    }
+
+
+    // ==========================================================
+    // ESCAPAR HTML
+    // ==========================================================
+
+    function escapar(valor) {
+
+      if (
+        valor === null ||
+        valor === undefined
+      ) {
+
+        return '';
+
+      }
+
+
+      return String(valor)
+
+        .replaceAll(
+          '&',
+          '&amp;'
+        )
+
+        .replaceAll(
+          '<',
+          '&lt;'
+        )
+
+        .replaceAll(
+          '>',
+          '&gt;'
+        )
+
+        .replaceAll(
+          '"',
+          '&quot;'
+        )
+
+        .replaceAll(
+          "'",
+          '&#039;'
+        );
+
+    }
+
+
+    // ==========================================================
+    // NOVO
+    // ==========================================================
+
+    function abrirNovo() {
 
       document.getElementById(
         'modal-title'
       ).textContent =
-        'Editar tratamento';
+        'Novo tratamento';
+
+
+      document.getElementById(
+        'form'
+      ).reset();
 
 
       document.getElementById(
         'registro-id'
       ).value =
-        registro.id;
-
-
-      document.getElementById(
-        'processo'
-      ).value =
-        registro.processo || '';
-
-
-      document.getElementById(
-        'finalidade'
-      ).value =
-        registro.finalidade || '';
-
-
-      document.getElementById(
-        'hipotese-legal'
-      ).value =
-        registro.hipotese_legal || '';
-
-
-      document.getElementById(
-        'dados-pessoais'
-      ).value =
-        registro.dados_pessoais || '';
-
-
-      document.getElementById(
-        'categorias-titulares'
-      ).value =
-        registro.categorias_titulares || '';
-
-
-      document.getElementById(
-        'compartilhamento'
-      ).value =
-        registro.compartilhamento || '';
-
-
-      document.getElementById(
-        'periodo'
-      ).value =
-        registro.periodo_armazenamento || '';
-
-
-      document.getElementById(
-        'seguranca'
-      ).value =
-        registro.medidas_seguranca || '';
-
-
-      document.getElementById(
-        'observacoes'
-      ).value =
-        registro.observacoes || '';
+        '';
 
 
       document.getElementById(
         'ativo'
       ).checked =
-        registro.ativo;
+        true;
 
 
       document.getElementById(
         'modal'
-      ).classList.add('active');
-
-    } catch (err) {
-
-      mostrarMensagem(
-        err.message,
-        'error'
+      ).classList.add(
+        'active'
       );
 
     }
 
-  }
+
+    // ==========================================================
+    // EDITAR
+    // ==========================================================
+
+    async function editar(id) {
+
+      try {
+
+        const registro =
+          await requisicao(
+            `${API}/admin/tratamentos/${id}`
+          );
 
 
-  // ==========================================================
-  // SALVAR
-  // ==========================================================
-
-  document
-    .getElementById('form')
-    .addEventListener(
-      'submit',
-      async event => {
-
-        event.preventDefault();
+        document.getElementById(
+          'modal-title'
+        ).textContent =
+          'Editar tratamento';
 
 
-        const id =
-          document.getElementById(
-            'registro-id'
-          ).value;
+        document.getElementById(
+          'registro-id'
+        ).value =
+          registro.id;
 
 
-        const dados = {
+        document.getElementById(
+          'processo'
+        ).value =
+          registro.processo || '';
 
-          processo:
+
+        document.getElementById(
+          'finalidade'
+        ).value =
+          registro.finalidade || '';
+
+
+        document.getElementById(
+          'hipotese-legal'
+        ).value =
+          registro.hipotese_legal || '';
+
+
+        document.getElementById(
+          'dados-pessoais'
+        ).value =
+          registro.dados_pessoais || '';
+
+
+        document.getElementById(
+          'categorias-titulares'
+        ).value =
+          registro.categorias_titulares || '';
+
+
+        document.getElementById(
+          'compartilhamento'
+        ).value =
+          registro.compartilhamento || '';
+
+
+        document.getElementById(
+          'periodo'
+        ).value =
+          registro.periodo_armazenamento || '';
+
+
+        document.getElementById(
+          'seguranca'
+        ).value =
+          registro.medidas_seguranca || '';
+
+
+        document.getElementById(
+          'observacoes'
+        ).value =
+          registro.observacoes || '';
+
+
+        document.getElementById(
+          'ativo'
+        ).checked =
+          registro.ativo;
+
+
+        document.getElementById(
+          'modal'
+        ).classList.add(
+          'active'
+        );
+
+
+      } catch (err) {
+
+        mostrarMensagem(
+          err.message,
+          'error'
+        );
+
+      }
+
+    }
+
+
+    // ==========================================================
+    // SALVAR
+    // ==========================================================
+
+    document
+      .getElementById('form')
+      .addEventListener(
+        'submit',
+        async event => {
+
+          event.preventDefault();
+
+
+          const id =
             document.getElementById(
-              'processo'
-            ).value,
-
-          finalidade:
-            document.getElementById(
-              'finalidade'
-            ).value,
-
-          hipotese_legal:
-            document.getElementById(
-              'hipotese-legal'
-            ).value,
-
-          dados_pessoais:
-            document.getElementById(
-              'dados-pessoais'
-            ).value,
-
-          categorias_titulares:
-            document.getElementById(
-              'categorias-titulares'
-            ).value,
-
-          compartilhamento:
-            document.getElementById(
-              'compartilhamento'
-            ).value,
-
-          periodo_armazenamento:
-            document.getElementById(
-              'periodo'
-            ).value,
-
-          medidas_seguranca:
-            document.getElementById(
-              'seguranca'
-            ).value,
-
-          observacoes:
-            document.getElementById(
-              'observacoes'
-            ).value,
-
-          ativo:
-            document.getElementById(
-              'ativo'
-            ).checked
-
-        };
+              'registro-id'
+            ).value;
 
 
-        try {
+          const dados = {
 
-          if (id) {
+            processo:
+              document.getElementById(
+                'processo'
+              ).value,
 
-            await requisicao(
-              `${API}/admin/tratamentos/${id}`,
-              {
-                method: 'PATCH',
-                body: dados
-              }
-            );
 
+            finalidade:
+              document.getElementById(
+                'finalidade'
+              ).value,
+
+
+            hipotese_legal:
+              document.getElementById(
+                'hipotese-legal'
+              ).value,
+
+
+            dados_pessoais:
+              document.getElementById(
+                'dados-pessoais'
+              ).value,
+
+
+            categorias_titulares:
+              document.getElementById(
+                'categorias-titulares'
+              ).value,
+
+
+            compartilhamento:
+              document.getElementById(
+                'compartilhamento'
+              ).value,
+
+
+            periodo_armazenamento:
+              document.getElementById(
+                'periodo'
+              ).value,
+
+
+            medidas_seguranca:
+              document.getElementById(
+                'seguranca'
+              ).value,
+
+
+            observacoes:
+              document.getElementById(
+                'observacoes'
+              ).value,
+
+
+            ativo:
+              document.getElementById(
+                'ativo'
+              ).checked
+
+          };
+
+
+          try {
+
+            if (id) {
+
+              await requisicao(
+                `${API}/admin/tratamentos/${id}`,
+                {
+                  method: 'PATCH',
+                  body: dados
+                }
+              );
+
+
+              mostrarMensagem(
+                'Registro atualizado com sucesso.'
+              );
+
+
+            } else {
+
+              await requisicao(
+                `${API}/admin/tratamentos`,
+                {
+                  method: 'POST',
+                  body: dados
+                }
+              );
+
+
+              mostrarMensagem(
+                'Registro criado com sucesso.'
+              );
+
+            }
+
+
+            fecharModal();
+
+
+            await carregar();
+
+
+          } catch (err) {
 
             mostrarMensagem(
-              'Registro atualizado com sucesso.'
-            );
-
-          } else {
-
-            await requisicao(
-              `${API}/admin/tratamentos`,
-              {
-                method: 'POST',
-                body: dados
-              }
-            );
-
-
-            mostrarMensagem(
-              'Registro criado com sucesso.'
+              err.message,
+              'error'
             );
 
           }
 
-
-          fecharModal();
-
-          await carregar();
-
-        } catch (err) {
-
-          mostrarMensagem(
-            err.message,
-            'error'
-          );
-
         }
-
-      }
-    );
-
-
-  // ==========================================================
-  // EXCLUIR
-  // ==========================================================
-
-  async function excluir(id) {
-
-    const confirmar =
-      confirm(
-        'Tem certeza que deseja excluir este registro?'
       );
 
 
-    if (!confirmar) {
-      return;
+    // ==========================================================
+    // EXCLUIR
+    // ==========================================================
+
+    async function excluir(id) {
+
+      const confirmar =
+        confirm(
+          'Tem certeza que deseja excluir este registro?'
+        );
+
+
+      if (!confirmar) {
+        return;
+      }
+
+
+      try {
+
+        await requisicao(
+          `${API}/admin/tratamentos/${id}`,
+          {
+            method: 'DELETE'
+          }
+        );
+
+
+        mostrarMensagem(
+          'Registro excluído com sucesso.'
+        );
+
+
+        await carregar();
+
+
+      } catch (err) {
+
+        mostrarMensagem(
+          err.message,
+          'error'
+        );
+
+      }
+
     }
 
 
-    try {
+    // ==========================================================
+    // MODAL
+    // ==========================================================
 
-      await requisicao(
-        `${API}/admin/tratamentos/${id}`,
-        {
-          method: 'DELETE'
+    function fecharModal() {
+
+      document.getElementById(
+        'modal'
+      ).classList.remove(
+        'active'
+      );
+
+    }
+
+
+    document
+      .getElementById('modal')
+      .addEventListener(
+        'click',
+        event => {
+
+          if (
+            event.target.id ===
+            'modal'
+          ) {
+
+            fecharModal();
+
+          }
+
         }
       );
 
 
-      mostrarMensagem(
-        'Registro excluído com sucesso.'
-      );
+    // ==========================================================
+    // INICIALIZAÇÃO
+    // ==========================================================
+
+    (async function iniciar() {
+
+      const autorizado =
+        await verificarDev();
+
+
+      if (!autorizado) {
+        return;
+      }
 
 
       await carregar();
 
-    } catch (err) {
+    })();
 
-      mostrarMensagem(
-        err.message,
-        'error'
-      );
-
-    }
-
-  }
+  </script>
 
 
-  // ==========================================================
-  // MODAL
-  // ==========================================================
+  <script
+    src="/js/dev-sidebar.js"
+  ></script>
 
-  function fecharModal() {
-
-    document.getElementById(
-      'modal'
-    ).classList.remove('active');
-
-  }
-
-
-  document
-    .getElementById('modal')
-    .addEventListener(
-      'click',
-      event => {
-
-        if (
-          event.target.id === 'modal'
-        ) {
-          fecharModal();
-        }
-
-      }
-    );
-
-
-  // ==========================================================
-  // INICIALIZAÇÃO
-  // ==========================================================
-
-  (async function iniciar() {
-
-    const autorizado =
-      await verificarDev();
-
-
-    if (!autorizado) {
-      return;
-    }
-
-
-    await carregar();
-
-  })();
-
-</script>
-
-<script src="/js/dev-sidebar.js"></script>
 
 </body>
 

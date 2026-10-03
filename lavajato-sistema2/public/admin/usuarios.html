@@ -12,10 +12,30 @@
 
   <title>Usuários | Orvix</title>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/apple-touch-icon.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/favicon-16x16.png"
+  >
+
+  <link
+    rel="manifest"
+    href="/site.webmanifest"
+  >
 
   <link
     rel="stylesheet"
@@ -24,238 +44,554 @@
 
 </head>
 
+
 <body>
 
-<div class="layout">
+  <div class="layout">
 
-  <aside class="sidebar">
 
-    <div class="logo">
-      Lava<span>jato</span>
-    </div>
+    <!-- ========================================================
+         SIDEBAR
+    ========================================================= -->
 
-    <div class="menu">
+    <aside class="sidebar">
 
-      <div class="menu-title">
-        Geral
-      </div>
 
-      <a href="/admin/dashboard.html">
-        Dashboard
-      </a>
+      <div class="brand">
 
-      <a href="/admin/planos.html">
-        Planos
-      </a>
+        <h1>
+          Orvix
+        </h1>
 
-      <div class="menu-title">
-        SaaS
-      </div>
+        <span>
+          Administração do SaaS
+        </span>
 
-      <a href="/admin/empresas.html">
-        Empresas
-      </a>
-
-      <a href="/admin/assinaturas.html">
-        Assinaturas
-      </a>
-
-      <a href="/admin/pagamentos.html">
-        Pagamentos
-      </a>
-
-      <a
-        href="/admin/usuarios.html"
-        class="active"
-      >
-        Usuários
-      </a>
-
-      <div class="menu-title">
-        Sistema
-      </div>
-
-      <a href="/">
-        Abrir sistema
-      </a>
-
-    </div>
-
-    <button
-      class="logout"
-      onclick="logout()"
-    >
-      Sair
-    </button>
-
-  </aside>
-
-  <main class="main">
-
-    <div class="topbar">
-
-      <h1>Usuários</h1>
-
-      <p class="subtitle">
-        Usuários cadastrados em todas as empresas.
-      </p>
-
-    </div>
-
-    <div class="filters">
-
-      <input
-        type="text"
-        id="busca"
-        placeholder="Pesquisar nome ou e-mail..."
-      >
-
-      <select id="perfil">
-
-        <option value="">
-          Todos os perfis
-        </option>
-
-        <option value="administrador">
-          Administradores
-        </option>
-
-        <option value="funcionario">
-          Funcionários
-        </option>
-
-      </select>
-
-      <button
-        class="btn"
-        onclick="filtrar()"
-      >
-        Filtrar
-      </button>
-
-    </div>
-
-    <div class="table-card">
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-
-            <tr>
-              <th>Nome</th>
-              <th>E-mail</th>
-              <th>Empresa</th>
-              <th>Perfil</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-
-          </thead>
-
-          <tbody id="tabela">
-
-            <tr>
-
-              <td>
-                João da Silva
-              </td>
-
-              <td>
-                joao@email.com
-              </td>
-
-              <td>
-                Orvix Exemplo
-              </td>
-
-              <td>
-
-                <span class="perfil administrador">
-                  Administrador
-                </span>
-
-              </td>
-
-              <td>
-
-                <span class="perfil ativo">
-                  Ativo
-                </span>
-
-              </td>
-
-              <td>
-
-                <button
-                  class="action"
-                  onclick="detalhes(1)"
-                >
-                  Detalhes
-                </button>
-
-              </td>
-
-            </tr>
-
-            <tr>
-
-              <td>
-                Pedro Souza
-              </td>
-
-              <td>
-                pedro@email.com
-              </td>
-
-              <td>
-                Orvix Exemplo
-              </td>
-
-              <td>
-
-                <span class="perfil funcionario">
-                  Funcionário
-                </span>
-
-              </td>
-
-              <td>
-
-                <span class="perfil ativo">
-                  Ativo
-                </span>
-
-              </td>
-
-              <td>
-
-                <button
-                  class="action"
-                  onclick="detalhes(2)"
-                >
-                  Detalhes
-                </button>
-
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
+        <span class="dev-badge">
+          DEV
+        </span>
 
       </div>
 
-    </div>
 
-  </main>
+      <nav class="menu">
 
-</div>
 
-<script src="/admin/js/usuarios.js"></script>
-<script src="/js/dev-sidebar.js"></script>
+        <div class="menu-title">
+          Geral
+        </div>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="dashboard"
+        >
+
+          <span class="menu-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="planos"
+        >
+
+          <span class="menu-icon">
+            ◆
+          </span>
+
+          <span>
+            Planos
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          SaaS
+        </div>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="empresas"
+        >
+
+          <span class="menu-icon">
+            ◉
+          </span>
+
+          <span>
+            Empresas
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="assinaturas"
+        >
+
+          <span class="menu-icon">
+            ↻
+          </span>
+
+          <span>
+            Assinaturas
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="pagamentos"
+        >
+
+          <span class="menu-icon">
+            $
+          </span>
+
+          <span>
+            Pagamentos
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="usuarios"
+        >
+
+          <span class="menu-icon">
+            ◇
+          </span>
+
+          <span>
+            Usuários
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="logs"
+        >
+
+          <span class="menu-icon">
+            ≡
+          </span>
+
+          <span>
+            Logs
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="tratamentos"
+        >
+
+          <span class="menu-icon">
+            ▣
+          </span>
+
+          <span>
+            Tratamentos
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="incidentes"
+        >
+
+          <span class="menu-icon">
+            ⚠
+          </span>
+
+          <span>
+            Incidentes
+          </span>
+
+        </button>
+
+
+        <div class="menu-title">
+          Sistema
+        </div>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="sistema"
+        >
+
+          <span class="menu-icon">
+            ↗
+          </span>
+
+          <span>
+            Abrir sistema
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-btn"
+          data-page="status"
+        >
+
+          <span class="menu-icon">
+            ●
+          </span>
+
+          <span>
+            Status da API
+          </span>
+
+        </button>
+
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <button
+          type="button"
+          class="logout-btn"
+          id="logout-btn"
+        >
+          Sair do painel DEV
+        </button>
+
+      </div>
+
+
+    </aside>
+
+
+    <!-- ========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="main">
+
+
+      <!-- ======================================================
+           TOPBAR
+      ======================================================= -->
+
+      <header class="topbar">
+
+
+        <button
+          type="button"
+          id="mobile-menu"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+
+        <div class="topbar-title">
+          Administração SaaS
+        </div>
+
+
+        <div class="topbar-user">
+
+          <span id="user-name">
+            Desenvolvedor
+          </span>
+
+          <div
+            id="user-avatar"
+            class="avatar"
+          >
+            D
+          </div>
+
+        </div>
+
+
+      </header>
+
+
+      <!-- ======================================================
+           CONTENT
+      ======================================================= -->
+
+      <section class="content">
+
+
+        <!-- ====================================================
+             PAGE HEADER
+        ===================================================== -->
+
+        <div class="page-header">
+
+
+          <div>
+
+            <h1>
+              Usuários
+            </h1>
+
+            <p>
+              Usuários cadastrados em todas as empresas.
+            </p>
+
+          </div>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             FILTROS
+        ===================================================== -->
+
+        <section class="filters">
+
+
+          <input
+            type="text"
+            id="busca"
+            placeholder="Pesquisar nome ou e-mail..."
+          >
+
+
+          <select id="perfil">
+
+            <option value="">
+              Todos os perfis
+            </option>
+
+            <option value="administrador">
+              Administradores
+            </option>
+
+            <option value="funcionario">
+              Funcionários
+            </option>
+
+          </select>
+
+
+          <button
+            type="button"
+            class="btn"
+            onclick="filtrar()"
+          >
+            Filtrar
+          </button>
+
+
+        </section>
+
+
+        <!-- ====================================================
+             TABELA
+        ===================================================== -->
+
+        <section class="table-card">
+
+
+          <div class="table-wrapper">
+
+
+            <table>
+
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Nome
+                  </th>
+
+                  <th>
+                    E-mail
+                  </th>
+
+                  <th>
+                    Empresa
+                  </th>
+
+                  <th>
+                    Perfil
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Ações
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="tabela">
+
+
+                <tr>
+
+                  <td>
+                    João da Silva
+                  </td>
+
+                  <td>
+                    joao@email.com
+                  </td>
+
+                  <td>
+                    Orvix Exemplo
+                  </td>
+
+                  <td>
+
+                    <span class="perfil administrador">
+                      Administrador
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <span class="perfil ativo">
+                      Ativo
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <button
+                      type="button"
+                      class="action"
+                      onclick="detalhes(1)"
+                    >
+                      Detalhes
+                    </button>
+
+                  </td>
+
+                </tr>
+
+
+                <tr>
+
+                  <td>
+                    Pedro Souza
+                  </td>
+
+                  <td>
+                    pedro@email.com
+                  </td>
+
+                  <td>
+                    Orvix Exemplo
+                  </td>
+
+                  <td>
+
+                    <span class="perfil funcionario">
+                      Funcionário
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <span class="perfil ativo">
+                      Ativo
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <button
+                      type="button"
+                      class="action"
+                      onclick="detalhes(2)"
+                    >
+                      Detalhes
+                    </button>
+
+                  </td>
+
+                </tr>
+
+
+              </tbody>
+
+
+            </table>
+
+
+          </div>
+
+
+        </section>
+
+
+      </section>
+
+
+    </main>
+
+
+  </div>
+
+
+  <!-- ==========================================================
+       SCRIPTS
+  =========================================================== -->
+
+  <script
+    src="/admin/js/usuarios.js"
+  ></script>
+
+
+  <script
+    src="/js/dev-sidebar.js"
+  ></script>
+
 
 </body>
+
 </html>
