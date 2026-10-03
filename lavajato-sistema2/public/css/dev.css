@@ -2738,8 +2738,6 @@ textarea:focus {
   flex-direction: column;
 
   gap: 6px;
-
-  min-width: 0;
 }
 
 .filter-group label {
@@ -2833,6 +2831,11 @@ textarea:focus {
   font-weight: 650;
 }
 
+
+/* ============================================================
+   TABELA — LOGS
+   ============================================================ */
+
 .content table {
   min-width: 1050px;
 }
@@ -2872,46 +2875,29 @@ textarea:focus {
 
 
 /* ============================================================
-   MODAL DE DETALHES (corrigido)
-   Seletor com :has() para não conflitar com o .modal genérico
-   nem com o body > .modal da página de tratamento de dados.
+   MODAL DE DETALHES
    ============================================================ */
 
-body > .modal:has(.modal-card) {
+body > .modal {
   position: fixed;
+
   inset: 0;
+
   z-index: 1000;
 
   display: none;
-  flex-direction: row;
+
   align-items: center;
   justify-content: center;
 
-  width: auto;
-  max-width: none;
-  max-height: none;
-
   padding: 20px;
-
-  overflow: hidden;
 
   background: rgba(15, 23, 42, 0.58);
 
   backdrop-filter: blur(5px);
-
-  border: 0;
-  border-radius: 0;
-
-  box-shadow: none;
-
-  transform: none;
-  transition: none;
-
-  opacity: 1;
-  visibility: visible;
 }
 
-body > .modal.active:has(.modal-card) {
+body > .modal.active {
   display: flex;
 }
 
@@ -2928,7 +2914,7 @@ body > .modal.active:has(.modal-card) {
 
   border-radius: 16px;
 
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow);
 
   animation: logsModalIn 0.18s ease;
 }
@@ -2946,18 +2932,12 @@ body > .modal.active:has(.modal-card) {
 }
 
 .modal-card .modal-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-
   display: flex;
 
   align-items: center;
   justify-content: space-between;
 
   padding: 18px 20px;
-
-  background: #fff;
 
   border-bottom: 1px solid var(--border-light);
 }
@@ -2971,7 +2951,7 @@ body > .modal.active:has(.modal-card) {
   font-weight: 800;
 }
 
-.modal-card .modal-header .close {
+.modal-card .close {
   width: 34px;
   height: 34px;
 
@@ -2990,55 +2970,16 @@ body > .modal.active:has(.modal-card) {
   border-radius: 8px;
 
   font-size: 21px;
-  line-height: 1;
 
   cursor: pointer;
-
-  transition:
-    color 0.18s ease,
-    background 0.18s ease;
 }
 
-.modal-card .modal-header .close:hover {
+.modal-card .close:hover {
   color: var(--danger);
 
   background: var(--danger-soft);
 }
 
-.modal-card .modal-body {
-  padding: 20px;
-}
-
-/* JSON / valores antes e depois, se existirem no modal */
-.modal-card pre {
-  margin: 0;
-  padding: 12px;
-
-  max-height: 260px;
-
-  overflow: auto;
-
-  color: var(--text-secondary);
-
-  background: var(--surface-soft);
-
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
-
-  font-size: 12px;
-  line-height: 1.6;
-
-  white-space: pre-wrap;
-  word-break: break-word;
-}
  /* ============================================================
     PAGAMENTOS — PÁGINA DEV
     ============================================================ */
