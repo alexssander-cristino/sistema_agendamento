@@ -523,6 +523,199 @@ router.post(
 
 
 // ============================================================
+// MINHA ASSINATURA
+// GET /api/mercado-pago/minha-assinatura
+//
+// Usuários vinculados a uma empresa podem consultar
+// a própria assinatura.
+//
+// Esta rota precisa ficar ANTES do somenteDev.
+// ============================================================
+
+router.get(
+  '/minha-assinatura',
+  async (req, res) => {
+
+    const empresaId =
+      req.usuario?.empresa_id;
+
+
+    if (!empresaId) {
+      return res.status(400).json({
+        erro:
+          'Usuário não está vinculado a uma empresa.'
+      });
+    }
+
+
+    if (
+      !Number.isInteger(
+        Number(empresaId)
+      ) ||
+      Number(empresaId) <= 0
+    ) {
+      return res.status(400).json({
+        erro:
+          'Empresa do usuário é inválida.'
+      });
+    }
+
+
+    try {
+
+      const result =
+        await pool.query(
+          `
+            SELECT
+              a.id,
+              a.empresa_id,
+              a.plano_id,
+              a.status,
+              a.mercado_pago_id,
+              a.inicio_em,
+              a.proxima_cobranca_em,
+              a.cancelada_em,
+              a.criado_em,
+              a.atualizado_em,
+
+              p.nome AS plano_nome,
+              p.descricao AS plano_descricao,
+              p.valor AS plano_valor,
+              p.periodo AS plano_periodo,
+              p.mercado_pago_plan_id
+
+            FROM assinaturas a
+
+            INNER JOIN planos p
+              ON p.id = a.plano_id
+
+            WHERE a.empresa_id = $1
+
+            ORDER BY a.id DESC
+
+            LIMIT 1
+          `,
+          [
+            Number(empresaId)
+          ]
+        );
+
+
+      // ======================================================
+      // EMPRESA AINDA NÃO POSSUI ASSINATURA
+      // ======================================================
+
+      if (
+        result.rows.length === 0
+      ) {
+
+        return res.json({
+
+          ok: true,
+
+          possui_assinatura:
+            false,
+
+          assinatura:
+            null
+        });
+      }
+
+
+      const assinatura =
+        result.rows[0];
+
+
+      // ======================================================
+      // RETORNAR ASSINATURA
+      // ======================================================
+
+      return res.json({
+
+        ok: true,
+
+        possui_assinatura:
+          true,
+
+        assinatura: {
+
+          id:
+            assinatura.id,
+
+          empresa_id:
+            assinatura.empresa_id,
+
+          plano_id:
+            assinatura.plano_id,
+
+          status:
+            assinatura.status,
+
+          mercado_pago_id:
+            assinatura.mercado_pago_id,
+
+          inicio_em:
+            assinatura.inicio_em,
+
+          proxima_cobranca_em:
+            assinatura.proxima_cobranca_em,
+
+          cancelada_em:
+            assinatura.cancelada_em,
+
+          criado_em:
+            assinatura.criado_em,
+
+          atualizado_em:
+            assinatura.atualizado_em,
+
+          plano: {
+
+            id:
+              assinatura.plano_id,
+
+            nome:
+              assinatura.plano_nome,
+
+            descricao:
+              assinatura.plano_descricao,
+
+            valor:
+              assinatura.plano_valor,
+
+            periodo:
+              assinatura.plano_periodo,
+
+            mercado_pago_plan_id:
+              assinatura.mercado_pago_plan_id
+          }
+        }
+      });
+
+    } catch (err) {
+
+      console.error(
+        'Erro ao consultar minha assinatura:',
+        err
+      );
+
+
+      return res.status(500).json({
+
+        erro:
+          'Não foi possível consultar sua assinatura.',
+
+        detalhes:
+          process.env.NODE_ENV === 'production'
+            ? null
+            : err.message
+      });
+    }
+  }
+);
+
+
+// ============================================================
 // ROTAS EXCLUSIVAS DO DEV
 // ============================================================
 
@@ -1002,4 +1195,3 @@ router.get(
 // ============================================================
 
 module.exports = router;
-
