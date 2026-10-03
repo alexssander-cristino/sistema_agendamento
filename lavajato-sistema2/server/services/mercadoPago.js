@@ -3,6 +3,10 @@ require('dotenv').config();
 const MERCADO_PAGO_API =
   'https://api.mercadopago.com';
 
+// ============================================================
+// ACCESS TOKEN
+// ============================================================
+
 function obterAccessToken() {
   const token =
     process.env.MERCADO_PAGO_ACCESS_TOKEN;
@@ -16,9 +20,10 @@ function obterAccessToken() {
   return token;
 }
 
-/**
- * Faz uma requisição para a API do Mercado Pago.
- */
+// ============================================================
+// REQUEST MERCADO PAGO
+// ============================================================
+
 async function mercadoPagoRequest(
   endpoint,
   options = {}
@@ -54,6 +59,7 @@ async function mercadoPagoRequest(
   }
 
   if (!response.ok) {
+
     console.error(
       'Erro Mercado Pago:',
       {
@@ -87,10 +93,51 @@ async function mercadoPagoRequest(
   return data;
 }
 
-/**
- * Cria um plano recorrente
- * no Mercado Pago.
- */
+// ============================================================
+// FREQUÊNCIA DO PLANO
+// ============================================================
+
+function obterRecorrencia(
+  periodo
+) {
+
+  switch (periodo) {
+
+    case 'mensal':
+      return {
+        frequency: 1,
+        frequency_type: 'months'
+      };
+
+    case 'trimestral':
+      return {
+        frequency: 3,
+        frequency_type: 'months'
+      };
+
+    case 'semestral':
+      return {
+        frequency: 6,
+        frequency_type: 'months'
+      };
+
+    case 'anual':
+      return {
+        frequency: 12,
+        frequency_type: 'months'
+      };
+
+    default:
+      throw new Error(
+        'Período de plano inválido.'
+      );
+  }
+}
+
+// ============================================================
+// CRIAR PLANO
+// ============================================================
+
 async function criarPlano({
   nome,
   descricao,
@@ -98,6 +145,7 @@ async function criarPlano({
   periodo = 'mensal',
   backUrl
 }) {
+
   if (!nome) {
     throw new Error(
       'Nome do plano é obrigatório.'
@@ -114,35 +162,23 @@ async function criarPlano({
     );
   }
 
-  let frequency = 1;
-  let frequencyType = 'months';
-
-  if (periodo === 'mensal') {
-    frequency = 1;
-    frequencyType = 'months';
-  } else if (periodo === 'trimestral') {
-    frequency = 3;
-    frequencyType = 'months';
-  } else if (periodo === 'semestral') {
-    frequency = 6;
-    frequencyType = 'months';
-  } else if (periodo === 'anual') {
-    frequency = 12;
-    frequencyType = 'months';
-  } else {
-    throw new Error(
-      'Período de plano inválido.'
+  const recorrencia =
+    obterRecorrencia(
+      periodo
     );
-  }
 
   const body = {
-    reason: nome,
+
+    reason:
+      String(nome).trim(),
 
     auto_recurring: {
-      frequency,
+
+      frequency:
+        recorrencia.frequency,
 
       frequency_type:
-        frequencyType,
+        recorrencia.frequency_type,
 
       transaction_amount:
         Number(valor),
@@ -168,12 +204,14 @@ async function criarPlano({
   );
 }
 
-/**
- * Busca um plano no Mercado Pago.
- */
+// ============================================================
+// BUSCAR PLANO
+// ============================================================
+
 async function buscarPlano(
   mercadoPagoPlanId
 ) {
+
   if (!mercadoPagoPlanId) {
     throw new Error(
       'ID do plano Mercado Pago não informado.'
@@ -187,10 +225,10 @@ async function buscarPlano(
   );
 }
 
-/**
- * Atualiza um plano recorrente
- * existente no Mercado Pago.
- */
+// ============================================================
+// ATUALIZAR PLANO
+// ============================================================
+
 async function atualizarPlano({
   mercadoPagoPlanId,
   nome,
@@ -199,6 +237,7 @@ async function atualizarPlano({
   periodo = 'mensal',
   backUrl
 }) {
+
   if (!mercadoPagoPlanId) {
     throw new Error(
       'ID do plano Mercado Pago não informado.'
@@ -221,35 +260,23 @@ async function atualizarPlano({
     );
   }
 
-  let frequency = 1;
-  let frequencyType = 'months';
-
-  if (periodo === 'mensal') {
-    frequency = 1;
-    frequencyType = 'months';
-  } else if (periodo === 'trimestral') {
-    frequency = 3;
-    frequencyType = 'months';
-  } else if (periodo === 'semestral') {
-    frequency = 6;
-    frequencyType = 'months';
-  } else if (periodo === 'anual') {
-    frequency = 12;
-    frequencyType = 'months';
-  } else {
-    throw new Error(
-      'Período de plano inválido.'
+  const recorrencia =
+    obterRecorrencia(
+      periodo
     );
-  }
 
   const body = {
-    reason: String(nome).trim(),
+
+    reason:
+      String(nome).trim(),
 
     auto_recurring: {
-      frequency,
+
+      frequency:
+        recorrencia.frequency,
 
       frequency_type:
-        frequencyType,
+        recorrencia.frequency_type,
 
       transaction_amount:
         Number(valor),
@@ -265,11 +292,12 @@ async function atualizarPlano({
   }
 
   /*
-   * A descrição não é um campo próprio
-   * do plano no Mercado Pago.
+   * descricao é armazenada
+   * no Orvix.
    *
-   * Ela continua sendo armazenada
-   * normalmente no Orvix.
+   * O Mercado Pago não utiliza
+   * esse campo como descrição
+   * principal do plano.
    */
 
   return mercadoPagoRequest(
@@ -285,13 +313,10 @@ async function atualizarPlano({
   );
 }
 
-/**
- * Cria uma assinatura no Mercado Pago.
- *
- * Para assinatura vinculada a plano,
- * o Mercado Pago exige card_token_id
- * e status authorized.
- */
+// ============================================================
+// CRIAR ASSINATURA
+// ============================================================
+
 async function criarAssinatura({
   planoMercadoPagoId,
   email,
@@ -300,6 +325,7 @@ async function criarAssinatura({
   backUrl,
   externalReference
 }) {
+
   if (!planoMercadoPagoId) {
     throw new Error(
       'ID do plano Mercado Pago é obrigatório.'
@@ -319,15 +345,16 @@ async function criarAssinatura({
   }
 
   const body = {
+
     preapproval_plan_id:
       String(planoMercadoPagoId),
 
     payer_email:
-      email,
+      String(email).trim(),
 
     reason:
       nome ||
-      'Assinatura Lavajato',
+      'Assinatura Orvix',
 
     card_token_id:
       cardTokenId,
@@ -337,13 +364,19 @@ async function criarAssinatura({
   };
 
   if (externalReference) {
+
     body.external_reference =
-      String(externalReference);
+      String(
+        externalReference
+      );
+
   }
 
   if (backUrl) {
+
     body.back_url =
       backUrl;
+
   }
 
   return mercadoPagoRequest(
@@ -357,12 +390,14 @@ async function criarAssinatura({
   );
 }
 
-/**
- * Busca uma assinatura no Mercado Pago.
- */
+// ============================================================
+// BUSCAR ASSINATURA
+// ============================================================
+
 async function buscarAssinatura(
   mercadoPagoId
 ) {
+
   if (!mercadoPagoId) {
     throw new Error(
       'ID da assinatura Mercado Pago não informado.'
@@ -376,13 +411,14 @@ async function buscarAssinatura(
   );
 }
 
-/**
- * Busca um pagamento autorizado
- * de uma assinatura.
- */
+// ============================================================
+// BUSCAR PAGAMENTO AUTORIZADO
+// ============================================================
+
 async function buscarPagamentoAutorizado(
   pagamentoId
 ) {
+
   if (!pagamentoId) {
     throw new Error(
       'ID do pagamento não informado.'
@@ -396,10 +432,12 @@ async function buscarPagamentoAutorizado(
   );
 }
 
-/**
- * Testa a comunicação com o Mercado Pago.
- */
+// ============================================================
+// TESTAR CONEXÃO
+// ============================================================
+
 async function testarConexao() {
+
   return mercadoPagoRequest(
     '/v1/payment_methods',
     {
@@ -408,8 +446,14 @@ async function testarConexao() {
   );
 }
 
+// ============================================================
+// EXPORTS
+// ============================================================
+
 module.exports = {
+
   mercadoPagoRequest,
+
   testarConexao,
 
   criarPlano,
@@ -420,4 +464,5 @@ module.exports = {
   buscarAssinatura,
 
   buscarPagamentoAutorizado
+
 };
