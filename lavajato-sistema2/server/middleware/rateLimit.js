@@ -98,10 +98,43 @@ const authRateLimit = rateLimit({
     });
   }
 
+  
+
+});
+
+const passwordResetRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+
+  message: {
+    erro:
+      'Muitas solicitações de recuperação. Tente novamente mais tarde.'
+  },
+
+  handler: (req, res) => {
+
+    console.warn(
+      '[RATE LIMIT] Recuperação de senha:',
+      {
+        ip: req.ip,
+        metodo: req.method,
+        rota: req.originalUrl
+      }
+    );
+
+    return res.status(429).json({
+      erro:
+        'Muitas solicitações de recuperação. Tente novamente mais tarde.'
+    });
+  }
 });
 
 
 module.exports = {
   apiRateLimit,
-  authRateLimit
+  authRateLimit,
+  passwordResetRateLimit
 };
+

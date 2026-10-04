@@ -1,0 +1,353 @@
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --bg: #f4f7fb;
+  --card: #ffffff;
+
+  --text: #172033;
+  --muted: #64748b;
+
+  --border: #dbe2ea;
+
+  --success-bg: #ecfdf3;
+  --success-text: #166534;
+
+  --error-bg: #fef2f2;
+  --error-text: #b91c1c;
+
+  --shadow:
+    0 20px 50px rgba(15, 23, 42, 0.10);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(37, 99, 235, 0.10),
+      transparent 35%
+    ),
+    var(--bg);
+
+  color: var(--text);
+}
+
+.container {
+  width: 100%;
+  max-width: 430px;
+}
+
+.card {
+  background: var(--card);
+
+  border: 1px solid rgba(219, 226, 234, 0.9);
+
+  border-radius: 20px;
+
+  padding: 36px;
+
+  box-shadow: var(--shadow);
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 28px;
+}
+
+.logo span {
+  font-size: 30px;
+  font-weight: 800;
+
+  letter-spacing: -1.5px;
+
+  color: var(--primary);
+}
+
+.header {
+  text-align: center;
+
+  margin-bottom: 28px;
+}
+
+.header h1 {
+  margin: 0 0 10px;
+
+  font-size: 25px;
+
+  font-weight: 750;
+
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.campo {
+  margin-bottom: 18px;
+}
+
+.campo label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.campo input {
+  width: 100%;
+
+  height: 48px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: #fff;
+
+  color: var(--text);
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.campo input:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.senha-info {
+  margin-top: 7px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+.btn {
+  width: 100%;
+
+  height: 48px;
+
+  margin-top: 6px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: var(--primary);
+
+  color: #fff;
+
+  font-size: 15px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s,
+    transform 0.1s,
+    opacity 0.2s;
+}
+
+.btn:hover {
+  background: var(--primary-hover);
+}
+
+.btn:active {
+  transform: scale(0.99);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+.mensagem {
+  display: none;
+
+  margin-bottom: 18px;
+
+  padding: 12px 14px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+.mensagem.erro {
+  display: block;
+
+  background: var(--error-bg);
+
+  color: var(--error-text);
+
+  border: 1px solid #fecaca;
+}
+
+.mensagem.sucesso {
+  display: block;
+
+  background: var(--success-bg);
+
+  color: var(--success-text);
+
+  border: 1px solid #bbf7d0;
+}
+
+.voltar {
+  display: block;
+
+  margin-top: 22px;
+
+  text-align: center;
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  text-decoration: none;
+}
+
+.voltar:hover {
+  color: var(--primary);
+}
+
+.sucesso-container {
+  display: none;
+
+  text-align: center;
+}
+
+.sucesso-icone {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: var(--success-bg);
+
+  color: var(--success-text);
+
+  font-size: 26px;
+
+  font-weight: 700;
+}
+
+.sucesso-container h2 {
+  margin: 0 0 10px;
+
+  font-size: 21px;
+}
+
+.sucesso-container p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 48px;
+
+  margin-top: 24px;
+
+  border-radius: 10px;
+
+  background: var(--primary);
+
+  color: #fff;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 650;
+}
+
+.btn-login:hover {
+  background: var(--primary-hover);
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 28px 22px;
+
+    border-radius: 16px;
+  }
+
+  .logo span {
+    font-size: 27px;
+  }
+
+  .header h1 {
+    font-size: 23px;
+  }
+}

@@ -9,7 +9,8 @@ const registrarLogs = require('./middleware/logger');
 
 const {
   apiRateLimit,
-  authRateLimit
+  authRateLimit,
+  passwordResetRateLimit
 } = require('./middleware/rateLimit');
 
 
@@ -138,8 +139,24 @@ app.use(
 // ============================================================
 
 app.use(
-  '/api',
-  apiRateLimit
+  '/api/auth',
+  authRateLimit,
+  (req, res, next) => {
+
+    if (
+      req.path === '/esqueci-senha' &&
+      req.method === 'POST'
+    ) {
+      return passwordResetRateLimit(
+        req,
+        res,
+        next
+      );
+    }
+
+    next();
+  },
+  authRouter
 );
 
 
