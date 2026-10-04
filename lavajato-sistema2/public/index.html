@@ -30,354 +30,237 @@
      TELA DE LOGIN
      ========================================================= -->
 
-  <div id="auth-screen" class="auth-screen">
+<div id="auth-screen" class="auth-screen">
 
-    <div class="auth-card">
+  <div class="auth-card">
 
-      <div class="auth-logo">
-        <div class="auth-logo-mark"></div>
-      </div>
+    <div class="auth-logo">
+      <div class="auth-logo-mark"></div>
+    </div>
 
-      <div class="auth-header">
+    <div class="auth-header">
 
-        <h1>Orvix</h1>
+      <h1>Orvix</h1>
 
-        <p id="auth-subtitle">
-          Gestão simples para sua empresa
-        </p>
-
-      </div>
-
-
-      <!-- LOGIN -->
-
-      <form id="login-form" class="auth-form">
-
-        <div class="auth-field">
-
-          <label for="login-email">
-            E-mail
-          </label>
-
-          <input
-            type="email"
-            id="login-email"
-            placeholder="seu@email.com"
-            autocomplete="email"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="login-password">
-            Senha
-          </label>
-
-          <input
-            type="password"
-            id="login-password"
-            placeholder="Sua senha"
-            autocomplete="current-password"
-            required
-          >
-
-        </div>
-
-
-        <div
-          id="login-error"
-          class="auth-error"
-        ></div>
-
-
-        <button
-          type="submit"
-          class="auth-submit"
-          id="login-submit"
-        >
-          Entrar
-        </button>
-
-
-        <button
-          type="button"
-          class="auth-switch"
-          id="show-register"
-        >
-          Criar uma conta
-        </button>
-
-      </form>
-
-
-      <!-- CADASTRO -->
-
-      <form
-        id="register-form"
-        class="auth-form"
-        style="display:none;"
-      >
-
-        <div class="auth-field">
-
-          <label for="register-company">
-            Nome da Empresa
-          </label>
-
-          <input
-            type="text"
-            id="register-company"
-            placeholder="Ex: Alx Garage"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-company-email">
-            E-mail da empresa
-          </label>
-
-          <input
-            type="email"
-            id="register-company-email"
-            placeholder="contato@empresa.com"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-phone">
-            Telefone
-          </label>
-
-          <input
-            type="text"
-            id="register-phone"
-            placeholder="(47) 99999-9999"
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-name">
-            Seu nome
-          </label>
-
-          <input
-            type="text"
-            id="register-name"
-            placeholder="Alex"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-email">
-            Seu e-mail
-          </label>
-
-          <input
-            type="email"
-            id="register-email"
-            placeholder="alex@email.com"
-            autocomplete="email"
-            required
-          >
-
-        </div>
-
-
-        <div class="auth-field">
-
-          <label for="register-password">
-            Senha
-          </label>
-
-          <input
-            type="password"
-            id="register-password"
-            placeholder="Mínimo 6 caracteres"
-            autocomplete="new-password"
-            minlength="6"
-            required
-          >
-
-        </div>
-
-
-        <div
-          id="register-error"
-          class="auth-error"
-        ></div>
-
-
-        <button
-          type="submit"
-          class="auth-submit"
-          id="register-submit"
-        >
-          Criar conta
-        </button>
-
-
-        <button
-          type="button"
-          class="auth-switch"
-          id="show-login"
-        >
-          Já tenho uma conta
-        </button>
-
-      </form>
+      <p id="auth-subtitle">
+        Gestão simples para sua empresa
+      </p>
 
     </div>
+
+
+    <!-- =====================================================
+         LOGIN
+         ===================================================== -->
+
+    <form id="login-form" class="auth-form">
+
+      <div class="auth-field">
+
+        <label for="login-email">
+          E-mail
+        </label>
+
+        <input
+          type="email"
+          id="login-email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="login-password">
+          Senha
+        </label>
+
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Sua senha"
+          autocomplete="current-password"
+          required
+        >
+
+      </div>
+
+
+      <!-- ESQUECI MINHA SENHA -->
+
+      <a
+        href="/esqueci-senha.html"
+        class="forgot-password"
+      >
+        Esqueci minha senha
+      </a>
+
+
+      <div
+        id="login-error"
+        class="auth-error"
+      ></div>
+
+
+      <button
+        type="submit"
+        class="auth-submit"
+        id="login-submit"
+      >
+        Entrar
+      </button>
+
+
+      <button
+        type="button"
+        class="auth-switch"
+        id="show-register"
+      >
+        Criar uma conta
+      </button>
+
+    </form>
+
+
+    <!-- =====================================================
+         CADASTRO
+         ===================================================== -->
+
+    <form
+      id="register-form"
+      class="auth-form"
+      style="display:none;"
+    >
+
+      <div class="auth-field">
+
+        <label for="register-company">
+          Nome da Empresa
+        </label>
+
+        <input
+          type="text"
+          id="register-company"
+          placeholder="Ex: Alx Garage"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-company-email">
+          E-mail da empresa
+        </label>
+
+        <input
+          type="email"
+          id="register-company-email"
+          placeholder="contato@empresa.com"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-phone">
+          Telefone
+        </label>
+
+        <input
+          type="text"
+          id="register-phone"
+          placeholder="(47) 99999-9999"
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-name">
+          Seu nome
+        </label>
+
+        <input
+          type="text"
+          id="register-name"
+          placeholder="Alex"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-email">
+          Seu e-mail
+        </label>
+
+        <input
+          type="email"
+          id="register-email"
+          placeholder="alex@email.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+
+      <div class="auth-field">
+
+        <label for="register-password">
+          Senha
+        </label>
+
+        <input
+          type="password"
+          id="register-password"
+          placeholder="Mínimo 6 caracteres"
+          autocomplete="new-password"
+          minlength="6"
+          required
+        >
+
+      </div>
+
+
+      <div
+        id="register-error"
+        class="auth-error"
+      ></div>
+
+
+      <button
+        type="submit"
+        class="auth-submit"
+        id="register-submit"
+      >
+        Criar conta
+      </button>
+
+
+      <button
+        type="button"
+        class="auth-switch"
+        id="show-login"
+      >
+        Já tenho uma conta
+      </button>
+
+    </form>
 
   </div>
 
-    <main class="recuperacao-page">
-
-    <div class="recuperacao-container">
-
-      <section class="recuperacao-card">
-
-        <div class="recuperacao-logo">
-          <span>Orvix</span>
-        </div>
-
-        <div id="formulario-container">
-
-          <div class="recuperacao-header">
-
-            <h1>Redefinir senha</h1>
-
-            <p>
-              Informe uma nova senha para recuperar
-              o acesso à sua conta.
-            </p>
-
-          </div>
-
-          <div
-            id="mensagem"
-            class="recuperacao-mensagem"
-          ></div>
-
-          <form id="formulario-recuperacao">
-
-            <div class="recuperacao-campo">
-
-              <label for="senha">
-                Nova senha
-              </label>
-
-              <input
-                type="password"
-                id="senha"
-                name="senha"
-                placeholder="Digite sua nova senha"
-                minlength="6"
-                autocomplete="new-password"
-                required
-              >
-
-              <div class="recuperacao-senha-info">
-                A senha deve possuir pelo menos 6 caracteres.
-              </div>
-
-            </div>
-
-            <div class="recuperacao-campo">
-
-              <label for="confirmar-senha">
-                Confirmar nova senha
-              </label>
-
-              <input
-                type="password"
-                id="confirmar-senha"
-                name="confirmar-senha"
-                placeholder="Digite a senha novamente"
-                minlength="6"
-                autocomplete="new-password"
-                required
-              >
-
-            </div>
-
-            <a
-  href="/esqueci-senha.html"
-  class="forgot-password"
->
-  Esqueci minha senha
-</a>
-
-            <button
-              type="submit"
-              class="recuperacao-btn"
-              id="btn-redefinir"
-            >
-              Redefinir senha
-            </button>
-
-          </form>
-
-          <a
-            href="/"
-            class="recuperacao-voltar"
-          >
-            Voltar para o login
-          </a>
-
-        </div>
-
-        <div
-          id="sucesso-container"
-          class="recuperacao-sucesso"
-        >
-
-          <div class="recuperacao-sucesso-icone">
-            ✓
-          </div>
-
-          <h2>
-            Senha redefinida
-          </h2>
-
-          <p>
-            Sua senha foi alterada com sucesso.
-            Agora você já pode entrar novamente
-            na sua conta.
-          </p>
-
-          <a
-            href="/"
-            class="recuperacao-btn-login"
-          >
-            Ir para o login
-          </a>
-
-        </div>
-
-      </section>
-
-    </div>
-
-  </main>
-  
+</div>
 <!-- ============================================================
      MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
      ============================================================ -->
