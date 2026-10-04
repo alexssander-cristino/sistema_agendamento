@@ -1,6 +1,9 @@
 const express = require('express');
+
 const bcrypt = require('bcryptjs');
+
 const jwt = require('jsonwebtoken');
+
 const crypto = require('crypto');
 
 const pool = require('../db');
@@ -55,6 +58,7 @@ if (!JWT_SECRET) {
   console.error(
     'ERRO: JWT_SECRET não foi configurado.'
   );
+
 }
 
 // ============================================================
@@ -71,11 +75,13 @@ async function obterPermissoesUsuario(
   ) {
 
     return PERMISSOES_ADMINISTRADOR;
+
   }
 
   return await buscarCodigosPermissoesUsuario(
     usuario.id
   );
+
 }
 
 // ============================================================
@@ -91,6 +97,7 @@ function normalizarEmail(
   )
     .trim()
     .toLowerCase();
+
 }
 
 // ============================================================
@@ -102,6 +109,7 @@ function gerarTokenRecuperacao() {
   return crypto.randomBytes(
     32
   ).toString('hex');
+
 }
 
 // ============================================================
@@ -116,6 +124,7 @@ function gerarHashToken(
     .createHash('sha256')
     .update(token)
     .digest('hex');
+
 }
 
 // ============================================================
@@ -132,12 +141,14 @@ function obterUrlAplicacao() {
     throw new Error(
       'APP_URL não configurada.'
     );
+
   }
 
   return url.replace(
     /\/+$/,
     ''
   );
+
 }
 
 // ============================================================
@@ -170,6 +181,7 @@ router.post(
         erro:
           'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
       });
+
     }
 
     if (
@@ -180,6 +192,7 @@ router.post(
         erro:
           'A senha deve possuir pelo menos 6 caracteres.'
       });
+
     }
 
     const client =
@@ -221,6 +234,7 @@ router.post(
           erro:
             'Já existe uma empresa cadastrada com esse e-mail.'
         });
+
       }
 
       // ======================================================
@@ -253,10 +267,14 @@ router.post(
           erro:
             'Já existe um usuário cadastrado com esse e-mail.'
         });
+
       }
 
       // ======================================================
       // Cria empresa
+      //
+      // Conta normal:
+      // conta_teste = FALSE
       // ======================================================
 
       const empresaResult =
@@ -266,19 +284,22 @@ router.post(
             (
               nome,
               email,
-              telefone
+              telefone,
+              conta_teste
             )
           VALUES
             (
               $1,
               $2,
-              $3
+              $3,
+              FALSE
             )
           RETURNING
             id,
             nome,
             email,
-            telefone
+            telefone,
+            conta_teste
           `,
           [
             empresa,
@@ -347,7 +368,7 @@ router.post(
       );
 
       // ======================================================
-      // Permissões
+      // PERMISSÕES
       // ======================================================
 
       const permissoes =
@@ -383,7 +404,7 @@ router.post(
         );
 
       // ======================================================
-      // Resposta
+      // RESPOSTA
       // ======================================================
 
       return res.status(201).json({
@@ -394,6 +415,7 @@ router.post(
         token,
 
         usuario: {
+
           id:
             usuario.id,
 
@@ -410,10 +432,28 @@ router.post(
             usuario.ativo,
 
           permissoes
+
         },
 
-        empresa:
-          novaEmpresa
+        empresa: {
+
+          id:
+            novaEmpresa.id,
+
+          nome:
+            novaEmpresa.nome,
+
+          email:
+            novaEmpresa.email,
+
+          telefone:
+            novaEmpresa.telefone,
+
+          conta_teste:
+            novaEmpresa.conta_teste
+
+        }
+
       });
 
     } catch (err) {
@@ -439,7 +479,9 @@ router.post(
     } finally {
 
       client.release();
+
     }
+
   }
 );
 
@@ -465,6 +507,7 @@ router.post(
         erro:
           'Informe e-mail e senha.'
       });
+
     }
 
     try {
@@ -483,7 +526,8 @@ router.post(
 
             e.nome AS empresa_nome,
             e.email AS empresa_email,
-            e.telefone AS empresa_telefone
+            e.telefone AS empresa_telefone,
+            e.conta_teste AS empresa_conta_teste
 
           FROM usuarios u
 
@@ -508,6 +552,7 @@ router.post(
           erro:
             'E-mail ou senha incorretos.'
         });
+
       }
 
       const usuario =
@@ -525,6 +570,7 @@ router.post(
           erro:
             'Este usuário está desativado.'
         });
+
       }
 
       // ======================================================
@@ -545,6 +591,7 @@ router.post(
           erro:
             'E-mail ou senha incorretos.'
         });
+
       }
 
       // ======================================================
@@ -586,7 +633,7 @@ router.post(
         );
 
       // ======================================================
-      // Resposta
+      // RESPOSTA
       // ======================================================
 
       return res.json({
@@ -597,6 +644,7 @@ router.post(
         token,
 
         usuario: {
+
           id:
             usuario.id,
 
@@ -613,9 +661,11 @@ router.post(
             usuario.ativo,
 
           permissoes
+
         },
 
         empresa: {
+
           id:
             usuario.empresa_id,
 
@@ -626,8 +676,13 @@ router.post(
             usuario.empresa_email,
 
           telefone:
-            usuario.empresa_telefone
+            usuario.empresa_telefone,
+
+          conta_teste:
+            usuario.empresa_conta_teste
+
         }
+
       });
 
     } catch (err) {
@@ -641,7 +696,9 @@ router.post(
         erro:
           'Não foi possível realizar o login.'
       });
+
     }
+
   }
 );
 
@@ -664,8 +721,10 @@ router.post(
      */
 
     const respostaPadrao = {
+
       mensagem:
         'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.'
+
     };
 
     const email =
@@ -678,6 +737,7 @@ router.post(
       return res.json(
         respostaPadrao
       );
+
     }
 
     try {
@@ -714,6 +774,7 @@ router.post(
         return res.json(
           respostaPadrao
         );
+
       }
 
       const usuario =
@@ -731,6 +792,7 @@ router.post(
         return res.json(
           respostaPadrao
         );
+
       }
 
       // ======================================================
@@ -813,6 +875,7 @@ router.post(
       // ======================================================
 
       await enviarEmailRecuperacaoSenha({
+
         para:
           usuario.email,
 
@@ -820,6 +883,7 @@ router.post(
           usuario.nome,
 
         link
+
       });
 
       console.log(
@@ -849,7 +913,9 @@ router.post(
       return res.json(
         respostaPadrao
       );
+
     }
+
   }
 );
 
@@ -877,6 +943,7 @@ router.post(
         erro:
           'Informe o token e a nova senha.'
       });
+
     }
 
     if (
@@ -887,6 +954,7 @@ router.post(
         erro:
           'A senha deve possuir pelo menos 6 caracteres.'
       });
+
     }
 
     const tokenNormalizado =
@@ -902,6 +970,7 @@ router.post(
         erro:
           'Token de recuperação inválido ou expirado.'
       });
+
     }
 
     const tokenHash =
@@ -929,7 +998,6 @@ router.post(
             r.id,
             r.usuario_id,
             r.expira_em,
-
             u.nome,
             u.email,
             u.ativo
@@ -940,9 +1008,7 @@ router.post(
             ON u.id = r.usuario_id
 
           WHERE r.token_hash = $1
-
             AND r.usado_em IS NULL
-
             AND r.expira_em > NOW()
 
           LIMIT 1
@@ -966,6 +1032,7 @@ router.post(
           erro:
             'Token de recuperação inválido ou expirado.'
         });
+
       }
 
       const recuperacao =
@@ -987,6 +1054,7 @@ router.post(
           erro:
             'Este usuário está desativado.'
         });
+
       }
 
       // ======================================================
@@ -1006,8 +1074,10 @@ router.post(
       await client.query(
         `
         UPDATE usuarios
+
         SET
           senha = $1
+
         WHERE id = $2
         `,
         [
@@ -1023,6 +1093,7 @@ router.post(
       await client.query(
         `
         UPDATE recuperacao_senha
+
         SET
           usado_em = NOW()
 
@@ -1074,7 +1145,9 @@ router.post(
     } finally {
 
       client.release();
+
     }
+
   }
 );
 
@@ -1094,6 +1167,7 @@ router.get(
         await pool.query(
           `
           SELECT
+
             u.id,
             u.nome,
             u.email,
@@ -1103,7 +1177,8 @@ router.get(
             e.id AS empresa_id,
             e.nome AS empresa_nome,
             e.email AS empresa_email,
-            e.telefone AS empresa_telefone
+            e.telefone AS empresa_telefone,
+            e.conta_teste AS empresa_conta_teste
 
           FROM usuarios u
 
@@ -1129,6 +1204,7 @@ router.get(
           erro:
             'Usuário não encontrado.'
         });
+
       }
 
       const usuario =
@@ -1146,6 +1222,7 @@ router.get(
           erro:
             'Este usuário está desativado.'
         });
+
       }
 
       // ======================================================
@@ -1158,12 +1235,13 @@ router.get(
         );
 
       // ======================================================
-      // Resposta
+      // RESPOSTA
       // ======================================================
 
       return res.json({
 
         usuario: {
+
           id:
             usuario.id,
 
@@ -1180,9 +1258,11 @@ router.get(
             usuario.ativo,
 
           permissoes
+
         },
 
         empresa: {
+
           id:
             usuario.empresa_id,
 
@@ -1193,8 +1273,13 @@ router.get(
             usuario.empresa_email,
 
           telefone:
-            usuario.empresa_telefone
+            usuario.empresa_telefone,
+
+          conta_teste:
+            usuario.empresa_conta_teste
+
         }
+
       });
 
     } catch (err) {
@@ -1208,7 +1293,9 @@ router.get(
         erro:
           'Não foi possível carregar os dados do usuário.'
       });
+
     }
+
   }
 );
 

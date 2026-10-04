@@ -5845,6 +5845,23 @@ async function verificarAssinaturaObrigatoria(){
     return true;
   }
 
+    /*
+   * Conta de teste não precisa
+   * passar pelo Mercado Pago.
+   */
+
+  if(
+    empresaLogada &&
+    empresaLogada.conta_teste === true
+  ){
+
+    assinaturaVerificada = true;
+
+    esconderModalPlano();
+
+    return true;
+  }
+
 
   /*
    * Usuário precisa estar vinculado
