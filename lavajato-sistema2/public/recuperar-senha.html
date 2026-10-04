@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -13,13 +15,15 @@
     content="Recupere o acesso à sua conta Orvix."
   >
 
-  <title>Recuperar senha | Orvix</title>
+  <title>Esqueci minha senha | Orvix</title>
 
-    <link
-        rel="stylesheet"
-        href="/css/recuperar-senha.css"
-        >
+  <link
+    rel="stylesheet"
+    href="/css/esqueci-senha.css"
+  >
+
 </head>
+
 
 <body>
 
@@ -27,78 +31,81 @@
 
     <section class="card">
 
+
+      <!-- LOGO -->
+
       <div class="logo">
-        <span>Orvix</span>
+
+        <span>
+          Orvix
+        </span>
+
       </div>
 
+
       <!-- FORMULÁRIO -->
+
       <div id="formulario-container">
 
         <div class="header">
-          <h1>Redefinir senha</h1>
+
+          <h1>
+            Recuperar senha
+          </h1>
 
           <p>
-            Informe uma nova senha para recuperar
-            o acesso à sua conta.
+            Informe o e-mail da sua conta
+            e enviaremos um link para
+            redefinir sua senha.
           </p>
+
         </div>
+
+
+        <!-- MENSAGEM -->
 
         <div
           id="mensagem"
           class="mensagem"
+          role="alert"
+          aria-live="polite"
         ></div>
 
-        <form id="formulario-recuperacao">
+
+        <!-- FORMULÁRIO -->
+
+        <form
+          id="form-recuperar-senha"
+        >
 
           <div class="campo">
 
-            <label for="senha">
-              Nova senha
+            <label for="email">
+              E-mail da conta
             </label>
 
             <input
-              type="password"
-              id="senha"
-              name="senha"
-              placeholder="Digite sua nova senha"
-              minlength="6"
-              autocomplete="new-password"
-              required
-            >
-
-            <div class="senha-info">
-              A senha deve possuir pelo menos 6 caracteres.
-            </div>
-
-          </div>
-
-          <div class="campo">
-
-            <label for="confirmar-senha">
-              Confirmar nova senha
-            </label>
-
-            <input
-              type="password"
-              id="confirmar-senha"
-              name="confirmar-senha"
-              placeholder="Digite a senha novamente"
-              minlength="6"
-              autocomplete="new-password"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="seu@email.com"
+              autocomplete="email"
               required
             >
 
           </div>
+
 
           <button
             type="submit"
             class="btn"
-            id="btn-redefinir"
+            id="btn-recuperar"
           >
-            Redefinir senha
+            Enviar link de recuperação
           </button>
 
         </form>
+
 
         <a
           href="/"
@@ -109,40 +116,54 @@
 
       </div>
 
+
       <!-- SUCESSO -->
+
       <div
         id="sucesso-container"
         class="sucesso-container"
+        style="display:none;"
       >
 
-        <div class="sucesso-icone">
+        <div
+          class="sucesso-icone"
+          aria-hidden="true"
+        >
           ✓
         </div>
 
+
         <h2>
-          Senha redefinida
+          E-mail enviado
         </h2>
 
+
         <p>
-          Sua senha foi alterada com sucesso.
-          Agora você já pode entrar novamente
-          na sua conta.
+          Se existir uma conta com esse e-mail,
+          você receberá uma mensagem com as
+          instruções para redefinir sua senha.
         </p>
+
 
         <a
           href="/"
           class="btn-login"
         >
-          Ir para o login
+          Voltar para o login
         </a>
 
       </div>
+
 
     </section>
 
   </main>
 
-    <script src="/js/recuperar-senha.js"></script>
+
+  <script
+    src="/js/esqueciSenha.js"
+  ></script>
 
 </body>
+
 </html>
