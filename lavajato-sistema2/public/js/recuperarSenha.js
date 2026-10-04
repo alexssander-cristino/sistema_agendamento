@@ -1,158 +1,93 @@
 const API_URL = '/api';
 
 const formulario =
-  document.getElementById(
-    'formulario-recuperacao'
-  );
+  document.getElementById('form-recuperar-senha');
+
+const emailInput =
+  document.getElementById('email');
 
 const mensagem =
-  document.getElementById(
-    'mensagem'
-  );
+  document.getElementById('mensagem');
 
-const btnRedefinir =
-  document.getElementById(
-    'btn-redefinir'
-  );
+const botao =
+  document.getElementById('btn-recuperar');
 
 const formularioContainer =
-  document.getElementById(
-    'formulario-container'
-  );
+  document.getElementById('formulario-container');
 
 const sucessoContainer =
-  document.getElementById(
-    'sucesso-container'
-  );
-
-const senha =
-  document.getElementById(
-    'senha'
-  );
-
-const confirmarSenha =
-  document.getElementById(
-    'confirmar-senha'
-  );
-
-const parametros =
-  new URLSearchParams(
-    window.location.search
-  );
-
-const token =
-  parametros.get('token');
+  document.getElementById('sucesso-container');
 
 
-function mostrarMensagem(
-  texto,
-  tipo = 'erro'
-) {
+function mostrarMensagem(texto, tipo = 'erro') {
+
   mensagem.textContent = texto;
 
   mensagem.className =
     `mensagem ${tipo}`;
+
 }
 
 
 function limparMensagem() {
+
   mensagem.textContent = '';
 
   mensagem.className =
     'mensagem';
-}
 
-
-function validarToken() {
-  if (!token) {
-    mostrarMensagem(
-      'O link de recuperação é inválido ou está incompleto.'
-    );
-
-    btnRedefinir.disabled = true;
-
-    senha.disabled = true;
-    confirmarSenha.disabled = true;
-
-    return false;
-  }
-
-  /*
-   * O backend gera tokens com 32 bytes
-   * em hexadecimal = 64 caracteres.
-   */
-  if (!/^[a-fA-F0-9]{64}$/.test(token)) {
-    mostrarMensagem(
-      'O link de recuperação é inválido.'
-    );
-
-    btnRedefinir.disabled = true;
-
-    senha.disabled = true;
-    confirmarSenha.disabled = true;
-
-    return false;
-  }
-
-  return true;
-}
-
-
-function validarSenhas() {
-  const novaSenha =
-    senha.value;
-
-  const novaSenhaConfirmacao =
-    confirmarSenha.value;
-
-  if (novaSenha.length < 6) {
-    mostrarMensagem(
-      'A senha deve possuir pelo menos 6 caracteres.'
-    );
-
-    senha.focus();
-
-    return false;
-  }
-
-  if (novaSenha !== novaSenhaConfirmacao) {
-    mostrarMensagem(
-      'As senhas não coincidem.'
-    );
-
-    confirmarSenha.focus();
-
-    return false;
-  }
-
-  return true;
 }
 
 
 formulario.addEventListener(
   'submit',
   async function(event) {
+
     event.preventDefault();
 
     limparMensagem();
 
-    if (!validarToken()) {
+    const email =
+      emailInput.value
+        .trim()
+        .toLowerCase();
+
+
+    if (!email) {
+
+      mostrarMensagem(
+        'Informe o e-mail da sua conta.'
+      );
+
+      emailInput.focus();
+
       return;
     }
 
-    if (!validarSenhas()) {
+
+    if (!emailInput.checkValidity()) {
+
+      mostrarMensagem(
+        'Informe um e-mail válido.'
+      );
+
+      emailInput.focus();
+
       return;
     }
 
-    btnRedefinir.disabled = true;
 
-    btnRedefinir.textContent =
-      'Redefinindo...';
+    botao.disabled = true;
+
+    botao.textContent =
+      'Enviando...';
+
 
     try {
+
       const resposta =
         await fetch(
-          `${API_URL}/auth/redefinir-senha`,
+          `${API_URL}/auth/esqueci-senha`,
           {
             method: 'POST',
 
@@ -162,27 +97,35 @@ formulario.addEventListener(
             },
 
             body: JSON.stringify({
-              token,
-              senha: senha.value
+              email
             })
           }
         );
 
+
       let dados = {};
 
       try {
+
         dados =
           await resposta.json();
+
       } catch {
+
         dados = {};
+
       }
 
+
       if (!resposta.ok) {
+
         throw new Error(
           dados.erro ||
-          'Não foi possível redefinir a senha.'
+          'Não foi possível solicitar a recuperação de senha.'
         );
+
       }
+
 
       formularioContainer.style.display =
         'none';
@@ -190,24 +133,25 @@ formulario.addEventListener(
       sucessoContainer.style.display =
         'block';
 
+
     } catch (error) {
+
       console.error(
-        'Erro ao redefinir senha:',
+        'Erro ao solicitar recuperação:',
         error
       );
 
       mostrarMensagem(
         error.message ||
-        'Ocorreu um erro ao redefinir sua senha.'
+        'Não foi possível enviar o link de recuperação.'
       );
 
-      btnRedefinir.disabled = false;
+      botao.disabled = false;
 
-      btnRedefinir.textContent =
-        'Redefinir senha';
+      botao.textContent =
+        'Enviar link de recuperação';
+
     }
+
   }
 );
-
-
-validarToken();
