@@ -8,6 +8,7 @@ const MERCADO_PAGO_API =
 // ============================================================
 
 function obterAccessToken() {
+
   const token =
     process.env.MERCADO_PAGO_ACCESS_TOKEN;
 
@@ -28,6 +29,7 @@ async function mercadoPagoRequest(
   endpoint,
   options = {}
 ) {
+
   const token =
     obterAccessToken();
 
@@ -52,10 +54,14 @@ async function mercadoPagoRequest(
   let data = null;
 
   try {
+
     data =
       await response.json();
+
   } catch (_) {
+
     data = null;
+
   }
 
   if (!response.ok) {
@@ -104,30 +110,35 @@ function obterRecorrencia(
   switch (periodo) {
 
     case 'mensal':
+
       return {
         frequency: 1,
         frequency_type: 'months'
       };
 
     case 'trimestral':
+
       return {
         frequency: 3,
         frequency_type: 'months'
       };
 
     case 'semestral':
+
       return {
         frequency: 6,
         frequency_type: 'months'
       };
 
     case 'anual':
+
       return {
         frequency: 12,
         frequency_type: 'months'
       };
 
     default:
+
       throw new Error(
         'Período de plano inválido.'
       );
@@ -147,9 +158,11 @@ async function criarPlano({
 }) {
 
   if (!nome) {
+
     throw new Error(
       'Nome do plano é obrigatório.'
     );
+
   }
 
   if (
@@ -157,9 +170,11 @@ async function criarPlano({
     valor === null ||
     Number(valor) <= 0
   ) {
+
     throw new Error(
       'Valor do plano deve ser maior que zero.'
     );
+
   }
 
   const recorrencia =
@@ -189,8 +204,10 @@ async function criarPlano({
   };
 
   if (backUrl) {
+
     body.back_url =
       backUrl;
+
   }
 
   return mercadoPagoRequest(
@@ -213,9 +230,11 @@ async function buscarPlano(
 ) {
 
   if (!mercadoPagoPlanId) {
+
     throw new Error(
       'ID do plano Mercado Pago não informado.'
     );
+
   }
 
   return mercadoPagoRequest(
@@ -239,15 +258,19 @@ async function atualizarPlano({
 }) {
 
   if (!mercadoPagoPlanId) {
+
     throw new Error(
       'ID do plano Mercado Pago não informado.'
     );
+
   }
 
   if (!nome) {
+
     throw new Error(
       'Nome do plano é obrigatório.'
     );
+
   }
 
   if (
@@ -255,9 +278,11 @@ async function atualizarPlano({
     valor === null ||
     Number(valor) <= 0
   ) {
+
     throw new Error(
       'Valor do plano deve ser maior que zero.'
     );
+
   }
 
   const recorrencia =
@@ -287,8 +312,10 @@ async function atualizarPlano({
   };
 
   if (backUrl) {
+
     body.back_url =
       backUrl;
+
   }
 
   /*
@@ -327,21 +354,27 @@ async function criarAssinatura({
 }) {
 
   if (!planoMercadoPagoId) {
+
     throw new Error(
       'ID do plano Mercado Pago é obrigatório.'
     );
+
   }
 
   if (!email) {
+
     throw new Error(
       'E-mail do assinante é obrigatório.'
     );
+
   }
 
   if (!cardTokenId) {
+
     throw new Error(
       'Token do cartão é obrigatório.'
     );
+
   }
 
   const body = {
@@ -399,15 +432,73 @@ async function buscarAssinatura(
 ) {
 
   if (!mercadoPagoId) {
+
     throw new Error(
       'ID da assinatura Mercado Pago não informado.'
     );
+
   }
 
   return mercadoPagoRequest(
     `/preapproval/${encodeURIComponent(
       mercadoPagoId
     )}`
+  );
+}
+
+// ============================================================
+// ATUALIZAR ASSINATURA
+//
+// status possíveis utilizados pelo Orvix:
+//
+// authorized = ativa
+// paused     = pausada
+// canceled   = cancelada
+// ============================================================
+
+async function atualizarAssinatura({
+  mercadoPagoId,
+  status
+}) {
+
+  if (!mercadoPagoId) {
+
+    throw new Error(
+      'ID da assinatura Mercado Pago não informado.'
+    );
+
+  }
+
+  const statusPermitidos = [
+    'authorized',
+    'paused',
+    'canceled'
+  ];
+
+  if (
+    !statusPermitidos.includes(
+      status
+    )
+  ) {
+
+    throw new Error(
+      'Status de assinatura Mercado Pago inválido.'
+    );
+
+  }
+
+  return mercadoPagoRequest(
+    `/preapproval/${encodeURIComponent(
+      mercadoPagoId
+    )}`,
+    {
+      method: 'PUT',
+
+      body:
+        JSON.stringify({
+          status
+        })
+    }
   );
 }
 
@@ -420,9 +511,11 @@ async function buscarPagamentoAutorizado(
 ) {
 
   if (!pagamentoId) {
+
     throw new Error(
       'ID do pagamento não informado.'
     );
+
   }
 
   return mercadoPagoRequest(
@@ -462,6 +555,7 @@ module.exports = {
 
   criarAssinatura,
   buscarAssinatura,
+  atualizarAssinatura,
 
   buscarPagamentoAutorizado
 
