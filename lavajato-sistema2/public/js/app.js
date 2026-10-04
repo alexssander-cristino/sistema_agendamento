@@ -5834,7 +5834,8 @@ async function verificarAssinaturaObrigatoria(){
 
   if(
     !usuarioLogado ||
-    usuarioLogado.perfil === 'dev'
+    usuarioLogado.perfil === 'dev' ||
+    usuarioLogado.conta_teste === true
   ){
 
     assinaturaVerificada = true;
