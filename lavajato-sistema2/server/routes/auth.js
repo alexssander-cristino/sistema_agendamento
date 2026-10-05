@@ -35,7 +35,7 @@ const TEMPO_RECUPERACAO_MINUTOS =
   30;
 
 // ============================================================
-// PERMISSÕES DO ADMINISTRADOR
+// PERMISSÕES DO ADMINISTRADOR / DEV
 // ============================================================
 
 const PERMISSOES_ADMINISTRADOR = [
@@ -69,14 +69,22 @@ async function obterPermissoesUsuario(
   usuario
 ) {
 
+  // ==========================================================
+  // ADMINISTRADOR E DEV POSSUEM TODAS AS PERMISSÕES
+  // ==========================================================
+
   if (
-    usuario.perfil ===
-    'administrador'
+    usuario.perfil === 'administrador' ||
+    usuario.perfil === 'dev'
   ) {
 
     return PERMISSOES_ADMINISTRADOR;
 
   }
+
+  // ==========================================================
+  // FUNCIONÁRIO
+  // ==========================================================
 
   return await buscarCodigosPermissoesUsuario(
     usuario.id
@@ -531,7 +539,7 @@ router.post(
 
           FROM usuarios u
 
-          INNER JOIN empresas e
+          LEFT JOIN empresas e
             ON e.id = u.empresa_id
 
           WHERE LOWER(u.email) =
@@ -634,6 +642,8 @@ router.post(
 
       // ======================================================
       // RESPOSTA
+      //
+      // DEV não possui empresa.
       // ======================================================
 
       return res.json({
@@ -664,24 +674,27 @@ router.post(
 
         },
 
-        empresa: {
+        empresa:
+          usuario.perfil === 'dev'
+            ? null
+            : {
 
-          id:
-            usuario.empresa_id,
+                id:
+                  usuario.empresa_id,
 
-          nome:
-            usuario.empresa_nome,
+                nome:
+                  usuario.empresa_nome,
 
-          email:
-            usuario.empresa_email,
+                email:
+                  usuario.empresa_email,
 
-          telefone:
-            usuario.empresa_telefone,
+                telefone:
+                  usuario.empresa_telefone,
 
-          conta_teste:
-            usuario.empresa_conta_teste
+                conta_teste:
+                  usuario.empresa_conta_teste
 
-        }
+              }
 
       });
 
@@ -1182,11 +1195,25 @@ router.get(
 
           FROM usuarios u
 
-          INNER JOIN empresas e
+          LEFT JOIN empresas e
             ON e.id = u.empresa_id
 
-          WHERE u.id = $1
-            AND u.empresa_id = $2
+          WHERE
+            u.id = $1
+
+            AND (
+              (
+                u.perfil = 'dev'
+                AND u.empresa_id IS NULL
+              )
+
+              OR
+
+              (
+                u.perfil <> 'dev'
+                AND u.empresa_id = $2
+              )
+            )
 
           LIMIT 1
           `,
@@ -1261,24 +1288,27 @@ router.get(
 
         },
 
-        empresa: {
+        empresa:
+          usuario.perfil === 'dev'
+            ? null
+            : {
 
-          id:
-            usuario.empresa_id,
+                id:
+                  usuario.empresa_id,
 
-          nome:
-            usuario.empresa_nome,
+                nome:
+                  usuario.empresa_nome,
 
-          email:
-            usuario.empresa_email,
+                email:
+                  usuario.empresa_email,
 
-          telefone:
-            usuario.empresa_telefone,
+                telefone:
+                  usuario.empresa_telefone,
 
-          conta_teste:
-            usuario.empresa_conta_teste
+                conta_teste:
+                  usuario.empresa_conta_teste
 
-        }
+              }
 
       });
 
