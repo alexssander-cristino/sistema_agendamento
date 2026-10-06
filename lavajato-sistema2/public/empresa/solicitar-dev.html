@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Solicitar suporte | Orvix</title>
+
+  <style>
+
+    :root {
+
+      color-scheme: dark;
+
+      --bg: #0a0e1a;
+      --bg-2: #0f1424;
+
+      --card: rgba(255,255,255,.045);
+      --card-hover: rgba(255,255,255,.065);
+
+      --text: #e8ecf5;
+      --muted: #9aa4bd;
+      --faint: #727d98;
+
+      --border: rgba(255,255,255,.09);
+      --border-strong: rgba(255,255,255,.15);
+
+      --primary: #4f8cff;
+      --primary-hover: #6a9dff;
+
+      --violet: #6d5cff;
+      --cyan: #22d3ee;
+
+      --success: #2fd68b;
+      --warning: #fbbf24;
+      --danger: #ff5d73;
+
+      --radius: 14px;
+      --radius-lg: 20px;
+
+      --shadow:
+        0 20px 50px -25px rgba(0,0,0,.8);
+
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+
+      margin: 0;
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          700px 500px at 100% 0,
+          rgba(79,140,255,.14),
+          transparent 70%
+        ),
+        radial-gradient(
+          600px 500px at 0 100%,
+          rgba(109,92,255,.10),
+          transparent 70%
+        ),
+        var(--bg);
+
+      color: var(--text);
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      font-size: 14px;
+      line-height: 1.6;
+
+      -webkit-font-smoothing: antialiased;
+
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+
+    header {
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+
+      height: 68px;
+
+      display: flex;
+      align-items: center;
+
+      border-bottom: 1px solid var(--border);
+
+      background:
+        rgba(10,14,26,.82);
+
+      backdrop-filter: blur(18px);
+
+    }
+
+    .header-content {
+
+      width: min(1180px, calc(100% - 32px));
+
+      margin: 0 auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 20px;
+
+    }
+
+    .logo {
+
+      text-decoration: none;
+
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+
+      background:
+        linear-gradient(
+          90deg,
+          var(--primary),
+          var(--cyan)
+        );
+
+      -webkit-background-clip: text;
+      background-clip: text;
+
+      color: transparent;
+
+    }
+
+    .back {
+
+      color: var(--muted);
+
+      text-decoration: none;
+
+      transition: .18s ease;
+
+    }
+
+    .back:hover {
+      color: var(--text);
+    }
+
+    /* ============================================================
+       MAIN
+    ============================================================ */
+
+    main {
+
+      width: min(1180px, calc(100% - 32px));
+
+      margin: 0 auto;
+
+      padding: 42px 0 70px;
+
+    }
+
+    .page-header {
+
+      margin-bottom: 30px;
+
+    }
+
+    .eyebrow {
+
+      display: inline-flex;
+
+      padding: 5px 10px;
+
+      border-radius: 999px;
+
+      border: 1px solid rgba(79,140,255,.22);
+
+      background: rgba(79,140,255,.08);
+
+      color: #9dbbff;
+
+      font-size: 12px;
+      font-weight: 700;
+
+      margin-bottom: 12px;
+
+    }
+
+    h1 {
+
+      margin: 0;
+
+      font-size: clamp(28px, 4vw, 38px);
+
+      line-height: 1.15;
+
+      letter-spacing: -.8px;
+
+    }
+
+    .page-header p {
+
+      max-width: 700px;
+
+      margin: 12px 0 0;
+
+      color: var(--muted);
+
+      font-size: 15px;
+
+    }
+
+    /* ============================================================
+       GRID
+    ============================================================ */
+
+    .grid {
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(320px, .8fr);
+
+      gap: 22px;
+
+      align-items: start;
+
+    }
+
+    .card {
+
+      background: var(--card);
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--radius-lg);
+
+      box-shadow: var(--shadow);
+
+      overflow: hidden;
+
+    }
+
+    .card-header {
+
+      padding: 22px 24px;
+
+      border-bottom: 1px solid var(--border);
+
+    }
+
+    .card-header h2 {
+
+      margin: 0;
+
+      font-size: 17px;
+
+    }
+
+    .card-header p {
+
+      margin: 5px 0 0;
+
+      color: var(--muted);
+
+      font-size: 13px;
+
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* ============================================================
+       FORM
+    ============================================================ */
+
+    .form-group {
+      margin-bottom: 19px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+
+      display: block;
+
+      margin-bottom: 7px;
+
+      font-size: 13px;
+      font-weight: 650;
+
+      color: var(--text);
+
+    }
+
+    input,
+    select,
+    textarea {
+
+      width: 100%;
+
+      border: 1px solid var(--border-strong);
+
+      border-radius: 11px;
+
+      background: rgba(255,255,255,.035);
+
+      color: var(--text);
+
+      padding: 12px 13px;
+
+      outline: none;
+
+      transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
+
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--faint);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+
+      border-color: rgba(79,140,255,.65);
+
+      box-shadow:
+        0 0 0 3px rgba(79,140,255,.12);
+
+      background: rgba(255,255,255,.05);
+
+    }
+
+    textarea {
+
+      min-height: 150px;
+
+      resize: vertical;
+
+    }
+
+    select option {
+      background: #101525;
+      color: white;
+    }
+
+    .form-row {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 14px;
+
+    }
+
+    .hint {
+
+      margin-top: 6px;
+
+      color: var(--faint);
+
+      font-size: 12px;
+
+    }
+
+    /* ============================================================
+       BUTTON
+    ============================================================ */
+
+    .actions {
+
+      display: flex;
+
+      justify-content: flex-end;
+
+      gap: 10px;
+
+      margin-top: 22px;
+
+    }
+
+    .btn {
+
+      border: 0;
+
+      border-radius: 11px;
+
+      padding: 11px 17px;
+
+      font-weight: 700;
+
+      transition:
+        transform .15s ease,
+        opacity .15s ease,
+        box-shadow .15s ease;
+
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+
+      opacity: .55;
+
+      cursor: not-allowed;
+
+      transform: none;
+
+    }
+
+    .btn-primary {
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          var(--violet)
+        );
+
+      box-shadow:
+        0 10px 25px -12px rgba(79,140,255,.8);
+
+    }
+
+    /* ============================================================
+       MESSAGE
+    ============================================================ */
+
+    .message {
+
+      display: none;
+
+      margin-bottom: 18px;
+
+      padding: 12px 14px;
+
+      border-radius: 10px;
+
+      font-size: 13px;
+
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+
+      color: #b7f7da;
+
+      border: 1px solid rgba(47,214,139,.25);
+
+      background: rgba(47,214,139,.08);
+
+    }
+
+    .message.error {
+
+      color: #ffb7c1;
+
+      border: 1px solid rgba(255,93,115,.25);
+
+      background: rgba(255,93,115,.08);
+
+    }
+
+    /* ============================================================
+       INFO CARD
+    ============================================================ */
+
+    .info-box {
+
+      padding: 17px;
+
+      border-radius: 13px;
+
+      border: 1px solid rgba(79,140,255,.16);
+
+      background: rgba(79,140,255,.055);
+
+      margin-bottom: 22px;
+
+    }
+
+    .info-box strong {
+
+      display: block;
+
+      margin-bottom: 5px;
+
+    }
+
+    .info-box p {
+
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 13px;
+
+    }
+
+    /* ============================================================
+       LISTA
+    ============================================================ */
+
+    .lista {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 12px;
+
+    }
+
+    .solicitacao {
+
+      padding: 17px;
+
+      border: 1px solid var(--border);
+
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.025);
+
+      transition:
+        background .18s ease,
+        border-color .18s ease;
+
+    }
+
+    .solicitacao:hover {
+
+      background: var(--card-hover);
+
+      border-color: var(--border-strong);
+
+    }
+
+    .solicitacao-topo {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: flex-start;
+
+      gap: 12px;
+
+      margin-bottom: 7px;
+
+    }
+
+    .solicitacao-titulo {
+
+      font-weight: 700;
+
+    }
+
+    .solicitacao-meta {
+
+      color: var(--faint);
+
+      font-size: 12px;
+
+    }
+
+    .solicitacao-descricao {
+
+      margin: 12px 0 0;
+
+      color: var(--muted);
+
+      white-space: pre-wrap;
+
+      word-break: break-word;
+
+    }
+
+    .resposta {
+
+      margin-top: 14px;
+
+      padding: 12px;
+
+      border-left: 3px solid var(--primary);
+
+      border-radius: 7px;
+
+      background: rgba(79,140,255,.06);
+
+    }
+
+    .resposta strong {
+
+      display: block;
+
+      margin-bottom: 3px;
+
+      font-size: 12px;
+
+    }
+
+    .resposta div {
+
+      color: var(--muted);
+
+      white-space: pre-wrap;
+
+    }
+
+    /* ============================================================
+       STATUS
+    ============================================================ */
+
+    .status {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      padding: 4px 9px;
+
+      border-radius: 999px;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      white-space: nowrap;
+
+    }
+
+    .status-pendente {
+
+      color: #fcd978;
+
+      background: rgba(251,191,36,.10);
+
+      border: 1px solid rgba(251,191,36,.18);
+
+    }
+
+    .status-em_analise {
+
+      color: #a9c5ff;
+
+      background: rgba(79,140,255,.10);
+
+      border: 1px solid rgba(79,140,255,.18);
+
+    }
+
+    .status-aguardando_informacoes {
+
+      color: #d5c6ff;
+
+      background: rgba(109,92,255,.10);
+
+      border: 1px solid rgba(109,92,255,.18);
+
+    }
+
+    .status-atendida {
+
+      color: #9bf0c8;
+
+      background: rgba(47,214,139,.10);
+
+      border: 1px solid rgba(47,214,139,.18);
+
+    }
+
+    .status-recusada,
+    .status-cancelada {
+
+      color: #ffadb8;
+
+      background: rgba(255,93,115,.10);
+
+      border: 1px solid rgba(255,93,115,.18);
+
+    }
+
+    .empty {
+
+      padding: 30px 15px;
+
+      text-align: center;
+
+      color: var(--faint);
+
+    }
+
+    .loading {
+
+      padding: 25px;
+
+      text-align: center;
+
+      color: var(--muted);
+
+    }
+
+    /* ============================================================
+       RESPONSIVO
+    ============================================================ */
+
+    @media (max-width: 850px) {
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (max-width: 600px) {
+
+      main {
+        width: min(100% - 22px, 1180px);
+        padding-top: 28px;
+      }
+
+      .header-content {
+        width: min(100% - 22px, 1180px);
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .card-body,
+      .card-header {
+        padding: 18px;
+      }
+
+      .actions {
+        justify-content: stretch;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .solicitacao-topo {
+        flex-direction: column;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="header-content">
+
+    <a
+      href="/"
+      class="logo"
+    >
+      Orvix
+    </a>
+
+    <a
+      href="/"
+      class="back"
+    >
+      Voltar para o sistema
+    </a>
+
+  </div>
+
+</header>
+
+
+<main>
+
+  <div class="page-header">
+
+    <span class="eyebrow">
+      Suporte Orvix
+    </span>
+
+    <h1>
+      Solicitar atendimento
+    </h1>
+
+    <p>
+      Envie uma solicitação diretamente para a equipe
+      responsável pelo Orvix. Utilize esta área quando
+      precisar de ajuda, informar um problema ou solicitar
+      alguma ação que não possa ser realizada pela própria
+      empresa.
+    </p>
+
+  </div>
+
+
+  <div class="grid">
+
+    <!-- ======================================================
+         NOVA SOLICITAÇÃO
+    ======================================================= -->
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <h2>
+          Nova solicitação
+        </h2>
+
+        <p>
+          Explique o que você precisa e nossa equipe poderá
+          analisar a solicitação.
+        </p>
+
+      </div>
+
+
+      <div class="card-body">
+
+        <div
+          id="message"
+          class="message"
+        ></div>
+
+
+        <form id="formSolicitacao">
+
+          <div class="form-group">
+
+            <label for="tipo">
+              Tipo da solicitação
+            </label>
+
+            <select
+              id="tipo"
+              required
+            >
+
+              <option value="">
+                Selecione uma opção
+              </option>
+
+              <option value="suporte">
+                Suporte técnico
+              </option>
+
+              <option value="problema">
+                Relatar problema
+              </option>
+
+              <option value="duvida">
+                Dúvida sobre o sistema
+              </option>
+
+              <option value="configuracao">
+                Solicitar configuração
+              </option>
+
+              <option value="lgpd">
+                Solicitação relacionada à LGPD
+              </option>
+
+              <option value="dados">
+                Solicitação relacionada a dados
+              </option>
+
+              <option value="financeiro">
+                Questão financeira
+              </option>
+
+              <option value="assinatura">
+                Assinatura ou plano
+              </option>
+
+              <option value="outro">
+                Outra solicitação
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="assunto">
+              Assunto
+            </label>
+
+            <input
+              type="text"
+              id="assunto"
+              maxlength="150"
+              placeholder="Ex.: Preciso alterar uma configuração da empresa"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-row">
+
+            <div class="form-group">
+
+              <label for="prioridade">
+                Prioridade
+              </label>
+
+              <select id="prioridade">
+
+                <option value="normal">
+                  Normal
+                </option>
+
+                <option value="baixa">
+                  Baixa
+                </option>
+
+                <option value="alta">
+                  Alta
+                </option>
+
+                <option value="urgente">
+                  Urgente
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label for="referencia">
+                Referência
+              </label>
+
+              <input
+                type="text"
+                id="referencia"
+                maxlength="100"
+                placeholder="Opcional"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="descricao">
+              Descrição
+            </label>
+
+            <textarea
+              id="descricao"
+              maxlength="5000"
+              placeholder="Descreva detalhadamente o que você precisa..."
+              required
+            ></textarea>
+
+            <div class="hint">
+              Quanto mais detalhes forem informados,
+              mais fácil será analisar sua solicitação.
+            </div>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="btnEnviar"
+            >
+              Enviar solicitação
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================================
+         HISTÓRICO
+    ======================================================= -->
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <h2>
+          Minhas solicitações
+        </h2>
+
+        <p>
+          Acompanhe solicitações enviadas pela empresa.
+        </p>
+
+      </div>
+
+
+      <div class="card-body">
+
+        <div class="info-box">
+
+          <strong>
+            Atendimento pelo Orvix
+          </strong>
+
+          <p>
+            As solicitações são analisadas pela equipe
+            responsável pela plataforma. Caso sejam
+            necessárias mais informações, você poderá
+            receber uma solicitação de esclarecimento.
+          </p>
+
+        </div>
+
+
+        <div
+          id="listaSolicitacoes"
+          class="lista"
+        >
+
+          <div class="loading">
+            Carregando solicitações...
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</main>
+
+
+<script>
+
+  const API = '/api';
+
+  const TOKEN_KEY =
+    'lavajato_auth_token';
+
+  const token =
+    localStorage.getItem(
+      TOKEN_KEY
+    );
+
+
+  const form =
+    document.getElementById(
+      'formSolicitacao'
+    );
+
+  const lista =
+    document.getElementById(
+      'listaSolicitacoes'
+    );
+
+  const message =
+    document.getElementById(
+      'message'
+    );
+
+  const btnEnviar =
+    document.getElementById(
+      'btnEnviar'
+    );
+
+
+  /* ==========================================================
+     MENSAGEM
+  ========================================================== */
+
+  function mostrarMensagem(
+    texto,
+    tipo
+  ){
+
+    message.textContent =
+      texto;
+
+    message.className =
+      `message show ${tipo}`;
+
+  }
+
+
+  function limparMensagem(){
+
+    message.textContent =
+      '';
+
+    message.className =
+      'message';
+
+  }
+
+
+  /* ==========================================================
+     ESCAPAR HTML
+  ========================================================== */
+
+  function escapeHtml(
+    valor
+  ){
+
+    if(
+      valor === null ||
+      valor === undefined
+    ){
+
+      return '';
+
+    }
+
+    return String(valor)
+
+      .replace(
+        /&/g,
+        '&amp;'
+      )
+
+      .replace(
+        /</g,
+        '&lt;'
+      )
+
+      .replace(
+        />/g,
+        '&gt;'
+      )
+
+      .replace(
+        /"/g,
+        '&quot;'
+      )
+
+      .replace(
+        /'/g,
+        '&#039;'
+      );
+
+  }
+
+
+  /* ==========================================================
+     NOMES
+  ========================================================== */
+
+  function nomeTipo(
+    tipo
+  ){
+
+    const tipos = {
+
+      suporte:
+        'Suporte técnico',
+
+      problema:
+        'Relatar problema',
+
+      duvida:
+        'Dúvida sobre o sistema',
+
+      configuracao:
+        'Solicitar configuração',
+
+      lgpd:
+        'Solicitação relacionada à LGPD',
+
+      dados:
+        'Solicitação relacionada a dados',
+
+      financeiro:
+        'Questão financeira',
+
+      assinatura:
+        'Assinatura ou plano',
+
+      outro:
+        'Outra solicitação'
+
+    };
+
+    return (
+      tipos[tipo] ||
+      tipo ||
+      'Solicitação'
+    );
+
+  }
+
+
+  function nomePrioridade(
+    prioridade
+  ){
+
+    const prioridades = {
+
+      baixa:
+        'Baixa',
+
+      normal:
+        'Normal',
+
+      alta:
+        'Alta',
+
+      urgente:
+        'Urgente'
+
+    };
+
+    return (
+      prioridades[prioridade] ||
+      prioridade ||
+      'Normal'
+    );
+
+  }
+
+
+  function nomeStatus(
+    status
+  ){
+
+    const statuses = {
+
+      pendente:
+        'Pendente',
+
+      em_analise:
+        'Em análise',
+
+      aguardando_informacoes:
+        'Aguardando informações',
+
+      atendida:
+        'Atendida',
+
+      recusada:
+        'Recusada',
+
+      cancelada:
+        'Cancelada'
+
+    };
+
+    return (
+      statuses[status] ||
+      status ||
+      'Pendente'
+    );
+
+  }
+
+
+  function formatarData(
+    data
+  ){
+
+    if(!data){
+      return '-';
+    }
+
+    const valor =
+      new Date(data);
+
+    if(
+      Number.isNaN(
+        valor.getTime()
+      )
+    ){
+
+      return data;
+
+    }
+
+    return valor.toLocaleString(
+      'pt-BR',
+      {
+        dateStyle:
+          'short',
+
+        timeStyle:
+          'short'
+      }
+    );
+
+  }
+
+
+  /* ==========================================================
+     VERIFICAR ACESSO
+  ========================================================== */
+
+  async function verificarAcesso(){
+
+    if(!token){
+
+      window.location.href =
+        '/login.html';
+
+      return false;
+
+    }
+
+    try{
+
+      const resposta =
+        await fetch(
+          `${API}/auth/me`,
+          {
+            headers:{
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      if(
+        resposta.status === 401
+      ){
+
+        localStorage.removeItem(
+          TOKEN_KEY
+        );
+
+        window.location.href =
+          '/login.html';
+
+        return false;
+
+      }
+
+
+      const dados =
+        await resposta.json();
+
+
+      if(
+        !resposta.ok
+      ){
+
+        throw new Error(
+          dados.erro ||
+          'Não foi possível verificar o usuário.'
+        );
+
+      }
+
+
+      if(
+        dados.usuario?.perfil !==
+        'administrador'
+      ){
+
+        alert(
+          'Esta área é exclusiva para administradores da empresa.'
+        );
+
+        window.location.href =
+          '/';
+
+        return false;
+
+      }
+
+
+      return true;
+
+    }catch(err){
+
+      console.error(
+        'Erro ao verificar acesso:',
+        err
+      );
+
+      window.location.href =
+        '/';
+
+      return false;
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     CARREGAR SOLICITAÇÕES
+  ========================================================== */
+
+  async function carregarSolicitacoes(){
+
+    lista.innerHTML = `
+      <div class="loading">
+        Carregando solicitações...
+      </div>
+    `;
+
+
+    try{
+
+      /*
+       * Endpoint reservado para solicitações
+       * do administrador da empresa para o DEV.
+       *
+       * GET /api/privacidade/dev
+       */
+
+      const resposta =
+        await fetch(
+          `${API}/privacidade/dev`,
+          {
+            headers:{
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      if(
+        resposta.status === 401
+      ){
+
+        localStorage.removeItem(
+          TOKEN_KEY
+        );
+
+        window.location.href =
+          '/login.html';
+
+        return;
+
+      }
+
+
+      const dados =
+        await resposta.json()
+          .catch(
+            () => []
+          );
+
+
+      if(
+        !resposta.ok
+      ){
+
+        throw new Error(
+          dados.erro ||
+          'Não foi possível carregar as solicitações.'
+        );
+
+      }
+
+
+      renderizarSolicitacoes(
+        Array.isArray(dados)
+          ? dados
+          : []
+      );
+
+
+    }catch(err){
+
+      console.error(
+        'Erro ao carregar solicitações:',
+        err
+      );
+
+      lista.innerHTML = `
+        <div class="empty">
+          Não foi possível carregar suas solicitações.
+        </div>
+      `;
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     RENDERIZAR
+  ========================================================== */
+
+  function renderizarSolicitacoes(
+    solicitacoes
+  ){
+
+    if(
+      !solicitacoes.length
+    ){
+
+      lista.innerHTML = `
+        <div class="empty">
+          Nenhuma solicitação enviada pela empresa.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    lista.innerHTML =
+      solicitacoes
+        .map(
+          solicitacao => {
+
+            const status =
+              solicitacao.status ||
+              'pendente';
+
+
+            return `
+
+              <article
+                class="solicitacao"
+              >
+
+                <div
+                  class="solicitacao-topo"
+                >
+
+                  <div>
+
+                    <div
+                      class="solicitacao-titulo"
+                    >
+                      ${escapeHtml(
+                        solicitacao.assunto ||
+                        nomeTipo(
+                          solicitacao.tipo
+                        )
+                      )}
+                    </div>
+
+                    <div
+                      class="solicitacao-meta"
+                    >
+                      #${escapeHtml(
+                        solicitacao.id
+                      )}
+
+                      ·
+
+                      ${escapeHtml(
+                        formatarData(
+                          solicitacao.criado_em
+                        )
+                      )}
+
+                      ·
+
+                      Prioridade:
+                      ${escapeHtml(
+                        nomePrioridade(
+                          solicitacao.prioridade
+                        )
+                      )}
+
+                    </div>
+
+                  </div>
+
+
+                  <span
+                    class="status status-${escapeHtml(
+                      status
+                    )}"
+                  >
+                    ${escapeHtml(
+                      nomeStatus(
+                        status
+                      )
+                    )}
+                  </span>
+
+                </div>
+
+
+                <div
+                  class="solicitacao-meta"
+                >
+                  ${escapeHtml(
+                    nomeTipo(
+                      solicitacao.tipo
+                    )
+                  )}
+                </div>
+
+
+                ${
+                  solicitacao.descricao
+                    ? `
+                      <div
+                        class="solicitacao-descricao"
+                      >
+                        ${escapeHtml(
+                          solicitacao.descricao
+                        )}
+                      </div>
+                    `
+                    : ''
+                }
+
+
+                ${
+                  solicitacao.resposta
+                    ? `
+                      <div class="resposta">
+
+                        <strong>
+                          Resposta do Orvix
+                        </strong>
+
+                        <div>
+                          ${escapeHtml(
+                            solicitacao.resposta
+                          )}
+                        </div>
+
+                      </div>
+                    `
+                    : ''
+                }
+
+              </article>
+
+            `;
+
+          }
+        )
+        .join('');
+
+  }
+
+
+  /* ==========================================================
+     ENVIAR
+  ========================================================== */
+
+  form.addEventListener(
+    'submit',
+    async event => {
+
+      event.preventDefault();
+
+      limparMensagem();
+
+
+      const tipo =
+        document.getElementById(
+          'tipo'
+        ).value;
+
+      const assunto =
+        document.getElementById(
+          'assunto'
+        ).value.trim();
+
+      const prioridade =
+        document.getElementById(
+          'prioridade'
+        ).value;
+
+      const referencia =
+        document.getElementById(
+          'referencia'
+        ).value.trim();
+
+      const descricao =
+        document.getElementById(
+          'descricao'
+        ).value.trim();
+
+
+      if(
+        !tipo ||
+        !assunto ||
+        !descricao
+      ){
+
+        mostrarMensagem(
+          'Preencha os campos obrigatórios.',
+          'error'
+        );
+
+        return;
+
+      }
+
+
+      btnEnviar.disabled =
+        true;
+
+      btnEnviar.textContent =
+        'Enviando...';
+
+
+      try{
+
+        const resposta =
+          await fetch(
+            `${API}/privacidade/dev`,
+            {
+              method:
+                'POST',
+
+              headers:{
+                'Content-Type':
+                  'application/json',
+
+                Authorization:
+                  `Bearer ${token}`
+              },
+
+              body:
+                JSON.stringify({
+
+                  tipo,
+
+                  assunto,
+
+                  prioridade,
+
+                  referencia,
+
+                  descricao
+
+                })
+
+            }
+          );
+
+
+        if(
+          resposta.status === 401
+        ){
+
+          localStorage.removeItem(
+            TOKEN_KEY
+          );
+
+          window.location.href =
+            '/login.html';
+
+          return;
+
+        }
+
+
+        const dados =
+          await resposta.json()
+            .catch(
+              () => ({})
+            );
+
+
+        if(
+          !resposta.ok
+        ){
+
+          throw new Error(
+            dados.erro ||
+            'Não foi possível enviar a solicitação.'
+          );
+
+        }
+
+
+        mostrarMensagem(
+          'Solicitação enviada para a equipe do Orvix.',
+          'success'
+        );
+
+
+        form.reset();
+
+
+        await carregarSolicitacoes();
+
+
+      }catch(err){
+
+        console.error(
+          'Erro ao enviar solicitação:',
+          err
+        );
+
+        mostrarMensagem(
+          err.message ||
+          'Erro ao enviar solicitação.',
+          'error'
+        );
+
+
+      }finally{
+
+        btnEnviar.disabled =
+          false;
+
+        btnEnviar.textContent =
+          'Enviar solicitação';
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================================
+     INICIALIZAÇÃO
+  ========================================================== */
+
+  (async function(){
+
+    const acesso =
+      await verificarAcesso();
+
+    if(!acesso){
+      return;
+    }
+
+    await carregarSolicitacoes();
+
+  })();
+
+</script>
+
+</body>
+
+</html>
