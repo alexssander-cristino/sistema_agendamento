@@ -36,7 +36,7 @@ const TEMPO_RECUPERACAO_MINUTOS =
 // RATE LIMIT - LOGIN
 // ============================================================
 //
-// Permite até 15 tentativas de login dentro de 15 minutos
+// Permite até 06 tentativas de login dentro de 15 minutos
 // por endereço IP.
 //
 // Ao exceder o limite, retorna HTTP 429.
@@ -49,7 +49,7 @@ const loginRateLimit =
     windowMs:
       15 * 60 * 1000,
 
-    limit: 15,
+    limit: 6,
 
     standardHeaders: 'draft-7',
 

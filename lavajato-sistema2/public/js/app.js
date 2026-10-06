@@ -449,505 +449,562 @@
 
 
   // ============================================================
-  // AUTENTICAÇÃO
-  // ============================================================
+// AUTENTICAÇÃO
+// ============================================================
 
-  const authScreen =
-    document.getElementById('auth-screen');
+const authScreen =
+  document.getElementById('auth-screen');
 
-  const loginForm =
-    document.getElementById('login-form');
+const loginForm =
+  document.getElementById('login-form');
 
-  const registerForm =
-    document.getElementById('register-form');
+const registerForm =
+  document.getElementById('register-form');
 
-  const loginError =
-    document.getElementById('login-error');
+const loginError =
+  document.getElementById('login-error');
 
-  const registerError =
-    document.getElementById('register-error');
+const registerError =
+  document.getElementById('register-error');
 
-  const loginSubmit =
-    document.getElementById('login-submit');
+const loginSubmit =
+  document.getElementById('login-submit');
 
-  const registerSubmit =
-    document.getElementById('register-submit');
+const registerSubmit =
+  document.getElementById('register-submit');
 
-  const showRegisterBtn =
-    document.getElementById('show-register');
+const showRegisterBtn =
+  document.getElementById('show-register');
 
-  const showLoginBtn =
-    document.getElementById('show-login');
+const showLoginBtn =
+  document.getElementById('show-login');
 
 
-  function showAuthScreen(){
+// ============================================================
+// MOSTRAR TELA DE AUTENTICAÇÃO
+// ============================================================
 
-    if(!authScreen){
-      return;
-    }
+function showAuthScreen(){
 
-    authScreen.style.display = 'flex';
+  if(!authScreen){
+    return;
   }
 
+  authScreen.style.display = 'flex';
+}
 
-  function hideAuthScreen(){
 
-    if(!authScreen){
-      return;
-    }
+// ============================================================
+// ESCONDER TELA DE AUTENTICAÇÃO
+// ============================================================
 
-    authScreen.style.display = 'none';
+function hideAuthScreen(){
+
+  if(!authScreen){
+    return;
   }
 
+  authScreen.style.display = 'none';
+}
 
-  function showAuthError(
-    element,
-    message
+
+// ============================================================
+// MOSTRAR ERRO DE AUTENTICAÇÃO
+// ============================================================
+
+function showAuthError(
+  element,
+  message
+){
+
+  if(!element){
+    return;
+  }
+
+  element.textContent = message;
+  element.style.display = 'block';
+}
+
+
+// ============================================================
+// LIMPAR ERRO DE AUTENTICAÇÃO
+// ============================================================
+
+function clearAuthError(element){
+
+  if(!element){
+    return;
+  }
+
+  element.textContent = '';
+  element.style.display = 'none';
+}
+
+
+// ============================================================
+// SIDEBAR - USUÁRIO E EMPRESA
+// ============================================================
+
+function atualizarSidebarUsuario(){
+
+  const empresaElement =
+    document.getElementById(
+      'sidebar-company'
+    );
+
+  const nomeElement =
+    document.getElementById(
+      'sidebar-user-name'
+    );
+
+  const perfilElement =
+    document.getElementById(
+      'sidebar-user-profile'
+    );
+
+  const avatarElement =
+    document.getElementById(
+      'sidebar-user-avatar'
+    );
+
+
+  if(
+    empresaElement &&
+    empresaLogada
   ){
 
-    if(!element){
-      return;
-    }
-
-    element.textContent = message;
-    element.style.display = 'block';
+    empresaElement.textContent =
+      empresaLogada.nome ||
+      'Minha empresa';
   }
 
 
-  function clearAuthError(element){
+  if(
+    nomeElement &&
+    usuarioLogado
+  ){
 
-    if(!element){
-      return;
-    }
-
-    element.textContent = '';
-    element.style.display = 'none';
+    nomeElement.textContent =
+      usuarioLogado.nome ||
+      'Usuário';
   }
 
 
-  // ============================================================
-  // SIDEBAR - USUÁRIO E EMPRESA
-  // ============================================================
+  if(
+    perfilElement &&
+    usuarioLogado
+  ){
 
-  function atualizarSidebarUsuario(){
-
-    const empresaElement =
-      document.getElementById(
-        'sidebar-company'
-      );
-
-    const nomeElement =
-      document.getElementById(
-        'sidebar-user-name'
-      );
-
-    const perfilElement =
-      document.getElementById(
-        'sidebar-user-profile'
-      );
-
-    const avatarElement =
-      document.getElementById(
-        'sidebar-user-avatar'
-      );
-
-
-    if(
-      empresaElement &&
-      empresaLogada
-    ){
-
-      empresaElement.textContent =
-        empresaLogada.nome ||
-        'Minha empresa';
-    }
-
-
-    if(
-      nomeElement &&
-      usuarioLogado
-    ){
-
-      nomeElement.textContent =
-        usuarioLogado.nome ||
-        'Usuário';
-    }
-
-
-    if(
-      perfilElement &&
-      usuarioLogado
-    ){
-
-      perfilElement.textContent =
-        usuarioLogado.perfil === 'administrador'
-          ? 'Administrador'
-          : 'Funcionário';
-    }
-
-
-    if(
-      avatarElement &&
-      usuarioLogado
-    ){
-
-      const nome =
-        usuarioLogado.nome ||
-        'U';
-
-      avatarElement.textContent =
-        nome
-          .charAt(0)
-          .toUpperCase();
-    }
-
-
-    atualizarAcessoUsuarios();
+    perfilElement.textContent =
+      usuarioLogado.perfil === 'administrador'
+        ? 'Administrador'
+        : 'Funcionário';
   }
 
 
-  // ============================================================
-  // ACESSO À ÁREA DE USUÁRIOS
-  // ============================================================
+  if(
+    avatarElement &&
+    usuarioLogado
+  ){
 
-  function atualizarAcessoUsuarios(){
+    const nome =
+      usuarioLogado.nome ||
+      'U';
 
-    const btn =
-      document.getElementById(
-        'nav-usuarios'
-      );
-
-    if(btn){
-
-      if(isAdministrador()){
-
-        btn.style.display = '';
-
-      }else{
-
-        btn.style.display = 'none';
+    avatarElement.textContent =
+      nome
+        .charAt(0)
+        .toUpperCase();
+  }
 
 
-        if(activeTab === 'usuarios'){
+  atualizarAcessoUsuarios();
+}
 
-          goToTab('agenda');
-        }
+
+// ============================================================
+// ACESSO À ÁREA DE USUÁRIOS
+// ============================================================
+
+function atualizarAcessoUsuarios(){
+
+  const btn =
+    document.getElementById(
+      'nav-usuarios'
+    );
+
+  if(btn){
+
+    if(isAdministrador()){
+
+      btn.style.display = '';
+
+    }else{
+
+      btn.style.display = 'none';
+
+
+      if(activeTab === 'usuarios'){
+
+        goToTab('agenda');
       }
     }
+  }
 
 
-    document
-      .querySelectorAll('.nav-btn, .bn-btn')
-      .forEach(navBtn => {
+  document
+    .querySelectorAll('.nav-btn, .bn-btn')
+    .forEach(navBtn => {
 
-        const tab =
-          navBtn.dataset.tab;
+      const tab =
+        navBtn.dataset.tab;
 
-        if(!tab || tab === 'usuarios'){
-          return;
-        }
+      if(!tab || tab === 'usuarios'){
+        return;
+      }
 
-        navBtn.style.display =
-          temPermissao(tab)
-            ? ''
-            : 'none';
+      navBtn.style.display =
+        temPermissao(tab)
+          ? ''
+          : 'none';
 
-      });
+    });
 
 
-    if(
-      activeTab !== 'usuarios' &&
-      !temPermissao(activeTab)
-    ){
+  if(
+    activeTab !== 'usuarios' &&
+    !temPermissao(activeTab)
+  ){
 
-      const proxima =
-        PERMISSOES_DISPONIVEIS.find(
-          p => temPermissao(p.chave)
+    const proxima =
+      PERMISSOES_DISPONIVEIS.find(
+        p => temPermissao(p.chave)
+      );
+
+    goToTab(
+      proxima
+        ? proxima.chave
+        : 'agenda'
+    );
+  }
+}
+
+
+// ============================================================
+// MOSTRAR CADASTRO
+// ============================================================
+
+showRegisterBtn?.addEventListener(
+  'click',
+  () => {
+
+    if(loginForm){
+      loginForm.style.display = 'none';
+    }
+
+    if(registerForm){
+      registerForm.style.display = 'flex';
+    }
+
+    clearAuthError(loginError);
+    clearAuthError(registerError);
+
+    const subtitle =
+      document.getElementById(
+        'auth-subtitle'
+      );
+
+    if(subtitle){
+
+      subtitle.textContent =
+        'Crie sua conta e sua empresa para começar a usar o sistema';
+    }
+  }
+);
+
+
+// ============================================================
+// MOSTRAR LOGIN
+// ============================================================
+
+showLoginBtn?.addEventListener(
+  'click',
+  () => {
+
+    if(registerForm){
+      registerForm.style.display = 'none';
+    }
+
+    if(loginForm){
+      loginForm.style.display = 'flex';
+    }
+
+    clearAuthError(loginError);
+    clearAuthError(registerError);
+
+    const subtitle =
+      document.getElementById(
+        'auth-subtitle'
+      );
+
+    if(subtitle){
+
+      subtitle.textContent =
+        'Entre na sua conta para continuar';
+    }
+  }
+);
+
+
+// ============================================================
+// LOGIN
+// ============================================================
+
+loginForm?.addEventListener(
+  'submit',
+  async event => {
+
+    event.preventDefault();
+
+    clearAuthError(loginError);
+
+    if(loginSubmit){
+
+      loginSubmit.disabled = true;
+
+      loginSubmit.textContent =
+        'Entrando...';
+    }
+
+
+    const email =
+      document.getElementById(
+        'login-email'
+      )?.value.trim();
+
+    const senha =
+      document.getElementById(
+        'login-password'
+      )?.value;
+
+
+    try{
+
+      const resposta =
+        await api('/auth/login', {
+          method:'POST',
+
+          body:JSON.stringify({
+            email,
+            senha
+          })
+        });
+
+
+      localStorage.setItem(
+        AUTH_TOKEN_KEY,
+        resposta.token
+      );
+
+
+      usuarioLogado =
+        resposta.usuario || null;
+
+      empresaLogada =
+        resposta.empresa || null;
+
+
+      if(
+        usuarioLogado?.perfil === 'dev'
+      ){
+
+        window.location.href =
+          '/admin/dashboard.html';
+
+        return;
+      }
+
+
+      atualizarSidebarUsuario();
+
+      hideAuthScreen();
+
+      await iniciarSistema();
+
+
+    }catch(error){
+
+      // ======================================================
+      // HTTP 429 - LIMITE DE TENTATIVAS
+      // ======================================================
+
+      if(
+        error?.status === 429 ||
+        error?.statusCode === 429 ||
+        error?.response?.status === 429 ||
+        error?.codigo === 'RATE_LIMIT_AUTENTICACAO'
+      ){
+
+        window.location.replace(
+          '/429.html'
         );
 
-      goToTab(
-        proxima
-          ? proxima.chave
-          : 'agenda'
+        return;
+      }
+
+
+      showAuthError(
+        loginError,
+        error.message ||
+        'Não foi possível realizar o login.'
       );
-    }
-  }
 
 
-  // ============================================================
-  // MOSTRAR CADASTRO
-  // ============================================================
-
-  showRegisterBtn?.addEventListener(
-    'click',
-    () => {
-
-      if(loginForm){
-        loginForm.style.display = 'none';
-      }
-
-      if(registerForm){
-        registerForm.style.display = 'flex';
-      }
-
-      clearAuthError(loginError);
-      clearAuthError(registerError);
-
-      const subtitle =
-        document.getElementById(
-          'auth-subtitle'
-        );
-
-      if(subtitle){
-
-        subtitle.textContent =
-          'Crie sua conta e sua empresa para começar a usar o sistema';
-      }
-    }
-  );
-
-
-  // ============================================================
-  // MOSTRAR LOGIN
-  // ============================================================
-
-  showLoginBtn?.addEventListener(
-    'click',
-    () => {
-
-      if(registerForm){
-        registerForm.style.display = 'none';
-      }
-
-      if(loginForm){
-        loginForm.style.display = 'flex';
-      }
-
-      clearAuthError(loginError);
-      clearAuthError(registerError);
-
-      const subtitle =
-        document.getElementById(
-          'auth-subtitle'
-        );
-
-      if(subtitle){
-
-        subtitle.textContent =
-          'Entre na sua conta para continuar';
-      }
-    }
-  );
-
-
-  // ============================================================
-  // LOGIN
-  // ============================================================
-
-  loginForm?.addEventListener(
-    'submit',
-    async event => {
-
-      event.preventDefault();
-
-      clearAuthError(loginError);
+    }finally{
 
       if(loginSubmit){
 
-        loginSubmit.disabled = true;
+        loginSubmit.disabled = false;
+
         loginSubmit.textContent =
-          'Entrando...';
+          'Entrar';
       }
-
-      const email =
-        document.getElementById(
-          'login-email'
-        )?.value.trim();
-
-      const senha =
-        document.getElementById(
-          'login-password'
-        )?.value;
-
-
-      try{
-
-        const resposta =
-          await api('/auth/login', {
-            method:'POST',
-
-            body:JSON.stringify({
-              email,
-              senha
-            })
-          });
-
-
-        localStorage.setItem(
-          AUTH_TOKEN_KEY,
-          resposta.token
-        );
-
-
-        usuarioLogado =
-          resposta.usuario || null;
-
-        empresaLogada =
-          resposta.empresa || null;
-
-
-        if(
-          usuarioLogado?.perfil === 'dev'
-        ){
-
-          window.location.href =
-            '/admin/dashboard.html';
-
-          return;
-        }
-
-
-        atualizarSidebarUsuario();
-
-        hideAuthScreen();
-
-        await iniciarSistema();
-
-
-      }catch(error){
-
-        showAuthError(
-          loginError,
-          error.message ||
-          'Não foi possível realizar o login.'
-        );
-
-
-      }finally{
-
-        if(loginSubmit){
-
-          loginSubmit.disabled = false;
-          loginSubmit.textContent =
-            'Entrar';
-        }
-      }
-
     }
-  );
+
+  }
+);
 
 
-  // ============================================================
-  // CADASTRO
-  // ============================================================
+// ============================================================
+// CADASTRO
+// ============================================================
 
-  registerForm?.addEventListener(
-    'submit',
-    async event => {
+registerForm?.addEventListener(
+  'submit',
+  async event => {
 
-      event.preventDefault();
+    event.preventDefault();
 
-      clearAuthError(registerError);
+    clearAuthError(registerError);
+
+    if(registerSubmit){
+
+      registerSubmit.disabled = true;
+
+      registerSubmit.textContent =
+        'Criando conta...';
+    }
+
+
+    const empresa =
+      document.getElementById(
+        'register-company'
+      )?.value.trim();
+
+    const email_empresa =
+      document.getElementById(
+        'register-company-email'
+      )?.value.trim();
+
+    const telefone =
+      document.getElementById(
+        'register-phone'
+      )?.value.trim();
+
+    const nome =
+      document.getElementById(
+        'register-name'
+      )?.value.trim();
+
+    const email =
+      document.getElementById(
+        'register-email'
+      )?.value.trim();
+
+    const senha =
+      document.getElementById(
+        'register-password'
+      )?.value;
+
+
+    try{
+
+      const resposta =
+        await api('/auth/cadastro', {
+          method:'POST',
+
+          body:JSON.stringify({
+            empresa,
+            email_empresa,
+            telefone,
+            nome,
+            email,
+            senha
+          })
+        });
+
+
+      localStorage.setItem(
+        AUTH_TOKEN_KEY,
+        resposta.token
+      );
+
+
+      usuarioLogado =
+        resposta.usuario || null;
+
+      empresaLogada =
+        resposta.empresa || null;
+
+
+      atualizarSidebarUsuario();
+
+      hideAuthScreen();
+
+      await iniciarSistema();
+
+
+    }catch(error){
+
+      // ======================================================
+      // HTTP 429 - LIMITE DE CADASTRO
+      // ======================================================
+
+      if(
+        error?.status === 429 ||
+        error?.statusCode === 429 ||
+        error?.response?.status === 429 ||
+        error?.codigo === 'RATE_LIMIT_AUTENTICACAO'
+      ){
+
+        window.location.replace(
+          '/429.html'
+        );
+
+        return;
+      }
+
+
+      showAuthError(
+        registerError,
+        error.message ||
+        'Não foi possível criar a conta.'
+      );
+
+
+    }finally{
 
       if(registerSubmit){
 
-        registerSubmit.disabled = true;
+        registerSubmit.disabled = false;
+
         registerSubmit.textContent =
-          'Criando conta...';
+          'Criar conta';
       }
-
-
-      const empresa =
-        document.getElementById(
-          'register-company'
-        )?.value.trim();
-
-      const email_empresa =
-        document.getElementById(
-          'register-company-email'
-        )?.value.trim();
-
-      const telefone =
-        document.getElementById(
-          'register-phone'
-        )?.value.trim();
-
-      const nome =
-        document.getElementById(
-          'register-name'
-        )?.value.trim();
-
-      const email =
-        document.getElementById(
-          'register-email'
-        )?.value.trim();
-
-      const senha =
-        document.getElementById(
-          'register-password'
-        )?.value;
-
-
-      try{
-
-        const resposta =
-          await api('/auth/cadastro', {
-            method:'POST',
-
-            body:JSON.stringify({
-              empresa,
-              email_empresa,
-              telefone,
-              nome,
-              email,
-              senha
-            })
-          });
-
-
-        localStorage.setItem(
-          AUTH_TOKEN_KEY,
-          resposta.token
-        );
-
-
-        usuarioLogado =
-          resposta.usuario || null;
-
-        empresaLogada =
-          resposta.empresa || null;
-
-
-        atualizarSidebarUsuario();
-
-        hideAuthScreen();
-
-        await iniciarSistema();
-
-
-      }catch(error){
-
-        showAuthError(
-          registerError,
-          error.message ||
-          'Não foi possível criar a conta.'
-        );
-
-
-      }finally{
-
-        if(registerSubmit){
-
-          registerSubmit.disabled = false;
-          registerSubmit.textContent =
-            'Criar conta';
-        }
-      }
-
     }
-  );
 
-
+  }
+);
   // ============================================================
   // VERIFICAR SESSÃO
   // ============================================================

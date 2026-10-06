@@ -3778,17 +3778,6 @@ function configurarSalvarTema() {
       botao.textContent =
         'Salvando...';
 
-
-    // ========================================================
-    // ERRO 429 - MUITAS TENTATIVAS
-    // ========================================================
-
-    if (response.status === 429) {
-      window.location.href = '/429.html';
-      return;
-    }
-
-    const dados = await response.json();
   
 
       // =====================================================
