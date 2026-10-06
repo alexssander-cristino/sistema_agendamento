@@ -1,10 +1,8 @@
 const express = require('express');
-
 const bcrypt = require('bcryptjs');
-
 const jwt = require('jsonwebtoken');
-
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 
 const pool = require('../db');
 
@@ -35,6 +33,43 @@ const TEMPO_RECUPERACAO_MINUTOS =
   30;
 
 // ============================================================
+// RATE LIMIT - LOGIN
+// ============================================================
+//
+// Permite até 15 tentativas de login dentro de 15 minutos
+// por endereço IP.
+//
+// Ao exceder o limite, retorna HTTP 429.
+// O frontend pode redirecionar para /429.html.
+//
+// ============================================================
+
+const loginRateLimit =
+  rateLimit({
+    windowMs:
+      15 * 60 * 1000,
+
+    limit: 15,
+
+    standardHeaders: 'draft-7',
+
+    legacyHeaders: false,
+
+    handler: (req, res) => {
+      return res.status(429).json({
+        erro:
+          'Muitas tentativas de acesso. Aguarde 15 minutos antes de tentar novamente.',
+
+        codigo:
+          'RATE_LIMIT_EXCEDIDO',
+
+        redirecionar:
+          '/429.html'
+      });
+    }
+  });
+
+// ============================================================
 // PERMISSÕES DO ADMINISTRADOR / DEV
 // ============================================================
 
@@ -54,11 +89,9 @@ const PERMISSOES_ADMINISTRADOR = [
 // ============================================================
 
 if (!JWT_SECRET) {
-
   console.error(
     'ERRO: JWT_SECRET não foi configurado.'
   );
-
 }
 
 // ============================================================
@@ -68,7 +101,6 @@ if (!JWT_SECRET) {
 async function obterPermissoesUsuario(
   usuario
 ) {
-
   // ==========================================================
   // ADMINISTRADOR E DEV POSSUEM TODAS AS PERMISSÕES
   // ==========================================================
@@ -77,9 +109,7 @@ async function obterPermissoesUsuario(
     usuario.perfil === 'administrador' ||
     usuario.perfil === 'dev'
   ) {
-
     return PERMISSOES_ADMINISTRADOR;
-
   }
 
   // ==========================================================
@@ -89,7 +119,6 @@ async function obterPermissoesUsuario(
   return await buscarCodigosPermissoesUsuario(
     usuario.id
   );
-
 }
 
 // ============================================================
@@ -99,13 +128,11 @@ async function obterPermissoesUsuario(
 function normalizarEmail(
   email
 ) {
-
   return String(
     email || ''
   )
     .trim()
     .toLowerCase();
-
 }
 
 // ============================================================
@@ -113,11 +140,9 @@ function normalizarEmail(
 // ============================================================
 
 function gerarTokenRecuperacao() {
-
   return crypto.randomBytes(
     32
   ).toString('hex');
-
 }
 
 // ============================================================
@@ -127,12 +152,10 @@ function gerarTokenRecuperacao() {
 function gerarHashToken(
   token
 ) {
-
   return crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
-
 }
 
 // ============================================================
@@ -140,23 +163,19 @@ function gerarHashToken(
 // ============================================================
 
 function obterUrlAplicacao() {
-
   const url =
     process.env.APP_URL;
 
   if (!url) {
-
     throw new Error(
       'APP_URL não configurada.'
     );
-
   }
 
   return url.replace(
     /\/+$/,
     ''
   );
-
 }
 
 // ============================================================
@@ -167,7 +186,6 @@ function obterUrlAplicacao() {
 router.post(
   '/cadastro',
   async (req, res) => {
-
     const {
       empresa,
       email_empresa,
@@ -184,30 +202,25 @@ router.post(
       !email ||
       !senha
     ) {
-
       return res.status(400).json({
         erro:
           'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
       });
-
     }
 
     if (
       String(senha).length < 6
     ) {
-
       return res.status(400).json({
         erro:
           'A senha deve possuir pelo menos 6 caracteres.'
       });
-
     }
 
     const client =
       await pool.connect();
 
     try {
-
       await client.query(
         'BEGIN'
       );
@@ -233,7 +246,6 @@ router.post(
         empresaExistente.rows.length >
         0
       ) {
-
         await client.query(
           'ROLLBACK'
         );
@@ -242,7 +254,6 @@ router.post(
           erro:
             'Já existe uma empresa cadastrada com esse e-mail.'
         });
-
       }
 
       // ======================================================
@@ -266,7 +277,6 @@ router.post(
         usuarioExistente.rows.length >
         0
       ) {
-
         await client.query(
           'ROLLBACK'
         );
@@ -275,7 +285,6 @@ router.post(
           erro:
             'Já existe um usuário cadastrado com esse e-mail.'
         });
-
       }
 
       // ======================================================
@@ -404,7 +413,9 @@ router.post(
             perfil:
               usuario.perfil
           },
+
           JWT_SECRET,
+
           {
             expiresIn:
               '7d'
@@ -416,14 +427,12 @@ router.post(
       // ======================================================
 
       return res.status(201).json({
-
         mensagem:
           'Empresa cadastrada com sucesso.',
 
         token,
 
         usuario: {
-
           id:
             usuario.id,
 
@@ -440,11 +449,9 @@ router.post(
             usuario.ativo,
 
           permissoes
-
         },
 
         empresa: {
-
           id:
             novaEmpresa.id,
 
@@ -459,19 +466,15 @@ router.post(
 
           conta_teste:
             novaEmpresa.conta_teste
-
         }
-
       });
 
     } catch (err) {
 
       try {
-
         await client.query(
           'ROLLBACK'
         );
-
       } catch {}
 
       console.error(
@@ -485,11 +488,8 @@ router.post(
       });
 
     } finally {
-
       client.release();
-
     }
-
   }
 );
 
@@ -499,6 +499,20 @@ router.post(
 
 router.post(
   '/login',
+
+  // ==========================================================
+  // RATE LIMIT
+  // ==========================================================
+  //
+  // Máximo de 15 tentativas em 15 minutos.
+  //
+  // Quando ultrapassar:
+  // HTTP 429
+  //
+  // ==========================================================
+
+  loginRateLimit,
+
   async (req, res) => {
 
     const {
@@ -510,14 +524,11 @@ router.post(
       !email ||
       !senha
     ) {
-
       return res.status(400).json({
         erro:
           'Informe e-mail e senha.'
       });
-
     }
-
 
     try {
 
@@ -532,20 +543,15 @@ router.post(
             u.senha,
             u.perfil,
             u.ativo,
-
             e.nome AS empresa_nome,
             e.email AS empresa_email,
             e.telefone AS empresa_telefone,
             e.conta_teste AS empresa_conta_teste
-
           FROM usuarios u
-
           LEFT JOIN empresas e
             ON e.id = u.empresa_id
-
           WHERE LOWER(u.email) =
                 LOWER($1)
-
           LIMIT 1
           `,
           [
@@ -556,18 +562,11 @@ router.post(
       if (
         rows.length === 0
       ) {
-
         return res.status(401).json({
           erro:
             'E-mail ou senha incorretos.'
         });
-
       }
-
-          if (response.status === 429) {
-            window.location.href = '/429.html';
-          return;
-          }
 
       const usuario =
         rows[0];
@@ -579,12 +578,10 @@ router.post(
       if (
         !usuario.ativo
       ) {
-
         return res.status(403).json({
           erro:
             'Este usuário está desativado.'
         });
-
       }
 
       // ======================================================
@@ -600,12 +597,10 @@ router.post(
       if (
         !senhaValida
       ) {
-
         return res.status(401).json({
           erro:
             'E-mail ou senha incorretos.'
         });
-
       }
 
       // ======================================================
@@ -639,7 +634,9 @@ router.post(
             perfil:
               usuario.perfil
           },
+
           JWT_SECRET,
+
           {
             expiresIn:
               '7d'
@@ -677,12 +674,13 @@ router.post(
             usuario.ativo,
 
           permissoes
-
         },
 
         empresa:
           usuario.perfil === 'dev'
+
             ? null
+
             : {
 
                 id:
@@ -715,9 +713,7 @@ router.post(
         erro:
           'Não foi possível realizar o login.'
       });
-
     }
-
   }
 );
 
@@ -728,6 +724,7 @@ router.post(
 
 router.post(
   '/esqueci-senha',
+
   async (req, res) => {
 
     /*
@@ -752,11 +749,9 @@ router.post(
       );
 
     if (!email) {
-
       return res.json(
         respostaPadrao
       );
-
     }
 
     try {
@@ -789,11 +784,9 @@ router.post(
       if (
         resultado.rows.length === 0
       ) {
-
         return res.json(
           respostaPadrao
         );
-
       }
 
       const usuario =
@@ -807,11 +800,9 @@ router.post(
       if (
         !usuario.ativo
       ) {
-
         return res.json(
           respostaPadrao
         );
-
       }
 
       // ======================================================
@@ -932,9 +923,7 @@ router.post(
       return res.json(
         respostaPadrao
       );
-
     }
-
   }
 );
 
@@ -945,6 +934,7 @@ router.post(
 
 router.post(
   '/redefinir-senha',
+
   async (req, res) => {
 
     const {
@@ -957,23 +947,19 @@ router.post(
       !token ||
       !senha
     ) {
-
       return res.status(400).json({
         erro:
           'Informe o token e a nova senha.'
       });
-
     }
 
     if (
       String(senha).length < 6
     ) {
-
       return res.status(400).json({
         erro:
           'A senha deve possuir pelo menos 6 caracteres.'
       });
-
     }
 
     const tokenNormalizado =
@@ -984,12 +970,10 @@ router.post(
         tokenNormalizado
       )
     ) {
-
       return res.status(400).json({
         erro:
           'Token de recuperação inválido ou expirado.'
       });
-
     }
 
     const tokenHash =
@@ -1020,18 +1004,13 @@ router.post(
             u.nome,
             u.email,
             u.ativo
-
           FROM recuperacao_senha r
-
           INNER JOIN usuarios u
             ON u.id = r.usuario_id
-
           WHERE r.token_hash = $1
             AND r.usado_em IS NULL
             AND r.expira_em > NOW()
-
           LIMIT 1
-
           FOR UPDATE OF r
           `,
           [
@@ -1051,7 +1030,6 @@ router.post(
           erro:
             'Token de recuperação inválido ou expirado.'
         });
-
       }
 
       const recuperacao =
@@ -1073,7 +1051,6 @@ router.post(
           erro:
             'Este usuário está desativado.'
         });
-
       }
 
       // ======================================================
@@ -1093,10 +1070,8 @@ router.post(
       await client.query(
         `
         UPDATE usuarios
-
         SET
           senha = $1
-
         WHERE id = $2
         `,
         [
@@ -1112,10 +1087,8 @@ router.post(
       await client.query(
         `
         UPDATE recuperacao_senha
-
         SET
           usado_em = NOW()
-
         WHERE usuario_id = $1
           AND usado_em IS NULL
         `,
@@ -1144,11 +1117,9 @@ router.post(
     } catch (err) {
 
       try {
-
         await client.query(
           'ROLLBACK'
         );
-
       } catch {}
 
       console.error(
@@ -1166,7 +1137,6 @@ router.post(
       client.release();
 
     }
-
   }
 );
 
@@ -1177,7 +1147,9 @@ router.post(
 
 router.get(
   '/me',
+
   autenticar,
+
   async (req, res) => {
 
     try {
@@ -1186,41 +1158,32 @@ router.get(
         await pool.query(
           `
           SELECT
-
             u.id,
             u.nome,
             u.email,
             u.perfil,
             u.ativo,
-
             e.id AS empresa_id,
             e.nome AS empresa_nome,
             e.email AS empresa_email,
             e.telefone AS empresa_telefone,
             e.conta_teste AS empresa_conta_teste
-
           FROM usuarios u
-
           LEFT JOIN empresas e
             ON e.id = u.empresa_id
-
           WHERE
             u.id = $1
-
             AND (
               (
                 u.perfil = 'dev'
                 AND u.empresa_id IS NULL
               )
-
               OR
-
               (
                 u.perfil <> 'dev'
                 AND u.empresa_id = $2
               )
             )
-
           LIMIT 1
           `,
           [
@@ -1232,12 +1195,10 @@ router.get(
       if (
         rows.length === 0
       ) {
-
         return res.status(404).json({
           erro:
             'Usuário não encontrado.'
         });
-
       }
 
       const usuario =
@@ -1250,12 +1211,10 @@ router.get(
       if (
         !usuario.ativo
       ) {
-
         return res.status(403).json({
           erro:
             'Este usuário está desativado.'
         });
-
       }
 
       // ======================================================
@@ -1296,7 +1255,9 @@ router.get(
 
         empresa:
           usuario.perfil === 'dev'
+
             ? null
+
             : {
 
                 id:
@@ -1329,10 +1290,12 @@ router.get(
         erro:
           'Não foi possível carregar os dados do usuário.'
       });
-
     }
-
   }
 );
+
+// ============================================================
+// EXPORTAR ROTER
+// ============================================================
 
 module.exports = router;
