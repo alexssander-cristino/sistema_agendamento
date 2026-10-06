@@ -181,6 +181,19 @@
 
       </div>
 
+      <div class="auth-field">
+  <label for="register-nicho">Tipo de negócio</label>
+  <select id="register-nicho">
+    <option value="lavajato">Lava-jato / Estética automotiva</option>
+    <option value="barbearia">Barbearia / Salão de beleza</option>
+    <option value="clinica">Clínica / Consultório</option>
+    <option value="pet">Pet shop / Veterinária</option>
+    <option value="oficina">Oficina mecânica</option>
+    <option value="personal">Personal / Aulas / Consultoria</option>
+    <option value="generico">Outro</option>
+  </select>
+</div>
+
 
       <div class="auth-field">
 
@@ -1966,6 +1979,18 @@
 
             </div>
 
+            <div class="field">
+  <label for="config-empresa-nicho">Tipo de negócio</label>
+  <select id="config-empresa-nicho">
+    <option value="lavajato">Lava-jato / Estética automotiva</option>
+    <option value="barbearia">Barbearia / Salão de beleza</option>
+    <option value="clinica">Clínica / Consultório</option>
+    <option value="pet">Pet shop / Veterinária</option>
+    <option value="oficina">Oficina mecânica</option>
+    <option value="personal">Personal / Aulas / Consultoria</option>
+    <option value="generico">Outro</option>
+  </select>
+</div>
 
             <div
               id="configuracoes-message"
@@ -2311,66 +2336,31 @@
 
 
         <div class="field-row">
+  <div class="field">
+    <label>Telefone</label>
+    <input type="text" id="ap-phone" placeholder="(00) 00000-0000">
+  </div>
 
-          <div class="field">
+  <div class="field" id="ap-extra1-field">
+    <label id="ap-extra1-label">Placa</label>
+    <input type="text" id="ap-plate" placeholder="ABC1D23">
+  </div>
+</div>
 
-            <label>
-              Telefone
-            </label>
+<div class="field" id="ap-extra2-field">
+  <label id="ap-extra2-label">Veículo</label>
+  <input type="text" id="ap-vehicle" placeholder="Modelo / cor">
+</div>
 
-            <input
-              type="text"
-              id="ap-phone"
-              placeholder="(00) 00000-0000"
-            >
+<div class="field">
+  <label id="ap-service-label">Serviço</label>
+  <select id="ap-service" required></select>
+</div>
 
-          </div>
-
-
-          <div class="field">
-
-            <label>
-              Placa
-            </label>
-
-            <input
-              type="text"
-              id="ap-plate"
-              placeholder="ABC1D23"
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Veículo
-          </label>
-
-          <input
-            type="text"
-            id="ap-vehicle"
-            placeholder="Modelo / cor"
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Serviço
-          </label>
-
-          <select
-            id="ap-service"
-            required
-          ></select>
-
-        </div>
+<div class="field">
+  <label>Observações</label>
+  <textarea id="ap-notes" rows="2" placeholder="Opcional"></textarea>
+</div>
 
 
         <div class="field">
@@ -4165,6 +4155,8 @@ carregarCoresEmpresa();
 
     }
 
+    aplicarNicho(empresa?.nicho || 'lavajato');
+
   }
 
 
@@ -4224,6 +4216,9 @@ carregarCoresEmpresa();
         empresaTelefone.value =
           empresa.telefone || '';
       }
+
+      const empresaNicho = document.getElementById('config-empresa-nicho');
+if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
 
     }
 
@@ -4341,6 +4336,8 @@ carregarCoresEmpresa();
 
     }
 
+    aplicarNicho(empresa?.nicho || 'lavajato');
+
   }
 
 
@@ -4367,6 +4364,13 @@ carregarCoresEmpresa();
           localStorage.getItem(
             'lavajato_auth_token'
           );
+
+          body: JSON.stringify({
+  nome,
+  email,
+  telefone,
+  nicho: document.getElementById('config-empresa-nicho')?.value || 'lavajato'
+})
 
 
         if (!token) {
