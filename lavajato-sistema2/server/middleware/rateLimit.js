@@ -103,8 +103,8 @@ const authRateLimit = rateLimit({
 });
 
 const passwordResetRateLimit = rateLimit({
-  windowMs: 60 * 1000,
-  limit: 100,
+  windowMs: 15 * 60 * 1000,
+  limit: 15,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 
