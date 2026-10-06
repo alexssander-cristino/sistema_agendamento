@@ -518,6 +518,11 @@ router.post(
 
     }
 
+    if (response.status === 429) {
+  window.location.href = '/429.html';
+  return;
+}
+
     try {
 
       const { rows } =
