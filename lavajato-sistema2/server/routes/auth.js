@@ -518,10 +518,6 @@ router.post(
 
     }
 
-    if (response.status === 429) {
-  window.location.href = '/429.html';
-  return;
-}
 
     try {
 
@@ -567,6 +563,11 @@ router.post(
         });
 
       }
+
+          if (response.status === 429) {
+            window.location.href = '/429.html';
+          return;
+          }
 
       const usuario =
         rows[0];
