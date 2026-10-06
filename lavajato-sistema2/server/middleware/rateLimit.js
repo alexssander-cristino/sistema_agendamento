@@ -1,19 +1,17 @@
 const { rateLimit } = require('express-rate-limit');
 
-
 // ============================================================
 // RATE LIMIT GERAL DA API
 // ============================================================
 //
 // 120 requisições por IP a cada 1 minuto.
 //
-// Esse limite protege as rotas da API contra:
+// Protege a API contra:
 // - abuso
 // - excesso de requisições
 // - scripts automatizados
 // - consumo exagerado de recursos
 //
-// Não é aplicado ao frontend/public.
 // ============================================================
 
 const apiRateLimit = rateLimit({
@@ -25,10 +23,6 @@ const apiRateLimit = rateLimit({
   standardHeaders: 'draft-8',
 
   legacyHeaders: false,
-
-  message: {
-    erro: 'Muitas requisições. Tente novamente em alguns instantes.'
-  },
 
   handler: (req, res) => {
 
@@ -43,12 +37,17 @@ const apiRateLimit = rateLimit({
 
     return res.status(429).json({
       erro:
-        'Muitas requisições. Tente novamente em alguns instantes.'
+        'Muitas requisições. Tente novamente em alguns instantes.',
+
+      codigo:
+        'RATE_LIMIT_GERAL',
+
+      redirecionar:
+        '/429.html'
     });
   }
 
 });
-
 
 // ============================================================
 // RATE LIMIT DE AUTENTICAÇÃO
@@ -60,10 +59,6 @@ const apiRateLimit = rateLimit({
 // POST /api/auth/login
 // POST /api/auth/cadastro
 //
-// O objetivo é dificultar:
-// - brute force
-// - tentativa automatizada de senhas
-// - criação abusiva de contas
 // ============================================================
 
 const authRateLimit = rateLimit({
@@ -75,11 +70,6 @@ const authRateLimit = rateLimit({
   standardHeaders: 'draft-8',
 
   legacyHeaders: false,
-
-  message: {
-    erro:
-      'Muitas tentativas de autenticação. Tente novamente mais tarde.'
-  },
 
   handler: (req, res) => {
 
@@ -94,24 +84,37 @@ const authRateLimit = rateLimit({
 
     return res.status(429).json({
       erro:
-        'Muitas tentativas de autenticação. Tente novamente mais tarde.'
+        'Muitas tentativas de autenticação. Aguarde 15 minutos antes de tentar novamente.',
+
+      codigo:
+        'RATE_LIMIT_AUTENTICACAO',
+
+      redirecionar:
+        '/429.html'
     });
   }
 
-  
-
 });
 
-const passwordResetRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 6,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
+// ============================================================
+// RATE LIMIT DE RECUPERAÇÃO DE SENHA
+// ============================================================
+//
+// 6 solicitações por IP a cada 15 minutos.
+//
+// Protege contra abuso do envio de e-mails de recuperação.
+//
+// ============================================================
 
-  message: {
-    erro:
-      'Muitas solicitações de recuperação. Tente novamente mais tarde.'
-  },
+const passwordResetRateLimit = rateLimit({
+
+  windowMs: 15 * 60 * 1000,
+
+  limit: 6,
+
+  standardHeaders: 'draft-8',
+
+  legacyHeaders: false,
 
   handler: (req, res) => {
 
@@ -126,15 +129,24 @@ const passwordResetRateLimit = rateLimit({
 
     return res.status(429).json({
       erro:
-        'Muitas solicitações de recuperação. Tente novamente mais tarde.'
+        'Muitas solicitações de recuperação. Aguarde 15 minutos antes de tentar novamente.',
+
+      codigo:
+        'RATE_LIMIT_RECUPERACAO',
+
+      redirecionar:
+        '/429.html'
     });
   }
+
 });
 
+// ============================================================
+// EXPORTAR
+// ============================================================
 
 module.exports = {
   apiRateLimit,
   authRateLimit,
   passwordResetRateLimit
 };
-
