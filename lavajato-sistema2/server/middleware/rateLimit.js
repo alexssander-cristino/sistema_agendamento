@@ -1,16 +1,11 @@
 const { rateLimit } = require('express-rate-limit');
 
+
 // ============================================================
 // RATE LIMIT GERAL DA API
 // ============================================================
 //
 // 120 requisições por IP a cada 1 minuto.
-//
-// Protege a API contra:
-// - abuso
-// - excesso de requisições
-// - scripts automatizados
-// - consumo exagerado de recursos
 //
 // ============================================================
 
@@ -49,15 +44,25 @@ const apiRateLimit = rateLimit({
 
 });
 
+
 // ============================================================
 // RATE LIMIT DE AUTENTICAÇÃO
 // ============================================================
 //
-// 10 requisições por IP a cada 15 minutos.
+// 10 tentativas de autenticação inválidas por IP
+// a cada 15 minutos.
 //
-// Aplicado principalmente em:
-// POST /api/auth/login
-// POST /api/auth/cadastro
+// IMPORTANTE:
+// skipSuccessfulRequests = true
+//
+// Isso faz com que LOGIN CORRETO não consuma tentativa.
+//
+// Exemplo:
+//
+// senha errada  -> tentativa 1
+// senha errada  -> tentativa 2
+// senha errada  -> tentativa 3
+// senha correta -> não conta
 //
 // ============================================================
 
@@ -70,6 +75,12 @@ const authRateLimit = rateLimit({
   standardHeaders: 'draft-8',
 
   legacyHeaders: false,
+
+  // ==========================================================
+  // NÃO CONTAR LOGIN/CADASTRO QUE TERMINOU COM SUCESSO
+  // ==========================================================
+
+  skipSuccessfulRequests: true,
 
   handler: (req, res) => {
 
@@ -90,19 +101,24 @@ const authRateLimit = rateLimit({
         'RATE_LIMIT_AUTENTICACAO',
 
       redirecionar:
-        '/429.html'
+        '/429.html',
+
+      limite:
+        10,
+
+      tentativas:
+        req.rateLimit?.used || 10
     });
   }
 
 });
+
 
 // ============================================================
 // RATE LIMIT DE RECUPERAÇÃO DE SENHA
 // ============================================================
 //
 // 6 solicitações por IP a cada 15 minutos.
-//
-// Protege contra abuso do envio de e-mails de recuperação.
 //
 // ============================================================
 
@@ -140,6 +156,7 @@ const passwordResetRateLimit = rateLimit({
   }
 
 });
+
 
 // ============================================================
 // EXPORTAR
