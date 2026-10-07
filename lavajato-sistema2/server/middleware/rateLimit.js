@@ -42,6 +42,8 @@ const apiRateLimit = rateLimit({
         '/429.html'
 
     });
+
+    
   }
 
 });
@@ -125,7 +127,7 @@ const authRateLimit = rateLimit({
 // RATE LIMIT DE RECUPERAÇÃO DE SENHA
 // ============================================================
 //
-// 6 solicitações por IP a cada 15 minutos.
+// 5 solicitações por IP a cada 15 minutos.
 //
 // ============================================================
 
@@ -133,7 +135,7 @@ const passwordResetRateLimit = rateLimit({
 
   windowMs: 15 * 60 * 1000,
 
-  limit: 6,
+  limit: 5,
 
   standardHeaders: 'draft-8',
 
@@ -166,6 +168,13 @@ const passwordResetRateLimit = rateLimit({
 
 });
 
+
+function bloqueadoAte(req, fallbackMs) {
+  const reset = req.rateLimit?.resetTime;
+  return reset
+    ? new Date(reset).getTime()
+    : Date.now() + fallbackMs;
+}
 
 // ============================================================
 // EXPORTAR

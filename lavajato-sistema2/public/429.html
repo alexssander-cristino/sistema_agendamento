@@ -1,147 +1,164 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
 
-  <title>429 — Muitas requisições</title>
+  <title>Muitas tentativas — Orvix</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; }
 
     body {
+      margin: 0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      font-family: Inter, Arial, sans-serif;
-      background: #f5f7fb;
+      padding: 20px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #f2f5f8;
       color: #111827;
     }
 
-    .container {
-      width: 100%;
-      max-width: 520px;
+    .card {
+      width: min(440px, 100%);
+      padding: 36px 32px;
       text-align: center;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, .12);
     }
 
-    .code {
-      font-size: clamp(90px, 20vw, 160px);
-      line-height: .9;
+    .icone {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fef2f2;
+      color: #b91c1c;
+      font-size: 30px;
       font-weight: 800;
-      letter-spacing: -8px;
-      color: #111827;
     }
 
     h1 {
-      margin-top: 28px;
-      font-size: 28px;
-      font-weight: 700;
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 800;
     }
 
     p {
-      margin: 14px auto 0;
-      max-width: 430px;
-      line-height: 1.6;
-      color: #6b7280;
-      font-size: 16px;
-    }
-
-    .box {
-      margin-top: 28px;
-      padding: 18px 20px;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      background: #fff;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, .06);
-    }
-
-    .box strong {
-      display: block;
-      margin-bottom: 6px;
+      margin: 0;
+      color: #64748b;
       font-size: 14px;
-      color: #374151;
+      line-height: 1.6;
     }
 
-    #timer {
-      font-size: 24px;
-      font-weight: 700;
-      color: #111827;
+    .contador {
+      margin: 24px 0 8px;
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+      color: #0e3a4c;
     }
 
-    .back {
-      display: inline-block;
-      margin-top: 24px;
-      padding: 12px 20px;
-      border-radius: 10px;
-      background: #111827;
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-      transition: .2s;
-    }
-
-    .back:hover {
-      opacity: .9;
-      transform: translateY(-1px);
+    .legenda {
+      font-size: 12px;
+      color: #94a3b8;
     }
   </style>
-
 </head>
 
 <body>
 
-  <main class="container">
+  <main class="card">
 
+    <div class="icone">!</div>
 
-<div class="code">429</div>
+    <h1>Muitas tentativas</h1>
 
-<h1>Muitas requisições</h1>
+    <p>
+      Por segurança, o acesso foi bloqueado temporariamente.
+      Você poderá tentar novamente quando o tempo abaixo terminar.
+    </p>
 
-<p>
-  Foram realizadas muitas tentativas em sequência.
-  Por segurança, o acesso foi temporariamente limitado.
-</p>
+    <div class="contador" id="contador">--:--</div>
 
-<div class="box">
-  <strong>Tente novamente em</strong>
-  <span id="timer">15:00</span>
-</div>
-
-
+    <div class="legenda">Tempo restante para liberar o acesso</div>
 
   </main>
 
   <script>
-    let remaining = 15 * 60;
 
-    const timer = document.getElementById('timer');
+    (function () {
 
-    function updateTimer() {
-      const minutes = Math.floor(remaining / 60);
-      const seconds = remaining % 60;
+      var CHAVE = 'orvix_bloqueio_ate';
 
-      timer.textContent =
-        String(minutes).padStart(2, '0') +
-        ':' +
-        String(seconds).padStart(2, '0');
+      function lerBloqueio() {
+        try {
+          var ate = Number(localStorage.getItem(CHAVE) || 0);
+          return ate > Date.now() ? ate : 0;
+        } catch (e) {
+          return 0;
+        }
+      }
 
-      if (remaining <= 0) {
-        location.href = '/login';
+      function liberar() {
+        try { localStorage.removeItem(CHAVE); } catch (e) {}
+        window.location.replace('/');
+      }
+
+      var ate = lerBloqueio();
+
+      // Sem bloqueio ativo: não há motivo para ficar nesta página
+      if (!ate) {
+        liberar();
         return;
       }
 
-      remaining--;
-    }
+      // Impede de voltar para o login usando o botão "voltar"
+      history.pushState(null, '', window.location.href);
 
-    updateTimer();
-    setInterval(updateTimer, 1000);
+      window.addEventListener('popstate', function () {
+        history.pushState(null, '', window.location.href);
+      });
+
+      var contador = document.getElementById('contador');
+
+      function formatar(ms) {
+
+        var total = Math.max(0, Math.ceil(ms / 1000));
+
+        var min = Math.floor(total / 60);
+        var seg = total % 60;
+
+        return (min < 10 ? '0' : '') + min + ':' + (seg < 10 ? '0' : '') + seg;
+      }
+
+      function atualizar() {
+
+        var restante = ate - Date.now();
+
+        if (restante <= 0) {
+          liberar();
+          return;
+        }
+
+        contador.textContent = formatar(restante);
+      }
+
+      atualizar();
+
+      setInterval(atualizar, 1000);
+
+    })();
+
   </script>
 
 </body>
