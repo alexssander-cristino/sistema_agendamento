@@ -3362,3 +3362,1251 @@
   });
 
 })();
+
+
+
+// ============================================================
+// CONFIGURAÇÕES — SALVAR
+// ============================================================
+
+(() => {
+
+  const API_CONFIGURACOES = '/api/configuracoes';
+
+
+  // ==========================================================
+  // TOKEN
+  // ==========================================================
+
+  function obterToken() {
+
+    return (
+      localStorage.getItem('token') ||
+      localStorage.getItem('authToken') ||
+      localStorage.getItem('accessToken') ||
+      sessionStorage.getItem('token') ||
+      sessionStorage.getItem('authToken') ||
+      sessionStorage.getItem('accessToken')
+    );
+
+  }
+
+
+  // ==========================================================
+  // HEADERS
+  // ==========================================================
+
+  function obterHeaders() {
+
+    const token = obterToken();
+
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
+
+  }
+
+
+  // ==========================================================
+  // ELEMENTOS
+  // ==========================================================
+
+  const formEmpresa =
+    document.getElementById('form-configuracoes');
+
+  const btnSalvarEmpresa =
+    document.getElementById('btn-salvar-configuracoes');
+
+  const btnSalvarPreferencias =
+    document.getElementById('btn-salvar-preferencias');
+
+  const btnSalvarTema =
+    document.getElementById('btn-salvar-tema');
+
+  const btnRestaurarTema =
+    document.getElementById('btn-restaurar-tema');
+
+  const btnSalvarDocumentos =
+    document.getElementById('btn-salvar-documentos');
+
+  const btnSalvarAgenda =
+    document.getElementById('btn-salvar-agenda');
+
+
+  // ==========================================================
+  // MENSAGENS
+  // ==========================================================
+
+  function mostrarMensagem(
+    elementoId,
+    mensagem,
+    sucesso = false
+  ) {
+
+    const elemento =
+      document.getElementById(elementoId);
+
+    if (!elemento) {
+      return;
+    }
+
+    elemento.textContent = mensagem;
+
+    elemento.style.display = 'block';
+
+    if (sucesso) {
+
+      elemento.style.color = '#166534';
+
+      elemento.style.background =
+        'rgba(34,197,94,.10)';
+
+      elemento.style.borderColor =
+        'rgba(34,197,94,.25)';
+
+    } else {
+
+      elemento.style.color = '#991B1B';
+
+      elemento.style.background =
+        'rgba(239,68,68,.10)';
+
+      elemento.style.borderColor =
+        'rgba(239,68,68,.25)';
+
+    }
+
+    clearTimeout(
+      elemento._timeoutMensagem
+    );
+
+    elemento._timeoutMensagem =
+      setTimeout(() => {
+
+        elemento.style.display = 'none';
+
+      }, 5000);
+
+  }
+
+
+  function esconderMensagem(elementoId) {
+
+    const elemento =
+      document.getElementById(elementoId);
+
+    if (elemento) {
+      elemento.style.display = 'none';
+    }
+
+  }
+
+
+  // ==========================================================
+  // REQUISIÇÃO
+  // ==========================================================
+
+  async function salvarConfiguracoes(
+    dados
+  ) {
+
+    const resposta =
+      await fetch(
+        API_CONFIGURACOES,
+        {
+          method: 'PUT',
+
+          headers:
+            obterHeaders(),
+
+          body:
+            JSON.stringify(dados)
+        }
+      );
+
+
+    let resultado = {};
+
+    try {
+
+      resultado =
+        await resposta.json();
+
+    } catch (_) {
+
+      resultado = {};
+
+    }
+
+
+    if (!resposta.ok) {
+
+      throw new Error(
+        resultado.erro ||
+        'Não foi possível salvar as configurações.'
+      );
+
+    }
+
+
+    return resultado;
+
+  }
+
+
+  // ==========================================================
+  // ESTADO DO BOTÃO
+  // ==========================================================
+
+  function alterarEstadoBotao(
+    botao,
+    carregando,
+    textoNormal
+  ) {
+
+    if (!botao) {
+      return;
+    }
+
+
+    if (carregando) {
+
+      botao.disabled = true;
+
+      botao.dataset.textoOriginal =
+        botao.textContent;
+
+      botao.textContent =
+        'Salvando...';
+
+    } else {
+
+      botao.disabled = false;
+
+      botao.textContent =
+        botao.dataset.textoOriginal ||
+        textoNormal;
+
+    }
+
+  }
+
+
+  // ==========================================================
+  // DADOS DA EMPRESA
+  // ==========================================================
+
+  if (formEmpresa) {
+
+    formEmpresa.addEventListener(
+      'submit',
+      async (event) => {
+
+        event.preventDefault();
+
+
+        esconderMensagem(
+          'configuracoes-message'
+        );
+
+
+        const nome =
+          document.getElementById(
+            'config-empresa-nome'
+          )?.value.trim();
+
+
+        const email =
+          document.getElementById(
+            'config-empresa-email'
+          )?.value.trim();
+
+
+        const telefone =
+          document.getElementById(
+            'config-empresa-telefone'
+          )?.value.trim();
+
+
+        const nicho =
+          document.getElementById(
+            'config-empresa-nicho'
+          )?.value;
+
+
+        const nomeExibicao =
+          document.getElementById(
+            'config-empresa-nome-exibicao'
+          )?.value.trim();
+
+
+        const logoUrl =
+          document.getElementById(
+            'config-logo-url'
+          )?.value.trim();
+
+
+        const dados = {
+
+          nome,
+
+          email,
+
+          telefone:
+            telefone || null,
+
+          nicho,
+
+          nome_exibicao:
+            nomeExibicao || null,
+
+          logo_url:
+            logoUrl || null
+
+        };
+
+
+        try {
+
+          alterarEstadoBotao(
+            btnSalvarEmpresa,
+            true,
+            'Salvar alterações'
+          );
+
+
+          await salvarConfiguracoes(
+            dados
+          );
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            'Dados da empresa salvos com sucesso.',
+            true
+          );
+
+
+        } catch (erro) {
+
+          console.error(
+            'Erro ao salvar dados da empresa:',
+            erro
+          );
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            erro.message
+          );
+
+
+        } finally {
+
+          alterarEstadoBotao(
+            btnSalvarEmpresa,
+            false,
+            'Salvar alterações'
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // PREFERÊNCIAS REGIONAIS
+  // ==========================================================
+
+  async function salvarPreferenciasRegionais() {
+
+    const moeda =
+      document.getElementById(
+        'config-moeda'
+      )?.value;
+
+
+    const idioma =
+      document.getElementById(
+        'config-idioma'
+      )?.value;
+
+
+    const formatoData =
+      document.getElementById(
+        'config-formato-data'
+      )?.value;
+
+
+    const formatoHora =
+      document.getElementById(
+        'config-formato-hora'
+      )?.value;
+
+
+    const fusoHorario =
+      document.getElementById(
+        'config-fuso-horario'
+      )?.value;
+
+
+    return salvarConfiguracoes({
+
+      moeda,
+
+      idioma,
+
+      formato_data:
+        formatoData,
+
+      formato_hora:
+        formatoHora,
+
+      fuso_horario:
+        fusoHorario
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // PREFERÊNCIAS DO SISTEMA
+  // ==========================================================
+
+  if (btnSalvarPreferencias) {
+
+    btnSalvarPreferencias.addEventListener(
+      'click',
+      async () => {
+
+        try {
+
+          alterarEstadoBotao(
+            btnSalvarPreferencias,
+            true,
+            'Salvar preferências'
+          );
+
+
+          const notificacoes =
+            document.getElementById(
+              'config-notificacoes-ativas'
+            )?.value;
+
+
+          const mostrarValores =
+            document.getElementById(
+              'config-mostrar-valores'
+            )?.value;
+
+
+          const dashboardInicial =
+            document.getElementById(
+              'config-dashboard-inicial'
+            )?.value;
+
+
+          const modoCompacto =
+            document.getElementById(
+              'config-modo-compacto'
+            )?.value;
+
+
+          await salvarConfiguracoes({
+
+            notificacoes_ativas:
+              notificacoes === 'true',
+
+            mostrar_valores:
+              mostrarValores === 'true',
+
+            dashboard_inicial:
+              dashboardInicial === 'true',
+
+            modo_compacto:
+              modoCompacto === 'true'
+
+          });
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            'Preferências salvas com sucesso.',
+            true
+          );
+
+
+        } catch (erro) {
+
+          console.error(
+            'Erro ao salvar preferências:',
+            erro
+          );
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            erro.message
+          );
+
+
+        } finally {
+
+          alterarEstadoBotao(
+            btnSalvarPreferencias,
+            false,
+            'Salvar preferências'
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // APARÊNCIA — SINCRONIZA COLOR PICKER
+  // ==========================================================
+
+  function sincronizarCor(
+    inputColorId,
+    inputTextId
+  ) {
+
+    const color =
+      document.getElementById(
+        inputColorId
+      );
+
+    const text =
+      document.getElementById(
+        inputTextId
+      );
+
+
+    if (!color || !text) {
+      return;
+    }
+
+
+    color.addEventListener(
+      'input',
+      () => {
+
+        text.value =
+          color.value.toUpperCase();
+
+        atualizarPreviewTema();
+
+      }
+    );
+
+
+    text.addEventListener(
+      'input',
+      () => {
+
+        let valor =
+          text.value.trim();
+
+
+        if (
+          /^#[0-9A-Fa-f]{6}$/.test(
+            valor
+          )
+        ) {
+
+          color.value =
+            valor;
+
+          atualizarPreviewTema();
+
+        }
+
+      }
+    );
+
+
+    text.addEventListener(
+      'blur',
+      () => {
+
+        const valor =
+          text.value.trim();
+
+
+        if (
+          /^#[0-9A-Fa-f]{6}$/.test(
+            valor
+          )
+        ) {
+
+          text.value =
+            valor.toUpperCase();
+
+        }
+
+      }
+    );
+
+  }
+
+
+  sincronizarCor(
+    'config-cor-principal',
+    'config-cor-principal-text'
+  );
+
+
+  sincronizarCor(
+    'config-cor-destaque',
+    'config-cor-destaque-text'
+  );
+
+
+  sincronizarCor(
+    'config-cor-fundo',
+    'config-cor-fundo-text'
+  );
+
+
+  // ==========================================================
+  // PREVIEW DO TEMA
+  // ==========================================================
+
+  function atualizarPreviewTema() {
+
+    const primary =
+      document.getElementById(
+        'config-cor-principal'
+      )?.value ||
+      '#0E3A4C';
+
+
+    const accent =
+      document.getElementById(
+        'config-cor-destaque'
+      )?.value ||
+      '#06B6D4';
+
+
+    const background =
+      document.getElementById(
+        'config-cor-fundo'
+      )?.value ||
+      '#F5F7FA';
+
+
+    const preview =
+      document.getElementById(
+        'config-tema-preview'
+      );
+
+
+    const badge =
+      document.getElementById(
+        'config-tema-preview-badge'
+      );
+
+
+    const button =
+      document.getElementById(
+        'config-tema-preview-button'
+      );
+
+
+    if (preview) {
+
+      preview.style.background =
+        background;
+
+    }
+
+
+    if (badge) {
+
+      badge.style.background =
+        accent;
+
+    }
+
+
+    if (button) {
+
+      button.style.background =
+        primary;
+
+    }
+
+  }
+
+
+  // ==========================================================
+  // TEMAS RÁPIDOS
+  // ==========================================================
+
+  document
+    .querySelectorAll(
+      '.theme-preset'
+    )
+    .forEach((botao) => {
+
+      botao.addEventListener(
+        'click',
+        () => {
+
+          const primary =
+            botao.dataset.primary;
+
+          const accent =
+            botao.dataset.accent;
+
+          const background =
+            botao.dataset.background;
+
+
+          const inputPrimary =
+            document.getElementById(
+              'config-cor-principal'
+            );
+
+
+          const textPrimary =
+            document.getElementById(
+              'config-cor-principal-text'
+            );
+
+
+          const inputAccent =
+            document.getElementById(
+              'config-cor-destaque'
+            );
+
+
+          const textAccent =
+            document.getElementById(
+              'config-cor-destaque-text'
+            );
+
+
+          const inputBackground =
+            document.getElementById(
+              'config-cor-fundo'
+            );
+
+
+          const textBackground =
+            document.getElementById(
+              'config-cor-fundo-text'
+            );
+
+
+          if (inputPrimary) {
+            inputPrimary.value =
+              primary;
+          }
+
+
+          if (textPrimary) {
+            textPrimary.value =
+              primary.toUpperCase();
+          }
+
+
+          if (inputAccent) {
+            inputAccent.value =
+              accent;
+          }
+
+
+          if (textAccent) {
+            textAccent.value =
+              accent.toUpperCase();
+          }
+
+
+          if (inputBackground) {
+            inputBackground.value =
+              background ||
+              '#F5F7FA';
+          }
+
+
+          if (textBackground) {
+            textBackground.value =
+              (
+                background ||
+                '#F5F7FA'
+              ).toUpperCase();
+          }
+
+
+          atualizarPreviewTema();
+
+        }
+      );
+
+    });
+
+
+  // ==========================================================
+  // SALVAR APARÊNCIA
+  // ==========================================================
+
+  if (btnSalvarTema) {
+
+    btnSalvarTema.addEventListener(
+      'click',
+      async () => {
+
+        try {
+
+          alterarEstadoBotao(
+            btnSalvarTema,
+            true,
+            'Salvar aparência'
+          );
+
+
+          const corPrimaria =
+            document.getElementById(
+              'config-cor-principal'
+            )?.value;
+
+
+          const corDestaque =
+            document.getElementById(
+              'config-cor-destaque'
+            )?.value;
+
+
+          const corFundo =
+            document.getElementById(
+              'config-cor-fundo'
+            )?.value;
+
+
+          await salvarConfiguracoes({
+
+            cor_primaria:
+              corPrimaria,
+
+            cor_destaque:
+              corDestaque,
+
+            cor_fundo:
+              corFundo
+
+          });
+
+
+          // Aplica imediatamente
+          aplicarTema(
+            corPrimaria,
+            corDestaque,
+            corFundo
+          );
+
+
+          mostrarMensagem(
+            'config-aparencia-message',
+            'Aparência salva com sucesso.',
+            true
+          );
+
+
+        } catch (erro) {
+
+          console.error(
+            'Erro ao salvar aparência:',
+            erro
+          );
+
+
+          mostrarMensagem(
+            'config-aparencia-message',
+            erro.message
+          );
+
+
+        } finally {
+
+          alterarEstadoBotao(
+            btnSalvarTema,
+            false,
+            'Salvar aparência'
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // APLICAR TEMA
+  // ==========================================================
+
+  function aplicarTema(
+    primary,
+    accent,
+    background
+  ) {
+
+    if (!primary) {
+      primary = '#0E3A4C';
+    }
+
+
+    if (!accent) {
+      accent = '#06B6D4';
+    }
+
+
+    if (!background) {
+      background = '#F5F7FA';
+    }
+
+
+    document.documentElement.style.setProperty(
+      '--primary',
+      primary
+    );
+
+
+    document.documentElement.style.setProperty(
+      '--primary-color',
+      primary
+    );
+
+
+    document.documentElement.style.setProperty(
+      '--accent',
+      accent
+    );
+
+
+    document.documentElement.style.setProperty(
+      '--accent-color',
+      accent
+    );
+
+
+    document.documentElement.style.setProperty(
+      '--bg',
+      background
+    );
+
+
+    document.documentElement.style.setProperty(
+      '--background',
+      background
+    );
+
+
+    atualizarPreviewTema();
+
+  }
+
+
+  // ==========================================================
+  // RESTAURAR TEMA
+  // ==========================================================
+
+  if (btnRestaurarTema) {
+
+    btnRestaurarTema.addEventListener(
+      'click',
+      () => {
+
+        const primary =
+          '#0E3A4C';
+
+        const accent =
+          '#06B6D4';
+
+        const background =
+          '#F5F7FA';
+
+
+        const inputPrimary =
+          document.getElementById(
+            'config-cor-principal'
+          );
+
+
+        const textPrimary =
+          document.getElementById(
+            'config-cor-principal-text'
+          );
+
+
+        const inputAccent =
+          document.getElementById(
+            'config-cor-destaque'
+          );
+
+
+        const textAccent =
+          document.getElementById(
+            'config-cor-destaque-text'
+          );
+
+
+        const inputBackground =
+          document.getElementById(
+            'config-cor-fundo'
+          );
+
+
+        const textBackground =
+          document.getElementById(
+            'config-cor-fundo-text'
+          );
+
+
+        if (inputPrimary) {
+          inputPrimary.value =
+            primary;
+        }
+
+
+        if (textPrimary) {
+          textPrimary.value =
+            primary;
+        }
+
+
+        if (inputAccent) {
+          inputAccent.value =
+            accent;
+        }
+
+
+        if (textAccent) {
+          textAccent.value =
+            accent;
+        }
+
+
+        if (inputBackground) {
+          inputBackground.value =
+            background;
+        }
+
+
+        if (textBackground) {
+          textBackground.value =
+            background;
+        }
+
+
+        aplicarTema(
+          primary,
+          accent,
+          background
+        );
+
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // DOCUMENTOS
+  // ==========================================================
+
+  if (btnSalvarDocumentos) {
+
+    btnSalvarDocumentos.addEventListener(
+      'click',
+      async () => {
+
+        try {
+
+          alterarEstadoBotao(
+            btnSalvarDocumentos,
+            true,
+            'Salvar documentos'
+          );
+
+
+          const rodape =
+            document.getElementById(
+              'config-rodape-documentos'
+            )?.value.trim();
+
+
+          const telefone =
+            document.getElementById(
+              'config-telefone-documentos'
+            )?.value;
+
+
+          await salvarConfiguracoes({
+
+            rodape_documentos:
+              rodape || null,
+
+            telefone_documentos:
+              telefone === 'true'
+
+          });
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            'Configurações de documentos salvas com sucesso.',
+            true
+          );
+
+
+        } catch (erro) {
+
+          console.error(
+            'Erro ao salvar documentos:',
+            erro
+          );
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            erro.message
+          );
+
+
+        } finally {
+
+          alterarEstadoBotao(
+            btnSalvarDocumentos,
+            false,
+            'Salvar documentos'
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // AGENDA
+  // ==========================================================
+
+  if (btnSalvarAgenda) {
+
+    btnSalvarAgenda.addEventListener(
+      'click',
+      async () => {
+
+        try {
+
+          alterarEstadoBotao(
+            btnSalvarAgenda,
+            true,
+            'Salvar agenda'
+          );
+
+
+          const inicio =
+            document.getElementById(
+              'config-agenda-inicio'
+            )?.value;
+
+
+          const fim =
+            document.getElementById(
+              'config-agenda-fim'
+            )?.value;
+
+
+          const intervalo =
+            document.getElementById(
+              'config-agenda-intervalo'
+            )?.value;
+
+
+          await salvarConfiguracoes({
+
+            agenda_horario_inicio:
+              inicio,
+
+            agenda_horario_fim:
+              fim,
+
+            agenda_intervalo:
+              Number(intervalo)
+
+          });
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            'Configurações da agenda salvas com sucesso.',
+            true
+          );
+
+
+        } catch (erro) {
+
+          console.error(
+            'Erro ao salvar agenda:',
+            erro
+          );
+
+
+          mostrarMensagem(
+            'configuracoes-message',
+            erro.message
+          );
+
+
+        } finally {
+
+          alterarEstadoBotao(
+            btnSalvarAgenda,
+            false,
+            'Salvar agenda'
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // EXPÕE FUNÇÕES
+  // ==========================================================
+
+  window.OrvixConfiguracoes = {
+
+    salvarConfiguracoes,
+
+    aplicarTema,
+
+    atualizarPreviewTema
+
+  };
+
+
+})();
