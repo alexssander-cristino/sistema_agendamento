@@ -2110,12 +2110,15 @@
       if (empresaEmail) empresaEmail.value = empresa.email || '';
       if (empresaTelefone) empresaTelefone.value = empresa.telefone || '';
 
-      const nicho = empresa.nicho || 'lavajato';
+      // Só aplica quando o nicho veio na resposta; assim uma resposta
+      // sem o campo (ex.: /auth/me) não sobrescreve o nicho já carregado.
+      if (empresa.nicho) {
 
-      if (empresaNicho) empresaNicho.value = nicho;
+        if (empresaNicho) empresaNicho.value = empresa.nicho;
 
-      // Atualiza rótulos e campos do agendamento conforme o nicho
-      if (window.aplicarNicho) window.aplicarNicho(nicho);
+        // Atualiza rótulos e campos do agendamento conforme o nicho
+        if (window.aplicarNicho) window.aplicarNicho(empresa.nicho);
+      }
     }
 
     if (usuario) {
