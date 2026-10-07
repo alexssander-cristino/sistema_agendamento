@@ -63,6 +63,8 @@ const adminTratamentosRouter =
 const adminIncidentesRouter =
   require('./routes/adminIncidentes');
 
+const cookieParser = require('cookie-parser');  
+
 
 // ============================================================
 // APP
@@ -109,6 +111,8 @@ app.use(cors({
 
   optionsSuccessStatus: 204
 }));
+
+app.use(cookieParser());
 
 const PORT =
   process.env.PORT || 3000;

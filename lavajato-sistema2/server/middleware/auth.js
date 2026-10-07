@@ -8,48 +8,88 @@ if (!JWT_SECRET) {
   );
 }
 
-function autenticar(req, res, next) {
-  const authorization = req.headers.authorization;
+/**
+ * ============================================================
+ * AUTENTICAÇÃO
+ * ============================================================
+ *
+ * Prioridade:
+ *
+ * 1. Cookie HttpOnly "token"
+ * 2. Authorization: Bearer <token>
+ *
+ * O cookie é o método principal.
+ *
+ * O Authorization continua sendo aceito para manter
+ * compatibilidade com eventuais clientes/API existentes.
+ *
+ * ============================================================
+ */
 
-  if (!authorization) {
+function autenticar(req, res, next) {
+  let token = null;
+
+  // ==========================================================
+  // 1. TENTAR COOKIE HTTPONLY
+  // ==========================================================
+
+  if (
+    req.cookies &&
+    typeof req.cookies.token === 'string' &&
+    req.cookies.token.trim()
+  ) {
+    token = req.cookies.token.trim();
+  }
+
+  // ==========================================================
+  // 2. FALLBACK PARA AUTHORIZATION
+  // ==========================================================
+
+  if (!token) {
+    const authorization =
+      req.headers.authorization;
+
+    if (authorization) {
+      const partes =
+        authorization.trim().split(/\s+/);
+
+      if (
+        partes.length === 2 &&
+        partes[0] === 'Bearer' &&
+        partes[1]
+      ) {
+        token = partes[1].trim();
+      }
+    }
+  }
+
+  // ==========================================================
+  // TOKEN AUSENTE
+  // ==========================================================
+
+  if (!token) {
     return res.status(401).json({
       erro: 'Não autenticado.'
     });
   }
 
-  const partes = authorization.split(' ');
-
-  if (
-    partes.length !== 2 ||
-    partes[0] !== 'Bearer' ||
-    !partes[1]
-  ) {
-    return res.status(401).json({
-      erro: 'Token de autenticação inválido.'
-    });
-  }
-
-  const token = partes[1];
+  // ==========================================================
+  // VALIDAR JWT
+  // ==========================================================
 
   try {
-    const payload = jwt.verify(
-      token,
-      JWT_SECRET
-    );
+    const payload =
+      jwt.verify(
+        token,
+        JWT_SECRET
+      );
 
-    /*
-     * Todo usuário precisa ter:
-     * - id
-     * - perfil
-     *
-     * empresa_id é obrigatório para:
-     * - administrador
-     * - funcionario
-     *
-     * Para dev, empresa_id pode ser NULL.
-     */
+    // ========================================================
+    // CAMPOS OBRIGATÓRIOS
+    // ========================================================
 
     if (
+      !payload ||
       !payload.id ||
       !payload.perfil
     ) {
@@ -58,22 +98,30 @@ function autenticar(req, res, next) {
       });
     }
 
+    // ========================================================
+    // PERFIS PERMITIDOS
+    // ========================================================
+
     const perfisPermitidos = [
       'administrador',
       'funcionario',
       'dev'
     ];
 
-    if (!perfisPermitidos.includes(payload.perfil)) {
+    if (
+      !perfisPermitidos.includes(
+        payload.perfil
+      )
+    ) {
       return res.status(401).json({
         erro: 'Token de autenticação inválido.'
       });
     }
 
-    /*
-     * Usuários comuns precisam estar vinculados
-     * a uma empresa.
-     */
+    // ========================================================
+    // USUÁRIOS COMUNS PRECISAM DE EMPRESA
+    // ========================================================
+
     if (
       payload.perfil !== 'dev' &&
       !payload.empresa_id
@@ -83,30 +131,34 @@ function autenticar(req, res, next) {
       });
     }
 
-    /*
-     * DEV pode existir sem empresa.
-     */
-    if (
-      payload.perfil === 'dev' &&
-      payload.empresa_id !== null &&
-      payload.empresa_id !== undefined
-    ) {
-      /*
-       * Não bloqueamos o token caso futuramente
-       * um DEV possua uma empresa técnica.
-       *
-       * O controle de acesso continua sendo feito
-       * pelo perfil.
-       */
-    }
+    // ========================================================
+    // DEV
+    // ========================================================
+    //
+    // DEV pode existir sem empresa.
+    //
+    // Caso futuramente exista um DEV vinculado a uma empresa,
+    // o acesso continuará sendo controlado pelo perfil.
+    //
+
+    // ========================================================
+    // USUÁRIO AUTENTICADO
+    // ========================================================
 
     req.usuario = {
       id: payload.id,
+
       empresa_id:
         payload.empresa_id ?? null,
-      nome: payload.nome,
-      email: payload.email,
-      perfil: payload.perfil
+
+      nome:
+        payload.nome || null,
+
+      email:
+        payload.email || null,
+
+      perfil:
+        payload.perfil
     };
 
     next();
