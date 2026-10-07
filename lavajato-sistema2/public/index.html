@@ -1167,240 +1167,1082 @@
       </div>
 
 
-      <!-- CONFIGURAÇÕES -->
+     
+<!-- CONFIGURAÇÕES -->
 
-      <div class="panel" id="panel-configuracoes">
+<div class="panel" id="panel-configuracoes">
 
-        <div class="topbar">
-          <div>
-            <h1>Configurações</h1>
-            <div class="date-label">Gerencie os dados da sua empresa e sua conta</div>
-          </div>
+  <div class="topbar">
+    <div>
+      <h1>Configurações</h1>
+      <div class="date-label">
+        Gerencie os dados da sua empresa, preferências e aparência do sistema
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       DADOS DA EMPRESA
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Dados da empresa</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Essas informações são utilizadas no sistema e poderão ser usadas em recibos,
+      documentos e outras áreas da plataforma.
+    </p>
+
+    <form id="form-configuracoes">
+
+      <div class="field-row">
+
+        <div class="field">
+          <label for="config-empresa-nome">Nome da empresa</label>
+
+          <input
+            type="text"
+            id="config-empresa-nome"
+            placeholder="Ex: Alx Garage"
+            maxlength="150"
+            required
+          >
         </div>
 
 
-        <!-- DADOS DA EMPRESA -->
+        <div class="field">
+          <label for="config-empresa-nome-exibicao">
+            Nome exibido no sistema
+          </label>
 
-        <section class="block">
+          <input
+            type="text"
+            id="config-empresa-nome-exibicao"
+            placeholder="Ex: Alx Garage"
+            maxlength="150"
+          >
 
-          <h2>Dados da empresa</h2>
-
-          <p class="date-label" style="margin-bottom:20px;">
-            Essas informações são utilizadas no sistema e poderão ser usadas futuramente em recibos e documentos.
-          </p>
-
-          <form id="form-configuracoes">
-
-            <div class="field-row">
-
-              <div class="field">
-                <label for="config-empresa-nome">Nome da empresa</label>
-                <input
-                  type="text"
-                  id="config-empresa-nome"
-                  placeholder="Ex: Alx Garage"
-                  required
-                >
-              </div>
-
-              <div class="field">
-                <label for="config-empresa-email">E-mail da empresa</label>
-                <input
-                  type="email"
-                  id="config-empresa-email"
-                  placeholder="contato@empresa.com"
-                  required
-                >
-              </div>
-
-            </div>
-
-            <div class="field">
-              <label for="config-empresa-telefone">Telefone</label>
-              <input
-                type="text"
-                id="config-empresa-telefone"
-                placeholder="(47) 99999-9999"
-              >
-            </div>
-
-            <div class="field">
-              <label for="config-empresa-nicho">Tipo de negócio</label>
-              <select id="config-empresa-nicho">
-                <option value="lavajato">Lava-jato / Estética automotiva</option>
-                <option value="barbearia">Barbearia / Salão de beleza</option>
-                <option value="clinica">Clínica / Consultório</option>
-                <option value="pet">Pet shop / Veterinária</option>
-                <option value="oficina">Oficina mecânica</option>
-                <option value="personal">Personal / Aulas / Consultoria</option>
-                <option value="generico">Outro</option>
-              </select>
-            </div>
-
-            <div id="configuracoes-message" class="auth-error" style="display:none;"></div>
-
-            <div class="modal-actions">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                id="btn-salvar-configuracoes"
-              >
-                Salvar alterações
-              </button>
-            </div>
-
-          </form>
-
-        </section>
-
-
-        <!-- MINHA CONTA -->
-
-        <section class="block">
-
-          <h2>Minha conta</h2>
-
-          <p class="date-label" style="margin-bottom:20px;">
-            Informações do usuário atualmente conectado.
-          </p>
-
-          <div class="field-row">
-
-            <div class="field">
-              <label for="config-usuario-nome">Nome</label>
-              <input type="text" id="config-usuario-nome" readonly>
-            </div>
-
-            <div class="field">
-              <label for="config-usuario-email">E-mail</label>
-              <input type="email" id="config-usuario-email" readonly>
-            </div>
-
-          </div>
-
-          <div class="field">
-            <label for="config-usuario-perfil">Cargo</label>
-            <input type="text" id="config-usuario-perfil" readonly>
-          </div>
-
-        </section>
-
-
-        <!-- APARÊNCIA -->
-
-        <section class="block">
-
-          <h2>Aparência</h2>
-
-          <p class="date-label" style="margin-bottom:20px;">
-            Personalize as cores e o tema do sistema.
-          </p>
-
-          <div class="field-row">
-
-            <div class="field">
-
-              <label for="config-cor-principal">Cor principal</label>
-
-              <div class="color-picker">
-                <input type="color" id="config-cor-principal" value="#0E3A4C">
-                <input
-                  type="text"
-                  id="config-cor-principal-text"
-                  value="#0E3A4C"
-                  maxlength="7"
-                >
-              </div>
-
-            </div>
-
-            <div class="field">
-
-              <label for="config-cor-destaque">Cor de destaque</label>
-
-              <div class="color-picker">
-                <input type="color" id="config-cor-destaque" value="#06B6D4">
-                <input
-                  type="text"
-                  id="config-cor-destaque-text"
-                  value="#06B6D4"
-                  maxlength="7"
-                >
-              </div>
-
-            </div>
-
-          </div>
-
-          <div class="field">
-
-            <label>Temas rápidos</label>
-
-            <div class="theme-presets">
-
-              <button
-                type="button"
-                class="theme-preset"
-                data-primary="#0E3A4C"
-                data-accent="#06B6D4"
-              >
-                <span class="theme-preset-color" style="background:#0E3A4C;"></span>
-                Azul
-              </button>
-
-              <button
-                type="button"
-                class="theme-preset"
-                data-primary="#166534"
-                data-accent="#22C55E"
-              >
-                <span class="theme-preset-color" style="background:#166534;"></span>
-                Verde
-              </button>
-
-              <button
-                type="button"
-                class="theme-preset"
-                data-primary="#581C87"
-                data-accent="#A855F7"
-              >
-                <span class="theme-preset-color" style="background:#581C87;"></span>
-                Roxo
-              </button>
-
-              <button
-                type="button"
-                class="theme-preset"
-                data-primary="#991B1B"
-                data-accent="#EF4444"
-              >
-                <span class="theme-preset-color" style="background:#991B1B;"></span>
-                Vermelho
-              </button>
-
-            </div>
-
-          </div>
-
-          <div class="modal-actions">
-
-            <button type="button" class="btn btn-ghost" id="btn-restaurar-tema">
-              Restaurar padrão
-            </button>
-
-            <button type="button" class="btn btn-primary" id="btn-salvar-tema">
-              Salvar aparência
-            </button>
-
-          </div>
-
-        </section>
+          <small class="date-label">
+            Se preenchido, este nome poderá ser utilizado na identificação visual
+            da empresa.
+          </small>
+        </div>
 
       </div>
 
-    </main>
 
-  </div>
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-empresa-email">
+            E-mail da empresa
+          </label>
+
+          <input
+            type="email"
+            id="config-empresa-email"
+            placeholder="contato@empresa.com"
+            maxlength="254"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-empresa-telefone">
+            Telefone
+          </label>
+
+          <input
+            type="text"
+            id="config-empresa-telefone"
+            placeholder="(47) 99999-9999"
+            maxlength="30"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-empresa-nicho">
+          Tipo de negócio
+        </label>
+
+        <select id="config-empresa-nicho">
+
+          <option value="lavajato">
+            Lava-jato / Estética automotiva
+          </option>
+
+          <option value="barbearia">
+            Barbearia / Salão de beleza
+          </option>
+
+          <option value="clinica">
+            Clínica / Consultório
+          </option>
+
+          <option value="pet">
+            Pet shop / Veterinária
+          </option>
+
+          <option value="oficina">
+            Oficina mecânica
+          </option>
+
+          <option value="personal">
+            Personal / Aulas / Consultoria
+          </option>
+
+          <option value="generico">
+            Outro
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-logo-url">
+          Logo da empresa
+        </label>
+
+        <input
+          type="url"
+          id="config-logo-url"
+          placeholder="https://exemplo.com/logo.png"
+          maxlength="500"
+        >
+
+        <small class="date-label">
+          Informe a URL de uma imagem para utilizar como logo da empresa.
+        </small>
+
+      </div>
+
+
+      <div
+        id="configuracoes-message"
+        class="auth-error"
+        style="display:none;"
+      ></div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          id="btn-salvar-configuracoes"
+        >
+          Salvar alterações
+        </button>
+
+      </div>
+
+    </form>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       PREFERÊNCIAS REGIONAIS
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Preferências regionais</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Defina como datas, horários, moeda e idioma serão apresentados no sistema.
+    </p>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label for="config-moeda">
+          Moeda
+        </label>
+
+        <select id="config-moeda">
+
+          <option value="BRL">
+            Real brasileiro (R$)
+          </option>
+
+          <option value="USD">
+            Dólar americano ($)
+          </option>
+
+          <option value="EUR">
+            Euro (€)
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-idioma">
+          Idioma
+        </label>
+
+        <select id="config-idioma">
+
+          <option value="pt-BR">
+            Português (Brasil)
+          </option>
+
+          <option value="en-US">
+            English (United States)
+          </option>
+
+          <option value="es-ES">
+            Español
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label for="config-formato-data">
+          Formato de data
+        </label>
+
+        <select id="config-formato-data">
+
+          <option value="DD/MM/YYYY">
+            DD/MM/YYYY
+          </option>
+
+          <option value="MM/DD/YYYY">
+            MM/DD/YYYY
+          </option>
+
+          <option value="YYYY-MM-DD">
+            YYYY-MM-DD
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-formato-hora">
+          Formato de horário
+        </label>
+
+        <select id="config-formato-hora">
+
+          <option value="24h">
+            24 horas
+          </option>
+
+          <option value="12h">
+            12 horas
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="config-fuso-horario">
+        Fuso horário
+      </label>
+
+      <select id="config-fuso-horario">
+
+        <option value="America/Sao_Paulo">
+          Brasília — America/Sao_Paulo
+        </option>
+
+        <option value="America/Fortaleza">
+          Fortaleza — America/Fortaleza
+        </option>
+
+        <option value="America/Recife">
+          Recife — America/Recife
+        </option>
+
+        <option value="America/Manaus">
+          Manaus — America/Manaus
+        </option>
+
+        <option value="America/Belem">
+          Belém — America/Belem
+        </option>
+
+        <option value="America/Cuiaba">
+          Cuiabá — America/Cuiaba
+        </option>
+
+        <option value="America/Porto_Velho">
+          Porto Velho — America/Porto_Velho
+        </option>
+
+        <option value="America/Boa_Vista">
+          Boa Vista — America/Boa_Vista
+        </option>
+
+        <option value="America/Rio_Branco">
+          Rio Branco — America/Rio_Branco
+        </option>
+
+        <option value="America/Noronha">
+          Fernando de Noronha — America/Noronha
+        </option>
+
+        <option value="UTC">
+          UTC
+        </option>
+
+      </select>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       PREFERÊNCIAS DO SISTEMA
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Preferências do sistema</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Controle alguns comportamentos e informações exibidas pela plataforma.
+    </p>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label for="config-notificacoes-ativas">
+          Notificações
+        </label>
+
+        <select id="config-notificacoes-ativas">
+
+          <option value="true">
+            Ativadas
+          </option>
+
+          <option value="false">
+            Desativadas
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-mostrar-valores">
+          Valores financeiros
+        </label>
+
+        <select id="config-mostrar-valores">
+
+          <option value="true">
+            Exibir valores
+          </option>
+
+          <option value="false">
+            Ocultar valores
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label for="config-dashboard-inicial">
+          Dashboard inicial
+        </label>
+
+        <select id="config-dashboard-inicial">
+
+          <option value="true">
+            Abrir dashboard ao entrar
+          </option>
+
+          <option value="false">
+            Não abrir automaticamente
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-modo-compacto">
+          Modo compacto
+        </label>
+
+        <select id="config-modo-compacto">
+
+          <option value="false">
+            Desativado
+          </option>
+
+          <option value="true">
+            Ativado
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        id="btn-salvar-preferencias"
+      >
+        Salvar preferências
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       APARÊNCIA
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Aparência</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Personalize as cores e o tema visual do sistema.
+    </p>
+
+
+    <div class="field-row">
+
+
+      <div class="field">
+
+        <label for="config-cor-principal">
+          Cor principal
+        </label>
+
+        <div class="color-picker">
+
+          <input
+            type="color"
+            id="config-cor-principal"
+            value="#0E3A4C"
+          >
+
+          <input
+            type="text"
+            id="config-cor-principal-text"
+            value="#0E3A4C"
+            maxlength="7"
+            placeholder="#0E3A4C"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-cor-destaque">
+          Cor de destaque
+        </label>
+
+        <div class="color-picker">
+
+          <input
+            type="color"
+            id="config-cor-destaque"
+            value="#06B6D4"
+          >
+
+          <input
+            type="text"
+            id="config-cor-destaque-text"
+            value="#06B6D4"
+            maxlength="7"
+            placeholder="#06B6D4"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="config-cor-fundo">
+        Cor de fundo
+      </label>
+
+      <div class="color-picker">
+
+        <input
+          type="color"
+          id="config-cor-fundo"
+          value="#F5F7FA"
+        >
+
+        <input
+          type="text"
+          id="config-cor-fundo-text"
+          value="#F5F7FA"
+          maxlength="7"
+          placeholder="#F5F7FA"
+        >
+
+      </div>
+
+    </div>
+
+
+
+    <!-- TEMAS RÁPIDOS -->
+
+    <div class="field">
+
+      <label>
+        Temas rápidos
+      </label>
+
+      <div class="theme-presets">
+
+
+        <button
+          type="button"
+          class="theme-preset"
+          data-primary="#0E3A4C"
+          data-accent="#06B6D4"
+          data-background="#F5F7FA"
+        >
+
+          <span
+            class="theme-preset-color"
+            style="background:#0E3A4C;"
+          ></span>
+
+          Azul
+
+        </button>
+
+
+        <button
+          type="button"
+          class="theme-preset"
+          data-primary="#166534"
+          data-accent="#22C55E"
+          data-background="#F5F7F7"
+        >
+
+          <span
+            class="theme-preset-color"
+            style="background:#166534;"
+          ></span>
+
+          Verde
+
+        </button>
+
+
+        <button
+          type="button"
+          class="theme-preset"
+          data-primary="#581C87"
+          data-accent="#A855F7"
+          data-background="#FAF7FF"
+        >
+
+          <span
+            class="theme-preset-color"
+            style="background:#581C87;"
+          ></span>
+
+          Roxo
+
+        </button>
+
+
+        <button
+          type="button"
+          class="theme-preset"
+          data-primary="#991B1B"
+          data-accent="#EF4444"
+          data-background="#FFF7F7"
+        >
+
+          <span
+            class="theme-preset-color"
+            style="background:#991B1B;"
+          ></span>
+
+          Vermelho
+
+        </button>
+
+
+      </div>
+
+    </div>
+
+
+
+    <!-- PREVIEW -->
+
+    <div class="field">
+
+      <label>
+        Pré-visualização
+      </label>
+
+      <div
+        id="config-tema-preview"
+        style="
+          border:1px solid var(--border);
+          border-radius:14px;
+          padding:20px;
+          background:#F5F7FA;
+          transition:.2s;
+        "
+      >
+
+        <div
+          id="config-tema-preview-title"
+          style="
+            font-size:16px;
+            font-weight:700;
+            margin-bottom:8px;
+          "
+        >
+          Visualização do tema
+        </div>
+
+        <div
+          id="config-tema-preview-badge"
+          style="
+            display:inline-block;
+            padding:5px 10px;
+            border-radius:8px;
+            font-size:12px;
+            font-weight:600;
+            color:#fff;
+            background:#06B6D4;
+            margin-bottom:12px;
+          "
+        >
+          Exemplo
+        </div>
+
+        <br>
+
+        <button
+          type="button"
+          id="config-tema-preview-button"
+          style="
+            border:0;
+            border-radius:8px;
+            padding:9px 14px;
+            color:#fff;
+            background:#0E3A4C;
+            cursor:pointer;
+          "
+        >
+          Botão de exemplo
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <div
+      id="config-aparencia-message"
+      class="auth-error"
+      style="display:none;"
+    ></div>
+
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-restaurar-tema"
+      >
+        Restaurar padrão
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        id="btn-salvar-tema"
+      >
+        Salvar aparência
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       DOCUMENTOS
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Documentos</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Configure as informações que poderão aparecer em recibos e documentos.
+    </p>
+
+
+    <div class="field">
+
+      <label for="config-rodape-documentos">
+        Rodapé dos documentos
+      </label>
+
+      <textarea
+        id="config-rodape-documentos"
+        rows="4"
+        maxlength="500"
+        placeholder="Ex: Obrigado pela preferência."
+      ></textarea>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="config-telefone-documentos">
+        Telefone nos documentos
+      </label>
+
+      <select id="config-telefone-documentos">
+
+        <option value="true">
+          Exibir telefone
+        </option>
+
+        <option value="false">
+          Não exibir telefone
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        id="btn-salvar-documentos"
+      >
+        Salvar documentos
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       AGENDA
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Agenda</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Defina o horário de funcionamento e o intervalo padrão dos horários.
+    </p>
+
+
+    <div class="field-row">
+
+
+      <div class="field">
+
+        <label for="config-agenda-inicio">
+          Horário inicial
+        </label>
+
+        <input
+          type="time"
+          id="config-agenda-inicio"
+          value="08:00"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-agenda-fim">
+          Horário final
+        </label>
+
+        <input
+          type="time"
+          id="config-agenda-fim"
+          value="18:00"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="config-agenda-intervalo">
+        Intervalo entre horários
+      </label>
+
+      <select id="config-agenda-intervalo">
+
+        <option value="15">
+          15 minutos
+        </option>
+
+        <option value="30">
+          30 minutos
+        </option>
+
+        <option value="45">
+          45 minutos
+        </option>
+
+        <option value="60">
+          1 hora
+        </option>
+
+        <option value="90">
+          1 hora e 30 minutos
+        </option>
+
+        <option value="120">
+          2 horas
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        id="btn-salvar-agenda"
+      >
+        Salvar agenda
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       MINHA CONTA
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Minha conta</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Informações do usuário atualmente conectado.
+    </p>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label for="config-usuario-nome">
+          Nome
+        </label>
+
+        <input
+          type="text"
+          id="config-usuario-nome"
+          readonly
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="config-usuario-email">
+          E-mail
+        </label>
+
+        <input
+          type="email"
+          id="config-usuario-email"
+          readonly
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="config-usuario-perfil">
+        Cargo
+      </label>
+
+      <input
+        type="text"
+        id="config-usuario-perfil"
+        readonly
+      >
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
+       INFORMAÇÕES DO SISTEMA
+  ========================================================== -->
+
+  <section class="block">
+
+    <h2>Informações do sistema</h2>
+
+    <p class="date-label" style="margin-bottom:20px;">
+      Informações gerais da plataforma e da empresa.
+    </p>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Plataforma
+        </label>
+
+        <input
+          type="text"
+          value="Orvix"
+          readonly
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Status da empresa
+        </label>
+
+        <input
+          type="text"
+          id="config-info-status"
+          value="Ativa"
+          readonly
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Empresa
+      </label>
+
+      <input
+        type="text"
+        id="config-info-empresa"
+        readonly
+      >
+
+    </div>
+
+  </section>
+
+</div>
+
 
 
   <!-- =========================================================
