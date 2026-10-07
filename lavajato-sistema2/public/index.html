@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Agende seu serviço de lavagem de veículos de forma rápida e fácil.">
+  <meta name="description" content="Agende seus atendimentos, controle o faturamento e organize sua empresa de forma rápida e fácil.">
 
   <title>Orvix — Agenda &amp; Faturamento</title>
 
@@ -19,9 +19,9 @@
   <link rel="canonical" href="https://sistemaagendamento-lavajato-sistema.vercel.app/">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 </head>
 
 <body>
@@ -30,543 +30,345 @@
      TELA DE LOGIN
      ========================================================= -->
 
-<div id="auth-screen" class="auth-screen">
+  <div id="auth-screen" class="auth-screen">
 
-  <div class="auth-card">
+    <div class="auth-card">
 
-    <div class="auth-logo">
-      <div class="auth-logo-mark"></div>
+      <div class="auth-logo">
+        <div class="auth-logo-mark"></div>
+      </div>
+
+      <div class="auth-header">
+        <h1>Orvix</h1>
+        <p id="auth-subtitle">Gestão simples para sua empresa</p>
+      </div>
+
+
+      <!-- LOGIN -->
+
+      <form id="login-form" class="auth-form">
+
+        <div class="auth-field">
+          <label for="login-email">E-mail</label>
+          <input
+            type="email"
+            id="login-email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="login-password">Senha</label>
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Sua senha"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <a href="/recuperar-senha.html" class="forgot-password">
+          Esqueci minha senha
+        </a>
+
+        <div id="login-error" class="auth-error"></div>
+
+        <button type="submit" class="auth-submit" id="login-submit">
+          Entrar
+        </button>
+
+        <button type="button" class="auth-switch" id="show-register">
+          Criar uma conta
+        </button>
+
+      </form>
+
+
+      <!-- CADASTRO -->
+
+      <form id="register-form" class="auth-form" style="display:none;">
+
+        <div class="auth-field">
+          <label for="register-company">Nome da Empresa</label>
+          <input
+            type="text"
+            id="register-company"
+            placeholder="Ex: Alx Garage"
+            required
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="register-company-email">E-mail da empresa</label>
+          <input
+            type="email"
+            id="register-company-email"
+            placeholder="contato@empresa.com"
+            required
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="register-phone">Telefone</label>
+          <input
+            type="text"
+            id="register-phone"
+            placeholder="(47) 99999-9999"
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="register-nicho">Tipo de negócio</label>
+          <select id="register-nicho">
+            <option value="lavajato">Lava-jato / Estética automotiva</option>
+            <option value="barbearia">Barbearia / Salão de beleza</option>
+            <option value="clinica">Clínica / Consultório</option>
+            <option value="pet">Pet shop / Veterinária</option>
+            <option value="oficina">Oficina mecânica</option>
+            <option value="personal">Personal / Aulas / Consultoria</option>
+            <option value="generico">Outro</option>
+          </select>
+        </div>
+
+        <div class="auth-field">
+          <label for="register-name">Seu nome</label>
+          <input
+            type="text"
+            id="register-name"
+            placeholder="Alex"
+            required
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="register-email">Seu e-mail</label>
+          <input
+            type="email"
+            id="register-email"
+            placeholder="alex@email.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="register-password">Senha</label>
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Mínimo 6 caracteres"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          >
+        </div>
+
+        <div id="register-error" class="auth-error"></div>
+
+        <button type="submit" class="auth-submit" id="register-submit">
+          Criar conta
+        </button>
+
+        <button type="button" class="auth-switch" id="show-login">
+          Já tenho uma conta
+        </button>
+
+      </form>
+
     </div>
-
-    <div class="auth-header">
-
-      <h1>Orvix</h1>
-
-      <p id="auth-subtitle">
-        Gestão simples para sua empresa
-      </p>
-
-    </div>
-
-
-    <!-- =====================================================
-         LOGIN
-         ===================================================== -->
-
-    <form id="login-form" class="auth-form">
-
-      <div class="auth-field">
-
-        <label for="login-email">
-          E-mail
-        </label>
-
-        <input
-          type="email"
-          id="login-email"
-          placeholder="seu@email.com"
-          autocomplete="email"
-          required
-        >
-
-      </div>
-
-
-      <div class="auth-field">
-
-        <label for="login-password">
-          Senha
-        </label>
-
-        <input
-          type="password"
-          id="login-password"
-          placeholder="Sua senha"
-          autocomplete="current-password"
-          required
-        >
-
-      </div>
-
-
-      <!-- ESQUECI MINHA SENHA -->
-
-      <a
-        href="/recuperar-senha.html"
-        class="forgot-password"
-      >
-        Esqueci minha senha
-      </a>
-
-
-      <div
-        id="login-error"
-        class="auth-error"
-      ></div>
-
-
-      <button
-        type="submit"
-        class="auth-submit"
-        id="login-submit"
-      >
-        Entrar
-      </button>
-
-
-      <button
-        type="button"
-        class="auth-switch"
-        id="show-register"
-      >
-        Criar uma conta
-      </button>
-
-    </form>
-
-
-    <!-- =====================================================
-         CADASTRO
-         ===================================================== -->
-
-    <form
-      id="register-form"
-      class="auth-form"
-      style="display:none;"
-    >
-
-      <div class="auth-field">
-
-        <label for="register-company">
-          Nome da Empresa
-        </label>
-
-        <input
-          type="text"
-          id="register-company"
-          placeholder="Ex: Alx Garage"
-          required
-        >
-
-      </div>
-
-
-      <div class="auth-field">
-
-        <label for="register-company-email">
-          E-mail da empresa
-        </label>
-
-        <input
-          type="email"
-          id="register-company-email"
-          placeholder="contato@empresa.com"
-          required
-        >
-
-      </div>
-
-
-      <div class="auth-field">
-
-        <label for="register-phone">
-          Telefone
-        </label>
-
-        <input
-          type="text"
-          id="register-phone"
-          placeholder="(47) 99999-9999"
-        >
-
-      </div>
-
-      <div class="auth-field">
-  <label for="register-nicho">Tipo de negócio</label>
-  <select id="register-nicho">
-    <option value="lavajato">Lava-jato / Estética automotiva</option>
-    <option value="barbearia">Barbearia / Salão de beleza</option>
-    <option value="clinica">Clínica / Consultório</option>
-    <option value="pet">Pet shop / Veterinária</option>
-    <option value="oficina">Oficina mecânica</option>
-    <option value="personal">Personal / Aulas / Consultoria</option>
-    <option value="generico">Outro</option>
-  </select>
-</div>
-
-
-      <div class="auth-field">
-
-        <label for="register-name">
-          Seu nome
-        </label>
-
-        <input
-          type="text"
-          id="register-name"
-          placeholder="Alex"
-          required
-        >
-
-      </div>
-
-
-      <div class="auth-field">
-
-        <label for="register-email">
-          Seu e-mail
-        </label>
-
-        <input
-          type="email"
-          id="register-email"
-          placeholder="alex@email.com"
-          autocomplete="email"
-          required
-        >
-
-      </div>
-
-
-      <div class="auth-field">
-
-        <label for="register-password">
-          Senha
-        </label>
-
-        <input
-          type="password"
-          id="register-password"
-          placeholder="Mínimo 6 caracteres"
-          autocomplete="new-password"
-          minlength="6"
-          required
-        >
-
-      </div>
-
-
-      <div
-        id="register-error"
-        class="auth-error"
-      ></div>
-
-
-      <button
-        type="submit"
-        class="auth-submit"
-        id="register-submit"
-      >
-        Criar conta
-      </button>
-
-
-      <button
-        type="button"
-        class="auth-switch"
-        id="show-login"
-      >
-        Já tenho uma conta
-      </button>
-
-    </form>
 
   </div>
 
-</div>
-<!-- ============================================================
+
+  <!-- ============================================================
      MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
      ============================================================ -->
 
-<div
-  id="modal-plano-obrigatorio"
-  class="modal-plano-overlay"
-  style="display:none;"
->
-  <div class="modal-plano">
+  <div
+    id="modal-plano-obrigatorio"
+    class="modal-plano-overlay"
+    style="display:none;"
+  >
+    <div class="modal-plano">
 
-    <div class="modal-plano-header">
-      <div>
-        <span class="modal-plano-badge">
-          Assinatura
-        </span>
+      <div class="modal-plano-header">
+        <div>
+          <span class="modal-plano-badge">Assinatura</span>
 
-        <h2>Escolha seu plano</h2>
+          <h2>Escolha seu plano</h2>
 
-        <p>
-          Para continuar utilizando o Orvix,
-          escolha um plano para sua empresa.
-        </p>
+          <p>
+            Para continuar utilizando o Orvix,
+            escolha um plano para sua empresa.
+          </p>
+        </div>
       </div>
+
+      <div id="modal-plano-loading" class="modal-plano-loading">
+        Carregando planos...
+      </div>
+
+      <div id="modal-plano-lista" class="modal-plano-lista"></div>
+
+      <div id="modal-plano-erro" class="modal-plano-erro" style="display:none;"></div>
+
     </div>
-
-    <div
-      id="modal-plano-loading"
-      class="modal-plano-loading"
-    >
-      Carregando planos...
-    </div>
-
-    <div
-      id="modal-plano-lista"
-      class="modal-plano-lista"
-    ></div>
-
-    <div
-      id="modal-plano-erro"
-      class="modal-plano-erro"
-      style="display:none;"
-    ></div>
-
   </div>
-</div>
 
-<style>
-/* ============================================================
-   MODAL OBRIGATÓRIO - PLANO
-   ============================================================ */
-
-.modal-plano-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 999999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-
-  background:
-    rgba(8, 15, 30, .78);
-
-  backdrop-filter: blur(8px);
-}
-
-.modal-plano {
-  width: min(900px, 100%);
-
-  max-height: 90vh;
-  overflow-y: auto;
-
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  padding: 32px;
-
-  box-shadow:
-    0 25px 80px rgba(0, 0, 0, .30);
-}
-
-.modal-plano-header {
-  margin-bottom: 28px;
-}
-
-.modal-plano-badge {
-  display: inline-flex;
-
-  padding: 6px 10px;
-
-  border-radius: 999px;
-
-  background: rgba(37, 99, 235, .10);
-
-  color: #2563eb;
-
-  font-size: 12px;
-
-  font-weight: 700;
-}
-
-.modal-plano h2 {
-  margin: 12px 0 6px;
-
-  color: #111827;
-
-  font-size: 28px;
-
-  font-weight: 800;
-}
-
-.modal-plano p {
-  margin: 0;
-
-  color: #64748b;
-
-  font-size: 14px;
-
-  line-height: 1.6;
-}
-
-.modal-plano-loading {
-  padding: 30px;
-
-  text-align: center;
-
-  color: #64748b;
-
-  font-size: 14px;
-}
-
-.modal-plano-lista {
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(240px, 1fr));
-
-  gap: 18px;
-}
-
-.modal-plano-card {
-  display: flex;
-
-  flex-direction: column;
-
-  padding: 22px;
-
-  border:
-    1px solid #e5e7eb;
-
-  border-radius: 16px;
-
-  background: #ffffff;
-
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease,
-    border-color .2s ease;
-}
-
-.modal-plano-card:hover {
-  transform: translateY(-2px);
-
-  border-color: #2563eb;
-
-  box-shadow:
-    0 12px 30px rgba(37, 99, 235, .12);
-}
-
-.modal-plano-card h3 {
-  margin: 0 0 8px;
-
-  color: #111827;
-
-  font-size: 19px;
-}
-
-.modal-plano-card-descricao {
-  min-height: 42px;
-
-  margin-bottom: 18px;
-
-  color: #64748b;
-
-  font-size: 13px;
-
-  line-height: 1.5;
-}
-
-.modal-plano-card-preco {
-  margin-bottom: 20px;
-
-  color: #111827;
-
-  font-size: 28px;
-
-  font-weight: 800;
-}
-
-.modal-plano-card-preco small {
-  color: #64748b;
-
-  font-size: 13px;
-
-  font-weight: 500;
-}
-
-.modal-plano-btn {
-  width: 100%;
-
-  margin-top: auto;
-
-  padding: 12px 16px;
-
-  border: none;
-
-  border-radius: 10px;
-
-  background: #2563eb;
-
-  color: #ffffff;
-
-  font-size: 14px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background .2s ease,
-    transform .2s ease;
-}
-
-.modal-plano-btn:hover {
-  background: #1d4ed8;
-
-  transform: translateY(-1px);
-}
-
-.modal-plano-btn:disabled {
-  opacity: .6;
-
-  cursor: wait;
-
-  transform: none;
-}
-
-.modal-plano-erro {
-  margin-top: 18px;
-
-  padding: 12px 14px;
-
-  border-radius: 10px;
-
-  background: #fef2f2;
-
-  color: #b91c1c;
-
-  font-size: 13px;
-}
-
-@media (max-width: 600px) {
-
-  .modal-plano-overlay {
-    padding: 12px;
-  }
-
-  .modal-plano {
-    padding: 22px;
-
-    border-radius: 16px;
-  }
-
-  .modal-plano h2 {
-    font-size: 23px;
-  }
-
-  .modal-plano-lista {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
-
-
-
-
-  <!-- =========================================================
-     BOTÃO DO MENU MOBILE
-     ========================================================= -->
+  <style>
+    /* MODAL OBRIGATÓRIO - PLANO */
+
+    .modal-plano-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(8, 15, 30, .78);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-plano {
+      width: min(900px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, .30);
+    }
+
+    .modal-plano-header { margin-bottom: 28px; }
+
+    .modal-plano-badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, .10);
+      color: #2563eb;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .modal-plano h2 {
+      margin: 12px 0 6px;
+      color: #111827;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .modal-plano p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .modal-plano-loading {
+      padding: 30px;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .modal-plano-lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .modal-plano-card {
+      display: flex;
+      flex-direction: column;
+      padding: 22px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #ffffff;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .modal-plano-card:hover {
+      transform: translateY(-2px);
+      border-color: #2563eb;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, .12);
+    }
+
+    .modal-plano-card h3 {
+      margin: 0 0 8px;
+      color: #111827;
+      font-size: 19px;
+    }
+
+    .modal-plano-card-descricao {
+      min-height: 42px;
+      margin-bottom: 18px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .modal-plano-card-preco {
+      margin-bottom: 20px;
+      color: #111827;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .modal-plano-card-preco small {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .modal-plano-btn {
+      width: 100%;
+      margin-top: auto;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .modal-plano-btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .modal-plano-btn:disabled {
+      opacity: .6;
+      cursor: wait;
+      transform: none;
+    }
+
+    .modal-plano-erro {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fef2f2;
+      color: #b91c1c;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .modal-plano-overlay { padding: 12px; }
+      .modal-plano { padding: 22px; border-radius: 16px; }
+      .modal-plano h2 { font-size: 23px; }
+      .modal-plano-lista { grid-template-columns: 1fr; }
+    }
+  </style>
+
+
+  <!-- BOTÃO DO MENU MOBILE -->
 
   <button
     class="mobile-menu-btn"
@@ -574,9 +376,7 @@
     type="button"
     aria-label="Abrir menu"
   >
-
     <svg viewBox="0 0 24 24">
-
       <path
         d="M4 6h16M4 12h16M4 18h16"
         fill="none"
@@ -584,18 +384,13 @@
         stroke-width="2"
         stroke-linecap="round"
       />
-
     </svg>
-
   </button>
 
 
   <!-- FUNDO DO MENU MOBILE -->
 
-  <div
-    class="sidebar-overlay"
-    id="sidebar-overlay"
-  ></div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
 
   <div class="app">
@@ -613,15 +408,8 @@
         </div>
 
         <div class="brand-info">
-
-          <div class="brand-text">
-            Orvix
-          </div>
-
-          <div class="brand-sub">
-            agenda &amp; caixa
-          </div>
-
+          <div class="brand-text">Orvix</div>
+          <div class="brand-sub">agenda &amp; caixa</div>
         </div>
 
         <button
@@ -630,9 +418,7 @@
           type="button"
           aria-label="Recolher menu"
         >
-
           <svg viewBox="0 0 20 20">
-
             <path
               d="M12.5 4.5L7 10l5.5 5.5"
               fill="none"
@@ -641,9 +427,7 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             />
-
           </svg>
-
         </button>
 
       </div>
@@ -653,33 +437,17 @@
 
       <div class="sidebar-user">
 
-        <div
-          class="sidebar-company"
-          id="sidebar-company"
-          title="Empresa"
-        >
+        <div class="sidebar-company" id="sidebar-company" title="Empresa">
           Carregando empresa...
         </div>
 
         <div class="sidebar-user-info">
 
-          <div
-            class="sidebar-user-avatar"
-            id="sidebar-user-avatar"
-          >
-            U
-          </div>
+          <div class="sidebar-user-avatar" id="sidebar-user-avatar">U</div>
 
           <div class="sidebar-user-data">
-
-            <strong id="sidebar-user-name">
-              Carregando...
-            </strong>
-
-            <span id="sidebar-user-profile">
-              —
-            </span>
-
+            <strong id="sidebar-user-name">Carregando...</strong>
+            <span id="sidebar-user-profile">—</span>
           </div>
 
         </div>
@@ -687,9 +455,7 @@
       </div>
 
 
-      <div class="menu-label">
-        MENU
-      </div>
+      <div class="menu-label">MENU</div>
 
 
       <!-- MENU -->
@@ -704,12 +470,7 @@
           type="button"
           data-permission-module="agenda"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <path
               d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
               fill="none"
@@ -717,62 +478,46 @@
               stroke-width="1.4"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Agenda
-          </span>
+          <span class="nav-text">Agenda</span>
 
-          <span
-            class="count"
-            id="nav-count-agenda"
-          ></span>
-
+          <span class="count" id="nav-count-agenda"></span>
         </button>
+
 
         <!-- MINHA ASSINATURA -->
 
-<button
-  class="nav-btn"
-  type="button"
-  onclick="window.location.href='/assinaturas.html'"
->
-  <svg
-    class="nav-icon"
-    viewBox="0 0 20 20"
-  >
-    <rect
-      x="3"
-      y="4"
-      width="14"
-      height="12"
-      rx="2"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-    />
+        <button
+          class="nav-btn"
+          type="button"
+          onclick="window.location.href='/assinaturas.html'"
+        >
+          <svg class="nav-icon" viewBox="0 0 20 20">
+            <rect
+              x="3"
+              y="4"
+              width="14"
+              height="12"
+              rx="2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path d="M3 8h14" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <path
+              d="M6 12h4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
 
-    <path
-      d="M3 8h14"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-    />
+          <span class="nav-text">Minha assinatura</span>
+        </button>
 
-    <path
-      d="M6 12h4"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-    />
-  </svg>
 
-  <span class="nav-text">
-    Minha assinatura
-  </span>
-</button>
         <!-- FATURAMENTO -->
 
         <button
@@ -781,36 +526,19 @@
           type="button"
           data-permission-module="faturamento"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <path
               d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
               fill="none"
               stroke="currentColor"
               stroke-width="1.4"
             />
-
-            <path
-              d="M3 8h14"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-
+            <path d="M3 8h14" stroke="currentColor" stroke-width="1.4"/>
           </svg>
 
-          <span class="nav-text">
-            Faturamento
-          </span>
+          <span class="nav-text">Faturamento</span>
 
-          <span
-            class="count"
-            id="nav-count-fat"
-          ></span>
-
+          <span class="count" id="nav-count-fat"></span>
         </button>
 
 
@@ -822,25 +550,16 @@
           type="button"
           data-permission-module="financeiro"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <path
               d="M4 15V9M10 15V5M16 15v-4"
               stroke="currentColor"
               stroke-width="1.6"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Financeiro
-          </span>
-
+          <span class="nav-text">Financeiro</span>
         </button>
 
 
@@ -852,12 +571,7 @@
           type="button"
           data-permission-module="servicos"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <circle
               cx="10"
               cy="10"
@@ -866,20 +580,15 @@
               stroke="currentColor"
               stroke-width="1.4"
             />
-
             <path
               d="M10 6v4l3 2"
               stroke="currentColor"
               stroke-width="1.4"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Serviços
-          </span>
-
+          <span class="nav-text">Serviços</span>
         </button>
 
 
@@ -891,12 +600,7 @@
           type="button"
           data-permission-module="clientes"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <circle
               cx="10"
               cy="7"
@@ -905,7 +609,6 @@
               stroke="currentColor"
               stroke-width="1.4"
             />
-
             <path
               d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
               fill="none"
@@ -913,13 +616,9 @@
               stroke-width="1.4"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Clientes
-          </span>
-
+          <span class="nav-text">Clientes</span>
         </button>
 
 
@@ -931,12 +630,7 @@
           type="button"
           data-permission-module="despesas"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <circle
               cx="10"
               cy="10"
@@ -945,20 +639,15 @@
               stroke="currentColor"
               stroke-width="1.4"
             />
-
             <path
               d="M7 10h6"
               stroke="currentColor"
               stroke-width="1.6"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Despesas
-          </span>
-
+          <span class="nav-text">Despesas</span>
         </button>
 
 
@@ -972,12 +661,7 @@
           data-permission-module="usuarios"
           style="display:none;"
         >
-
-          <svg
-            class="nav-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="nav-icon" viewBox="0 0 20 20">
             <circle
               cx="10"
               cy="6"
@@ -986,7 +670,6 @@
               stroke="currentColor"
               stroke-width="1.4"
             />
-
             <path
               d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
               fill="none"
@@ -994,7 +677,6 @@
               stroke-width="1.4"
               stroke-linecap="round"
             />
-
             <path
               d="M15 4v4M13 6h4"
               fill="none"
@@ -1002,119 +684,91 @@
               stroke-width="1.4"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Usuários
-          </span>
-
+          <span class="nav-text">Usuários</span>
         </button>
+
 
         <!-- CONFIGURAÇÕES -->
 
-<button
-  class="nav-btn"
-  id="nav-configuracoes"
-  data-tab="configuracoes"
-  type="button"
-  data-permission-module="configuracoes"
-  style="display:none;"
->
+        <button
+          class="nav-btn"
+          id="nav-configuracoes"
+          data-tab="configuracoes"
+          type="button"
+          data-permission-module="configuracoes"
+          style="display:none;"
+        >
+          <svg class="nav-icon" viewBox="0 0 20 20">
+            <circle
+              cx="10"
+              cy="10"
+              r="2.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path
+              d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.4 1.4M13.55 13.55l1.4 1.4M14.95 5.05l-1.4 1.4M6.45 13.55l1.4 1.4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
 
-  <svg
-    class="nav-icon"
-    viewBox="0 0 20 20"
-  >
-
-    <circle
-      cx="10"
-      cy="10"
-      r="2.5"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-    />
-
-    <path
-      d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.4 1.4M13.55 13.55l1.4 1.4M14.95 5.05l-1.4 1.4M6.45 13.55l1.4 1.4"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-    />
-
-  </svg>
-
-  <span class="nav-text">
-    Configurações
-  </span>
-
-</button>
+          <span class="nav-text">Configurações</span>
+        </button>
 
       </nav>
 
-      
-<!-- PRIVACIDADE E DADOS -->
 
-<button
-  id="btn-privacidade"
-  class="nav-btn"
-  type="button"
->
+      <!-- PRIVACIDADE E DADOS -->
 
-  <svg
-    class="nav-icon"
-    viewBox="0 0 20 20"
-  >
+      <button id="btn-privacidade" class="nav-btn" type="button">
+        <svg class="nav-icon" viewBox="0 0 20 20">
+          <path
+            d="M10 2.5l6 2.2v4.5c0 3.8-2.4 6.8-6 8.3-3.6-1.5-6-4.5-6-8.3V4.7L10 2.5z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M7.5 10l1.7 1.7 3.5-3.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
 
-    <path
-      d="M10 2.5l6 2.2v4.5c0 3.8-2.4 6.8-6 8.3-3.6-1.5-6-4.5-6-8.3V4.7L10 2.5z"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linejoin="round"
-    />
+        <span class="nav-text">Privacidade e Dados</span>
+      </button>
 
-    <path
-      d="M7.5 10l1.7 1.7 3.5-3.5"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-    />
 
-  </svg>
+      <!-- SOLICITAR DEV -->
 
-  <span class="nav-text">
-    Privacidade e Dados
-  </span>
+      <button
+        id="btn-solicitar-dev"
+        class="nav-btn"
+        type="button"
+        onclick="window.location.href='/empresa/solicitar-dev.html'"
+      >
+        <svg class="nav-icon" viewBox="0 0 20 20">
+          <path
+            d="M7 6L3 10l4 4M13 6l4 4-4 4M11 4l-2 12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
 
-</button>
-
-<!-- SOLICITAR DEV (NOVO) -->
-
-<button
-  id="btn-solicitar-dev"
-  class="nav-btn"
-  type="button"
-  onclick="window.location.href='/empresa/solicitar-dev.html'"
->
-  <svg class="nav-icon" viewBox="0 0 20 20">
-    <path
-      d="M7 6L3 10l4 4M13 6l4 4-4 4M11 4l-2 12"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </svg>
-
-  <span class="nav-text">
-    Solicitar dev
-  </span>
-</button>
+        <span class="nav-text">Solicitar dev</span>
+      </button>
 
 
       <!-- INFORMAÇÕES -->
@@ -1124,44 +778,18 @@
         <div class="sidebar-stats">
 
           <div class="stat-line">
-
-            <span>
-              Hoje
-            </span>
-
-            <b id="side-today">
-              R$ 0
-            </b>
-
+            <span>Hoje</span>
+            <b id="side-today">R$ 0</b>
           </div>
-
 
           <div class="stat-line">
-
-            <span>
-              A receber
-            </span>
-
-            <b id="side-pending">
-              R$ 0
-            </b>
-
+            <span>A receber</span>
+            <b id="side-pending">R$ 0</b>
           </div>
 
-
-          <div
-            class="stat-line conn"
-            id="conn-status"
-          >
-
-            <span>
-              Banco
-            </span>
-
-            <b id="conn-badge">
-              verificando…
-            </b>
-
+          <div class="stat-line conn" id="conn-status">
+            <span>Banco</span>
+            <b id="conn-badge">verificando…</b>
           </div>
 
         </div>
@@ -1169,14 +797,8 @@
 
         <!-- SAIR -->
 
-        <button
-          type="button"
-          class="sidebar-logout"
-          id="btn-logout"
-        >
-
+        <button type="button" class="sidebar-logout" id="btn-logout">
           <svg viewBox="0 0 20 20">
-
             <path
               d="M8 3H5a2 2 0 00-2 2v10a2 2 0 002 2h3"
               fill="none"
@@ -1184,7 +806,6 @@
               stroke-width="1.5"
               stroke-linecap="round"
             />
-
             <path
               d="M11 6l4 4-4 4"
               fill="none"
@@ -1193,7 +814,6 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             />
-
             <path
               d="M7 10h8"
               fill="none"
@@ -1201,13 +821,9 @@
               stroke-width="1.5"
               stroke-linecap="round"
             />
-
           </svg>
 
-          <span class="nav-text">
-            Sair
-          </span>
-
+          <span class="nav-text">Sair</span>
         </button>
 
       </div>
@@ -1223,43 +839,22 @@
 
       <!-- AGENDA -->
 
-      <div
-        class="panel active"
-        id="panel-agenda"
-      >
+      <div class="panel active" id="panel-agenda">
 
         <div class="topbar">
 
           <div>
-
-            <h1>
-              Agenda
-            </h1>
-
-            <div
-              class="date-label"
-              id="agenda-date-label"
-            >
-              —
-            </div>
-
+            <h1>Agenda</h1>
+            <div class="date-label" id="agenda-date-label">—</div>
           </div>
 
           <div class="topbar-actions">
 
-            <button
-              class="btn btn-ghost"
-              id="btn-closing"
-              type="button"
-            >
+            <button class="btn btn-ghost" id="btn-closing" type="button">
               Fechamento do dia
             </button>
 
-            <button
-              class="btn btn-primary"
-              id="btn-new-appointment"
-              type="button"
-            >
+            <button class="btn btn-primary" id="btn-new-appointment" type="button">
               Novo agendamento
             </button>
 
@@ -1269,106 +864,46 @@
 
 
         <div class="date-picker-row">
+          <input type="date" id="agenda-date-input">
 
-          <input
-            type="date"
-            id="agenda-date-input"
-          >
-
-          <button
-            class="chip"
-            id="btn-today"
-            type="button"
-          >
-            Hoje
-          </button>
-
+          <button class="chip" id="btn-today" type="button">Hoje</button>
         </div>
 
 
-        <div
-          class="ticket-list"
-          id="agenda-list"
-        ></div>
+        <div class="ticket-list" id="agenda-list"></div>
 
       </div>
 
 
       <!-- FATURAMENTO -->
 
-      <div
-        class="panel"
-        id="panel-faturamento"
-      >
+      <div class="panel" id="panel-faturamento">
 
         <div class="topbar">
-
           <div>
-
-            <h1>
-              Faturamento
-            </h1>
-
-            <div class="date-label">
-              Serviços concluídos e recibos
-            </div>
-
+            <h1>Faturamento</h1>
+            <div class="date-label">Atendimentos concluídos e recibos</div>
           </div>
-
         </div>
-
 
         <div class="totals-strip">
 
           <div class="stat-card money">
-
-            <div class="label">
-              Total faturado
-            </div>
-
-            <div
-              class="value"
-              id="fat-total"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Total faturado</div>
+            <div class="value" id="fat-total">R$ 0</div>
           </div>
-
 
           <div class="stat-card">
-
-            <div class="label">
-              Recebido
-            </div>
-
-            <div
-              class="value"
-              id="fat-pago"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Recebido</div>
+            <div class="value" id="fat-pago">R$ 0</div>
           </div>
 
-
           <div class="stat-card warn">
-
-            <div class="label">
-              Pendente
-            </div>
-
-            <div
-              class="value"
-              id="fat-pendente"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Pendente</div>
+            <div class="value" id="fat-pendente">R$ 0</div>
           </div>
 
         </div>
-
 
         <div id="fat-list"></div>
 
@@ -1377,160 +912,61 @@
 
       <!-- FINANCEIRO -->
 
-      <div
-        class="panel"
-        id="panel-financeiro"
-      >
+      <div class="panel" id="panel-financeiro">
 
         <div class="topbar">
-
           <div>
-
-            <h1>
-              Financeiro
-            </h1>
-
-            <div class="date-label">
-              Visão geral do caixa
-            </div>
-
+            <h1>Financeiro</h1>
+            <div class="date-label">Visão geral do caixa</div>
           </div>
-
         </div>
-
 
         <div class="totals-strip">
 
           <div class="stat-card money">
-
-            <div class="label">
-              Hoje
-            </div>
-
-            <div
-              class="value"
-              id="fin-hoje"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Hoje</div>
+            <div class="value" id="fin-hoje">R$ 0</div>
           </div>
-
 
           <div class="stat-card money">
-
-            <div class="label">
-              Últimos 7 dias
-            </div>
-
-            <div
-              class="value"
-              id="fin-semana"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Últimos 7 dias</div>
+            <div class="value" id="fin-semana">R$ 0</div>
           </div>
-
 
           <div class="stat-card money">
-
-            <div class="label">
-              Este mês
-            </div>
-
-            <div
-              class="value"
-              id="fin-mes"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Este mês</div>
+            <div class="value" id="fin-mes">R$ 0</div>
           </div>
-
 
           <div class="stat-card">
-
-            <div class="label">
-              Serviços concluídos
-            </div>
-
-            <div
-              class="value"
-              id="fin-count"
-            >
-              0
-            </div>
-
+            <div class="label">Atendimentos concluídos</div>
+            <div class="value" id="fin-count">0</div>
           </div>
 
         </div>
-
 
         <div class="totals-strip">
 
           <div class="stat-card warn">
-
-            <div class="label">
-              Despesas do mês
-            </div>
-
-            <div
-              class="value"
-              id="fin-despesas-mes"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Despesas do mês</div>
+            <div class="value" id="fin-despesas-mes">R$ 0</div>
           </div>
 
-
-          <div
-            class="stat-card profit"
-            id="fin-lucro-card"
-          >
-
-            <div class="label">
-              Lucro líquido do mês
-            </div>
-
-            <div
-              class="value"
-              id="fin-lucro-mes"
-            >
-              R$ 0
-            </div>
-
+          <div class="stat-card profit" id="fin-lucro-card">
+            <div class="label">Lucro líquido do mês</div>
+            <div class="value" id="fin-lucro-mes">R$ 0</div>
           </div>
 
         </div>
 
-
         <section class="block">
-
-          <h2>
-            Faturamento por serviço (mês atual)
-          </h2>
-
-          <div
-            class="bar-chart"
-            id="fin-bars"
-          ></div>
-
+          <h2>Faturamento por serviço (mês atual)</h2>
+          <div class="bar-chart" id="fin-bars"></div>
         </section>
 
-
         <section class="block">
-
-          <h2>
-            Despesas por categoria (mês atual)
-          </h2>
-
-          <div
-            class="bar-chart bar-chart-warn"
-            id="fin-despesas-bars"
-          ></div>
-
+          <h2>Despesas por categoria (mês atual)</h2>
+          <div class="bar-chart bar-chart-warn" id="fin-despesas-bars"></div>
         </section>
 
       </div>
@@ -1538,35 +974,20 @@
 
       <!-- SERVIÇOS -->
 
-      <div
-        class="panel"
-        id="panel-servicos"
-      >
+      <div class="panel" id="panel-servicos">
 
         <div class="topbar">
 
           <div>
-
-            <h1>
-              Serviços
-            </h1>
-
-            <div class="date-label">
-              Tabela de preços usada na agenda
-            </div>
-
+            <h1>Serviços</h1>
+            <div class="date-label">Tabela de preços usada na agenda</div>
           </div>
 
-          <button
-            class="btn btn-primary"
-            id="btn-new-service"
-            type="button"
-          >
+          <button class="btn btn-primary" id="btn-new-service" type="button">
             Novo serviço
           </button>
 
         </div>
-
 
         <div id="services-list"></div>
 
@@ -1575,35 +996,18 @@
 
       <!-- CLIENTES -->
 
-      <div
-        class="panel"
-        id="panel-clientes"
-      >
+      <div class="panel" id="panel-clientes">
 
         <div class="topbar">
-
           <div>
-
-            <h1>
-              Clientes
-            </h1>
-
-            <div class="date-label">
-              Busque o histórico por nome, telefone ou placa
-            </div>
-
+            <h1>Clientes</h1>
+            <div class="date-label">Busque o histórico de atendimentos de cada cliente</div>
           </div>
-
         </div>
-
 
         <div class="search-bar">
 
-          <svg
-            class="search-icon"
-            viewBox="0 0 20 20"
-          >
-
+          <svg class="search-icon" viewBox="0 0 20 20">
             <circle
               cx="9"
               cy="9"
@@ -1612,23 +1016,19 @@
               stroke="currentColor"
               stroke-width="1.6"
             />
-
             <path
               d="M17 17l-4-4"
               stroke="currentColor"
               stroke-width="1.6"
               stroke-linecap="round"
             />
-
           </svg>
-
 
           <input
             type="text"
             id="cli-search-input"
-            placeholder="Nome, telefone ou placa..."
+            placeholder="Nome ou telefone..."
           >
-
 
           <button
             class="search-clear"
@@ -1636,47 +1036,29 @@
             type="button"
             aria-label="Limpar busca"
           >
-
             <svg viewBox="0 0 20 20">
-
               <path
                 d="M6 6l8 8M14 6l-8 8"
                 stroke="currentColor"
                 stroke-width="1.8"
                 stroke-linecap="round"
               />
-
             </svg>
-
           </button>
 
-
-          <button
-            class="btn btn-primary search-btn"
-            id="btn-cli-search"
-            type="button"
-          >
+          <button class="btn btn-primary search-btn" id="btn-cli-search" type="button">
             Buscar
           </button>
 
         </div>
 
-
         <div id="cli-summary"></div>
 
-
-        <div
-          class="ticket-list"
-          id="cli-results"
-        >
+        <div class="ticket-list" id="cli-results">
 
           <div class="empty">
 
-            <svg
-              class="empty-icon"
-              viewBox="0 0 20 20"
-            >
-
+            <svg class="empty-icon" viewBox="0 0 20 20">
               <circle
                 cx="9"
                 cy="9"
@@ -1685,22 +1067,17 @@
                 stroke="currentColor"
                 stroke-width="1.4"
               />
-
               <path
                 d="M17 17l-4-4"
                 stroke="currentColor"
                 stroke-width="1.4"
                 stroke-linecap="round"
               />
-
             </svg>
 
+            <strong>Busque um cliente</strong>
 
-            <strong>
-              Busque um cliente
-            </strong>
-
-            Digite nome, telefone ou placa e veja todo o histórico de lavagens dessa pessoa.
+            Digite o nome ou telefone e veja todo o histórico de atendimentos.
 
           </div>
 
@@ -1711,72 +1088,34 @@
 
       <!-- DESPESAS -->
 
-      <div
-        class="panel"
-        id="panel-despesas"
-      >
+      <div class="panel" id="panel-despesas">
 
         <div class="topbar">
 
           <div>
-
-            <h1>
-              Despesas
-            </h1>
-
-            <div class="date-label">
-              Produtos, água, luz, manutenção e outros custos
-            </div>
-
+            <h1>Despesas</h1>
+            <div class="date-label">Produtos, água, luz, manutenção e outros custos</div>
           </div>
 
-
-          <button
-            class="btn btn-primary"
-            id="btn-new-expense"
-            type="button"
-          >
+          <button class="btn btn-primary" id="btn-new-expense" type="button">
             Nova despesa
           </button>
 
         </div>
 
-
         <div class="totals-strip">
 
           <div class="stat-card warn">
-
-            <div class="label">
-              Total no período
-            </div>
-
-            <div
-              class="value"
-              id="desp-total"
-            >
-              R$ 0
-            </div>
-
+            <div class="label">Total no período</div>
+            <div class="value" id="desp-total">R$ 0</div>
           </div>
 
-
           <div class="stat-card">
-
-            <div class="label">
-              Lançamentos
-            </div>
-
-            <div
-              class="value"
-              id="desp-count"
-            >
-              0
-            </div>
-
+            <div class="label">Lançamentos</div>
+            <div class="value" id="desp-count">0</div>
           </div>
 
         </div>
-
 
         <div id="desp-list"></div>
 
@@ -1785,129 +1124,58 @@
 
       <!-- USUÁRIOS -->
 
-      <div
-        class="panel"
-        id="panel-usuarios"
-      >
+      <div class="panel" id="panel-usuarios">
 
         <div class="topbar">
 
           <div>
-
-            <h1>
-              Usuários
-            </h1>
-
-            <div class="date-label">
-              Gerencie usuários, cargos e acesso ao sistema
-            </div>
-
+            <h1>Usuários</h1>
+            <div class="date-label">Gerencie usuários, cargos e acesso ao sistema</div>
           </div>
 
-
-          <button
-            class="btn btn-primary"
-            id="btn-new-user"
-            type="button"
-          >
+          <button class="btn btn-primary" id="btn-new-user" type="button">
             Novo usuário
           </button>
 
         </div>
 
-
         <div class="totals-strip">
 
           <div class="stat-card">
-
-            <div class="label">
-              Total de usuários
-            </div>
-
-            <div
-              class="value"
-              id="usuarios-total"
-            >
-              0
-            </div>
-
+            <div class="label">Total de usuários</div>
+            <div class="value" id="usuarios-total">0</div>
           </div>
 
-
           <div class="stat-card">
-
-            <div class="label">
-              Administradores
-            </div>
-
-            <div
-              class="value"
-              id="usuarios-admins"
-            >
-              0
-            </div>
-
+            <div class="label">Administradores</div>
+            <div class="value" id="usuarios-admins">0</div>
           </div>
 
-
           <div class="stat-card">
-
-            <div class="label">
-              Funcionários
-            </div>
-
-            <div
-              class="value"
-              id="usuarios-funcionarios"
-            >
-              0
-            </div>
-
+            <div class="label">Funcionários</div>
+            <div class="value" id="usuarios-funcionarios">0</div>
           </div>
 
         </div>
 
-
-        <div
-          id="usuarios-list"
-          class="ticket-list"
-        >
-
+        <div id="usuarios-list" class="ticket-list">
           <div class="empty">
-
-            <strong>
-              Carregando usuários...
-            </strong>
-
+            <strong>Carregando usuários...</strong>
           </div>
-
         </div>
 
       </div>
 
-            <!-- =======================================================
-         CONFIGURAÇÕES
-         ======================================================= -->
 
-      <div
-        class="panel"
-        id="panel-configuracoes"
-      >
+      <!-- CONFIGURAÇÕES -->
+
+      <div class="panel" id="panel-configuracoes">
 
         <div class="topbar">
-
           <div>
-
-            <h1>
-              Configurações
-            </h1>
-
-            <div class="date-label">
-              Gerencie os dados da sua empresa e sua conta
-            </div>
-
+            <h1>Configurações</h1>
+            <div class="date-label">Gerencie os dados da sua empresa e sua conta</div>
           </div>
-
         </div>
 
 
@@ -1915,92 +1183,63 @@
 
         <section class="block">
 
-          <h2>
-            Dados da empresa
-          </h2>
+          <h2>Dados da empresa</h2>
 
-          <p
-            class="date-label"
-            style="margin-bottom:20px;"
-          >
+          <p class="date-label" style="margin-bottom:20px;">
             Essas informações são utilizadas no sistema e poderão ser usadas futuramente em recibos e documentos.
           </p>
-
 
           <form id="form-configuracoes">
 
             <div class="field-row">
 
               <div class="field">
-
-                <label for="config-empresa-nome">
-                  Nome da empresa
-                </label>
-
+                <label for="config-empresa-nome">Nome da empresa</label>
                 <input
                   type="text"
                   id="config-empresa-nome"
                   placeholder="Ex: Alx Garage"
                   required
                 >
-
               </div>
 
-
               <div class="field">
-
-                <label for="config-empresa-email">
-                  E-mail da empresa
-                </label>
-
+                <label for="config-empresa-email">E-mail da empresa</label>
                 <input
                   type="email"
                   id="config-empresa-email"
                   placeholder="contato@empresa.com"
                   required
                 >
-
               </div>
 
             </div>
 
-
             <div class="field">
-
-              <label for="config-empresa-telefone">
-                Telefone
-              </label>
-
+              <label for="config-empresa-telefone">Telefone</label>
               <input
                 type="text"
                 id="config-empresa-telefone"
                 placeholder="(47) 99999-9999"
               >
-
             </div>
 
             <div class="field">
-  <label for="config-empresa-nicho">Tipo de negócio</label>
-  <select id="config-empresa-nicho">
-    <option value="lavajato">Lava-jato / Estética automotiva</option>
-    <option value="barbearia">Barbearia / Salão de beleza</option>
-    <option value="clinica">Clínica / Consultório</option>
-    <option value="pet">Pet shop / Veterinária</option>
-    <option value="oficina">Oficina mecânica</option>
-    <option value="personal">Personal / Aulas / Consultoria</option>
-    <option value="generico">Outro</option>
-  </select>
-</div>
+              <label for="config-empresa-nicho">Tipo de negócio</label>
+              <select id="config-empresa-nicho">
+                <option value="lavajato">Lava-jato / Estética automotiva</option>
+                <option value="barbearia">Barbearia / Salão de beleza</option>
+                <option value="clinica">Clínica / Consultório</option>
+                <option value="pet">Pet shop / Veterinária</option>
+                <option value="oficina">Oficina mecânica</option>
+                <option value="personal">Personal / Aulas / Consultoria</option>
+                <option value="generico">Outro</option>
+              </select>
+            </div>
 
-            <div
-              id="configuracoes-message"
-              class="auth-error"
-              style="display:none;"
-            ></div>
-
+            <div id="configuracoes-message" class="auth-error" style="display:none;"></div>
 
             <div class="modal-actions">
-
               <button
                 type="submit"
                 class="btn btn-primary"
@@ -2008,7 +1247,6 @@
               >
                 Salvar alterações
               </button>
-
             </div>
 
           </form>
@@ -2020,240 +1258,141 @@
 
         <section class="block">
 
-          <h2>
-            Minha conta
-          </h2>
+          <h2>Minha conta</h2>
 
-          <p
-            class="date-label"
-            style="margin-bottom:20px;"
-          >
+          <p class="date-label" style="margin-bottom:20px;">
             Informações do usuário atualmente conectado.
           </p>
-
 
           <div class="field-row">
 
             <div class="field">
-
-              <label for="config-usuario-nome">
-                Nome
-              </label>
-
-              <input
-                type="text"
-                id="config-usuario-nome"
-                readonly
-              >
-
+              <label for="config-usuario-nome">Nome</label>
+              <input type="text" id="config-usuario-nome" readonly>
             </div>
 
-
             <div class="field">
-
-              <label for="config-usuario-email">
-                E-mail
-              </label>
-
-              <input
-                type="email"
-                id="config-usuario-email"
-                readonly
-              >
-
+              <label for="config-usuario-email">E-mail</label>
+              <input type="email" id="config-usuario-email" readonly>
             </div>
 
           </div>
 
-
           <div class="field">
-
-            <label for="config-usuario-perfil">
-              Cargo
-            </label>
-
-            <input
-              type="text"
-              id="config-usuario-perfil"
-              readonly
-            >
-
+            <label for="config-usuario-perfil">Cargo</label>
+            <input type="text" id="config-usuario-perfil" readonly>
           </div>
 
         </section>
 
 
-        <!-- MAIS CONFIGURAÇÕES -->
+        <!-- APARÊNCIA -->
 
         <section class="block">
 
-<section class="block">
+          <h2>Aparência</h2>
 
-  <h2>
-    Aparência
-  </h2>
+          <p class="date-label" style="margin-bottom:20px;">
+            Personalize as cores e o tema do sistema.
+          </p>
 
-  <p class="date-label" style="margin-bottom:20px;">
-    Personalize as cores e o tema do sistema.
-  </p>
+          <div class="field-row">
 
+            <div class="field">
 
+              <label for="config-cor-principal">Cor principal</label>
 
-  <!-- CORES -->
+              <div class="color-picker">
+                <input type="color" id="config-cor-principal" value="#0E3A4C">
+                <input
+                  type="text"
+                  id="config-cor-principal-text"
+                  value="#0E3A4C"
+                  maxlength="7"
+                >
+              </div>
 
-  <div class="field-row">
+            </div>
 
-    <div class="field">
+            <div class="field">
 
-      <label for="config-cor-principal">
-        Cor principal
-      </label>
+              <label for="config-cor-destaque">Cor de destaque</label>
 
-      <div class="color-picker">
+              <div class="color-picker">
+                <input type="color" id="config-cor-destaque" value="#06B6D4">
+                <input
+                  type="text"
+                  id="config-cor-destaque-text"
+                  value="#06B6D4"
+                  maxlength="7"
+                >
+              </div>
 
-        <input
-          type="color"
-          id="config-cor-principal"
-          value="#0E3A4C"
-        >
+            </div>
 
-        <input
-          type="text"
-          id="config-cor-principal-text"
-          value="#0E3A4C"
-          maxlength="7"
-        >
+          </div>
 
-      </div>
+          <div class="field">
 
-    </div>
+            <label>Temas rápidos</label>
 
+            <div class="theme-presets">
 
-    <div class="field">
+              <button
+                type="button"
+                class="theme-preset"
+                data-primary="#0E3A4C"
+                data-accent="#06B6D4"
+              >
+                <span class="theme-preset-color" style="background:#0E3A4C;"></span>
+                Azul
+              </button>
 
-      <label for="config-cor-destaque">
-        Cor de destaque
-      </label>
+              <button
+                type="button"
+                class="theme-preset"
+                data-primary="#166534"
+                data-accent="#22C55E"
+              >
+                <span class="theme-preset-color" style="background:#166534;"></span>
+                Verde
+              </button>
 
-      <div class="color-picker">
+              <button
+                type="button"
+                class="theme-preset"
+                data-primary="#581C87"
+                data-accent="#A855F7"
+              >
+                <span class="theme-preset-color" style="background:#581C87;"></span>
+                Roxo
+              </button>
 
-        <input
-          type="color"
-          id="config-cor-destaque"
-          value="#06B6D4"
-        >
+              <button
+                type="button"
+                class="theme-preset"
+                data-primary="#991B1B"
+                data-accent="#EF4444"
+              >
+                <span class="theme-preset-color" style="background:#991B1B;"></span>
+                Vermelho
+              </button>
 
-        <input
-          type="text"
-          id="config-cor-destaque-text"
-          value="#06B6D4"
-          maxlength="7"
-        >
+            </div>
 
-      </div>
+          </div>
 
-    </div>
+          <div class="modal-actions">
 
-  </div>
+            <button type="button" class="btn btn-ghost" id="btn-restaurar-tema">
+              Restaurar padrão
+            </button>
 
+            <button type="button" class="btn btn-primary" id="btn-salvar-tema">
+              Salvar aparência
+            </button>
 
-  <!-- PRESETS -->
-
-  <div class="field">
-
-    <label>
-      Temas rápidos
-    </label>
-
-    <div class="theme-presets">
-
-      <button
-        type="button"
-        class="theme-preset"
-        data-primary="#0E3A4C"
-        data-accent="#06B6D4"
-      >
-        <span
-          class="theme-preset-color"
-          style="background:#0E3A4C;"
-        ></span>
-
-        Azul
-      </button>
-
-
-      <button
-        type="button"
-        class="theme-preset"
-        data-primary="#166534"
-        data-accent="#22C55E"
-      >
-        <span
-          class="theme-preset-color"
-          style="background:#166534;"
-        ></span>
-
-        Verde
-      </button>
-
-
-      <button
-        type="button"
-        class="theme-preset"
-        data-primary="#581C87"
-        data-accent="#A855F7"
-      >
-        <span
-          class="theme-preset-color"
-          style="background:#581C87;"
-        ></span>
-
-        Roxo
-      </button>
-
-
-      <button
-        type="button"
-        class="theme-preset"
-        data-primary="#991B1B"
-        data-accent="#EF4444"
-      >
-        <span
-          class="theme-preset-color"
-          style="background:#991B1B;"
-        ></span>
-
-        Vermelho
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- AÇÕES -->
-
-  <div class="modal-actions">
-
-    <button
-      type="button"
-      class="btn btn-ghost"
-      id="btn-restaurar-tema"
-    >
-      Restaurar padrão
-    </button>
-
-    <button
-      type="button"
-      class="btn btn-primary"
-      id="btn-salvar-tema"
-    >
-      Salvar aparência
-    </button>
-
-  </div>
-
-</section>
+          </div>
 
         </section>
 
@@ -2264,111 +1403,68 @@
   </div>
 
 
-  
-
-
   <!-- =========================================================
      MODAL: NOVO AGENDAMENTO / EDITAR
      ========================================================= -->
 
-  <div
-    class="overlay"
-    id="overlay-appointment"
-  >
+  <div class="overlay" id="overlay-appointment">
 
     <div class="modal">
 
-      <h3 id="appointment-modal-title">
-        Novo agendamento
-      </h3>
-
+      <h3 id="appointment-modal-title">Novo agendamento</h3>
 
       <form id="form-appointment">
 
         <div class="field-row">
 
           <div class="field">
-
-            <label>
-              Data
-            </label>
-
-            <input
-              type="date"
-              id="ap-date"
-              required
-            >
-
+            <label>Data</label>
+            <input type="date" id="ap-date" required>
           </div>
 
-
           <div class="field">
-
-            <label>
-              Hora
-            </label>
-
-            <input
-              type="time"
-              id="ap-time"
-              required
-            >
-
+            <label>Hora</label>
+            <input type="time" id="ap-time" required>
           </div>
 
         </div>
 
-
         <div class="field">
-
-          <label>
-            Cliente
-          </label>
-
+          <label id="ap-client-label">Cliente</label>
           <input
             type="text"
             id="ap-client"
-            placeholder="Nome do cliente"
+            placeholder="Nome"
             required
           >
+        </div>
+
+        <div class="field-row">
+
+          <div class="field">
+            <label>Telefone</label>
+            <input type="text" id="ap-phone" placeholder="(00) 00000-0000">
+          </div>
+
+          <div class="field" id="ap-extra1-field">
+            <label id="ap-extra1-label">Placa</label>
+            <input type="text" id="ap-plate" placeholder="ABC1D23">
+          </div>
 
         </div>
 
-
-        <div class="field-row">
-  <div class="field">
-    <label>Telefone</label>
-    <input type="text" id="ap-phone" placeholder="(00) 00000-0000">
-  </div>
-
-  <div class="field" id="ap-extra1-field">
-    <label id="ap-extra1-label">Placa</label>
-    <input type="text" id="ap-plate" placeholder="ABC1D23">
-  </div>
-</div>
-
-<div class="field" id="ap-extra2-field">
-  <label id="ap-extra2-label">Veículo</label>
-  <input type="text" id="ap-vehicle" placeholder="Modelo / cor">
-</div>
-
-<div class="field">
-  <label id="ap-service-label">Serviço</label>
-  <select id="ap-service" required></select>
-</div>
-
-<div class="field">
-  <label>Observações</label>
-  <textarea id="ap-notes" rows="2" placeholder="Opcional"></textarea>
-</div>
-
+        <div class="field" id="ap-extra2-field">
+          <label id="ap-extra2-label">Veículo</label>
+          <input type="text" id="ap-vehicle" placeholder="Modelo / cor">
+        </div>
 
         <div class="field">
+          <label id="ap-service-label">Serviço</label>
+          <select id="ap-service" required></select>
+        </div>
 
-          <label>
-            Valor (R$)
-          </label>
-
+        <div class="field">
+          <label>Valor (R$)</label>
           <input
             type="number"
             id="ap-price"
@@ -2376,9 +1472,12 @@
             min="0"
             required
           >
-
         </div>
 
+        <div class="field">
+          <label>Observações</label>
+          <textarea id="ap-notes" rows="2" placeholder="Opcional"></textarea>
+        </div>
 
         <div class="modal-actions">
 
@@ -2411,43 +1510,23 @@
      MODAL: NOVO SERVIÇO
      ========================================================= -->
 
-  <div
-    class="overlay"
-    id="overlay-service"
-  >
+  <div class="overlay" id="overlay-service">
 
     <div class="modal">
 
-      <h3>
-        Novo serviço
-      </h3>
-
+      <h3>Novo serviço</h3>
 
       <form id="form-service">
 
         <div class="field">
-
-          <label>
-            Nome
-          </label>
-
-          <input
-            type="text"
-            id="sv-name"
-            required
-          >
-
+          <label>Nome</label>
+          <input type="text" id="sv-name" required>
         </div>
-
 
         <div class="field-row">
 
           <div class="field">
-
-            <label>
-              Preço (R$)
-            </label>
-
+            <label>Preço (R$)</label>
             <input
               type="number"
               id="sv-price"
@@ -2455,27 +1534,14 @@
               min="0"
               required
             >
-
           </div>
 
-
           <div class="field">
-
-            <label>
-              Duração (min)
-            </label>
-
-            <input
-              type="number"
-              id="sv-duration"
-              min="0"
-              required
-            >
-
+            <label>Duração (min)</label>
+            <input type="number" id="sv-duration" min="0" required>
           </div>
 
         </div>
-
 
         <div class="modal-actions">
 
@@ -2487,12 +1553,7 @@
             Cancelar
           </button>
 
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            Salvar
-          </button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
 
         </div>
 
@@ -2507,102 +1568,51 @@
      MODAL: NOVA DESPESA
      ========================================================= -->
 
-  <div
-    class="overlay"
-    id="overlay-expense"
-  >
+  <div class="overlay" id="overlay-expense">
 
     <div class="modal">
 
-      <h3>
-        Nova despesa
-      </h3>
-
+      <h3>Nova despesa</h3>
 
       <form id="form-expense">
 
         <div class="field">
-
-          <label>
-            Descrição
-          </label>
-
+          <label>Descrição</label>
           <input
             type="text"
             id="ex-desc"
-            placeholder="Ex: Compra de shampoo automotivo"
+            placeholder="Ex: Compra de materiais"
             required
           >
-
         </div>
-
 
         <div class="field-row">
 
           <div class="field">
 
-            <label>
-              Categoria
-            </label>
+            <label>Categoria</label>
 
             <select id="ex-category">
-
-              <option>
-                Produtos de limpeza
-              </option>
-
-              <option>
-                Água
-              </option>
-
-              <option>
-                Energia
-              </option>
-
-              <option>
-                Manutenção de equipamentos
-              </option>
-
-              <option>
-                Salários
-              </option>
-
-              <option>
-                Aluguel
-              </option>
-
-              <option>
-                Outros
-              </option>
-
+              <option>Produtos de limpeza</option>
+              <option>Água</option>
+              <option>Energia</option>
+              <option>Manutenção de equipamentos</option>
+              <option>Salários</option>
+              <option>Aluguel</option>
+              <option>Outros</option>
             </select>
 
           </div>
 
-
           <div class="field">
-
-            <label>
-              Data
-            </label>
-
-            <input
-              type="date"
-              id="ex-date"
-              required
-            >
-
+            <label>Data</label>
+            <input type="date" id="ex-date" required>
           </div>
 
         </div>
 
-
         <div class="field">
-
-          <label>
-            Valor (R$)
-          </label>
-
+          <label>Valor (R$)</label>
           <input
             type="number"
             id="ex-value"
@@ -2610,9 +1620,7 @@
             min="0"
             required
           >
-
         </div>
-
 
         <div class="modal-actions">
 
@@ -2624,12 +1632,7 @@
             Cancelar
           </button>
 
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            Salvar
-          </button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
 
         </div>
 
@@ -2644,384 +1647,153 @@
      MODAL: USUÁRIO
      ========================================================= -->
 
-  <div
-    class="overlay"
-    id="overlay-user"
-  >
+  <div class="overlay" id="overlay-user">
 
     <div class="modal user-modal">
 
-      <h3 id="user-modal-title">
-        Novo usuário
-      </h3>
-
+      <h3 id="user-modal-title">Novo usuário</h3>
 
       <form id="form-user">
 
-        <!-- NOME -->
-
         <div class="field">
-
-          <label for="user-name">
-            Nome
-          </label>
-
+          <label for="user-name">Nome</label>
           <input
             type="text"
             id="user-name"
             placeholder="Nome do usuário"
             required
           >
-
         </div>
 
-
-        <!-- E-MAIL -->
-
         <div class="field">
-
-          <label for="user-email">
-            E-mail
-          </label>
-
+          <label for="user-email">E-mail</label>
           <input
             type="email"
             id="user-email"
             placeholder="usuario@email.com"
             required
           >
-
         </div>
-
-
-        <!-- CARGO -->
 
         <div class="field">
-
-          <label for="user-profile">
-            Cargo
-          </label>
-
+          <label for="user-profile">Cargo</label>
           <select id="user-profile">
-
-            <option value="funcionario">
-              Funcionário
-            </option>
-
-            <option value="administrador">
-              Administrador
-            </option>
-
+            <option value="funcionario">Funcionário</option>
+            <option value="administrador">Administrador</option>
           </select>
-
         </div>
 
-
-        <!-- SENHA -->
-
-        <div
-          class="field"
-          id="user-password-field"
-        >
-
-          <label for="user-password">
-            Senha
-          </label>
-
+        <div class="field" id="user-password-field">
+          <label for="user-password">Senha</label>
           <input
             type="password"
             id="user-password"
             placeholder="Mínimo 6 caracteres"
             minlength="6"
           >
-
         </div>
 
-
-        <!-- STATUS -->
-
-        <div
-          class="field"
-          id="user-active-field"
-          style="display:none;"
-        >
-
-          <label for="user-active">
-            Status
-          </label>
-
+        <div class="field" id="user-active-field" style="display:none;">
+          <label for="user-active">Status</label>
           <select id="user-active">
-
-            <option value="true">
-              Ativo
-            </option>
-
-            <option value="false">
-              Bloqueado
-            </option>
-
+            <option value="true">Ativo</option>
+            <option value="false">Bloqueado</option>
           </select>
-
         </div>
 
 
-        <!-- =====================================================
-             PERMISSÕES
-             ===================================================== -->
+        <!-- PERMISSÕES -->
 
-        <div
-          class="user-permissions-section"
-          id="user-permissions-section"
-        >
+        <div class="user-permissions-section" id="user-permissions-section">
 
           <div class="user-permissions-header">
-
             <div>
-
-              <label class="user-permissions-title">
-                Permissões de acesso
-              </label>
-
+              <label class="user-permissions-title">Permissões de acesso</label>
               <p class="user-permissions-description">
                 Selecione quais áreas este funcionário poderá acessar.
               </p>
-
             </div>
-
           </div>
-
-
-          <!-- AVISO ADMINISTRADOR -->
 
           <div
             class="admin-permission-notice"
             id="admin-permission-notice"
             style="display:none;"
           >
-
-            <strong>
-              Administrador
-            </strong>
-
-            <span>
-              Administradores possuem acesso completo ao sistema.
-            </span>
-
+            <strong>Administrador</strong>
+            <span>Administradores possuem acesso completo ao sistema.</span>
           </div>
 
-
-          <!-- GRID DE PERMISSÕES -->
-
-          <div
-            class="permissions-grid"
-            id="permissions-grid"
-          >
-
-            <!-- AGENDA -->
+          <div class="permissions-grid" id="permissions-grid">
 
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="agenda"
-                data-permission
-              >
-
+              <input type="checkbox" value="agenda" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Agenda
-                </strong>
-
-                <small>
-                  Agendamentos e atendimento
-                </small>
-
+                <strong>Agenda</strong>
+                <small>Agendamentos e atendimento</small>
               </span>
-
             </label>
 
-
-            <!-- FATURAMENTO -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="faturamento"
-                data-permission
-              >
-
+              <input type="checkbox" value="faturamento" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Faturamento
-                </strong>
-
-                <small>
-                  Serviços e recebimentos
-                </small>
-
+                <strong>Faturamento</strong>
+                <small>Serviços e recebimentos</small>
               </span>
-
             </label>
 
-
-            <!-- FINANCEIRO -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="financeiro"
-                data-permission
-              >
-
+              <input type="checkbox" value="financeiro" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Financeiro
-                </strong>
-
-                <small>
-                  Visão financeira do negócio
-                </small>
-
+                <strong>Financeiro</strong>
+                <small>Visão financeira do negócio</small>
               </span>
-
             </label>
 
-
-            <!-- SERVIÇOS -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="servicos"
-                data-permission
-              >
-
+              <input type="checkbox" value="servicos" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Serviços
-                </strong>
-
-                <small>
-                  Cadastro e preços dos serviços
-                </small>
-
+                <strong>Serviços</strong>
+                <small>Cadastro e preços dos serviços</small>
               </span>
-
             </label>
 
-
-            <!-- CLIENTES -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="clientes"
-                data-permission
-              >
-
+              <input type="checkbox" value="clientes" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Clientes
-                </strong>
-
-                <small>
-                  Consulta de clientes e histórico
-                </small>
-
+                <strong>Clientes</strong>
+                <small>Consulta de clientes e histórico</small>
               </span>
-
             </label>
 
-
-            <!-- DESPESAS -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="despesas"
-                data-permission
-              >
-
+              <input type="checkbox" value="despesas" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Despesas
-                </strong>
-
-                <small>
-                  Controle de despesas
-                </small>
-
+                <strong>Despesas</strong>
+                <small>Controle de despesas</small>
               </span>
-
             </label>
 
-
-            <!-- USUÁRIOS -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="usuarios"
-                data-permission
-              >
-
+              <input type="checkbox" value="usuarios" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Usuários
-                </strong>
-
-                <small>
-                  Gerenciamento de usuários
-                </small>
-
+                <strong>Usuários</strong>
+                <small>Gerenciamento de usuários</small>
               </span>
-
             </label>
 
-
-            <!-- CONFIGURAÇÕES -->
-
             <label class="permission-item">
-
-              <input
-                type="checkbox"
-                value="configuracoes"
-                data-permission
-              >
-
+              <input type="checkbox" value="configuracoes" data-permission>
               <span class="permission-item-text">
-
-                <strong>
-                  Configurações
-                </strong>
-
-                <small>
-                  Configurações do sistema
-                </small>
-
+                <strong>Configurações</strong>
+                <small>Configurações do sistema</small>
               </span>
-
             </label>
 
           </div>
 
         </div>
 
-
-        <!-- AÇÕES -->
 
         <div class="modal-actions">
 
@@ -3050,566 +1822,328 @@
   </div>
 
 
-  <!-- =========================================================
-     ÁREA DE IMPRESSÃO
-     ========================================================= -->
+  <!-- ÁREA DE IMPRESSÃO -->
 
   <div id="print-area"></div>
 
 
-  <!-- =========================================================
-     JAVASCRIPT PRINCIPAL
-     ========================================================= -->
+  <!-- JAVASCRIPT PRINCIPAL -->
 
   <script src="/js/app.js"></script>
 
 
   <!-- =========================================================
-     DADOS DO USUÁRIO LOGADO
+     CONFIGURAÇÕES, APARÊNCIA E DADOS DO USUÁRIO LOGADO
      ========================================================= -->
 
-<script>
+  <script>
 
-  
-/* =========================================================
-   CORES / APARÊNCIA
-   ========================================================= */
-
-function aplicarCoresEmpresa(empresa) {
-  if (!empresa) return;
-
-  const root = document.documentElement;
-
-  const primaria = empresa.cor_primaria || '#0E3A4C';
-  const destaque = empresa.cor_destaque || '#06B6D4';
-  const fundo = empresa.cor_fundo || '#F2F5F8';
-
-  root.style.setProperty('--primary', primaria);
-  root.style.setProperty('--primary-2', primaria);
-  root.style.setProperty('--primary-dark', primaria);
-
-  root.style.setProperty('--accent', destaque);
-  root.style.setProperty('--accent-2', destaque);
-
-  root.style.setProperty('--bg', fundo);
-}
+  var TOKEN_KEY = 'lavajato_auth_token';
+  var COR_PRIMARIA_PADRAO = '#0E3A4C';
+  var COR_DESTAQUE_PADRAO = '#06B6D4';
+  var COR_FUNDO_PADRAO = '#F2F5F8';
+  var REGEX_COR = /^#[0-9A-F]{6}$/;
 
 
-/* =========================================================
-   MENSAGEM DAS CONFIGURAÇÕES
-   ========================================================= */
+  /* =========================================================
+     CORES / APARÊNCIA
+     ========================================================= */
 
-function mostrarMensagemConfiguracoes(mensagem, tipo = 'sucesso') {
-  const elemento =
-    document.getElementById('configuracoes-message');
+  function aplicarCoresEmpresa(empresa) {
 
-  if (!elemento) return;
+    if (!empresa) return;
 
-  elemento.textContent = mensagem;
+    const root = document.documentElement;
 
-  elemento.className = '';
+    const primaria = empresa.cor_primaria || COR_PRIMARIA_PADRAO;
+    const destaque = empresa.cor_destaque || COR_DESTAQUE_PADRAO;
+    const fundo = empresa.cor_fundo || COR_FUNDO_PADRAO;
 
-  elemento.classList.add(
-    'configuracoes-message',
-    tipo
-  );
+    root.style.setProperty('--primary', primaria);
+    root.style.setProperty('--primary-2', primaria);
+    root.style.setProperty('--primary-dark', primaria);
 
-  elemento.style.display = 'block';
+    root.style.setProperty('--accent', destaque);
+    root.style.setProperty('--accent-2', destaque);
 
-  clearTimeout(
-    window.timerMensagemConfiguracoes
-  );
-
-  window.timerMensagemConfiguracoes =
-    setTimeout(() => {
-      elemento.style.display = 'none';
-    }, 4000);
-}
+    root.style.setProperty('--bg', fundo);
+  }
 
 
-/* =========================================================
-   SINCRONIZA COLOR PICKER COM CAMPO HEX
-   ========================================================= */
+  function definirCamposDeCor(primaria, destaque) {
 
-function sincronizarCorInput(
-  inputColorId,
-  inputTextId
-) {
-  const inputColor =
-    document.getElementById(inputColorId);
+    const ids = {
+      'config-cor-principal': primaria,
+      'config-cor-principal-text': primaria,
+      'config-cor-destaque': destaque,
+      'config-cor-destaque-text': destaque
+    };
 
-  const inputText =
-    document.getElementById(inputTextId);
-
-  if (!inputColor || !inputText) return;
-
-
-  inputColor.addEventListener('input', () => {
-
-    inputText.value =
-      inputColor.value.toUpperCase();
-
-    aplicarPreviewCores();
-
-  });
+    Object.keys(ids).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = ids[id];
+    });
+  }
 
 
-  inputText.addEventListener('input', () => {
+  /* PREVIEW DAS CORES */
 
-    let valor =
-      inputText.value
-        .trim()
-        .toUpperCase();
+  function aplicarPreviewCores() {
+
+    const primaria =
+      document.getElementById('config-cor-principal')?.value ||
+      COR_PRIMARIA_PADRAO;
+
+    const destaque =
+      document.getElementById('config-cor-destaque')?.value ||
+      COR_DESTAQUE_PADRAO;
+
+    const root = document.documentElement;
+
+    root.style.setProperty('--primary', primaria);
+    root.style.setProperty('--primary-2', primaria);
+    root.style.setProperty('--primary-dark', primaria);
+
+    root.style.setProperty('--accent', destaque);
+    root.style.setProperty('--accent-2', destaque);
+  }
 
 
-    if (!valor.startsWith('#')) {
+  /* SINCRONIZA COLOR PICKER COM CAMPO HEX */
 
-      valor =
-        '#' +
-        valor.replace(/^#+/, '');
+  function sincronizarCorInput(inputColorId, inputTextId) {
 
-    }
+    const inputColor = document.getElementById(inputColorId);
+    const inputText = document.getElementById(inputTextId);
 
+    if (!inputColor || !inputText) return;
 
-    inputText.value = valor;
+    inputColor.addEventListener('input', () => {
 
-
-    if (/^#[0-9A-F]{6}$/.test(valor)) {
-
-      inputColor.value = valor;
+      inputText.value = inputColor.value.toUpperCase();
 
       aplicarPreviewCores();
-
-    }
-
-  });
-
-
-  inputText.addEventListener('blur', () => {
-
-    const valor =
-      inputText.value
-        .trim()
-        .toUpperCase();
-
-
-    if (!/^#[0-9A-F]{6}$/.test(valor)) {
-
-      inputText.value =
-        inputColor.value.toUpperCase();
-
-    }
-
-  });
-}
-
-
-/* =========================================================
-   PREVIEW DAS CORES
-   ========================================================= */
-
-function aplicarPreviewCores() {
-
-  const primaria =
-    document.getElementById(
-      'config-cor-principal'
-    )?.value || '#0E3A4C';
-
-
-  const destaque =
-    document.getElementById(
-      'config-cor-destaque'
-    )?.value || '#06B6D4';
-
-
-  const root =
-    document.documentElement;
-
-
-  root.style.setProperty(
-    '--primary',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--primary-2',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--primary-dark',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--accent',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--accent-2',
-    destaque
-  );
-}
-
-
-/* =========================================================
-   CONFIGURA SELEÇÃO DAS CORES
-   ========================================================= */
-
-function configurarSelecaoDeCores() {
-
-  sincronizarCorInput(
-    'config-cor-principal',
-    'config-cor-principal-text'
-  );
-
-
-  sincronizarCorInput(
-    'config-cor-destaque',
-    'config-cor-destaque-text'
-  );
-
-
-  /* =======================================================
-     PRESETS
-     ======================================================= */
-
-  document
-    .querySelectorAll('.theme-preset')
-    .forEach(botao => {
-
-      botao.addEventListener(
-        'click',
-        () => {
-
-          const primaria =
-            botao.dataset.primary ||
-            '#0E3A4C';
-
-
-          const destaque =
-            botao.dataset.accent ||
-            '#06B6D4';
-
-
-          const inputPrimaria =
-            document.getElementById(
-              'config-cor-principal'
-            );
-
-
-          const textoPrimaria =
-            document.getElementById(
-              'config-cor-principal-text'
-            );
-
-
-          const inputDestaque =
-            document.getElementById(
-              'config-cor-destaque'
-            );
-
-
-          const textoDestaque =
-            document.getElementById(
-              'config-cor-destaque-text'
-            );
-
-
-          if (inputPrimaria) {
-            inputPrimaria.value =
-              primaria;
-          }
-
-
-          if (textoPrimaria) {
-            textoPrimaria.value =
-              primaria;
-          }
-
-
-          if (inputDestaque) {
-            inputDestaque.value =
-              destaque;
-          }
-
-
-          if (textoDestaque) {
-            textoDestaque.value =
-              destaque;
-          }
-
-
-          aplicarPreviewCores();
-
-        }
-      );
-
     });
 
+    inputText.addEventListener('input', () => {
 
-  /* =======================================================
-     RESTAURAR TEMA
-     ======================================================= */
+      let valor = inputText.value.trim().toUpperCase();
 
-  const btnRestaurar =
-    document.getElementById(
-      'btn-restaurar-tema'
-    );
+      if (!valor.startsWith('#')) {
+        valor = '#' + valor.replace(/^#+/, '');
+      }
 
+      inputText.value = valor;
 
-  if (btnRestaurar) {
+      if (REGEX_COR.test(valor)) {
 
-    btnRestaurar.addEventListener(
-      'click',
-      () => {
-
-        const primaria =
-          '#0E3A4C';
-
-        const destaque =
-          '#06B6D4';
-
-
-        const inputPrimaria =
-          document.getElementById(
-            'config-cor-principal'
-          );
-
-
-        const textoPrimaria =
-          document.getElementById(
-            'config-cor-principal-text'
-          );
-
-
-        const inputDestaque =
-          document.getElementById(
-            'config-cor-destaque'
-          );
-
-
-        const textoDestaque =
-          document.getElementById(
-            'config-cor-destaque-text'
-          );
-
-
-        if (inputPrimaria) {
-          inputPrimaria.value =
-            primaria;
-        }
-
-
-        if (textoPrimaria) {
-          textoPrimaria.value =
-            primaria;
-        }
-
-
-        if (inputDestaque) {
-          inputDestaque.value =
-            destaque;
-        }
-
-
-        if (textoDestaque) {
-          textoDestaque.value =
-            destaque;
-        }
-
-
-        const tema =
-          document.getElementById(
-            'config-tema'
-          );
-
-
-        if (tema) {
-          tema.value = 'claro';
-        }
-
+        inputColor.value = valor;
 
         aplicarPreviewCores();
-
       }
-    );
+    });
 
-  }
-}
+    inputText.addEventListener('blur', () => {
 
+      const valor = inputText.value.trim().toUpperCase();
 
-/* =========================================================
-   PREENCHER CORES NA TELA
-   ========================================================= */
-
-function preencherCoresConfiguracoes(
-  empresa
-) {
-
-  if (!empresa) return;
-
-
-  const primaria =
-    empresa.cor_primaria ||
-    '#0E3A4C';
-
-
-  const destaque =
-    empresa.cor_destaque ||
-    '#06B6D4';
-
-
-  const inputPrimaria =
-    document.getElementById(
-      'config-cor-principal'
-    );
-
-
-  const textoPrimaria =
-    document.getElementById(
-      'config-cor-principal-text'
-    );
-
-
-  const inputDestaque =
-    document.getElementById(
-      'config-cor-destaque'
-    );
-
-
-  const textoDestaque =
-    document.getElementById(
-      'config-cor-destaque-text'
-    );
-
-
-  if (inputPrimaria) {
-    inputPrimaria.value =
-      primaria.toUpperCase();
+      if (!REGEX_COR.test(valor)) {
+        inputText.value = inputColor.value.toUpperCase();
+      }
+    });
   }
 
 
-  if (textoPrimaria) {
-    textoPrimaria.value =
-      primaria.toUpperCase();
+  /* CONFIGURA SELEÇÃO DAS CORES */
+
+  function configurarSelecaoDeCores() {
+
+    sincronizarCorInput('config-cor-principal', 'config-cor-principal-text');
+    sincronizarCorInput('config-cor-destaque', 'config-cor-destaque-text');
+
+    // PRESETS
+
+    document.querySelectorAll('.theme-preset').forEach(botao => {
+
+      botao.addEventListener('click', () => {
+
+        definirCamposDeCor(
+          botao.dataset.primary || COR_PRIMARIA_PADRAO,
+          botao.dataset.accent || COR_DESTAQUE_PADRAO
+        );
+
+        aplicarPreviewCores();
+      });
+    });
+
+    // RESTAURAR TEMA
+
+    const btnRestaurar = document.getElementById('btn-restaurar-tema');
+
+    if (btnRestaurar) {
+
+      btnRestaurar.addEventListener('click', () => {
+
+        definirCamposDeCor(COR_PRIMARIA_PADRAO, COR_DESTAQUE_PADRAO);
+
+        const tema = document.getElementById('config-tema');
+
+        if (tema) tema.value = 'claro';
+
+        aplicarPreviewCores();
+      });
+    }
   }
 
 
-  if (inputDestaque) {
-    inputDestaque.value =
-      destaque.toUpperCase();
-  }
+  /* PREENCHER CORES NA TELA */
 
+  function preencherCoresConfiguracoes(empresa) {
 
-  if (textoDestaque) {
-    textoDestaque.value =
-      destaque.toUpperCase();
-  }
+    if (!empresa) return;
 
-
-  aplicarCoresEmpresa(empresa);
-}
-
-
-/* =========================================================
-   CARREGAR CORES SALVAS
-   ========================================================= */
-
-async function carregarCoresEmpresa() {
-
-  const token =
-    localStorage.getItem(
-      'lavajato_auth_token'
+    definirCamposDeCor(
+      (empresa.cor_primaria || COR_PRIMARIA_PADRAO).toUpperCase(),
+      (empresa.cor_destaque || COR_DESTAQUE_PADRAO).toUpperCase()
     );
 
+    aplicarCoresEmpresa(empresa);
+  }
 
-  if (!token) return;
 
+  /* CARREGAR CORES SALVAS */
 
-  try {
+  async function carregarCoresEmpresa() {
 
-    const resposta =
-      await fetch(
-        '/api/configuracoes',
-        {
-          method: 'GET',
+    const token = localStorage.getItem(TOKEN_KEY);
 
-          headers: {
-            'Authorization':
-              `Bearer ${token}`,
+    if (!token) return;
 
-            'Content-Type':
-              'application/json'
-          }
+    try {
+
+      const resposta = await fetch('/api/configuracoes', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
+
+      if (!resposta.ok) {
+        console.error('Não foi possível carregar as cores.');
+        return;
+      }
+
+      const dados = await resposta.json();
+
+      if (!dados.empresa) return;
+
+      window.lavajatoEmpresa = dados.empresa;
+
+      aplicarCoresEmpresa(dados.empresa);
+
+      preencherCoresConfiguracoes(dados.empresa);
+
+    } catch (erro) {
+
+      console.error('Erro ao carregar cores:', erro);
+    }
+  }
 
 
-    if (!resposta.ok) {
+  /* =========================================================
+     MENSAGEM DAS CONFIGURAÇÕES
+     ========================================================= */
 
-      console.error(
-        'Não foi possível carregar as cores.'
-      );
+  function mostrarMensagemConfiguracoes(mensagem, tipo) {
 
-      return;
+    const elemento = document.getElementById('configuracoes-message');
+
+    if (!elemento) return;
+
+    elemento.textContent = mensagem;
+
+    elemento.style.display = 'block';
+
+    if (tipo === 'sucesso') {
+
+      elemento.style.color = '#166534';
+      elemento.style.background = '#dcfce7';
+      elemento.style.border = '1px solid #bbf7d0';
+
+    } else {
+
+      elemento.style.color = '#991b1b';
+      elemento.style.background = '#fee2e2';
+      elemento.style.border = '1px solid #fecaca';
     }
 
+    elemento.style.padding = '10px 12px';
+    elemento.style.borderRadius = '8px';
 
-    const dados =
-      await resposta.json();
+    clearTimeout(window.timerMensagemConfiguracoes);
 
-
-    if (!dados.empresa) return;
-
-
-    window.lavajatoEmpresa =
-      dados.empresa;
-
-
-    aplicarCoresEmpresa(
-      dados.empresa
-    );
-
-
-    preencherCoresConfiguracoes(
-      dados.empresa
-    );
-
-
-  } catch (erro) {
-
-    console.error(
-      'Erro ao carregar cores:',
-      erro
-    );
-
+    window.timerMensagemConfiguracoes = setTimeout(() => {
+      elemento.style.display = 'none';
+    }, 4000);
   }
-}
 
 
-/* =========================================================
-   SALVAR TEMA
-   ========================================================= */
+  /* =========================================================
+     PREENCHER CONFIGURAÇÕES (EMPRESA, NICHO E USUÁRIO)
+     ========================================================= */
 
-function configurarSalvarTema() {
+  function preencherDadosConfiguracoes(usuario, empresa) {
 
-  const botao =
-    document.getElementById(
-      'btn-salvar-tema'
-    );
+    const empresaNome = document.getElementById('config-empresa-nome');
+    const empresaEmail = document.getElementById('config-empresa-email');
+    const empresaTelefone = document.getElementById('config-empresa-telefone');
+    const empresaNicho = document.getElementById('config-empresa-nicho');
 
-  if (!botao) return;
+    const usuarioNome = document.getElementById('config-usuario-nome');
+    const usuarioEmail = document.getElementById('config-usuario-email');
+    const usuarioPerfil = document.getElementById('config-usuario-perfil');
 
-  botao.addEventListener(
-    'click',
-    async () => {
+    if (empresa) {
 
-      const token =
-        localStorage.getItem(
-          'lavajato_auth_token'
-        );
+      if (empresaNome) empresaNome.value = empresa.nome || '';
+      if (empresaEmail) empresaEmail.value = empresa.email || '';
+      if (empresaTelefone) empresaTelefone.value = empresa.telefone || '';
+
+      const nicho = empresa.nicho || 'lavajato';
+
+      if (empresaNicho) empresaNicho.value = nicho;
+
+      // Atualiza rótulos e campos do agendamento conforme o nicho
+      if (window.aplicarNicho) window.aplicarNicho(nicho);
+    }
+
+    if (usuario) {
+
+      if (usuarioNome) usuarioNome.value = usuario.nome || '';
+      if (usuarioEmail) usuarioEmail.value = usuario.email || '';
+
+      if (usuarioPerfil) {
+        usuarioPerfil.value =
+          usuario.perfil === 'administrador' ? 'Administrador' : 'Funcionário';
+      }
+    }
+  }
+
+
+  /* =========================================================
+     SALVAR APARÊNCIA
+     ========================================================= */
+
+  function configurarSalvarTema() {
+
+    const botao = document.getElementById('btn-salvar-tema');
+
+    if (!botao) return;
+
+    botao.addEventListener('click', async () => {
+
+      const token = localStorage.getItem(TOKEN_KEY);
 
       if (!token) {
 
@@ -3621,239 +2155,108 @@ function configurarSalvarTema() {
         return;
       }
 
-      // =====================================================
       // DADOS DA EMPRESA
-      // =====================================================
 
       const nome =
-        document
-          .getElementById(
-            'config-empresa-nome'
-          )
-          ?.value
-          .trim() || '';
+        document.getElementById('config-empresa-nome')?.value.trim() || '';
 
       const email =
-        document
-          .getElementById(
-            'config-empresa-email'
-          )
-          ?.value
-          .trim() || '';
+        document.getElementById('config-empresa-email')?.value.trim() || '';
 
       const telefone =
-        document
-          .getElementById(
-            'config-empresa-telefone'
-          )
-          ?.value
-          .trim() || '';
+        document.getElementById('config-empresa-telefone')?.value.trim() || '';
 
-      // =====================================================
+      const nicho =
+        document.getElementById('config-empresa-nicho')?.value ||
+        window.lavajatoEmpresa?.nicho ||
+        'lavajato';
+
       // CORES
-      // =====================================================
-
-      const inputPrimaria =
-        document.getElementById(
-          'config-cor-principal'
-        );
-
-      const inputDestaque =
-        document.getElementById(
-          'config-cor-destaque'
-        );
 
       let corPrimaria =
-        inputPrimaria?.value
-          ?.trim()
-          .toUpperCase() || '#0E3A4C';
+        document.getElementById('config-cor-principal')?.value
+          ?.trim().toUpperCase() || COR_PRIMARIA_PADRAO;
 
       let corDestaque =
-        inputDestaque?.value
-          ?.trim()
-          .toUpperCase() || '#06B6D4';
+        document.getElementById('config-cor-destaque')?.value
+          ?.trim().toUpperCase() || COR_DESTAQUE_PADRAO;
 
-      // =====================================================
-      // COR DE FUNDO
-      // =====================================================
-      // A tela atualmente não possui um campo para editar
-      // a cor de fundo, então usamos a salva no banco.
-      //
-      // Se não existir ou estiver inválida, usamos o padrão.
+      // A tela não possui campo para a cor de fundo, então usamos
+      // a salva no banco (ou o padrão, se não existir / for inválida).
 
       let corFundo =
         window.lavajatoEmpresa?.cor_fundo
-          ?.toString()
-          .trim()
-          .toUpperCase() || '#F2F5F8';
+          ?.toString().trim().toUpperCase() || COR_FUNDO_PADRAO;
 
-      // =====================================================
-      // GARANTE #
-      // =====================================================
+      if (!corPrimaria.startsWith('#')) corPrimaria = '#' + corPrimaria;
+      if (!corDestaque.startsWith('#')) corDestaque = '#' + corDestaque;
+      if (!corFundo.startsWith('#')) corFundo = '#' + corFundo;
 
-      if (!corPrimaria.startsWith('#')) {
-        corPrimaria =
-          '#' + corPrimaria;
-      }
-
-      if (!corDestaque.startsWith('#')) {
-        corDestaque =
-          '#' + corDestaque;
-      }
-
-      if (!corFundo.startsWith('#')) {
-        corFundo =
-          '#' + corFundo;
-      }
-
-      // =====================================================
       // VALIDAÇÃO
-      // =====================================================
 
-      const regexCor =
-        /^#[0-9A-F]{6}$/;
-
-      if (!regexCor.test(corPrimaria)) {
-
-        mostrarMensagemConfiguracoes(
-          'A cor principal é inválida.',
-          'erro'
-        );
-
+      if (!REGEX_COR.test(corPrimaria)) {
+        mostrarMensagemConfiguracoes('A cor principal é inválida.', 'erro');
         return;
       }
 
-      if (!regexCor.test(corDestaque)) {
-
-        mostrarMensagemConfiguracoes(
-          'A cor de destaque é inválida.',
-          'erro'
-        );
-
+      if (!REGEX_COR.test(corDestaque)) {
+        mostrarMensagemConfiguracoes('A cor de destaque é inválida.', 'erro');
         return;
       }
 
-      if (!regexCor.test(corFundo)) {
-
-        // Se a cor de fundo salva no banco estiver
-        // inválida, usa o padrão.
-        corFundo =
-          '#F2F5F8';
+      if (!REGEX_COR.test(corFundo)) {
+        corFundo = COR_FUNDO_PADRAO;
       }
-
-      // =====================================================
-      // VALIDA DADOS DA EMPRESA
-      // =====================================================
 
       if (!nome) {
-
-        mostrarMensagemConfiguracoes(
-          'Informe o nome da empresa.',
-          'erro'
-        );
-
+        mostrarMensagemConfiguracoes('Informe o nome da empresa.', 'erro');
         return;
       }
 
       if (!email) {
-
-        mostrarMensagemConfiguracoes(
-          'Informe o e-mail da empresa.',
-          'erro'
-        );
-
+        mostrarMensagemConfiguracoes('Informe o e-mail da empresa.', 'erro');
         return;
       }
 
-      // =====================================================
-      // MOSTRA ESTADO DO BOTÃO
-      // =====================================================
+      // ESTADO DO BOTÃO
 
-      const textoOriginal =
-        botao.textContent;
+      const textoOriginal = botao.textContent;
 
-      botao.disabled =
-        true;
+      botao.disabled = true;
+      botao.textContent = 'Salvando...';
 
-      botao.textContent =
-        'Salvando...';
-
-  
-
-      // =====================================================
-      // ENVIA PARA API
-      // =====================================================
+      // ENVIA PARA A API
 
       try {
 
-        const resposta =
-          await fetch(
-            '/api/configuracoes',
-            {
-              method: 'PUT',
-
-              headers: {
-                'Content-Type':
-                  'application/json',
-
-                'Authorization':
-                  `Bearer ${token}`
-              },
-
-              body: JSON.stringify({
-
-                nome:
-                  nome,
-
-                email:
-                  email,
-
-                telefone:
-                  telefone,
-
-                cor_primaria:
-                  corPrimaria,
-
-                cor_destaque:
-                  corDestaque,
-
-                cor_fundo:
-                  corFundo
-
-              })
-            }
-          );
-
-        // ===================================================
-        // TENTA LER JSON
-        // ===================================================
+        const resposta = await fetch('/api/configuracoes', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            nome: nome,
+            email: email,
+            telefone: telefone,
+            nicho: nicho,
+            cor_primaria: corPrimaria,
+            cor_destaque: corDestaque,
+            cor_fundo: corFundo
+          })
+        });
 
         let dados = {};
 
         try {
-
-          dados =
-            await resposta.json();
-
+          dados = await resposta.json();
         } catch (erroJson) {
-
-          console.error(
-            'Resposta da API não é JSON:',
-            erroJson
-          );
-
+          console.error('Resposta da API não é JSON:', erroJson);
         }
-
-        // ===================================================
-        // ERRO DA API
-        // ===================================================
 
         if (!resposta.ok) {
 
-          console.error(
-            'Erro retornado pela API:',
-            dados
-          );
+          console.error('Erro retornado pela API:', dados);
 
           throw new Error(
             dados.erro ||
@@ -3862,243 +2265,117 @@ function configurarSalvarTema() {
           );
         }
 
-        // ===================================================
-        // ATUALIZA EMPRESA
-        // ===================================================
-
         if (dados.empresa) {
 
-          window.lavajatoEmpresa =
-            dados.empresa;
+          window.lavajatoEmpresa = dados.empresa;
 
         } else {
 
-          // Mantém pelo menos as cores atualizadas
+          // Mantém pelo menos os dados enviados atualizados
           window.lavajatoEmpresa = {
             ...(window.lavajatoEmpresa || {}),
-
-            nome:
-              nome,
-
-            email:
-              email,
-
-            telefone:
-              telefone,
-
-            cor_primaria:
-              corPrimaria,
-
-            cor_destaque:
-              corDestaque,
-
-            cor_fundo:
-              corFundo
+            nome: nome,
+            email: email,
+            telefone: telefone,
+            nicho: nicho,
+            cor_primaria: corPrimaria,
+            cor_destaque: corDestaque,
+            cor_fundo: corFundo
           };
-
         }
 
-        // ===================================================
-        // APLICA IMEDIATAMENTE
-        // ===================================================
+        aplicarCoresEmpresa(window.lavajatoEmpresa);
 
-        aplicarCoresEmpresa(
-          window.lavajatoEmpresa
-        );
+        preencherCoresConfiguracoes(window.lavajatoEmpresa);
 
-        preencherCoresConfiguracoes(
-          window.lavajatoEmpresa
-        );
+        if (window.aplicarNicho) {
+          window.aplicarNicho(window.lavajatoEmpresa.nicho || nicho);
+        }
 
-        // ===================================================
-        // SUCESSO
-        // ===================================================
+        mostrarMensagemConfiguracoes('Aparência salva com sucesso!', 'sucesso');
 
-        mostrarMensagemConfiguracoes(
-          'Aparência salva com sucesso!',
-          'sucesso'
-        );
-
-        botao.textContent =
-          'Salvo!';
+        botao.textContent = 'Salvo!';
 
         setTimeout(() => {
-
-          botao.textContent =
-            textoOriginal;
-
+          botao.textContent = textoOriginal;
         }, 2000);
 
       } catch (erro) {
 
-        console.error(
-          'Erro ao salvar aparência:',
-          erro
-        );
+        console.error('Erro ao salvar aparência:', erro);
 
         mostrarMensagemConfiguracoes(
-          erro.message ||
-          'Não foi possível salvar a aparência.',
+          erro.message || 'Não foi possível salvar a aparência.',
           'erro'
         );
 
+        botao.textContent = textoOriginal;
+
       } finally {
 
-        botao.disabled =
-          false;
-
+        botao.disabled = false;
       }
-
-    }
-  );
-}
+    });
+  }
 
 
-/* =========================================================
-   INICIALIZAÇÃO
-   ========================================================= */
-
-configurarSelecaoDeCores();
-
-configurarSalvarTema();
-
-carregarCoresEmpresa();
-
+  /* =========================================================
+     CARREGAR USUÁRIO / EMPRESA NA SIDEBAR
+     ========================================================= */
 
   async function carregarUsuarioSidebar() {
 
-    const token = localStorage.getItem(
-      'lavajato_auth_token'
-    );
+    const token = localStorage.getItem(TOKEN_KEY);
 
-    if (!token) {
-      return;
-    }
+    if (!token) return;
 
     try {
 
-      const resposta = await fetch(
-        '/api/auth/me',
-        {
-          method: 'GET',
-
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
+      const resposta = await fetch('/api/auth/me', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       if (!resposta.ok) {
 
         if (resposta.status === 401) {
-
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
+          localStorage.removeItem(TOKEN_KEY);
           window.location.reload();
-
         }
 
         return;
       }
-
 
       const dados = await resposta.json();
 
       const empresa = dados.empresa;
       const usuario = dados.usuario;
 
-
-      const empresaElement =
-        document.getElementById(
-          'sidebar-company'
-        );
-
-
-      const nomeElement =
-        document.getElementById(
-          'sidebar-user-name'
-        );
-
-
-      const perfilElement =
-        document.getElementById(
-          'sidebar-user-profile'
-        );
-
-
-      const avatarElement =
-        document.getElementById(
-          'sidebar-user-avatar'
-        );
-
-
-      const usuariosNav =
-        document.getElementById(
-          'nav-usuarios'
-        );
-
-
-      const configuracoesNav =
-        document.getElementById(
-          'nav-configuracoes'
-        );
-
-
-      /* EMPRESA */
+      const empresaElement = document.getElementById('sidebar-company');
+      const nomeElement = document.getElementById('sidebar-user-name');
+      const perfilElement = document.getElementById('sidebar-user-profile');
+      const avatarElement = document.getElementById('sidebar-user-avatar');
+      const usuariosNav = document.getElementById('nav-usuarios');
+      const configuracoesNav = document.getElementById('nav-configuracoes');
 
       if (empresaElement && empresa) {
-
-        empresaElement.textContent =
-          empresa.nome || 'Minha empresa';
-
-        empresaElement.title =
-          empresa.nome || 'Minha empresa';
-
+        empresaElement.textContent = empresa.nome || 'Minha empresa';
+        empresaElement.title = empresa.nome || 'Minha empresa';
       }
-
-
-      /* NOME */
 
       if (nomeElement && usuario) {
-
-        nomeElement.textContent =
-          usuario.nome || 'Usuário';
-
+        nomeElement.textContent = usuario.nome || 'Usuário';
       }
-
-
-      /* PERFIL */
 
       if (perfilElement && usuario) {
-
         perfilElement.textContent =
-          usuario.perfil === 'administrador'
-            ? 'Administrador'
-            : 'Funcionário';
-
+          usuario.perfil === 'administrador' ? 'Administrador' : 'Funcionário';
       }
-
-
-      /* AVATAR */
 
       if (avatarElement && usuario) {
-
-        const nome =
-          usuario.nome || 'U';
-
         avatarElement.textContent =
-          nome
-            .trim()
-            .charAt(0)
-            .toUpperCase();
-
+          (usuario.nome || 'U').trim().charAt(0).toUpperCase();
       }
-
-
-      /* MENU DE USUÁRIOS */
 
       if (usuariosNav && usuario) {
 
@@ -4109,13 +2386,8 @@ carregarCoresEmpresa();
             usuario.permissoes.includes('usuarios')
           );
 
-        usuariosNav.style.display =
-          podeUsuarios ? 'flex' : 'none';
-
+        usuariosNav.style.display = podeUsuarios ? 'flex' : 'none';
       }
-
-
-      /* MENU DE CONFIGURAÇÕES */
 
       if (configuracoesNav && usuario) {
 
@@ -4126,126 +2398,18 @@ carregarCoresEmpresa();
             usuario.permissoes.includes('configuracoes')
           );
 
-        configuracoesNav.style.display =
-          podeConfiguracoes ? 'flex' : 'none';
-
+        configuracoesNav.style.display = podeConfiguracoes ? 'flex' : 'none';
       }
 
+      window.lavajatoUsuario = usuario || null;
+      window.lavajatoEmpresa = empresa || null;
 
-      /* GUARDA OS DADOS */
-
-      window.lavajatoUsuario =
-        usuario || null;
-
-      window.lavajatoEmpresa =
-        empresa || null;
-
-
-      /* PREENCHE CONFIGURAÇÕES */
-
-      preencherDadosConfiguracoes(
-        usuario,
-        empresa
-      );
+      preencherDadosConfiguracoes(usuario, empresa);
 
     } catch (error) {
 
-      console.error(
-        'Erro ao carregar dados do usuário:',
-        error
-      );
-
+      console.error('Erro ao carregar dados do usuário:', error);
     }
-
-    aplicarNicho(empresa?.nicho || 'lavajato');
-
-  }
-
-
-  /* =========================================================
-     PREENCHER CONFIGURAÇÕES
-     ========================================================= */
-
-  function preencherDadosConfiguracoes(
-    usuario,
-    empresa
-  ) {
-
-    const empresaNome =
-      document.getElementById(
-        'config-empresa-nome'
-      );
-
-    const empresaEmail =
-      document.getElementById(
-        'config-empresa-email'
-      );
-
-    const empresaTelefone =
-      document.getElementById(
-        'config-empresa-telefone'
-      );
-
-    const usuarioNome =
-      document.getElementById(
-        'config-usuario-nome'
-      );
-
-    const usuarioEmail =
-      document.getElementById(
-        'config-usuario-email'
-      );
-
-    const usuarioPerfil =
-      document.getElementById(
-        'config-usuario-perfil'
-      );
-
-
-    if (empresa) {
-
-      if (empresaNome) {
-        empresaNome.value =
-          empresa.nome || '';
-      }
-
-      if (empresaEmail) {
-        empresaEmail.value =
-          empresa.email || '';
-      }
-
-      if (empresaTelefone) {
-        empresaTelefone.value =
-          empresa.telefone || '';
-      }
-
-      const empresaNicho = document.getElementById('config-empresa-nicho');
-if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
-
-    }
-
-
-    if (usuario) {
-
-      if (usuarioNome) {
-        usuarioNome.value =
-          usuario.nome || '';
-      }
-
-      if (usuarioEmail) {
-        usuarioEmail.value =
-          usuario.email || '';
-      }
-
-      if (usuarioPerfil) {
-        usuarioPerfil.value =
-          usuario.perfil === 'administrador'
-            ? 'Administrador'
-            : 'Funcionário';
-      }
-
-    }
-
   }
 
 
@@ -4255,440 +2419,184 @@ if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
 
   async function carregarConfiguracoes() {
 
-    const token =
-      localStorage.getItem(
-        'lavajato_auth_token'
-      );
+    const token = localStorage.getItem(TOKEN_KEY);
 
-    if (!token) {
-      return;
-    }
-
+    if (!token) return;
 
     try {
 
-      const resposta =
-        await fetch(
-          '/api/configuracoes',
-          {
-            method: 'GET',
+      const resposta = await fetch('/api/configuracoes', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-            headers: {
-              'Authorization':
-                `Bearer ${token}`
-            }
-          }
-        );
-
-
-      const dados =
-        await resposta.json();
-
+      const dados = await resposta.json();
 
       if (!resposta.ok) {
-
-        console.error(
-          'Erro ao carregar configurações:',
-          dados.erro
-        );
-
+        console.error('Erro ao carregar configurações:', dados.erro);
         return;
-
       }
-
 
       if (dados.empresa) {
 
-        window.lavajatoEmpresa =
-          dados.empresa;
-
+        window.lavajatoEmpresa = dados.empresa;
 
         preencherDadosConfiguracoes(
           window.lavajatoUsuario || null,
           dados.empresa
         );
 
-
-        const empresaElement =
-          document.getElementById(
-            'sidebar-company'
-          );
-
+        const empresaElement = document.getElementById('sidebar-company');
 
         if (empresaElement) {
-
-          empresaElement.textContent =
-            dados.empresa.nome ||
-            'Minha empresa';
-
-          empresaElement.title =
-            dados.empresa.nome ||
-            'Minha empresa';
-
+          empresaElement.textContent = dados.empresa.nome || 'Minha empresa';
+          empresaElement.title = dados.empresa.nome || 'Minha empresa';
         }
-
       }
 
     } catch (error) {
 
-      console.error(
-        'Erro ao carregar configurações:',
-        error
-      );
-
+      console.error('Erro ao carregar configurações:', error);
     }
-
-    aplicarNicho(empresa?.nicho || 'lavajato');
-
   }
 
 
   /* =========================================================
-     SALVAR CONFIGURAÇÕES
+     SALVAR CONFIGURAÇÕES DA EMPRESA
      ========================================================= */
 
-  const formConfiguracoes =
-    document.getElementById(
-      'form-configuracoes'
-    );
-
+  const formConfiguracoes = document.getElementById('form-configuracoes');
 
   if (formConfiguracoes) {
 
-    formConfiguracoes.addEventListener(
-      'submit',
-      async event => {
+    formConfiguracoes.addEventListener('submit', async event => {
 
-        event.preventDefault();
+      event.preventDefault();
 
+      const token = localStorage.getItem(TOKEN_KEY);
 
-        const token =
-          localStorage.getItem(
-            'lavajato_auth_token'
-          );
+      if (!token) return;
 
-          body: JSON.stringify({
-  nome,
-  email,
-  telefone,
-  nicho: document.getElementById('config-empresa-nicho')?.value || 'lavajato'
-})
+      const nome =
+        document.getElementById('config-empresa-nome')?.value.trim() || '';
 
+      const email =
+        document.getElementById('config-empresa-email')?.value.trim() || '';
 
-        if (!token) {
-          return;
-        }
+      const telefone =
+        document.getElementById('config-empresa-telefone')?.value.trim() || '';
 
+      const nicho =
+        document.getElementById('config-empresa-nicho')?.value || 'lavajato';
 
-        const nome =
-          document
-            .getElementById(
-              'config-empresa-nome'
-            )
-            ?.value
-            .trim() || '';
+      const mensagem = document.getElementById('configuracoes-message');
+      const botao = document.getElementById('btn-salvar-configuracoes');
 
-
-        const email =
-          document
-            .getElementById(
-              'config-empresa-email'
-            )
-            ?.value
-            .trim() || '';
-
-
-        const telefone =
-          document
-            .getElementById(
-              'config-empresa-telefone'
-            )
-            ?.value
-            .trim() || '';
-
-
-        const mensagem =
-          document.getElementById(
-            'configuracoes-message'
-          );
-
-
-        const botao =
-          document.getElementById(
-            'btn-salvar-configuracoes'
-          );
-
-
-        if (!nome) {
-
-          mostrarMensagemConfiguracoes(
-            'Informe o nome da empresa.',
-            'erro'
-          );
-
-          return;
-
-        }
-
-
-        if (!email) {
-
-          mostrarMensagemConfiguracoes(
-            'Informe o e-mail da empresa.',
-            'erro'
-          );
-
-          return;
-
-        }
-
-
-        if (mensagem) {
-
-          mensagem.style.display =
-            'none';
-
-          mensagem.textContent =
-            '';
-
-        }
-
-
-        if (botao) {
-
-          botao.disabled =
-            true;
-
-          botao.textContent =
-            'Salvando...';
-
-        }
-
-
-        try {
-
-          const resposta =
-            await fetch(
-              '/api/configuracoes',
-              {
-                method: 'PUT',
-
-                headers: {
-                  'Content-Type':
-                    'application/json',
-
-                  'Authorization':
-                    `Bearer ${token}`
-                },
-
-                body: JSON.stringify({
-                  nome,
-                  email,
-                  telefone
-                })
-              }
-            );
-
-
-          const dados =
-            await resposta.json();
-
-
-          if (!resposta.ok) {
-
-            mostrarMensagemConfiguracoes(
-              dados.erro ||
-                'Não foi possível salvar as configurações.',
-              'erro'
-            );
-
-            return;
-
-          }
-
-
-          if (dados.empresa) {
-
-            window.lavajatoEmpresa =
-              dados.empresa;
-
-
-            preencherDadosConfiguracoes(
-              window.lavajatoUsuario || null,
-              dados.empresa
-            );
-
-
-            const empresaElement =
-              document.getElementById(
-                'sidebar-company'
-              );
-
-
-            if (empresaElement) {
-
-              empresaElement.textContent =
-                dados.empresa.nome ||
-                'Minha empresa';
-
-              empresaElement.title =
-                dados.empresa.nome ||
-                'Minha empresa';
-
-            }
-
-          }
-
-
-          mostrarMensagemConfiguracoes(
-            dados.mensagem ||
-              'Configurações salvas com sucesso.',
-            'sucesso'
-          );
-
-
-        } catch (error) {
-
-          console.error(
-            'Erro ao salvar configurações:',
-            error
-          );
-
-
-          mostrarMensagemConfiguracoes(
-            'Não foi possível conectar ao servidor.',
-            'erro'
-          );
-
-        } finally {
-
-          if (botao) {
-
-            botao.disabled =
-              false;
-
-            botao.textContent =
-              'Salvar alterações';
-
-          }
-
-        }
-
+      if (!nome) {
+        mostrarMensagemConfiguracoes('Informe o nome da empresa.', 'erro');
+        return;
       }
-    );
 
-  }
+      if (!email) {
+        mostrarMensagemConfiguracoes('Informe o e-mail da empresa.', 'erro');
+        return;
+      }
 
+      if (mensagem) {
+        mensagem.style.display = 'none';
+        mensagem.textContent = '';
+      }
 
-  /* =========================================================
-     MENSAGEM
-     ========================================================= */
+      if (botao) {
+        botao.disabled = true;
+        botao.textContent = 'Salvando...';
+      }
 
-  function mostrarMensagemConfiguracoes(
-    mensagem,
-    tipo
-  ) {
+      try {
 
-    const elemento =
-      document.getElementById(
-        'configuracoes-message'
-      );
+        const resposta = await fetch('/api/configuracoes', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ nome, email, telefone, nicho })
+        });
 
+        const dados = await resposta.json();
 
-    if (!elemento) {
-      return;
-    }
+        if (!resposta.ok) {
 
-
-    elemento.textContent =
-      mensagem;
-
-
-    elemento.style.display =
-      'block';
-
-
-    if (tipo === 'sucesso') {
-
-      elemento.style.color =
-        '#166534';
-
-      elemento.style.background =
-        '#dcfce7';
-
-      elemento.style.border =
-        '1px solid #bbf7d0';
-
-    } else {
-
-      elemento.style.color =
-        '#991b1b';
-
-      elemento.style.background =
-        '#fee2e2';
-
-      elemento.style.border =
-        '1px solid #fecaca';
-
-    }
-
-
-    elemento.style.padding =
-      '10px 12px';
-
-    elemento.style.borderRadius =
-      '8px';
-
-  }
-
-
-  /* =========================================================
-     BOTÃO SAIR
-     ========================================================= */
-
-  const btnLogout =
-    document.getElementById('btn-logout');
-
-
-  if (btnLogout) {
-
-    btnLogout.addEventListener(
-      'click',
-      () => {
-
-        const confirmar =
-          confirm(
-            'Deseja sair da sua conta?'
+          mostrarMensagemConfiguracoes(
+            dados.erro || 'Não foi possível salvar as configurações.',
+            'erro'
           );
 
-
-        if (!confirmar) {
           return;
         }
 
+        if (dados.empresa) {
 
-        localStorage.removeItem(
-          'lavajato_auth_token'
+          window.lavajatoEmpresa = dados.empresa;
+
+          preencherDadosConfiguracoes(
+            window.lavajatoUsuario || null,
+            dados.empresa
+          );
+
+          const empresaElement = document.getElementById('sidebar-company');
+
+          if (empresaElement) {
+            empresaElement.textContent = dados.empresa.nome || 'Minha empresa';
+            empresaElement.title = dados.empresa.nome || 'Minha empresa';
+          }
+
+        } else if (window.aplicarNicho) {
+
+          // Resposta sem a empresa: aplica o nicho escolhido localmente
+          window.aplicarNicho(nicho);
+        }
+
+        mostrarMensagemConfiguracoes(
+          dados.mensagem || 'Configurações salvas com sucesso.',
+          'sucesso'
         );
 
+      } catch (error) {
 
-        window.location.reload();
+        console.error('Erro ao salvar configurações:', error);
 
+        mostrarMensagemConfiguracoes(
+          'Não foi possível conectar ao servidor.',
+          'erro'
+        );
+
+      } finally {
+
+        if (botao) {
+          botao.disabled = false;
+          botao.textContent = 'Salvar alterações';
+        }
       }
-    );
-
+    });
   }
 
 
   /* =========================================================
-     CARREGAMENTO INICIAL
+     INICIALIZAÇÃO
      ========================================================= */
+
+  configurarSelecaoDeCores();
+
+  configurarSalvarTema();
+
+  carregarCoresEmpresa();
 
   carregarUsuarioSidebar();
 
   carregarConfiguracoes();
 
-</script>
+  </script>
 
 
   <!-- =========================================================
@@ -4697,43 +2605,22 @@ if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
 
   <script>
 
-    const sidebar =
-      document.getElementById('sidebar');
-
-    const sidebarToggle =
-      document.getElementById('sidebar-toggle');
-
-    const mobileMenuBtn =
-      document.getElementById('mobile-menu-btn');
-
-    const sidebarOverlay =
-      document.getElementById('sidebar-overlay');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
 
 
     /* ABRE MENU MOBILE */
 
     if (mobileMenuBtn && sidebar) {
 
-      mobileMenuBtn.addEventListener(
-        'click',
-        () => {
+      mobileMenuBtn.addEventListener('click', () => {
 
-          sidebar.classList.add(
-            'mobile-open'
-          );
+        sidebar.classList.add('mobile-open');
 
-
-          if (sidebarOverlay) {
-
-            sidebarOverlay.classList.add(
-              'active'
-            );
-
-          }
-
-        }
-      );
-
+        if (sidebarOverlay) sidebarOverlay.classList.add('active');
+      });
     }
 
 
@@ -4741,22 +2628,12 @@ if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
 
     if (sidebarOverlay && sidebar) {
 
-      sidebarOverlay.addEventListener(
-        'click',
-        () => {
+      sidebarOverlay.addEventListener('click', () => {
 
-          sidebar.classList.remove(
-            'mobile-open'
-          );
+        sidebar.classList.remove('mobile-open');
 
-
-          sidebarOverlay.classList.remove(
-            'active'
-          );
-
-        }
-      );
-
+        sidebarOverlay.classList.remove('active');
+      });
     }
 
 
@@ -4764,45 +2641,24 @@ if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
 
     if (sidebarToggle && sidebar) {
 
-      sidebarToggle.addEventListener(
-        'click',
-        () => {
+      sidebarToggle.addEventListener('click', () => {
 
-          if (window.innerWidth <= 760) {
+        if (window.innerWidth <= 760) {
 
-            sidebar.classList.remove(
-              'mobile-open'
-            );
+          sidebar.classList.remove('mobile-open');
 
+          if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 
-            if (sidebarOverlay) {
-
-              sidebarOverlay.classList.remove(
-                'active'
-              );
-
-            }
-
-            return;
-
-          }
-
-
-          sidebar.classList.toggle(
-            'collapsed'
-          );
-
-
-          localStorage.setItem(
-            'lavajato-sidebar-collapsed',
-            sidebar.classList.contains(
-              'collapsed'
-            )
-          );
-
+          return;
         }
-      );
 
+        sidebar.classList.toggle('collapsed');
+
+        localStorage.setItem(
+          'lavajato-sidebar-collapsed',
+          sidebar.classList.contains('collapsed')
+        );
+      });
     }
 
 
@@ -4811,82 +2667,43 @@ if (empresaNicho) empresaNicho.value = empresa.nicho || 'lavajato';
     if (
       sidebar &&
       window.innerWidth > 760 &&
-      localStorage.getItem(
-        'lavajato-sidebar-collapsed'
-      ) === 'true'
+      localStorage.getItem('lavajato-sidebar-collapsed') === 'true'
     ) {
-
-      sidebar.classList.add(
-        'collapsed'
-      );
-
+      sidebar.classList.add('collapsed');
     }
 
 
     /* FECHA MENU MOBILE AO CLICAR */
 
-    document
-      .querySelectorAll(
-        '.sidebar .nav-btn'
-      )
-      .forEach(
-        button => {
+    document.querySelectorAll('.sidebar .nav-btn').forEach(button => {
 
-          button.addEventListener(
-            'click',
-            () => {
+      button.addEventListener('click', () => {
 
-              if (
-                window.innerWidth <= 760
-              ) {
+        if (window.innerWidth <= 760) {
 
-                sidebar.classList.remove(
-                  'mobile-open'
-                );
+          sidebar.classList.remove('mobile-open');
 
-
-                if (sidebarOverlay) {
-
-                  sidebarOverlay.classList.remove(
-                    'active'
-                  );
-
-                }
-
-              }
-
-            }
-          );
-
+          if (sidebarOverlay) sidebarOverlay.classList.remove('active');
         }
-      );
+      });
+    });
 
 
     /* REDIMENSIONAMENTO */
 
-    window.addEventListener(
-      'resize',
-      () => {
+    window.addEventListener('resize', () => {
 
-        if (window.innerWidth > 760) {
+      if (window.innerWidth > 760) {
 
-          sidebar?.classList.remove(
-            'mobile-open'
-          );
+        sidebar?.classList.remove('mobile-open');
 
-
-          sidebarOverlay?.classList.remove(
-            'active'
-          );
-
-        }
-
+        sidebarOverlay?.classList.remove('active');
       }
-    );
+    });
 
   </script>
 
-   <script src="/js/recuperarSenha.js"></script>
+  <script src="/js/recuperarSenha.js"></script>
 
 </body>
 </html>
