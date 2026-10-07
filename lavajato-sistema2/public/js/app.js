@@ -3381,7 +3381,7 @@
   function obterToken() {
 
     return (
-      localStorage.getItem('token') ||
+      localStorage.getItem('lavajato-token') ||
       localStorage.getItem('authToken') ||
       localStorage.getItem('accessToken') ||
       sessionStorage.getItem('token') ||
