@@ -1,3 +1,46 @@
+// ============================================================
+// REDIRECIONA PARA /429.html EM QUALQUER LIMITE DE REQUISIÇÕES
+// ============================================================
+
+(function(){
+
+  const fetchOriginal = window.fetch;
+
+  window.fetch = async function(...args){
+
+    const resposta = await fetchOriginal.apply(this, args);
+
+    if(resposta.status === 429){
+
+      const url = String(
+        typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || ''
+      );
+
+      const jaEstaNaPagina = window.location.pathname.endsWith('/429.html');
+
+      if(url.includes('/api/') && !jaEstaNaPagina){
+
+        let destino = '/429.html';
+
+        try{
+          const dados = await resposta.clone().json();
+          if(dados && dados.redirecionar){ destino = dados.redirecionar; }
+        }catch(e){}
+
+        // Só aceita caminhos do próprio site (evita redirecionamento externo)
+        if(!destino.startsWith('/') || destino.startsWith('//')){
+          destino = '/429.html';
+        }
+
+        window.location.replace(destino);
+      }
+    }
+
+    return resposta;
+  };
+
+})();
+
 (function(){
   "use strict";
 
