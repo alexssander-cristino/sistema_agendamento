@@ -16,6 +16,37 @@ router.use(verificarAssinatura);
 const PERMISSAO_CONFIGURACOES = 'configuracoes';
 
 // ============================================================
+// NICHOS PERMITIDOS (devem bater com o front-end)
+// ============================================================
+
+const NICHOS_VALIDOS = [
+  'lavajato',
+  'barbearia',
+  'clinica',
+  'pet',
+  'oficina',
+  'personal',
+  'generico'
+];
+
+// ============================================================
+// CAMPOS RETORNADOS DA EMPRESA
+// ============================================================
+
+const CAMPOS_EMPRESA = `
+  id,
+  nome,
+  email,
+  telefone,
+  nicho,
+  cor_primaria,
+  cor_destaque,
+  cor_fundo,
+  criado_em,
+  atualizado_em
+`;
+
+// ============================================================
 // VERIFICA PERMISSÃO
 // ============================================================
 
@@ -62,11 +93,7 @@ async function verificarPermissaoConfiguracoes(req, res, next) {
 
 // ============================================================
 // VALIDA COR HEXADECIMAL
-// Aceita:
-// #000000
-// #FFFFFF
-// #fff
-// #ABC
+// Aceita: #000000, #FFFFFF, #fff, #ABC
 // ============================================================
 
 function validarCor(cor) {
@@ -74,9 +101,7 @@ function validarCor(cor) {
     return false;
   }
 
-  const corLimpa = cor.trim();
-
-  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(corLimpa);
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(cor.trim());
 }
 
 // ============================================================
@@ -85,6 +110,14 @@ function validarCor(cor) {
 
 function normalizarCor(cor) {
   return cor.trim().toLowerCase();
+}
+
+// ============================================================
+// UMA COR FOI ENVIADA?
+// ============================================================
+
+function corFoiEnviada(cor) {
+  return cor !== undefined && cor !== null && cor !== '';
 }
 
 // ============================================================
@@ -100,16 +133,7 @@ router.get(
     try {
 
       const { rows } = await pool.query(
-        `SELECT
-            id,
-            nome,
-            email,
-            telefone,
-            cor_primaria,
-            cor_destaque,
-            cor_fundo,
-            criado_em,
-            atualizado_em
+        `SELECT ${CAMPOS_EMPRESA}
          FROM empresas
          WHERE id = $1
          LIMIT 1`,
@@ -145,6 +169,9 @@ router.get(
 // ============================================================
 // PUT /api/configuracoes
 // Atualiza dados da empresa
+//
+// Cores e nicho são OPCIONAIS: quando não enviados,
+// o valor atual do banco é mantido.
 // ============================================================
 
 router.put(
@@ -157,6 +184,7 @@ router.put(
       nome,
       email,
       telefone,
+      nicho,
       cor_primaria,
       cor_destaque,
       cor_fundo
@@ -179,24 +207,48 @@ router.put(
     }
 
     // ==========================================================
-    // VALIDAÇÃO DAS CORES
+    // VALIDAÇÃO DO NICHO (opcional)
     // ==========================================================
 
-    if (
-      !validarCor(cor_primaria) ||
-      !validarCor(cor_destaque) ||
-      !validarCor(cor_fundo)
-    ) {
+    let nichoLimpo = null;
 
-      console.error('Cores recebidas inválidas:', {
-        cor_primaria,
-        cor_destaque,
-        cor_fundo
-      });
+    if (nicho !== undefined && nicho !== null && nicho !== '') {
 
-      return res.status(400).json({
-        erro: 'Uma ou mais cores informadas são inválidas.'
-      });
+      if (
+        typeof nicho !== 'string' ||
+        !NICHOS_VALIDOS.includes(nicho.trim())
+      ) {
+        return res.status(400).json({
+          erro: 'Tipo de negócio inválido.'
+        });
+      }
+
+      nichoLimpo = nicho.trim();
+    }
+
+    // ==========================================================
+    // VALIDAÇÃO DAS CORES (opcionais)
+    // ==========================================================
+
+    const cores = {
+      cor_primaria,
+      cor_destaque,
+      cor_fundo
+    };
+
+    for (const [campo, valor] of Object.entries(cores)) {
+
+      if (corFoiEnviada(valor) && !validarCor(valor)) {
+
+        console.error('Cor recebida inválida:', {
+          campo,
+          valor
+        });
+
+        return res.status(400).json({
+          erro: 'Uma ou mais cores informadas são inválidas.'
+        });
+      }
     }
 
     // ==========================================================
@@ -214,18 +266,22 @@ router.put(
         ? telefone.trim()
         : null;
 
-    // ==========================================================
-    // NORMALIZAÇÃO DAS CORES
-    // ==========================================================
+    // null = mantém o valor atual (COALESCE no UPDATE)
 
     const corPrimariaLimpa =
-      normalizarCor(cor_primaria);
+      corFoiEnviada(cor_primaria)
+        ? normalizarCor(cor_primaria)
+        : null;
 
     const corDestaqueLimpa =
-      normalizarCor(cor_destaque);
+      corFoiEnviada(cor_destaque)
+        ? normalizarCor(cor_destaque)
+        : null;
 
     const corFundoLimpa =
-      normalizarCor(cor_fundo);
+      corFoiEnviada(cor_fundo)
+        ? normalizarCor(cor_fundo)
+        : null;
 
     // ==========================================================
     // BANCO
@@ -250,9 +306,7 @@ router.put(
           ]
         );
 
-      if (
-        empresaExistente.rows.length > 0
-      ) {
+      if (empresaExistente.rows.length > 0) {
         return res.status(409).json({
           erro:
             'Já existe outra empresa cadastrada com esse e-mail.'
@@ -270,25 +324,18 @@ router.put(
              nome = $1,
              email = $2,
              telefone = $3,
-             cor_primaria = $4,
-             cor_destaque = $5,
-             cor_fundo = $6,
+             nicho = COALESCE($4, nicho),
+             cor_primaria = COALESCE($5, cor_primaria),
+             cor_destaque = COALESCE($6, cor_destaque),
+             cor_fundo = COALESCE($7, cor_fundo),
              atualizado_em = CURRENT_TIMESTAMP
-           WHERE id = $7
-           RETURNING
-             id,
-             nome,
-             email,
-             telefone,
-             cor_primaria,
-             cor_destaque,
-             cor_fundo,
-             criado_em,
-             atualizado_em`,
+           WHERE id = $8
+           RETURNING ${CAMPOS_EMPRESA}`,
           [
             nomeLimpo,
             emailLimpo,
             telefoneLimpo,
+            nichoLimpo,
             corPrimariaLimpa,
             corDestaqueLimpa,
             corFundoLimpa,
