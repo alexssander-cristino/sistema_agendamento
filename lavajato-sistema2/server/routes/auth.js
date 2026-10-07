@@ -2,12 +2,17 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
 
 const pool = require('../db');
 
 const autenticar =
   require('../middleware/auth');
+
+const {
+  authRateLimit,
+  passwordResetRateLimit
+} =
+  require('../middleware/rateLimit');
 
 const {
   buscarCodigosPermissoesUsuario
@@ -25,6 +30,7 @@ const router =
 const JWT_SECRET =
   process.env.JWT_SECRET;
 
+
 // ============================================================
 // CONFIGURAÇÕES
 // ============================================================
@@ -32,42 +38,6 @@ const JWT_SECRET =
 const TEMPO_RECUPERACAO_MINUTOS =
   30;
 
-// ============================================================
-// RATE LIMIT - LOGIN
-// ============================================================
-//
-// Permite até 06 tentativas de login dentro de 15 minutos
-// por endereço IP.
-//
-// Ao exceder o limite, retorna HTTP 429.
-// O frontend pode redirecionar para /429.html.
-//
-// ============================================================
-
-const loginRateLimit =
-  rateLimit({
-    windowMs:
-      15 * 60 * 1000,
-
-    limit: 6,
-
-    standardHeaders: 'draft-7',
-
-    legacyHeaders: false,
-
-    handler: (req, res) => {
-      return res.status(429).json({
-        erro:
-          'Muitas tentativas de acesso. Aguarde 15 minutos antes de tentar novamente.',
-
-        codigo:
-          'RATE_LIMIT_EXCEDIDO',
-
-        redirecionar:
-          '/429.html'
-      });
-    }
-  });
 
 // ============================================================
 // PERMISSÕES DO ADMINISTRADOR / DEV
@@ -84,15 +54,18 @@ const PERMISSOES_ADMINISTRADOR = [
   'configuracoes'
 ];
 
+
 // ============================================================
 // VALIDAR CONFIGURAÇÕES
 // ============================================================
 
 if (!JWT_SECRET) {
+
   console.error(
     'ERRO: JWT_SECRET não foi configurado.'
   );
 }
+
 
 // ============================================================
 // BUSCAR PERMISSÕES DO USUÁRIO
@@ -101,6 +74,7 @@ if (!JWT_SECRET) {
 async function obterPermissoesUsuario(
   usuario
 ) {
+
   // ==========================================================
   // ADMINISTRADOR E DEV POSSUEM TODAS AS PERMISSÕES
   // ==========================================================
@@ -109,8 +83,10 @@ async function obterPermissoesUsuario(
     usuario.perfil === 'administrador' ||
     usuario.perfil === 'dev'
   ) {
+
     return PERMISSOES_ADMINISTRADOR;
   }
+
 
   // ==========================================================
   // FUNCIONÁRIO
@@ -121,6 +97,7 @@ async function obterPermissoesUsuario(
   );
 }
 
+
 // ============================================================
 // NORMALIZAR E-MAIL
 // ============================================================
@@ -128,6 +105,7 @@ async function obterPermissoesUsuario(
 function normalizarEmail(
   email
 ) {
+
   return String(
     email || ''
   )
@@ -135,15 +113,18 @@ function normalizarEmail(
     .toLowerCase();
 }
 
+
 // ============================================================
 // GERAR TOKEN DE RECUPERAÇÃO
 // ============================================================
 
 function gerarTokenRecuperacao() {
-  return crypto.randomBytes(
-    32
-  ).toString('hex');
+
+  return crypto
+    .randomBytes(32)
+    .toString('hex');
 }
+
 
 // ============================================================
 // GERAR HASH DO TOKEN
@@ -152,21 +133,25 @@ function gerarTokenRecuperacao() {
 function gerarHashToken(
   token
 ) {
+
   return crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
 }
 
+
 // ============================================================
 // URL BASE DA APLICAÇÃO
 // ============================================================
 
 function obterUrlAplicacao() {
+
   const url =
     process.env.APP_URL;
 
   if (!url) {
+
     throw new Error(
       'APP_URL não configurada.'
     );
@@ -178,6 +163,7 @@ function obterUrlAplicacao() {
   );
 }
 
+
 // ============================================================
 // POST /api/auth/cadastro
 // Cria uma nova empresa + primeiro usuário administrador
@@ -185,7 +171,11 @@ function obterUrlAplicacao() {
 
 router.post(
   '/cadastro',
+
+  authRateLimit,
+
   async (req, res) => {
+
     const {
       empresa,
       email_empresa,
@@ -195,6 +185,11 @@ router.post(
       senha
     } = req.body;
 
+
+    // ========================================================
+    // VALIDAR CAMPOS
+    // ========================================================
+
     if (
       !empresa ||
       !email_empresa ||
@@ -202,31 +197,46 @@ router.post(
       !email ||
       !senha
     ) {
+
       return res.status(400).json({
+
         erro:
           'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
+
       });
     }
+
+
+    // ========================================================
+    // VALIDAR SENHA
+    // ========================================================
 
     if (
       String(senha).length < 6
     ) {
+
       return res.status(400).json({
+
         erro:
           'A senha deve possuir pelo menos 6 caracteres.'
+
       });
     }
+
 
     const client =
       await pool.connect();
 
+
     try {
+
       await client.query(
         'BEGIN'
       );
 
+
       // ======================================================
-      // Verifica se a empresa já existe
+      // VERIFICA EMPRESA
       // ======================================================
 
       const empresaExistente =
@@ -242,22 +252,26 @@ router.post(
           ]
         );
 
+
       if (
-        empresaExistente.rows.length >
-        0
+        empresaExistente.rows.length > 0
       ) {
+
         await client.query(
           'ROLLBACK'
         );
 
         return res.status(409).json({
+
           erro:
             'Já existe uma empresa cadastrada com esse e-mail.'
+
         });
       }
 
+
       // ======================================================
-      // Verifica se o usuário já existe
+      // VERIFICA USUÁRIO
       // ======================================================
 
       const usuarioExistente =
@@ -273,25 +287,26 @@ router.post(
           ]
         );
 
+
       if (
-        usuarioExistente.rows.length >
-        0
+        usuarioExistente.rows.length > 0
       ) {
+
         await client.query(
           'ROLLBACK'
         );
 
         return res.status(409).json({
+
           erro:
             'Já existe um usuário cadastrado com esse e-mail.'
+
         });
       }
 
+
       // ======================================================
-      // Cria empresa
-      //
-      // Conta normal:
-      // conta_teste = FALSE
+      // CRIA EMPRESA
       // ======================================================
 
       const empresaResult =
@@ -325,11 +340,13 @@ router.post(
           ]
         );
 
+
       const novaEmpresa =
         empresaResult.rows[0];
 
+
       // ======================================================
-      // Cria senha criptografada
+      // CRIA SENHA CRIPTOGRAFADA
       // ======================================================
 
       const senhaHash =
@@ -338,8 +355,9 @@ router.post(
           12
         );
 
+
       // ======================================================
-      // Cria administrador
+      // CRIA ADMINISTRADOR
       // ======================================================
 
       const usuarioResult =
@@ -377,12 +395,15 @@ router.post(
           ]
         );
 
+
       const usuario =
         usuarioResult.rows[0];
+
 
       await client.query(
         'COMMIT'
       );
+
 
       // ======================================================
       // PERMISSÕES
@@ -391,12 +412,14 @@ router.post(
       const permissoes =
         PERMISSOES_ADMINISTRADOR;
 
+
       // ======================================================
       // JWT
       // ======================================================
 
       const token =
         jwt.sign(
+
           {
             id:
               usuario.id,
@@ -422,17 +445,20 @@ router.post(
           }
         );
 
+
       // ======================================================
       // RESPOSTA
       // ======================================================
 
       return res.status(201).json({
+
         mensagem:
           'Empresa cadastrada com sucesso.',
 
         token,
 
         usuario: {
+
           id:
             usuario.id,
 
@@ -449,9 +475,11 @@ router.post(
             usuario.ativo,
 
           permissoes
+
         },
 
         empresa: {
+
           id:
             novaEmpresa.id,
 
@@ -466,32 +494,43 @@ router.post(
 
           conta_teste:
             novaEmpresa.conta_teste
+
         }
+
       });
 
     } catch (err) {
 
       try {
+
         await client.query(
           'ROLLBACK'
         );
+
       } catch {}
+
 
       console.error(
         'Erro no cadastro:',
         err
       );
 
+
       return res.status(500).json({
+
         erro:
           'Não foi possível realizar o cadastro.'
+
       });
 
     } finally {
+
       client.release();
+
     }
   }
 );
+
 
 // ============================================================
 // POST /api/auth/login
@@ -500,18 +539,7 @@ router.post(
 router.post(
   '/login',
 
-  // ==========================================================
-  // RATE LIMIT
-  // ==========================================================
-  //
-  // Máximo de 15 tentativas em 15 minutos.
-  //
-  // Quando ultrapassar:
-  // HTTP 429
-  //
-  // ==========================================================
-
-  loginRateLimit,
+  authRateLimit,
 
   async (req, res) => {
 
@@ -520,17 +548,30 @@ router.post(
       senha
     } = req.body;
 
+
+    // ========================================================
+    // VALIDAR CAMPOS
+    // ========================================================
+
     if (
       !email ||
       !senha
     ) {
+
       return res.status(400).json({
+
         erro:
           'Informe e-mail e senha.'
+
       });
     }
 
+
     try {
+
+      // ======================================================
+      // BUSCAR USUÁRIO
+      // ======================================================
 
       const { rows } =
         await pool.query(
@@ -555,37 +596,65 @@ router.post(
           LIMIT 1
           `,
           [
-            email
+            normalizarEmail(email)
           ]
         );
+
+
+      // ======================================================
+      // USUÁRIO NÃO ENCONTRADO
+      // ======================================================
 
       if (
         rows.length === 0
       ) {
+
+        const tentativas =
+          req.rateLimit?.used || 1;
+
+        const limite =
+          req.rateLimit?.limit || 10;
+
+
         return res.status(401).json({
+
           erro:
-            'E-mail ou senha incorretos.'
+            `E-mail ou senha incorretos. Tentativa ${tentativas} de ${limite}.`,
+
+          codigo:
+            'CREDENCIAIS_INVALIDAS',
+
+          tentativas,
+
+          limite
+
         });
       }
+
 
       const usuario =
         rows[0];
 
+
       // ======================================================
-      // Usuário desativado
+      // USUÁRIO DESATIVADO
       // ======================================================
 
       if (
         !usuario.ativo
       ) {
+
         return res.status(403).json({
+
           erro:
             'Este usuário está desativado.'
+
         });
       }
 
+
       // ======================================================
-      // Senha
+      // VERIFICAR SENHA
       // ======================================================
 
       const senhaValida =
@@ -594,17 +663,40 @@ router.post(
           usuario.senha
         );
 
+
+      // ======================================================
+      // SENHA INCORRETA
+      // ======================================================
+
       if (
         !senhaValida
       ) {
+
+        const tentativas =
+          req.rateLimit?.used || 1;
+
+        const limite =
+          req.rateLimit?.limit || 10;
+
+
         return res.status(401).json({
+
           erro:
-            'E-mail ou senha incorretos.'
+            `E-mail ou senha incorretos. Tentativa ${tentativas} de ${limite}.`,
+
+          codigo:
+            'CREDENCIAIS_INVALIDAS',
+
+          tentativas,
+
+          limite
+
         });
       }
 
+
       // ======================================================
-      // Permissões
+      // PERMISSÕES
       // ======================================================
 
       const permissoes =
@@ -612,12 +704,14 @@ router.post(
           usuario
         );
 
+
       // ======================================================
       // JWT
       // ======================================================
 
       const token =
         jwt.sign(
+
           {
             id:
               usuario.id,
@@ -643,10 +737,9 @@ router.post(
           }
         );
 
+
       // ======================================================
       // RESPOSTA
-      //
-      // DEV não possui empresa.
       // ======================================================
 
       return res.json({
@@ -674,6 +767,7 @@ router.post(
             usuario.ativo,
 
           permissoes
+
         },
 
         empresa:
@@ -709,32 +803,28 @@ router.post(
         err
       );
 
+
       return res.status(500).json({
+
         erro:
           'Não foi possível realizar o login.'
+
       });
     }
   }
 );
 
+
 // ============================================================
 // POST /api/auth/esqueci-senha
-// Solicita recuperação de senha
 // ============================================================
 
 router.post(
   '/esqueci-senha',
 
-  async (req, res) => {
+  passwordResetRateLimit,
 
-    /*
-     * IMPORTANTE:
-     *
-     * A resposta é sempre a mesma,
-     * mesmo quando o e-mail não existe.
-     *
-     * Isso evita descoberta de contas.
-     */
+  async (req, res) => {
 
     const respostaPadrao = {
 
@@ -743,21 +833,25 @@ router.post(
 
     };
 
+
     const email =
       normalizarEmail(
         req.body?.email
       );
 
+
     if (!email) {
+
       return res.json(
         respostaPadrao
       );
     }
 
+
     try {
 
       // ======================================================
-      // Procura usuário
+      // PROCURA USUÁRIO
       // ======================================================
 
       const resultado =
@@ -777,48 +871,47 @@ router.post(
           ]
         );
 
-      /*
-       * Não revelar se o usuário existe.
-       */
 
       if (
         resultado.rows.length === 0
       ) {
+
         return res.json(
           respostaPadrao
         );
       }
+
 
       const usuario =
         resultado.rows[0];
 
-      /*
-       * Usuário desativado também recebe
-       * a mesma resposta.
-       */
 
       if (
         !usuario.ativo
       ) {
+
         return res.json(
           respostaPadrao
         );
       }
 
+
       // ======================================================
-      // Gera token
+      // GERA TOKEN
       // ======================================================
 
       const token =
         gerarTokenRecuperacao();
+
 
       const tokenHash =
         gerarHashToken(
           token
         );
 
+
       // ======================================================
-      // Remove tokens anteriores
+      // REMOVE TOKENS ANTERIORES
       // ======================================================
 
       await pool.query(
@@ -832,8 +925,9 @@ router.post(
         ]
       );
 
+
       // ======================================================
-      // Calcula expiração
+      // EXPIRAÇÃO
       // ======================================================
 
       const expiraEm =
@@ -844,8 +938,9 @@ router.post(
           1000
         );
 
+
       // ======================================================
-      // Salva hash do token
+      // SALVA TOKEN
       // ======================================================
 
       await pool.query(
@@ -870,18 +965,21 @@ router.post(
         ]
       );
 
+
       // ======================================================
-      // Monta link
+      // LINK
       // ======================================================
 
       const appUrl =
         obterUrlAplicacao();
 
+
       const link =
         `${appUrl}/recuperar-senha.html?token=${encodeURIComponent(token)}`;
 
+
       // ======================================================
-      // Envia e-mail
+      // ENVIA E-MAIL
       // ======================================================
 
       await enviarEmailRecuperacaoSenha({
@@ -896,6 +994,7 @@ router.post(
 
       });
 
+
       console.log(
         'E-mail de recuperação de senha enviado.',
         {
@@ -903,6 +1002,7 @@ router.post(
             usuario.id
         }
       );
+
 
       return res.json(
         respostaPadrao
@@ -915,10 +1015,6 @@ router.post(
         err.message
       );
 
-      /*
-       * Nunca retornar detalhes internos
-       * para o usuário.
-       */
 
       return res.json(
         respostaPadrao
@@ -927,9 +1023,9 @@ router.post(
   }
 );
 
+
 // ============================================================
 // POST /api/auth/redefinir-senha
-// Define nova senha usando token
 // ============================================================
 
 router.post(
@@ -943,46 +1039,62 @@ router.post(
     } =
       req.body || {};
 
+
     if (
       !token ||
       !senha
     ) {
+
       return res.status(400).json({
+
         erro:
           'Informe o token e a nova senha.'
+
       });
     }
+
 
     if (
       String(senha).length < 6
     ) {
+
       return res.status(400).json({
+
         erro:
           'A senha deve possuir pelo menos 6 caracteres.'
+
       });
     }
 
+
     const tokenNormalizado =
       String(token).trim();
+
 
     if (
       !/^[a-fA-F0-9]{64}$/.test(
         tokenNormalizado
       )
     ) {
+
       return res.status(400).json({
+
         erro:
           'Token de recuperação inválido ou expirado.'
+
       });
     }
+
 
     const tokenHash =
       gerarHashToken(
         tokenNormalizado
       );
 
+
     const client =
       await pool.connect();
+
 
     try {
 
@@ -990,8 +1102,9 @@ router.post(
         'BEGIN'
       );
 
+
       // ======================================================
-      // Busca token válido
+      // BUSCA TOKEN
       // ======================================================
 
       const resultado =
@@ -1018,6 +1131,7 @@ router.post(
           ]
         );
 
+
       if (
         resultado.rows.length === 0
       ) {
@@ -1026,17 +1140,22 @@ router.post(
           'ROLLBACK'
         );
 
+
         return res.status(400).json({
+
           erro:
             'Token de recuperação inválido ou expirado.'
+
         });
       }
+
 
       const recuperacao =
         resultado.rows[0];
 
+
       // ======================================================
-      // Usuário desativado
+      // USUÁRIO DESATIVADO
       // ======================================================
 
       if (
@@ -1047,14 +1166,18 @@ router.post(
           'ROLLBACK'
         );
 
+
         return res.status(403).json({
+
           erro:
             'Este usuário está desativado.'
+
         });
       }
 
+
       // ======================================================
-      // Cria nova senha
+      // NOVA SENHA
       // ======================================================
 
       const novaSenhaHash =
@@ -1063,8 +1186,9 @@ router.post(
           12
         );
 
+
       // ======================================================
-      // Atualiza senha
+      // ATUALIZA SENHA
       // ======================================================
 
       await client.query(
@@ -1080,8 +1204,9 @@ router.post(
         ]
       );
 
+
       // ======================================================
-      // Invalida TODOS os tokens do usuário
+      // INVALIDA TODOS OS TOKENS
       // ======================================================
 
       await client.query(
@@ -1097,9 +1222,11 @@ router.post(
         ]
       );
 
+
       await client.query(
         'COMMIT'
       );
+
 
       console.log(
         'Senha redefinida com sucesso.',
@@ -1109,27 +1236,36 @@ router.post(
         }
       );
 
+
       return res.json({
+
         mensagem:
           'Senha redefinida com sucesso. Você já pode entrar novamente.'
+
       });
 
     } catch (err) {
 
       try {
+
         await client.query(
           'ROLLBACK'
         );
+
       } catch {}
+
 
       console.error(
         'Erro ao redefinir senha:',
         err
       );
 
+
       return res.status(500).json({
+
         erro:
           'Não foi possível redefinir a senha.'
+
       });
 
     } finally {
@@ -1140,9 +1276,9 @@ router.post(
   }
 );
 
+
 // ============================================================
 // GET /api/auth/me
-// Retorna usuário atualmente autenticado
 // ============================================================
 
 router.get(
@@ -1192,39 +1328,50 @@ router.get(
           ]
         );
 
+
       if (
         rows.length === 0
       ) {
+
         return res.status(404).json({
+
           erro:
             'Usuário não encontrado.'
+
         });
       }
+
 
       const usuario =
         rows[0];
 
+
       // ======================================================
-      // Verifica usuário ativo
+      // USUÁRIO ATIVO
       // ======================================================
 
       if (
         !usuario.ativo
       ) {
+
         return res.status(403).json({
+
           erro:
             'Este usuário está desativado.'
+
         });
       }
 
+
       // ======================================================
-      // Permissões
+      // PERMISSÕES
       // ======================================================
 
       const permissoes =
         await obterPermissoesUsuario(
           usuario
         );
+
 
       // ======================================================
       // RESPOSTA
@@ -1286,16 +1433,20 @@ router.get(
         err
       );
 
+
       return res.status(500).json({
+
         erro:
           'Não foi possível carregar os dados do usuário.'
+
       });
     }
   }
 );
 
+
 // ============================================================
-// EXPORTAR ROTER
+// EXPORTAR ROUTER
 // ============================================================
 
 module.exports = router;

@@ -31,6 +31,7 @@ const apiRateLimit = rateLimit({
     );
 
     return res.status(429).json({
+
       erro:
         'Muitas requisições. Tente novamente em alguns instantes.',
 
@@ -39,6 +40,7 @@ const apiRateLimit = rateLimit({
 
       redirecionar:
         '/429.html'
+
     });
   }
 
@@ -49,20 +51,23 @@ const apiRateLimit = rateLimit({
 // RATE LIMIT DE AUTENTICAÇÃO
 // ============================================================
 //
-// 10 tentativas de autenticação inválidas por IP
+// 6 tentativas de autenticação inválidas por IP
 // a cada 15 minutos.
 //
-// IMPORTANTE:
-// skipSuccessfulRequests = true
-//
-// Isso faz com que LOGIN CORRETO não consuma tentativa.
+// Login correto NÃO consome tentativa.
 //
 // Exemplo:
 //
-// senha errada  -> tentativa 1
-// senha errada  -> tentativa 2
-// senha errada  -> tentativa 3
-// senha correta -> não conta
+// senha errada  -> tentativa 1 de 6
+// senha errada  -> tentativa 2 de 6
+// senha errada  -> tentativa 3 de 6
+// senha errada  -> tentativa 4 de 6
+// senha errada  -> tentativa 5 de 6
+// senha errada  -> tentativa 6 de 6
+//                 ↓
+//                 HTTP 429
+//                 ↓
+//              /429.html
 //
 // ============================================================
 
@@ -70,14 +75,14 @@ const authRateLimit = rateLimit({
 
   windowMs: 15 * 60 * 1000,
 
-  limit: 10,
+  limit: 6,
 
   standardHeaders: 'draft-8',
 
   legacyHeaders: false,
 
   // ==========================================================
-  // NÃO CONTAR LOGIN/CADASTRO QUE TERMINOU COM SUCESSO
+  // LOGIN BEM-SUCEDIDO NÃO CONSUME O LIMITE
   // ==========================================================
 
   skipSuccessfulRequests: true,
@@ -94,8 +99,9 @@ const authRateLimit = rateLimit({
     );
 
     return res.status(429).json({
+
       erro:
-        'Muitas tentativas de autenticação. Aguarde 15 minutos antes de tentar novamente.',
+        'Você atingiu o limite de 6 tentativas. Aguarde 15 minutos antes de tentar novamente.',
 
       codigo:
         'RATE_LIMIT_AUTENTICACAO',
@@ -104,10 +110,11 @@ const authRateLimit = rateLimit({
         '/429.html',
 
       limite:
-        10,
+        6,
 
       tentativas:
-        req.rateLimit?.used || 10
+        req.rateLimit?.used || 6
+
     });
   }
 
@@ -144,14 +151,16 @@ const passwordResetRateLimit = rateLimit({
     );
 
     return res.status(429).json({
+
       erro:
-        'Muitas solicitações de recuperação. Aguarde 15 minutos antes de tentar novamente.',
+        'Muitas solicitações de recuperação. Tente novamente mais tarde.',
 
       codigo:
         'RATE_LIMIT_RECUPERACAO',
 
       redirecionar:
         '/429.html'
+
     });
   }
 
