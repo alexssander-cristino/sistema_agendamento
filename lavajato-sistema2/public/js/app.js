@@ -3371,51 +3371,14 @@
 
 (() => {
 
+  'use strict';
+
   const API_CONFIGURACOES = '/api/configuracoes';
 
 
-  // ==========================================================
-  // TOKEN
-  // ==========================================================
-
-  function obterToken() {
-
-    return (
-      localStorage.getItem('lavajato-token') ||
-      localStorage.getItem('authToken') ||
-      localStorage.getItem('accessToken') ||
-      sessionStorage.getItem('token') ||
-      sessionStorage.getItem('authToken') ||
-      sessionStorage.getItem('accessToken')
-    );
-
-  }
-
-
-  // ==========================================================
-  // HEADERS
-  // ==========================================================
-
-  function obterHeaders() {
-
-    const token = obterToken();
-
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    return headers;
-
-  }
-
-
-  // ==========================================================
+  // ============================================================
   // ELEMENTOS
-  // ==========================================================
+  // ============================================================
 
   const formEmpresa =
     document.getElementById('form-configuracoes');
@@ -3439,9 +3402,83 @@
     document.getElementById('btn-salvar-agenda');
 
 
-  // ==========================================================
+  // ============================================================
+  // LEITURA SEGURA DE CAMPOS
+  // ============================================================
+
+  function obterValor(id, fallback = '') {
+
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+      return fallback;
+    }
+
+    return typeof elemento.value === 'string'
+      ? elemento.value.trim()
+      : fallback;
+  }
+
+
+  function obterCheckbox(id, fallback = false) {
+
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+      return fallback;
+    }
+
+    return Boolean(elemento.checked);
+  }
+
+
+  function obterBooleano(id, fallback = false) {
+
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+      return fallback;
+    }
+
+    // Checkbox
+    if (elemento.type === 'checkbox') {
+      return Boolean(elemento.checked);
+    }
+
+    // Select / input normal
+    const valor = String(elemento.value || '').trim().toLowerCase();
+
+    if (valor === 'true') {
+      return true;
+    }
+
+    if (valor === 'false') {
+      return false;
+    }
+
+    return fallback;
+  }
+
+
+  function obterNumero(id, fallback = 0) {
+
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+      return fallback;
+    }
+
+    const valor = Number(elemento.value);
+
+    return Number.isFinite(valor)
+      ? valor
+      : fallback;
+  }
+
+
+  // ============================================================
   // MENSAGENS
-  // ==========================================================
+  // ============================================================
 
   function mostrarMensagem(
     elementoId,
@@ -3482,9 +3519,7 @@
 
     }
 
-    clearTimeout(
-      elemento._timeoutMensagem
-    );
+    clearTimeout(elemento._timeoutMensagem);
 
     elemento._timeoutMensagem =
       setTimeout(() => {
@@ -3492,7 +3527,6 @@
         elemento.style.display = 'none';
 
       }, 5000);
-
   }
 
 
@@ -3504,65 +3538,12 @@
     if (elemento) {
       elemento.style.display = 'none';
     }
-
   }
 
 
-  // ==========================================================
-  // REQUISIÇÃO
-  // ==========================================================
-
-  async function salvarConfiguracoes(
-    dados
-  ) {
-
-    const resposta =
-      await fetch(
-        API_CONFIGURACOES,
-        {
-          method: 'PUT',
-
-          headers:
-            obterHeaders(),
-
-          body:
-            JSON.stringify(dados)
-        }
-      );
-
-
-    let resultado = {};
-
-    try {
-
-      resultado =
-        await resposta.json();
-
-    } catch (_) {
-
-      resultado = {};
-
-    }
-
-
-    if (!resposta.ok) {
-
-      throw new Error(
-        resultado.erro ||
-        'Não foi possível salvar as configurações.'
-      );
-
-    }
-
-
-    return resultado;
-
-  }
-
-
-  // ==========================================================
-  // ESTADO DO BOTÃO
-  // ==========================================================
+  // ============================================================
+  // ESTADO DOS BOTÕES
+  // ============================================================
 
   function alterarEstadoBotao(
     botao,
@@ -3573,7 +3554,6 @@
     if (!botao) {
       return;
     }
-
 
     if (carregando) {
 
@@ -3592,84 +3572,213 @@
       botao.textContent =
         botao.dataset.textoOriginal ||
         textoNormal;
-
     }
-
   }
 
 
-  // ==========================================================
+  // ============================================================
+  // REQUISIÇÃO
+  // ============================================================
+
+  async function salvarConfiguracoes(dados) {
+
+    console.log(
+      '[Orvix] Salvando configurações:',
+      dados
+    );
+
+    const resposta =
+      await fetch(
+        API_CONFIGURACOES,
+        {
+          method: 'PUT',
+
+          credentials: 'include',
+
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+
+          body: JSON.stringify(dados)
+        }
+      );
+
+
+    let resultado = {};
+
+    try {
+
+      resultado =
+        await resposta.json();
+
+    } catch (_) {
+
+      resultado = {};
+
+    }
+
+
+    // ==========================================================
+    // SESSÃO EXPIRADA
+    // ==========================================================
+
+    if (resposta.status === 401) {
+
+      localStorage.removeItem('lavajato_auth_token');
+
+      window.location.href = '/';
+
+      throw new Error(
+        'Sua sessão expirou. Faça login novamente.'
+      );
+    }
+
+
+    // ==========================================================
+    // SEM PERMISSÃO
+    // ==========================================================
+
+    if (resposta.status === 403) {
+
+      throw new Error(
+        resultado.erro ||
+        'Você não possui permissão para alterar estas configurações.'
+      );
+    }
+
+
+    // ==========================================================
+    // RATE LIMIT
+    // ==========================================================
+
+    if (resposta.status === 429) {
+
+      window.location.replace('/429.html');
+
+      throw new Error(
+        'Muitas requisições. Aguarde alguns instantes.'
+      );
+    }
+
+
+    // ==========================================================
+    // OUTROS ERROS
+    // ==========================================================
+
+    if (!resposta.ok) {
+
+      throw new Error(
+        resultado.erro ||
+        'Não foi possível salvar as configurações.'
+      );
+    }
+
+
+    console.log(
+      '[Orvix] Configurações salvas:',
+      resultado
+    );
+
+
+    return resultado;
+  }
+
+
+  // ============================================================
+  // ATUALIZA EMPRESA LOCAL
+  // ============================================================
+
+  function atualizarEmpresaLocal(resultado) {
+
+    if (
+      resultado &&
+      resultado.empresa &&
+      typeof empresaLogada === 'object'
+    ) {
+
+      empresaLogada = {
+        ...empresaLogada,
+        ...resultado.empresa
+      };
+
+      atualizarSidebarUsuario();
+
+      return;
+    }
+
+
+    if (
+      resultado &&
+      resultado.configuracoes &&
+      typeof empresaLogada === 'object'
+    ) {
+
+      empresaLogada = {
+        ...empresaLogada,
+        ...resultado.configuracoes
+      };
+
+      atualizarSidebarUsuario();
+    }
+  }
+
+
+  // ============================================================
   // DADOS DA EMPRESA
-  // ==========================================================
+  // ============================================================
 
   if (formEmpresa) {
 
     formEmpresa.addEventListener(
       'submit',
-      async (event) => {
+      async event => {
 
         event.preventDefault();
-
 
         esconderMensagem(
           'configuracoes-message'
         );
 
 
-        const nome =
-          document.getElementById(
-            'config-empresa-nome'
-          )?.value.trim();
-
-
-        const email =
-          document.getElementById(
-            'config-empresa-email'
-          )?.value.trim();
-
-
-        const telefone =
-          document.getElementById(
-            'config-empresa-telefone'
-          )?.value.trim();
-
-
-        const nicho =
-          document.getElementById(
-            'config-empresa-nicho'
-          )?.value;
-
-
-        const nomeExibicao =
-          document.getElementById(
-            'config-empresa-nome-exibicao'
-          )?.value.trim();
-
-
-        const logoUrl =
-          document.getElementById(
-            'config-logo-url'
-          )?.value.trim();
-
-
         const dados = {
 
-          nome,
+          nome:
+            obterValor(
+              'config-empresa-nome'
+            ),
 
-          email,
+          email:
+            obterValor(
+              'config-empresa-email'
+            ),
 
           telefone:
-            telefone || null,
+            obterValor(
+              'config-empresa-telefone'
+            ) || null,
 
-          nicho,
+          nicho:
+            obterValor(
+              'config-empresa-nicho'
+            ),
 
           nome_exibicao:
-            nomeExibicao || null,
+            obterValor(
+              'config-empresa-nome-exibicao'
+            ) || null,
 
           logo_url:
-            logoUrl || null
-
+            obterValor(
+              'config-logo-url'
+            ) || null
         };
+
+
+        console.log(
+          '[Orvix] Dados da empresa:',
+          dados
+        );
 
 
         try {
@@ -3681,8 +3790,14 @@
           );
 
 
-          await salvarConfiguracoes(
-            dados
+          const resultado =
+            await salvarConfiguracoes(
+              dados
+            );
+
+
+          atualizarEmpresaLocal(
+            resultado
           );
 
 
@@ -3703,7 +3818,8 @@
 
           mostrarMensagem(
             'configuracoes-message',
-            erro.message
+            erro.message ||
+            'Não foi possível salvar os dados da empresa.'
           );
 
 
@@ -3714,74 +3830,62 @@
             false,
             'Salvar alterações'
           );
-
         }
-
       }
     );
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // PREFERÊNCIAS REGIONAIS
-  // ==========================================================
+  // ============================================================
 
   async function salvarPreferenciasRegionais() {
 
-    const moeda =
-      document.getElementById(
-        'config-moeda'
-      )?.value;
+    const dados = {
 
+      moeda:
+        obterValor(
+          'config-moeda'
+        ),
 
-    const idioma =
-      document.getElementById(
-        'config-idioma'
-      )?.value;
-
-
-    const formatoData =
-      document.getElementById(
-        'config-formato-data'
-      )?.value;
-
-
-    const formatoHora =
-      document.getElementById(
-        'config-formato-hora'
-      )?.value;
-
-
-    const fusoHorario =
-      document.getElementById(
-        'config-fuso-horario'
-      )?.value;
-
-
-    return salvarConfiguracoes({
-
-      moeda,
-
-      idioma,
+      idioma:
+        obterValor(
+          'config-idioma'
+        ),
 
       formato_data:
-        formatoData,
+        obterValor(
+          'config-formato-data'
+        ),
 
       formato_hora:
-        formatoHora,
+        obterValor(
+          'config-formato-hora'
+        ),
 
       fuso_horario:
-        fusoHorario
+        obterValor(
+          'config-fuso-horario'
+        )
+    };
 
-    });
 
+    console.log(
+      '[Orvix] Preferências regionais:',
+      dados
+    );
+
+
+    return salvarConfiguracoes(
+      dados
+    );
   }
 
 
-  // ==========================================================
+  // ============================================================
   // PREFERÊNCIAS DO SISTEMA
-  // ==========================================================
+  // ============================================================
 
   if (btnSalvarPreferencias) {
 
@@ -3798,45 +3902,45 @@
           );
 
 
-          const notificacoes =
-            document.getElementById(
-              'config-notificacoes-ativas'
-            )?.value;
-
-
-          const mostrarValores =
-            document.getElementById(
-              'config-mostrar-valores'
-            )?.value;
-
-
-          const dashboardInicial =
-            document.getElementById(
-              'config-dashboard-inicial'
-            )?.value;
-
-
-          const modoCompacto =
-            document.getElementById(
-              'config-modo-compacto'
-            )?.value;
-
-
-          await salvarConfiguracoes({
+          const dados = {
 
             notificacoes_ativas:
-              notificacoes === 'true',
+              obterBooleano(
+                'config-notificacoes-ativas'
+              ),
 
             mostrar_valores:
-              mostrarValores === 'true',
+              obterBooleano(
+                'config-mostrar-valores'
+              ),
 
             dashboard_inicial:
-              dashboardInicial === 'true',
+              obterBooleano(
+                'config-dashboard-inicial'
+              ),
 
             modo_compacto:
-              modoCompacto === 'true'
+              obterBooleano(
+                'config-modo-compacto'
+              )
+          };
 
-          });
+
+          console.log(
+            '[Orvix] Preferências do sistema:',
+            dados
+          );
+
+
+          const resultado =
+            await salvarConfiguracoes(
+              dados
+            );
+
+
+          atualizarEmpresaLocal(
+            resultado
+          );
 
 
           mostrarMensagem(
@@ -3856,7 +3960,8 @@
 
           mostrarMensagem(
             'configuracoes-message',
-            erro.message
+            erro.message ||
+            'Não foi possível salvar as preferências.'
           );
 
 
@@ -3867,18 +3972,15 @@
             false,
             'Salvar preferências'
           );
-
         }
-
       }
     );
-
   }
 
 
-  // ==========================================================
-  // APARÊNCIA — SINCRONIZA COLOR PICKER
-  // ==========================================================
+  // ============================================================
+  // APARÊNCIA — COLOR PICKER
+  // ============================================================
 
   function sincronizarCor(
     inputColorId,
@@ -3909,7 +4011,6 @@
           color.value.toUpperCase();
 
         atualizarPreviewTema();
-
       }
     );
 
@@ -3918,7 +4019,7 @@
       'input',
       () => {
 
-        let valor =
+        const valor =
           text.value.trim();
 
 
@@ -3932,9 +4033,7 @@
             valor;
 
           atualizarPreviewTema();
-
         }
-
       }
     );
 
@@ -3955,12 +4054,9 @@
 
           text.value =
             valor.toUpperCase();
-
         }
-
       }
     );
-
   }
 
 
@@ -3982,31 +4078,31 @@
   );
 
 
-  // ==========================================================
+  // ============================================================
   // PREVIEW DO TEMA
-  // ==========================================================
+  // ============================================================
 
   function atualizarPreviewTema() {
 
     const primary =
-      document.getElementById(
-        'config-cor-principal'
-      )?.value ||
-      '#0E3A4C';
+      obterValor(
+        'config-cor-principal',
+        '#0E3A4C'
+      ) || '#0E3A4C';
 
 
     const accent =
-      document.getElementById(
-        'config-cor-destaque'
-      )?.value ||
-      '#06B6D4';
+      obterValor(
+        'config-cor-destaque',
+        '#06B6C4'
+      ) || '#06B6C4';
 
 
     const background =
-      document.getElementById(
-        'config-cor-fundo'
-      )?.value ||
-      '#F5F7FA';
+      obterValor(
+        'config-cor-fundo',
+        '#F5F7FA'
+      ) || '#F5F7FA';
 
 
     const preview =
@@ -4028,60 +4124,53 @@
 
 
     if (preview) {
-
       preview.style.background =
         background;
-
     }
 
 
     if (badge) {
-
       badge.style.background =
         accent;
-
     }
 
 
     if (button) {
-
       button.style.background =
         primary;
-
     }
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // TEMAS RÁPIDOS
-  // ==========================================================
+  // ============================================================
 
   document
-    .querySelectorAll(
-      '.theme-preset'
-    )
-    .forEach((botao) => {
+    .querySelectorAll('.theme-preset')
+    .forEach(botao => {
 
       botao.addEventListener(
         'click',
         () => {
 
           const primary =
-            botao.dataset.primary;
+            botao.dataset.primary ||
+            '#0E3A4C';
 
           const accent =
-            botao.dataset.accent;
+            botao.dataset.accent ||
+            '#06B6C4';
 
           const background =
-            botao.dataset.background;
+            botao.dataset.background ||
+            '#F5F7FA';
 
 
           const inputPrimary =
             document.getElementById(
               'config-cor-principal'
             );
-
 
           const textPrimary =
             document.getElementById(
@@ -4094,7 +4183,6 @@
               'config-cor-destaque'
             );
 
-
           const textAccent =
             document.getElementById(
               'config-cor-destaque-text'
@@ -4105,7 +4193,6 @@
             document.getElementById(
               'config-cor-fundo'
             );
-
 
           const textBackground =
             document.getElementById(
@@ -4118,7 +4205,6 @@
               primary;
           }
 
-
           if (textPrimary) {
             textPrimary.value =
               primary.toUpperCase();
@@ -4130,7 +4216,6 @@
               accent;
           }
 
-
           if (textAccent) {
             textAccent.value =
               accent.toUpperCase();
@@ -4139,31 +4224,24 @@
 
           if (inputBackground) {
             inputBackground.value =
-              background ||
-              '#F5F7FA';
+              background;
           }
-
 
           if (textBackground) {
             textBackground.value =
-              (
-                background ||
-                '#F5F7FA'
-              ).toUpperCase();
+              background.toUpperCase();
           }
 
 
           atualizarPreviewTema();
-
         }
       );
-
     });
 
 
-  // ==========================================================
+  // ============================================================
   // SALVAR APARÊNCIA
-  // ==========================================================
+  // ============================================================
 
   if (btnSalvarTema) {
 
@@ -4181,24 +4259,22 @@
 
 
           const corPrimaria =
-            document.getElementById(
+            obterValor(
               'config-cor-principal'
-            )?.value;
-
+            );
 
           const corDestaque =
-            document.getElementById(
+            obterValor(
               'config-cor-destaque'
-            )?.value;
-
+            );
 
           const corFundo =
-            document.getElementById(
+            obterValor(
               'config-cor-fundo'
-            )?.value;
+            );
 
 
-          await salvarConfiguracoes({
+          const dados = {
 
             cor_primaria:
               corPrimaria,
@@ -4208,15 +4284,24 @@
 
             cor_fundo:
               corFundo
+          };
 
-          });
+
+          const resultado =
+            await salvarConfiguracoes(
+              dados
+            );
 
 
-          // Aplica imediatamente
           aplicarTema(
             corPrimaria,
             corDestaque,
             corFundo
+          );
+
+
+          atualizarEmpresaLocal(
+            resultado
           );
 
 
@@ -4237,7 +4322,8 @@
 
           mostrarMensagem(
             'config-aparencia-message',
-            erro.message
+            erro.message ||
+            'Não foi possível salvar a aparência.'
           );
 
 
@@ -4248,18 +4334,15 @@
             false,
             'Salvar aparência'
           );
-
         }
-
       }
     );
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // APLICAR TEMA
-  // ==========================================================
+  // ============================================================
 
   function aplicarTema(
     primary,
@@ -4267,19 +4350,17 @@
     background
   ) {
 
-    if (!primary) {
-      primary = '#0E3A4C';
-    }
+    primary =
+      primary ||
+      '#0E3A4C';
 
+    accent =
+      accent ||
+      '#06B6C4';
 
-    if (!accent) {
-      accent = '#06B6D4';
-    }
-
-
-    if (!background) {
-      background = '#F5F7FA';
-    }
+    background =
+      background ||
+      '#F5F7FA';
 
 
     document.documentElement.style.setProperty(
@@ -4287,30 +4368,25 @@
       primary
     );
 
-
     document.documentElement.style.setProperty(
       '--primary-color',
       primary
     );
-
 
     document.documentElement.style.setProperty(
       '--accent',
       accent
     );
 
-
     document.documentElement.style.setProperty(
       '--accent-color',
       accent
     );
 
-
     document.documentElement.style.setProperty(
       '--bg',
       background
     );
-
 
     document.documentElement.style.setProperty(
       '--background',
@@ -4319,13 +4395,12 @@
 
 
     atualizarPreviewTema();
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // RESTAURAR TEMA
-  // ==========================================================
+  // ============================================================
 
   if (btnRestaurarTema) {
 
@@ -4337,7 +4412,7 @@
           '#0E3A4C';
 
         const accent =
-          '#06B6D4';
+          '#06B6C4';
 
         const background =
           '#F5F7FA';
@@ -4347,7 +4422,6 @@
           document.getElementById(
             'config-cor-principal'
           );
-
 
         const textPrimary =
           document.getElementById(
@@ -4360,7 +4434,6 @@
             'config-cor-destaque'
           );
 
-
         const textAccent =
           document.getElementById(
             'config-cor-destaque-text'
@@ -4371,7 +4444,6 @@
           document.getElementById(
             'config-cor-fundo'
           );
-
 
         const textBackground =
           document.getElementById(
@@ -4384,7 +4456,6 @@
             primary;
         }
 
-
         if (textPrimary) {
           textPrimary.value =
             primary;
@@ -4395,7 +4466,6 @@
           inputAccent.value =
             accent;
         }
-
 
         if (textAccent) {
           textAccent.value =
@@ -4408,7 +4478,6 @@
             background;
         }
 
-
         if (textBackground) {
           textBackground.value =
             background;
@@ -4420,16 +4489,14 @@
           accent,
           background
         );
-
       }
     );
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // DOCUMENTOS
-  // ==========================================================
+  // ============================================================
 
   if (btnSalvarDocumentos) {
 
@@ -4446,27 +4513,35 @@
           );
 
 
-          const rodape =
-            document.getElementById(
-              'config-rodape-documentos'
-            )?.value.trim();
-
-
-          const telefone =
-            document.getElementById(
-              'config-telefone-documentos'
-            )?.value;
-
-
-          await salvarConfiguracoes({
+          const dados = {
 
             rodape_documentos:
-              rodape || null,
+              obterValor(
+                'config-rodape-documentos'
+              ) || null,
 
             telefone_documentos:
-              telefone === 'true'
+              obterBooleano(
+                'config-telefone-documentos'
+              )
+          };
 
-          });
+
+          console.log(
+            '[Orvix] Documentos:',
+            dados
+          );
+
+
+          const resultado =
+            await salvarConfiguracoes(
+              dados
+            );
+
+
+          atualizarEmpresaLocal(
+            resultado
+          );
 
 
           mostrarMensagem(
@@ -4486,7 +4561,8 @@
 
           mostrarMensagem(
             'configuracoes-message',
-            erro.message
+            erro.message ||
+            'Não foi possível salvar os documentos.'
           );
 
 
@@ -4497,18 +4573,15 @@
             false,
             'Salvar documentos'
           );
-
         }
-
       }
     );
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // AGENDA
-  // ==========================================================
+  // ============================================================
 
   if (btnSalvarAgenda) {
 
@@ -4526,24 +4599,22 @@
 
 
           const inicio =
-            document.getElementById(
+            obterValor(
               'config-agenda-inicio'
-            )?.value;
-
+            );
 
           const fim =
-            document.getElementById(
+            obterValor(
               'config-agenda-fim'
-            )?.value;
-
+            );
 
           const intervalo =
-            document.getElementById(
+            obterNumero(
               'config-agenda-intervalo'
-            )?.value;
+            );
 
 
-          await salvarConfiguracoes({
+          const dados = {
 
             agenda_horario_inicio:
               inicio,
@@ -4552,9 +4623,25 @@
               fim,
 
             agenda_intervalo:
-              Number(intervalo)
+              intervalo
+          };
 
-          });
+
+          console.log(
+            '[Orvix] Agenda:',
+            dados
+          );
+
+
+          const resultado =
+            await salvarConfiguracoes(
+              dados
+            );
+
+
+          atualizarEmpresaLocal(
+            resultado
+          );
 
 
           mostrarMensagem(
@@ -4574,7 +4661,8 @@
 
           mostrarMensagem(
             'configuracoes-message',
-            erro.message
+            erro.message ||
+            'Não foi possível salvar a agenda.'
           );
 
 
@@ -4585,18 +4673,15 @@
             false,
             'Salvar agenda'
           );
-
         }
-
       }
     );
-
   }
 
 
-  // ==========================================================
+  // ============================================================
   // EXPÕE FUNÇÕES
-  // ==========================================================
+  // ============================================================
 
   window.OrvixConfiguracoes = {
 
@@ -4604,9 +4689,13 @@
 
     aplicarTema,
 
-    atualizarPreviewTema
+    atualizarPreviewTema,
 
+    salvarPreferenciasRegionais
   };
+
+
+
 
 
 })();
