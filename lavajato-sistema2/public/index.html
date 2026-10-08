@@ -3165,6 +3165,276 @@
     });
   }
 
+  // ============================================================
+// CONFIGURAÇÕES — CARREGAR DADOS DA EMPRESA
+// ============================================================
+
+async function carregarConfiguracoes() {
+    try {
+        const resposta = await fetch('/api/configuracoes', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+            },
+            cache: 'no-store'
+        });
+
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                'Não foi possível carregar as configurações.'
+            );
+        }
+
+        const empresa = dados.empresa;
+
+        if (!empresa) {
+            throw new Error(
+                'Os dados da empresa não foram encontrados.'
+            );
+        }
+
+        // ========================================================
+        // DADOS DA EMPRESA
+        // ========================================================
+
+        preencherCampo('nome', empresa.nome);
+        preencherCampo('email', empresa.email);
+        preencherCampo('telefone', empresa.telefone);
+        preencherCampo('nicho', empresa.nicho);
+        preencherCampo('nome_exibicao', empresa.nome_exibicao);
+        preencherCampo('logo_url', empresa.logo_url);
+
+        // ========================================================
+        // PREFERÊNCIAS REGIONAIS
+        // ========================================================
+
+        preencherCampo('moeda', empresa.moeda);
+        preencherCampo('formato_data', empresa.formato_data);
+        preencherCampo('formato_hora', empresa.formato_hora);
+        preencherCampo('fuso_horario', empresa.fuso_horario);
+        preencherCampo('idioma', empresa.idioma);
+
+        // ========================================================
+        // PREFERÊNCIAS
+        // ========================================================
+
+        preencherCheckbox(
+            'notificacoes_ativas',
+            empresa.notificacoes_ativas
+        );
+
+        preencherCheckbox(
+            'mostrar_valores',
+            empresa.mostrar_valores
+        );
+
+        preencherCheckbox(
+            'dashboard_inicial',
+            empresa.dashboard_inicial
+        );
+
+        preencherCheckbox(
+            'modo_compacto',
+            empresa.modo_compacto
+        );
+
+        // ========================================================
+        // DOCUMENTOS
+        // ========================================================
+
+        preencherCampo(
+            'rodape_documentos',
+            empresa.rodape_documentos
+        );
+
+        preencherCheckbox(
+            'telefone_documentos',
+            empresa.telefone_documentos
+        );
+
+        // ========================================================
+        // AGENDA
+        // ========================================================
+
+        preencherCampo(
+            'agenda_horario_inicio',
+            empresa.agenda_horario_inicio
+        );
+
+        preencherCampo(
+            'agenda_horario_fim',
+            empresa.agenda_horario_fim
+        );
+
+        preencherCampo(
+            'agenda_intervalo',
+            empresa.agenda_intervalo
+        );
+
+        // ========================================================
+        // APARÊNCIA
+        // ========================================================
+
+        preencherCampo(
+            'cor_primaria',
+            empresa.cor_primaria
+        );
+
+        preencherCampo(
+            'cor_destaque',
+            empresa.cor_destaque
+        );
+
+        preencherCampo(
+            'cor_fundo',
+            empresa.cor_fundo
+        );
+
+        // ========================================================
+        // APLICA APARÊNCIA
+        // ========================================================
+
+        aplicarCoresConfiguracao(empresa);
+
+        // ========================================================
+        // EVENTO OPCIONAL
+        // ========================================================
+
+        document.dispatchEvent(
+            new CustomEvent('configuracoesCarregadas', {
+                detail: empresa
+            })
+        );
+
+        return empresa;
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao carregar configurações:',
+            erro
+        );
+
+        mostrarErroConfiguracoes(
+            erro.message ||
+            'Não foi possível carregar as configurações.'
+        );
+
+        return null;
+    }
+}
+
+
+// ============================================================
+// PREENCHE INPUT / SELECT / TEXTAREA
+// ============================================================
+
+function preencherCampo(id, valor) {
+
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+        return;
+    }
+
+    if (
+        valor === null ||
+        valor === undefined
+    ) {
+        return;
+    }
+
+    elemento.value = valor;
+}
+
+
+// ============================================================
+// PREENCHE CHECKBOX
+// ============================================================
+
+function preencherCheckbox(id, valor) {
+
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+        return;
+    }
+
+    elemento.checked = Boolean(valor);
+}
+
+
+// ============================================================
+// APLICA CORES
+// ============================================================
+
+function aplicarCoresConfiguracao(empresa) {
+
+    if (
+        empresa.cor_primaria
+    ) {
+        document.documentElement.style.setProperty(
+            '--cor-primaria',
+            empresa.cor_primaria
+        );
+    }
+
+    if (
+        empresa.cor_destaque
+    ) {
+        document.documentElement.style.setProperty(
+            '--cor-destaque',
+            empresa.cor_destaque
+        );
+    }
+
+    if (
+        empresa.cor_fundo
+    ) {
+        document.documentElement.style.setProperty(
+            '--cor-fundo',
+            empresa.cor_fundo
+        );
+    }
+}
+
+
+// ============================================================
+// MENSAGEM DE ERRO
+// ============================================================
+
+function mostrarErroConfiguracoes(mensagem) {
+
+    const elemento =
+        document.getElementById(
+            'erro-configuracoes'
+        );
+
+    if (!elemento) {
+        return;
+    }
+
+    elemento.textContent = mensagem;
+
+    elemento.hidden = false;
+}
+
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+
+document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+        carregarConfiguracoes();
+    }
+);
+
 
   /* =========================================================
      CARREGAR USUÁRIO / EMPRESA NA SIDEBAR
