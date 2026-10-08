@@ -1,32 +1,25 @@
+
 const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
-const exigirPermissao = require('../middleware/permissao');
-
 const verificarAssinatura = require('../middleware/assinatura');
+const { criarNotificacao } = require('../services/notificacoes');
 
 const router = express.Router();
 
 router.use(autenticar);
 router.use(verificarAssinatura);
 
-// Todas as rotas de despesas exigem autenticação
-router.use(autenticar);
-
-
 // ============================================================
 // GET /api/despesas
 // ============================================================
 
 router.get('/', async (req, res) => {
-
   const { de, ate } = req.query;
   const empresaId = req.usuario.empresa_id;
 
   try {
-
     if (de && ate) {
-
       const { rows } = await pool.query(
         `SELECT *
          FROM despesas
@@ -47,25 +40,22 @@ router.get('/', async (req, res) => {
       [empresaId]
     );
 
-    res.json(rows);
-
+    return res.json(rows);
   } catch (err) {
+    console.error('Erro ao carregar despesas:', err);
 
-    console.error(err);
-
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível carregar as despesas.'
     });
   }
 });
 
-
 // ============================================================
 // POST /api/despesas
+// Registra uma despesa e cria uma notificação.
 // ============================================================
 
 router.post('/', async (req, res) => {
-
   const empresaId = req.usuario.empresa_id;
 
   const {
@@ -83,20 +73,17 @@ router.post('/', async (req, res) => {
   }
 
   try {
-
     const { rows } = await pool.query(
-      `INSERT INTO despesas
-        (
-          empresa_id,
-          descricao,
-          categoria,
-          valor,
-          data,
-          observacoes
-        )
-       VALUES
-        ($1,$2,$3,$4,$5,$6)
-       RETURNING *`,
+      `INSERT INTO despesas (
+        empresa_id,
+        descricao,
+        categoria,
+        valor,
+        data,
+        observacoes
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *`,
       [
         empresaId,
         descricao,
@@ -107,25 +94,47 @@ router.post('/', async (req, res) => {
       ]
     );
 
-    res.status(201).json(rows[0]);
+    const despesa = rows[0];
 
+    // A notificação não deve impedir o registro da despesa.
+    try {
+      await criarNotificacao({
+        empresaId,
+        tipo: 'financeiro',
+        titulo: 'Nova despesa registrada',
+        mensagem:
+          `A despesa "${despesa.descricao}" foi registrada ` +
+          `no valor de R$ ${Number(despesa.valor).toLocaleString(
+            'pt-BR',
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }
+          )}.`,
+        link: '/'
+      });
+    } catch (erroNotificacao) {
+      console.error(
+        'Erro ao criar notificação da despesa:',
+        erroNotificacao
+      );
+    }
+
+    return res.status(201).json(despesa);
   } catch (err) {
+    console.error('Erro ao criar despesa:', err);
 
-    console.error(err);
-
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível criar a despesa.'
     });
   }
 });
-
 
 // ============================================================
 // PUT /api/despesas/:id
 // ============================================================
 
 router.put('/:id', async (req, res) => {
-
   const { id } = req.params;
   const empresaId = req.usuario.empresa_id;
 
@@ -138,7 +147,6 @@ router.put('/:id', async (req, res) => {
   } = req.body;
 
   try {
-
     const { rows } = await pool.query(
       `UPDATE despesas
        SET
@@ -167,30 +175,25 @@ router.put('/:id', async (req, res) => {
       });
     }
 
-    res.json(rows[0]);
-
+    return res.json(rows[0]);
   } catch (err) {
+    console.error('Erro ao atualizar despesa:', err);
 
-    console.error(err);
-
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível atualizar a despesa.'
     });
   }
 });
-
 
 // ============================================================
 // DELETE /api/despesas/:id
 // ============================================================
 
 router.delete('/:id', async (req, res) => {
-
   const { id } = req.params;
   const empresaId = req.usuario.empresa_id;
 
   try {
-
     const resultado = await pool.query(
       `DELETE FROM despesas
        WHERE id = $1
@@ -204,17 +207,14 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    res.status(204).end();
-
+    return res.status(204).end();
   } catch (err) {
+    console.error('Erro ao remover despesa:', err);
 
-    console.error(err);
-
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível remover a despesa.'
     });
   }
 });
-
 
 module.exports = router;

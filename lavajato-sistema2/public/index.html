@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
@@ -27,199 +28,284 @@
 <body>
 
   <!-- =========================================================
-     TELA DE LOGIN
-     ========================================================= -->
+       TELA DE LOGIN
+       ========================================================= -->
 
   <div id="auth-screen" class="auth-screen">
 
-    <div class="auth-card">
+<div class="auth-card">
 
-      <div class="auth-logo">
-        <div class="auth-logo-mark"></div>
-      </div>
+  <div class="auth-logo">
+    <div class="auth-logo-mark"></div>
+  </div>
 
-      <div class="auth-header">
-        <h1>Orvix</h1>
-        <p id="auth-subtitle">Gestão simples para sua empresa</p>
-      </div>
-
-
-      <!-- LOGIN -->
-
-      <form id="login-form" class="auth-form">
-
-        <div class="auth-field">
-          <label for="login-email">E-mail</label>
-          <input
-            type="email"
-            id="login-email"
-            placeholder="seu@email.com"
-            autocomplete="email"
-            required
-          >
-        </div>
-
-        <div class="auth-field">
-          <label for="login-password">Senha</label>
-          <input
-            type="password"
-            id="login-password"
-            placeholder="Sua senha"
-            autocomplete="current-password"
-            required
-          >
-        </div>
-
-        <a href="/recuperar-senha.html" class="forgot-password">
-          Esqueci minha senha
-        </a>
-
-        <div id="login-error" class="auth-error"></div>
-
-        <button type="submit" class="auth-submit" id="login-submit">
-          Entrar
-        </button>
-
-        <button type="button" class="auth-switch" id="show-register">
-          Criar uma conta
-        </button>
-
-      </form>
-
-
-      <!-- CADASTRO -->
-
-      <form id="register-form" class="auth-form" style="display:none;">
-
-        <div class="auth-field">
-          <label for="register-company">Nome da Empresa</label>
-          <input
-            type="text"
-            id="register-company"
-            placeholder="Ex: Alx Garage"
-            required
-          >
-        </div>
-
-        <div class="auth-field">
-          <label for="register-company-email">E-mail da empresa</label>
-          <input
-            type="email"
-            id="register-company-email"
-            placeholder="contato@empresa.com"
-            required
-          >
-        </div>
-
-        <div class="auth-field">
-          <label for="register-phone">Telefone</label>
-          <input
-            type="text"
-            id="register-phone"
-            placeholder="(47) 99999-9999"
-          >
-        </div>
-
-        <div class="auth-field">
-          <label for="register-nicho">Tipo de negócio</label>
-          <select id="register-nicho">
-            <option value="lavajato">Lava-jato / Estética automotiva</option>
-            <option value="barbearia">Barbearia / Salão de beleza</option>
-            <option value="clinica">Clínica / Consultório</option>
-            <option value="pet">Pet shop / Veterinária</option>
-            <option value="oficina">Oficina mecânica</option>
-            <option value="personal">Personal / Aulas / Consultoria</option>
-            <option value="generico">Outro</option>
-          </select>
-        </div>
-
-        <div class="auth-field">
-          <label for="register-name">Seu nome</label>
-          <input
-            type="text"
-            id="register-name"
-            placeholder="Alex"
-            required
-          >
-        </div>
-
-        <div class="auth-field">
-          <label for="register-email">Seu e-mail</label>
-          <input
-            type="email"
-            id="register-email"
-            placeholder="alex@email.com"
-            autocomplete="email"
-            required
-          >
-        </div>
-
-        <div class="auth-field">
-          <label for="register-password">Senha</label>
-          <input
-            type="password"
-            id="register-password"
-            placeholder="Mínimo 6 caracteres"
-            autocomplete="new-password"
-            minlength="6"
-            required
-          >
-        </div>
-
-        <div id="register-error" class="auth-error"></div>
-
-        <button type="submit" class="auth-submit" id="register-submit">
-          Criar conta
-        </button>
-
-        <button type="button" class="auth-switch" id="show-login">
-          Já tenho uma conta
-        </button>
-
-      </form>
-
-    </div>
-
+  <div class="auth-header">
+    <h1>Orvix</h1>
+    <p id="auth-subtitle">Gestão simples para sua empresa</p>
   </div>
 
 
-  <!-- ============================================================
-     MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
-     ============================================================ -->
+  <!-- LOGIN -->
+
+  <form id="login-form" class="auth-form">
+
+    <div class="auth-field">
+      <label for="login-email">E-mail</label>
+
+      <input
+        type="email"
+        id="login-email"
+        placeholder="seu@email.com"
+        autocomplete="email"
+        required
+      >
+    </div>
+
+    <div class="auth-field">
+      <label for="login-password">Senha</label>
+
+      <input
+        type="password"
+        id="login-password"
+        placeholder="Sua senha"
+        autocomplete="current-password"
+        required
+      >
+    </div>
+
+    <a href="/recuperar-senha.html" class="forgot-password">
+      Esqueci minha senha
+    </a>
+
+    <div id="login-error" class="auth-error"></div>
+
+    <button
+      type="submit"
+      class="auth-submit"
+      id="login-submit"
+    >
+      Entrar
+    </button>
+
+    <button
+      type="button"
+      class="auth-switch"
+      id="show-register"
+    >
+      Criar uma conta
+    </button>
+
+  </form>
+
+
+  <!-- CADASTRO -->
+
+  <form
+    id="register-form"
+    class="auth-form"
+    style="display:none;"
+  >
+
+    <div class="auth-field">
+      <label for="register-company">
+        Nome da Empresa
+      </label>
+
+      <input
+        type="text"
+        id="register-company"
+        placeholder="Ex: Alx Garage"
+        required
+      >
+    </div>
+
+    <div class="auth-field">
+      <label for="register-company-email">
+        E-mail da empresa
+      </label>
+
+      <input
+        type="email"
+        id="register-company-email"
+        placeholder="contato@empresa.com"
+        required
+      >
+    </div>
+
+    <div class="auth-field">
+      <label for="register-phone">
+        Telefone
+      </label>
+
+      <input
+        type="text"
+        id="register-phone"
+        placeholder="(47) 99999-9999"
+      >
+    </div>
+
+    <div class="auth-field">
+      <label for="register-nicho">
+        Tipo de negócio
+      </label>
+
+      <select id="register-nicho">
+        <option value="lavajato">
+          Lava-jato / Estética automotiva
+        </option>
+
+        <option value="barbearia">
+          Barbearia / Salão de beleza
+        </option>
+
+        <option value="clinica">
+          Clínica / Consultório
+        </option>
+
+        <option value="pet">
+          Pet shop / Veterinária
+        </option>
+
+        <option value="oficina">
+          Oficina mecânica
+        </option>
+
+        <option value="personal">
+          Personal / Aulas / Consultoria
+        </option>
+
+        <option value="generico">
+          Outro
+        </option>
+      </select>
+    </div>
+
+    <div class="auth-field">
+      <label for="register-name">
+        Seu nome
+      </label>
+
+      <input
+        type="text"
+        id="register-name"
+        placeholder="Alex"
+        required
+      >
+    </div>
+
+    <div class="auth-field">
+      <label for="register-email">
+        Seu e-mail
+      </label>
+
+      <input
+        type="email"
+        id="register-email"
+        placeholder="alex@email.com"
+        autocomplete="email"
+        required
+      >
+    </div>
+
+    <div class="auth-field">
+      <label for="register-password">
+        Senha
+      </label>
+
+      <input
+        type="password"
+        id="register-password"
+        placeholder="Mínimo 6 caracteres"
+        autocomplete="new-password"
+        minlength="6"
+        required
+      >
+    </div>
+
+    <div id="register-error" class="auth-error"></div>
+
+    <button
+      type="submit"
+      class="auth-submit"
+      id="register-submit"
+    >
+      Criar conta
+    </button>
+
+    <button
+      type="button"
+      class="auth-switch"
+      id="show-login"
+    >
+      Já tenho uma conta
+    </button>
+
+  </form>
+
+</div>
+
+  </div>
+
+  <!-- =========================================================
+       MODAL OBRIGATÓRIO - SELEÇÃO DE PLANO
+       ========================================================= -->
 
   <div
     id="modal-plano-obrigatorio"
     class="modal-plano-overlay"
     style="display:none;"
   >
-    <div class="modal-plano">
 
-      <div class="modal-plano-header">
-        <div>
-          <span class="modal-plano-badge">Assinatura</span>
+<div class="modal-plano">
 
-          <h2>Escolha seu plano</h2>
+  <div class="modal-plano-header">
 
-          <p>
-            Para continuar utilizando o Orvix,
-            escolha um plano para sua empresa.
-          </p>
-        </div>
-      </div>
+    <div>
 
-      <div id="modal-plano-loading" class="modal-plano-loading">
-        Carregando planos...
-      </div>
+      <span class="modal-plano-badge">
+        Assinatura
+      </span>
 
-      <div id="modal-plano-lista" class="modal-plano-lista"></div>
+      <h2>
+        Escolha seu plano
+      </h2>
 
-      <div id="modal-plano-erro" class="modal-plano-erro" style="display:none;"></div>
+      <p>
+        Para continuar utilizando o Orvix,
+        escolha um plano para sua empresa.
+      </p>
 
     </div>
+
+  </div>
+
+  <div
+    id="modal-plano-loading"
+    class="modal-plano-loading"
+  >
+    Carregando planos...
+  </div>
+
+  <div
+    id="modal-plano-lista"
+    class="modal-plano-lista"
+  ></div>
+
+  <div
+    id="modal-plano-erro"
+    class="modal-plano-erro"
+    style="display:none;"
+  ></div>
+
+</div>
+
   </div>
 
   <style>
-    /* MODAL OBRIGATÓRIO - PLANO */
+
+    /* =========================================================
+       MODAL OBRIGATÓRIO - PLANO
+       ========================================================= */
 
     .modal-plano-overlay {
       position: fixed;
@@ -243,7 +329,9 @@
       box-shadow: 0 25px 80px rgba(0, 0, 0, .30);
     }
 
-    .modal-plano-header { margin-bottom: 28px; }
+    .modal-plano-header {
+      margin-bottom: 28px;
+    }
 
     .modal-plano-badge {
       display: inline-flex;
@@ -278,7 +366,10 @@
 
     .modal-plano-lista {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(240px, 1fr)
+      );
       gap: 18px;
     }
 
@@ -289,13 +380,17 @@
       border: 1px solid #e5e7eb;
       border-radius: 16px;
       background: #ffffff;
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        border-color .2s ease;
     }
 
     .modal-plano-card:hover {
       transform: translateY(-2px);
       border-color: #2563eb;
-      box-shadow: 0 12px 30px rgba(37, 99, 235, .12);
+      box-shadow:
+        0 12px 30px rgba(37, 99, 235, .12);
     }
 
     .modal-plano-card h3 {
@@ -336,7 +431,9 @@
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: background .2s ease, transform .2s ease;
+      transition:
+        background .2s ease,
+        transform .2s ease;
     }
 
     .modal-plano-btn:hover {
@@ -360,894 +457,2260 @@
     }
 
     @media (max-width: 600px) {
-      .modal-plano-overlay { padding: 12px; }
-      .modal-plano { padding: 22px; border-radius: 16px; }
-      .modal-plano h2 { font-size: 23px; }
-      .modal-plano-lista { grid-template-columns: 1fr; }
+
+      .modal-plano-overlay {
+        padding: 12px;
+      }
+
+      .modal-plano {
+        padding: 22px;
+        border-radius: 16px;
+      }
+
+      .modal-plano h2 {
+        font-size: 23px;
+      }
+
+      .modal-plano-lista {
+        grid-template-columns: 1fr;
+      }
+
     }
+
   </style>
+  
 
+  <!-- =========================================================
+       BOTÃO DO MENU MOBILE
+       ========================================================= -->
 
-  <!-- BOTÃO DO MENU MOBILE -->
+<button
+class="mobile-menu-btn"
+id="mobile-menu-btn"
+type="button"
+aria-label="Abrir menu"
 
-  <button
-    class="mobile-menu-btn"
-    id="mobile-menu-btn"
-    type="button"
-    aria-label="Abrir menu"
-  >
-    <svg viewBox="0 0 24 24">
-      <path
-        d="M4 6h16M4 12h16M4 18h16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </svg>
+>
+
+<svg viewBox="0 0 24 24">
+  <path
+    d="M4 6h16M4 12h16M4 18h16"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+</svg>
+
   </button>
-
 
   <!-- FUNDO DO MENU MOBILE -->
 
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
+  <div
+    class="sidebar-overlay"
+    id="sidebar-overlay"
+  ></div>
 
   <div class="app">
 
-    <!-- =======================================================
-       SIDEBAR
-       ======================================================= -->
+<!-- =======================================================
+     SIDEBAR
+     ======================================================= -->
 
-    <aside class="sidebar" id="sidebar">
-
-      <div class="brand">
-
-        <div class="brand-logo">
-          <span class="mark"></span>
-        </div>
-
-        <div class="brand-info">
-          <div class="brand-text">Orvix</div>
-          <div class="brand-sub">agenda &amp; caixa</div>
-        </div>
-
-        <button
-          class="sidebar-toggle"
-          id="sidebar-toggle"
-          type="button"
-          aria-label="Recolher menu"
-        >
-          <svg viewBox="0 0 20 20">
-            <path
-              d="M12.5 4.5L7 10l5.5 5.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-
-      </div>
-
-
-      <!-- EMPRESA / USUÁRIO -->
-
-      <div class="sidebar-user">
-
-        <div class="sidebar-company" id="sidebar-company" title="Empresa">
-          Carregando empresa...
-        </div>
-
-        <div class="sidebar-user-info">
-
-          <div class="sidebar-user-avatar" id="sidebar-user-avatar">U</div>
-
-          <div class="sidebar-user-data">
-            <strong id="sidebar-user-name">Carregando...</strong>
-            <span id="sidebar-user-profile">—</span>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="menu-label">MENU</div>
-
-
-      <!-- MENU -->
-
-      <nav class="sidebar-nav">
-
-        <!-- AGENDA -->
-
-        <button
-          class="nav-btn active"
-          data-tab="agenda"
-          type="button"
-          data-permission-module="agenda"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <path
-              d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Agenda</span>
-
-          <span class="count" id="nav-count-agenda"></span>
-        </button>
-
-
-        <!-- MINHA ASSINATURA -->
-
-        <button
-          class="nav-btn"
-          type="button"
-          onclick="window.location.href='/assinaturas.html'"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <rect
-              x="3"
-              y="4"
-              width="14"
-              height="12"
-              rx="2"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path d="M3 8h14" fill="none" stroke="currentColor" stroke-width="1.4"/>
-            <path
-              d="M6 12h4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Minha assinatura</span>
-        </button>
-
-
-        <!-- FATURAMENTO -->
-
-        <button
-          class="nav-btn"
-          data-tab="faturamento"
-          type="button"
-          data-permission-module="faturamento"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <path
-              d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path d="M3 8h14" stroke="currentColor" stroke-width="1.4"/>
-          </svg>
-
-          <span class="nav-text">Faturamento</span>
-
-          <span class="count" id="nav-count-fat"></span>
-        </button>
-
-
-        <!-- FINANCEIRO -->
-
-        <button
-          class="nav-btn"
-          data-tab="financeiro"
-          type="button"
-          data-permission-module="financeiro"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <path
-              d="M4 15V9M10 15V5M16 15v-4"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Financeiro</span>
-        </button>
-
-
-        <!-- SERVIÇOS -->
-
-        <button
-          class="nav-btn"
-          data-tab="servicos"
-          type="button"
-          data-permission-module="servicos"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="10"
-              r="7"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path
-              d="M10 6v4l3 2"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Serviços</span>
-        </button>
-
-
-        <!-- CLIENTES -->
-
-        <button
-          class="nav-btn"
-          data-tab="clientes"
-          type="button"
-          data-permission-module="clientes"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="7"
-              r="3.2"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path
-              d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Clientes</span>
-        </button>
-
-
-        <!-- DESPESAS -->
-
-        <button
-          class="nav-btn"
-          data-tab="despesas"
-          type="button"
-          data-permission-module="despesas"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="10"
-              r="7"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path
-              d="M7 10h6"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Despesas</span>
-        </button>
-
-
-        <!-- USUÁRIOS -->
-
-        <button
-          class="nav-btn"
-          id="nav-usuarios"
-          data-tab="usuarios"
-          type="button"
-          data-permission-module="usuarios"
-          style="display:none;"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="6"
-              r="3"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path
-              d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-            <path
-              d="M15 4v4M13 6h4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Usuários</span>
-        </button>
-
-
-        <!-- CONFIGURAÇÕES -->
-
-        <button
-          class="nav-btn"
-          id="nav-configuracoes"
-          data-tab="configuracoes"
-          type="button"
-          data-permission-module="configuracoes"
-          style="display:none;"
-        >
-          <svg class="nav-icon" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="10"
-              r="2.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-            />
-            <path
-              d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.4 1.4M13.55 13.55l1.4 1.4M14.95 5.05l-1.4 1.4M6.45 13.55l1.4 1.4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <span class="nav-text">Configurações</span>
-        </button>
-
-        <button
-  class="nav-btn"
-  data-tab="logs"
-  type="button"
-  data-permission-module="usuarios"
+<aside
+  class="sidebar"
+  id="sidebar"
 >
-  <svg class="nav-icon" viewBox="0 0 20 20">
-    <path
-      d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm3 4h6M7 10h6M7 13h4"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </svg>
 
-  <span class="nav-text">Logs e auditoria</span>
-</button>
+  <div class="brand">
 
-      </nav>
+    <div class="brand-logo">
+      <span class="mark"></span>
+    </div>
+
+    <div class="brand-info">
+      <div class="brand-text">
+        Orvix
+      </div>
+
+      <div class="brand-sub">
+        agenda &amp; caixa
+      </div>
+    </div>
+
+    <button
+      class="sidebar-toggle"
+      id="sidebar-toggle"
+      type="button"
+      aria-label="Recolher menu"
+    >
+
+      <svg viewBox="0 0 20 20">
+        <path
+          d="M12.5 4.5L7 10l5.5 5.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+    </button>
+
+  </div>
 
 
-      <!-- PRIVACIDADE E DADOS -->
+  <!-- EMPRESA / USUÁRIO -->
 
-      <button id="btn-privacidade" class="nav-btn" type="button">
-        <svg class="nav-icon" viewBox="0 0 20 20">
-          <path
-            d="M10 2.5l6 2.2v4.5c0 3.8-2.4 6.8-6 8.3-3.6-1.5-6-4.5-6-8.3V4.7L10 2.5z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M7.5 10l1.7 1.7 3.5-3.5"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-          />
-        </svg>
+  <div class="sidebar-user">
 
-        <span class="nav-text">Privacidade e Dados</span>
-      </button>
+    <div
+      class="sidebar-company"
+      id="sidebar-company"
+      title="Empresa"
+    >
+      Carregando empresa...
+    </div>
 
+    <div class="sidebar-user-info">
 
-      <!-- SOLICITAR DEV -->
-
-      <button
-        id="btn-solicitar-dev"
-        class="nav-btn"
-        type="button"
-        onclick="window.location.href='/empresa/solicitar-dev.html'"
+      <div
+        class="sidebar-user-avatar"
+        id="sidebar-user-avatar"
       >
-        <svg class="nav-icon" viewBox="0 0 20 20">
+        U
+      </div>
+
+      <div class="sidebar-user-data">
+
+        <strong id="sidebar-user-name">
+          Carregando...
+        </strong>
+
+        <span id="sidebar-user-profile">
+          —
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="menu-label">
+    MENU
+  </div>
+
+
+  <!-- =====================================================
+       MENU
+       ===================================================== -->
+
+  <nav class="sidebar-nav">
+
+
+    <!-- DASHBOARD -->
+
+    <button
+      class="nav-btn"
+      data-tab="dashboard"
+      type="button"
+    >
+
+      <span class="nav-icon">
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+
           <path
-            d="M7 6L3 10l4 4M13 6l4 4-4 4M11 4l-2 12"
+            d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.4"
+            stroke-width="2"
+            stroke-linejoin="round"
+          />
+
+        </svg>
+
+      </span>
+
+      <span class="nav-text">
+        Dashboard
+      </span>
+
+    </button>
+
+
+    <!-- AGENDA -->
+
+    <button
+      class="nav-btn active"
+      data-tab="agenda"
+      type="button"
+      data-permission-module="agenda"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm0 5h12M7 1v4M13 1v4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Agenda
+      </span>
+
+      <span
+        class="count"
+        id="nav-count-agenda"
+      ></span>
+
+    </button>
+
+
+    <!-- MINHA ASSINATURA -->
+
+    <button
+      class="nav-btn"
+      type="button"
+      onclick="window.location.href='/assinaturas.html'"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <rect
+          x="3"
+          y="4"
+          width="14"
+          height="12"
+          rx="2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M3 8h14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M6 12h4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Minha assinatura
+      </span>
+
+    </button>
+
+
+    <!-- FATURAMENTO -->
+
+    <button
+      class="nav-btn"
+      data-tab="faturamento"
+      type="button"
+      data-permission-module="faturamento"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M3 8h14"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Faturamento
+      </span>
+
+      <span
+        class="count"
+        id="nav-count-fat"
+      ></span>
+
+    </button>
+
+
+    <!-- FINANCEIRO -->
+
+    <button
+      class="nav-btn"
+      data-tab="financeiro"
+      type="button"
+      data-permission-module="financeiro"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M4 15V9M10 15V5M16 15v-4"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Financeiro
+      </span>
+
+    </button>
+
+
+    <!-- SERVIÇOS -->
+
+    <button
+      class="nav-btn"
+      data-tab="servicos"
+      type="button"
+      data-permission-module="servicos"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="10"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M10 6v4l3 2"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Serviços
+      </span>
+
+    </button>
+
+
+    <!-- CLIENTES -->
+
+    <button
+      class="nav-btn"
+      data-tab="clientes"
+      type="button"
+      data-permission-module="clientes"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="7"
+          r="3.2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Clientes
+      </span>
+
+    </button>
+
+
+    <!-- DESPESAS -->
+
+    <button
+      class="nav-btn"
+      data-tab="despesas"
+      type="button"
+      data-permission-module="despesas"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="10"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M7 10h6"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Despesas
+      </span>
+
+    </button>
+
+
+    <!-- USUÁRIOS -->
+
+    <button
+      class="nav-btn"
+      id="nav-usuarios"
+      data-tab="usuarios"
+      type="button"
+      data-permission-module="usuarios"
+      style="display:none;"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="6"
+          r="3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M15 4v4M13 6h4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Usuários
+      </span>
+
+    </button>
+
+
+    <!-- CONFIGURAÇÕES -->
+
+    <button
+      class="nav-btn"
+      id="nav-configuracoes"
+      data-tab="configuracoes"
+      type="button"
+      data-permission-module="configuracoes"
+      style="display:none;"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="10"
+          cy="10"
+          r="2.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        />
+
+        <path
+          d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.4 1.4M13.55 13.55l1.4 1.4M14.95 5.05l-1.4 1.4M6.45 13.55l1.4 1.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Configurações
+      </span>
+
+    </button>
+
+
+    <!-- LOGS -->
+
+    <button
+      class="nav-btn"
+      data-tab="logs"
+      type="button"
+      data-permission-module="usuarios"
+    >
+
+      <svg
+        class="nav-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <path
+          d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm3 4h6M7 10h6M7 13h4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Logs e auditoria
+      </span>
+
+    </button>
+
+
+    <!-- RELATÓRIOS -->
+
+    <button
+      class="nav-btn"
+      data-tab="relatorios"
+      type="button"
+      data-permission-module="financeiro"
+    >
+
+      <span class="nav-icon">
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+
+          <path
+            d="M4 19V5M4 19H20M8 16V12M12 16V8M16 16V5M20 16V3"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
           />
+
         </svg>
 
-        <span class="nav-text">Solicitar dev</span>
-      </button>
+      </span>
+
+      <span class="nav-text">
+        Relatórios
+      </span>
+
+    </button>
+
+  </nav>
 
 
-      <!-- INFORMAÇÕES -->
+  <!-- PRIVACIDADE E DADOS -->
 
-      <div class="sidebar-bottom">
+  <button
+    id="btn-privacidade"
+    class="nav-btn"
+    type="button"
+  >
 
-        <div class="sidebar-stats">
+    <svg
+      class="nav-icon"
+      viewBox="0 0 20 20"
+    >
 
-          <div class="stat-line">
-            <span>Hoje</span>
-            <b id="side-today">R$ 0</b>
-          </div>
+      <path
+        d="M10 2.5l6 2.2v4.5c0 3.8-2.4 6.8-6 8.3-3.6-1.5-6-4.5-6-8.3V4.7L10 2.5z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linejoin="round"
+      />
 
-          <div class="stat-line">
-            <span>A receber</span>
-            <b id="side-pending">R$ 0</b>
-          </div>
+      <path
+        d="M7.5 10l1.7 1.7 3.5-3.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
 
-          <div class="stat-line conn" id="conn-status">
-            <span>Banco</span>
-            <b id="conn-badge">verificando…</b>
-          </div>
+    </svg>
 
+    <span class="nav-text">
+      Privacidade e Dados
+    </span>
+
+  </button>
+
+
+  <!-- SOLICITAR DEV -->
+
+  <button
+    id="btn-solicitar-dev"
+    class="nav-btn"
+    type="button"
+    onclick="window.location.href='/empresa/solicitar-dev.html'"
+  >
+
+    <svg
+      class="nav-icon"
+      viewBox="0 0 20 20"
+    >
+
+      <path
+        d="M7 6L3 10l4 4M13 6l4 4-4 4M11 4l-2 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+
+    </svg>
+
+    <span class="nav-text">
+      Solicitar dev
+    </span>
+
+  </button>
+
+
+  <!-- INFORMAÇÕES -->
+
+  <div class="sidebar-bottom">
+
+    <div class="sidebar-stats">
+
+      <div class="stat-line">
+        <span>Hoje</span>
+        <b id="side-today">
+          R$ 0
+        </b>
+      </div>
+
+      <div class="stat-line">
+        <span>A receber</span>
+        <b id="side-pending">
+          R$ 0
+        </b>
+      </div>
+
+      <div
+        class="stat-line conn"
+        id="conn-status"
+      >
+
+        <span>
+          Banco
+        </span>
+
+        <b id="conn-badge">
+          verificando…
+        </b>
+
+      </div>
+
+    </div>
+
+
+    <!-- SAIR -->
+
+    <button
+      type="button"
+      class="sidebar-logout"
+      id="btn-logout"
+    >
+
+      <svg viewBox="0 0 20 20">
+
+        <path
+          d="M8 3H5a2 2 0 00-2 2v10a2 2 0 002 2h3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M11 6l4 4-4 4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <path
+          d="M7 10h8"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+      <span class="nav-text">
+        Sair
+      </span>
+
+    </button>
+
+  </div>
+
+</aside>
+
+
+
+<!-- =======================================================
+     CONTEÚDO
+     ======================================================= -->
+
+<main>
+
+
+<div class="notificacoes-container" id="notificacoes-container">
+    <button
+        type="button"
+        id="btn-notificacoes"
+        class="btn-notificacoes"
+        aria-label="Abrir notificações"
+        aria-expanded="false"
+        title="Notificações"
+    >
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="21"
+            height="21"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+            <path d="M10 21h4"/>
+        </svg>
+
+        <span
+            id="notificacoes-contador"
+            class="notificacoes-contador"
+            hidden
+        >0</span>
+    </button>
+
+    <section
+        id="painel-notificacoes"
+        class="painel-notificacoes"
+        aria-label="Central de notificações"
+        hidden
+    >
+        <div class="notificacoes-cabecalho">
+            <div>
+                <h3>Notificações</h3>
+                <p id="notificacoes-resumo">Carregando...</p>
+            </div>
+
+            <button
+                type="button"
+                id="btn-notificacoes-fechar"
+                aria-label="Fechar notificações"
+                title="Fechar"
+            >×</button>
         </div>
 
+        <div
+            id="notificacoes-lista"
+            class="notificacoes-lista"
+            aria-live="polite"
+        >
+            <p class="notificacoes-vazio">Carregando notificações...</p>
+        </div>
 
-        <!-- SAIR -->
+        <div class="notificacoes-rodape">
+            <button
+                type="button"
+                id="btn-notificacoes-lidas"
+            >Marcar todas como lidas</button>
+        </div>
+    </section>
+</div>
 
-        <button type="button" class="sidebar-logout" id="btn-logout">
-          <svg viewBox="0 0 20 20">
-            <path
-              d="M8 3H5a2 2 0 00-2 2v10a2 2 0 002 2h3"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-            <path
-              d="M11 6l4 4-4 4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M7 10h8"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-          </svg>
+  <!-- =====================================================
+       DASHBOARD
+       ===================================================== -->
 
-          <span class="nav-text">Sair</span>
+     <div
+    class="panel"
+    id="panel-dashboard"
+  >
+
+    <div class="dashboard-header">
+
+      <div>
+
+        <h1>
+          Dashboard
+        </h1>
+
+        <div class="date-label">
+          Visão geral da empresa
+        </div>
+
+      </div>
+
+
+      <div class="dashboard-actions">
+
+        <select
+          id="dashboard-periodo"
+          class="dashboard-periodo"
+        >
+
+          <option value="7">
+            Últimos 7 dias
+          </option>
+
+          <option
+            value="30"
+            selected
+          >
+            Últimos 30 dias
+          </option>
+
+          <option value="90">
+            Últimos 90 dias
+          </option>
+
+          <option value="personalizado">
+            Personalizado
+          </option>
+
+        </select>
+
+
+        <button
+          class="btn btn-ghost"
+          id="btn-atualizar-dashboard"
+          type="button"
+        >
+          Atualizar
         </button>
 
       </div>
 
-    </aside>
+    </div>
 
 
-    <!-- =======================================================
-       CONTEÚDO
-       ======================================================= -->
+    <!-- DATAS PERSONALIZADAS -->
 
-    <main>
+    <div
+      class="dashboard-datas"
+      id="dashboard-datas"
+      style="display:none;"
+    >
 
-      <!-- AGENDA -->
+      <div class="field">
 
-      <div class="panel active" id="panel-agenda">
+        <label for="dashboard-data-inicio">
+          Data inicial
+        </label>
 
-        <div class="topbar">
-
-          <div>
-            <h1>Agenda</h1>
-            <div class="date-label" id="agenda-date-label">—</div>
-          </div>
-
-          <div class="topbar-actions">
-
-            <button class="btn btn-ghost" id="btn-closing" type="button">
-              Fechamento do dia
-            </button>
-
-            <button class="btn btn-primary" id="btn-new-appointment" type="button">
-              Novo agendamento
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div class="date-picker-row">
-          <input type="date" id="agenda-date-input">
-
-          <button class="chip" id="btn-today" type="button">Hoje</button>
-        </div>
-
-
-        <div class="ticket-list" id="agenda-list"></div>
+        <input
+          type="date"
+          id="dashboard-data-inicio"
+        >
 
       </div>
 
 
-      <!-- FATURAMENTO -->
+      <div class="field">
 
-      <div class="panel" id="panel-faturamento">
+        <label for="dashboard-data-fim">
+          Data final
+        </label>
 
-        <div class="topbar">
-          <div>
-            <h1>Faturamento</h1>
-            <div class="date-label">Atendimentos concluídos e recibos</div>
-          </div>
+        <input
+          type="date"
+          id="dashboard-data-fim"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="dashboard-message"
+      class="auth-error"
+      style="display:none;"
+    ></div>
+
+
+    <div
+      id="dashboard-loading"
+      class="dashboard-loading"
+      style="display:none;"
+    >
+      Carregando dashboard...
+    </div>
+
+
+    <!-- CARDS PRINCIPAIS -->
+
+    <div class="dashboard-grid">
+
+
+      <div class="dashboard-card">
+
+        <div class="dashboard-card-top">
+
+          <span class="dashboard-card-label">
+            Faturamento
+          </span>
+
+          <span class="dashboard-card-icon faturamento">
+            R$
+          </span>
+
         </div>
 
-        <div class="totals-strip">
+        <strong
+          id="dashboard-faturamento"
+          class="dashboard-card-value"
+        >
+          R$ 0,00
+        </strong>
 
-          <div class="stat-card money">
-            <div class="label">Total faturado</div>
-            <div class="value" id="fat-total">R$ 0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="label">Recebido</div>
-            <div class="value" id="fat-pago">R$ 0</div>
-          </div>
-
-          <div class="stat-card warn">
-            <div class="label">Pendente</div>
-            <div class="value" id="fat-pendente">R$ 0</div>
-          </div>
-
-        </div>
-
-        <div id="fat-list"></div>
+        <span class="dashboard-card-description">
+          No período selecionado
+        </span>
 
       </div>
 
 
-      <!-- FINANCEIRO -->
+      <div class="dashboard-card">
 
-      <div class="panel" id="panel-financeiro">
+        <div class="dashboard-card-top">
 
-        <div class="topbar">
-          <div>
-            <h1>Financeiro</h1>
-            <div class="date-label">Visão geral do caixa</div>
-          </div>
-        </div>
+          <span class="dashboard-card-label">
+            Despesas
+          </span>
 
-        <div class="totals-strip">
-
-          <div class="stat-card money">
-            <div class="label">Hoje</div>
-            <div class="value" id="fin-hoje">R$ 0</div>
-          </div>
-
-          <div class="stat-card money">
-            <div class="label">Últimos 7 dias</div>
-            <div class="value" id="fin-semana">R$ 0</div>
-          </div>
-
-          <div class="stat-card money">
-            <div class="label">Este mês</div>
-            <div class="value" id="fin-mes">R$ 0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="label">Atendimentos concluídos</div>
-            <div class="value" id="fin-count">0</div>
-          </div>
+          <span class="dashboard-card-icon despesas">
+            −
+          </span>
 
         </div>
 
-        <div class="totals-strip">
+        <strong
+          id="dashboard-despesas"
+          class="dashboard-card-value"
+        >
+          R$ 0,00
+        </strong>
 
-          <div class="stat-card warn">
-            <div class="label">Despesas do mês</div>
-            <div class="value" id="fin-despesas-mes">R$ 0</div>
-          </div>
-
-          <div class="stat-card profit" id="fin-lucro-card">
-            <div class="label">Lucro líquido do mês</div>
-            <div class="value" id="fin-lucro-mes">R$ 0</div>
-          </div>
-
-        </div>
-
-        <section class="block">
-          <h2>Faturamento por serviço (mês atual)</h2>
-          <div class="bar-chart" id="fin-bars"></div>
-        </section>
-
-        <section class="block">
-          <h2>Despesas por categoria (mês atual)</h2>
-          <div class="bar-chart bar-chart-warn" id="fin-despesas-bars"></div>
-        </section>
+        <span class="dashboard-card-description">
+          No período selecionado
+        </span>
 
       </div>
+
+
+      <div class="dashboard-card">
+
+        <div class="dashboard-card-top">
+
+          <span class="dashboard-card-label">
+            Resultado
+          </span>
+
+          <span class="dashboard-card-icon resultado">
+            =
+          </span>
+
+        </div>
+
+        <strong
+          id="dashboard-resultado"
+          class="dashboard-card-value"
+        >
+          R$ 0,00
+        </strong>
+
+        <span class="dashboard-card-description">
+          Faturamento menos despesas
+        </span>
+
+      </div>
+
+
+      <div class="dashboard-card">
+
+        <div class="dashboard-card-top">
+
+          <span class="dashboard-card-label">
+            Agendamentos
+          </span>
+
+          <span class="dashboard-card-icon agenda">
+            #
+          </span>
+
+        </div>
+
+        <strong
+          id="dashboard-agendamentos"
+          class="dashboard-card-value"
+        >
+          0
+        </strong>
+
+        <span class="dashboard-card-description">
+          Total no período
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- INDICADORES SECUNDÁRIOS -->
+
+    <div class="dashboard-secondary-grid">
+
+
+      <div class="dashboard-info-card">
+
+        <span>
+          Concluídos
+        </span>
+
+        <strong id="dashboard-concluidos">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="dashboard-info-card">
+
+        <span>
+          Cancelados
+        </span>
+
+        <strong id="dashboard-cancelados">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="dashboard-info-card">
+
+        <span>
+          Pendentes
+        </span>
+
+        <strong id="dashboard-pendentes">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="dashboard-info-card">
+
+        <span>
+          Ticket médio
+        </span>
+
+        <strong id="dashboard-ticket-medio">
+          R$ 0,00
+        </strong>
+
+      </div>
+
+
+      <div class="dashboard-info-card">
+
+        <span>
+          Recebido
+        </span>
+
+        <strong id="dashboard-pago">
+          R$ 0,00
+        </strong>
+
+      </div>
+
+
+      <div class="dashboard-info-card">
+
+        <span>
+          A receber
+        </span>
+
+        <strong id="dashboard-pendente">
+          R$ 0,00
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- GRÁFICO -->
+
+    <div class="dashboard-section">
+
+      <div class="dashboard-section-header">
+
+        <div>
+
+          <h2>
+            Movimentação
+          </h2>
+
+          <span>
+            Faturamento, despesas e agendamentos
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="dashboard-grafico"
+        class="dashboard-grafico"
+      >
+
+        <div class="dashboard-empty">
+          Carregando dados...
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- DUAS COLUNAS -->
+
+    <div class="dashboard-columns">
 
 
       <!-- SERVIÇOS -->
 
-      <div class="panel" id="panel-servicos">
+      <div class="dashboard-section">
 
-        <div class="topbar">
-
-          <div>
-            <h1>Serviços</h1>
-            <div class="date-label">Tabela de preços usada na agenda</div>
-          </div>
-
-          <button class="btn btn-primary" id="btn-new-service" type="button">
-            Novo serviço
-          </button>
-
-        </div>
-
-        <div id="services-list"></div>
-
-      </div>
-
-
-      <!-- CLIENTES -->
-
-      <div class="panel" id="panel-clientes">
-
-        <div class="topbar">
-          <div>
-            <h1>Clientes</h1>
-            <div class="date-label">Busque o histórico de atendimentos de cada cliente</div>
-          </div>
-        </div>
-
-        <div class="search-bar">
-
-          <svg class="search-icon" viewBox="0 0 20 20">
-            <circle
-              cx="9"
-              cy="9"
-              r="6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-            />
-            <path
-              d="M17 17l-4-4"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-          </svg>
-
-          <input
-            type="text"
-            id="cli-search-input"
-            placeholder="Nome ou telefone..."
-          >
-
-          <button
-            class="search-clear"
-            id="btn-cli-clear"
-            type="button"
-            aria-label="Limpar busca"
-          >
-            <svg viewBox="0 0 20 20">
-              <path
-                d="M6 6l8 8M14 6l-8 8"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
-
-          <button class="btn btn-primary search-btn" id="btn-cli-search" type="button">
-            Buscar
-          </button>
-
-        </div>
-
-        <div id="cli-summary"></div>
-
-        <div class="ticket-list" id="cli-results">
-
-          <div class="empty">
-
-            <svg class="empty-icon" viewBox="0 0 20 20">
-              <circle
-                cx="9"
-                cy="9"
-                r="6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.4"
-              />
-              <path
-                d="M17 17l-4-4"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-              />
-            </svg>
-
-            <strong>Busque um cliente</strong>
-
-            Digite o nome ou telefone e veja todo o histórico de atendimentos.
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- DESPESAS -->
-
-      <div class="panel" id="panel-despesas">
-
-        <div class="topbar">
+        <div class="dashboard-section-header">
 
           <div>
-            <h1>Despesas</h1>
-            <div class="date-label">Produtos, água, luz, manutenção e outros custos</div>
-          </div>
 
-          <button class="btn btn-primary" id="btn-new-expense" type="button">
-            Nova despesa
-          </button>
+            <h2>
+              Serviços
+            </h2>
 
-        </div>
+            <span>
+              Serviços com maior faturamento
+            </span>
 
-        <div class="totals-strip">
-
-          <div class="stat-card warn">
-            <div class="label">Total no período</div>
-            <div class="value" id="desp-total">R$ 0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="label">Lançamentos</div>
-            <div class="value" id="desp-count">0</div>
           </div>
 
         </div>
 
-        <div id="desp-list"></div>
+
+        <div
+          id="dashboard-servicos"
+          class="dashboard-ranking"
+        >
+
+          <div class="dashboard-empty">
+            Carregando...
+          </div>
+
+        </div>
 
       </div>
 
 
-      <!-- USUÁRIOS -->
+      <!-- AGENDAMENTOS RECENTES -->
 
-      <div class="panel" id="panel-usuarios">
+      <div class="dashboard-section">
 
-        <div class="topbar">
+        <div class="dashboard-section-header">
 
           <div>
-            <h1>Usuários</h1>
-            <div class="date-label">Gerencie usuários, cargos e acesso ao sistema</div>
-          </div>
 
-          <button class="btn btn-primary" id="btn-new-user" type="button">
-            Novo usuário
-          </button>
+            <h2>
+              Agendamentos recentes
+            </h2>
 
-        </div>
+            <span>
+              Últimos registros
+            </span>
 
-        <div class="totals-strip">
-
-          <div class="stat-card">
-            <div class="label">Total de usuários</div>
-            <div class="value" id="usuarios-total">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="label">Administradores</div>
-            <div class="value" id="usuarios-admins">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="label">Funcionários</div>
-            <div class="value" id="usuarios-funcionarios">0</div>
           </div>
 
         </div>
 
-        <div id="usuarios-list" class="ticket-list">
-          <div class="empty">
-            <strong>Carregando usuários...</strong>
+
+        <div
+          id="dashboard-recentes"
+          class="dashboard-recentes"
+        >
+
+          <div class="dashboard-empty">
+            Carregando...
           </div>
+
         </div>
 
       </div>
 
-
-     
-<!-- CONFIGURAÇÕES -->
-
-<div class="panel" id="panel-configuracoes">
-
-  <div class="topbar">
-    <div>
-      <h1>Configurações</h1>
-      <div class="date-label">
-        Gerencie os dados da sua empresa, preferências e aparência do sistema
-      </div>
     </div>
+
   </div>
 
 
-  <!-- =========================================================
-       DADOS DA EMPRESA
-  ========================================================== -->
+  <!-- =====================================================
+       AGENDA
+       ===================================================== -->
 
-  <section class="block">
+  <div
+    class="panel active"
+    id="panel-agenda"
+  >
 
-    <h2>Dados da empresa</h2>
+    <div class="topbar">
 
-    <p class="date-label" style="margin-bottom:20px;">
-      Essas informações são utilizadas no sistema e poderão ser usadas em recibos,
-      documentos e outras áreas da plataforma.
-    </p>
+      <div>
 
-    <form id="form-configuracoes">
+        <h1>
+          Agenda
+        </h1>
 
-      <div class="field-row">
+        <div
+          class="date-label"
+          id="agenda-date-label"
+        >
+          —
+        </div>
 
-        <div class="field">
-          <label for="config-empresa-nome">Nome da empresa</label>
+      </div>
 
-          <input
-            type="text"
-            id="config-empresa-nome"
-            placeholder="Ex: Alx Garage"
-            maxlength="150"
-            required
-          >
+
+      <div class="topbar-actions">
+
+        <button
+          class="btn btn-ghost"
+          id="btn-closing"
+          type="button"
+        >
+          Fechamento do dia
+        </button>
+
+        <button
+          class="btn btn-primary"
+          id="btn-new-appointment"
+          type="button"
+        >
+          Novo agendamento
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="date-picker-row">
+
+      <input
+        type="date"
+        id="agenda-date-input"
+      >
+
+      <button
+        class="chip"
+        id="btn-today"
+        type="button"
+      >
+        Hoje
+      </button>
+
+    </div>
+
+
+    <div
+      class="ticket-list"
+      id="agenda-list"
+    ></div>
+
+  </div>
+
+
+  <!-- =====================================================
+       FATURAMENTO
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-faturamento"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Faturamento
+        </h1>
+
+        <div class="date-label">
+          Atendimentos concluídos e recibos
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Total faturado
+        </div>
+
+        <div
+          class="value"
+          id="fat-total"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Recebido
+        </div>
+
+        <div
+          class="value"
+          id="fat-pago"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card warn">
+
+        <div class="label">
+          Pendente
+        </div>
+
+        <div
+          class="value"
+          id="fat-pendente"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div id="fat-list"></div>
+
+  </div>
+
+
+  <!-- =====================================================
+       FINANCEIRO
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-financeiro"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Financeiro
+        </h1>
+
+        <div class="date-label">
+          Visão geral do caixa
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Hoje
+        </div>
+
+        <div
+          class="value"
+          id="fin-hoje"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Últimos 7 dias
+        </div>
+
+        <div
+          class="value"
+          id="fin-semana"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card money">
+
+        <div class="label">
+          Este mês
+        </div>
+
+        <div
+          class="value"
+          id="fin-mes"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Atendimentos concluídos
+        </div>
+
+        <div
+          class="value"
+          id="fin-count"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card warn">
+
+        <div class="label">
+          Despesas do mês
+        </div>
+
+        <div
+          class="value"
+          id="fin-despesas-mes"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div
+        class="stat-card profit"
+        id="fin-lucro-card"
+      >
+
+        <div class="label">
+          Lucro líquido do mês
+        </div>
+
+        <div
+          class="value"
+          id="fin-lucro-mes"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <section class="block">
+
+      <h2>
+        Faturamento por serviço (mês atual)
+      </h2>
+
+      <div
+        class="bar-chart"
+        id="fin-bars"
+      ></div>
+
+    </section>
+
+
+    <section class="block">
+
+      <h2>
+        Despesas por categoria (mês atual)
+      </h2>
+
+      <div
+        class="bar-chart bar-chart-warn"
+        id="fin-despesas-bars"
+      ></div>
+
+    </section>
+
+  </div>
+
+
+  <!-- =====================================================
+       SERVIÇOS
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-servicos"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Serviços
+        </h1>
+
+        <div class="date-label">
+          Tabela de preços usada na agenda
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        id="btn-new-service"
+        type="button"
+      >
+        Novo serviço
+      </button>
+
+    </div>
+
+
+    <div id="services-list"></div>
+
+  </div>
+
+
+  <!-- =====================================================
+       CLIENTES
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-clientes"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Clientes
+        </h1>
+
+        <div class="date-label">
+          Busque o histórico de atendimentos de cada cliente
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="search-bar">
+
+      <svg
+        class="search-icon"
+        viewBox="0 0 20 20"
+      >
+
+        <circle
+          cx="9"
+          cy="9"
+          r="6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        />
+
+        <path
+          d="M17 17l-4-4"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+
+      </svg>
+
+
+      <input
+        type="text"
+        id="cli-search-input"
+        placeholder="Nome ou telefone..."
+      >
+
+
+      <button
+        class="search-clear"
+        id="btn-cli-clear"
+        type="button"
+        aria-label="Limpar busca"
+      >
+
+        <svg viewBox="0 0 20 20">
+
+          <path
+            d="M6 6l8 8M14 6l-8 8"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+      </button>
+
+
+      <button
+        class="btn btn-primary search-btn"
+        id="btn-cli-search"
+        type="button"
+      >
+        Buscar
+      </button>
+
+    </div>
+
+
+    <div id="cli-summary"></div>
+
+
+    <div
+      class="ticket-list"
+      id="cli-results"
+    >
+
+      <div class="empty">
+
+        <svg
+          class="empty-icon"
+          viewBox="0 0 20 20"
+        >
+
+          <circle
+            cx="9"
+            cy="9"
+            r="6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+
+          <path
+            d="M17 17l-4-4"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+
+        </svg>
+
+
+        <strong>
+          Busque um cliente
+        </strong>
+
+        Digite o nome ou telefone e veja todo o histórico de atendimentos.
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       DESPESAS
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-despesas"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Despesas
+        </h1>
+
+        <div class="date-label">
+          Produtos, água, luz, manutenção e outros custos
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        id="btn-new-expense"
+        type="button"
+      >
+        Nova despesa
+      </button>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card warn">
+
+        <div class="label">
+          Total no período
+        </div>
+
+        <div
+          class="value"
+          id="desp-total"
+        >
+          R$ 0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Lançamentos
+        </div>
+
+        <div
+          class="value"
+          id="desp-count"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div id="desp-list"></div>
+
+  </div>
+
+
+  <!-- =====================================================
+       USUÁRIOS
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-usuarios"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Usuários
+        </h1>
+
+        <div class="date-label">
+          Gerencie usuários, cargos e acesso ao sistema
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        id="btn-new-user"
+        type="button"
+      >
+        Novo usuário
+      </button>
+
+    </div>
+
+
+    <div class="totals-strip">
+
+      <div class="stat-card">
+
+        <div class="label">
+          Total de usuários
+        </div>
+
+        <div
+          class="value"
+          id="usuarios-total"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Administradores
+        </div>
+
+        <div
+          class="value"
+          id="usuarios-admins"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="label">
+          Funcionários
+        </div>
+
+        <div
+          class="value"
+          id="usuarios-funcionarios"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="usuarios-list"
+      class="ticket-list"
+    >
+
+      <div class="empty">
+
+        <strong>
+          Carregando usuários...
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       CONFIGURAÇÕES
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-configuracoes"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Configurações
+        </h1>
+
+        <div class="date-label">
+          Gerencie os dados da sua empresa, preferências e aparência do sistema
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- DADOS DA EMPRESA -->
+
+    <section class="block">
+
+      <h2>
+        Dados da empresa
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Essas informações são utilizadas no sistema e poderão ser usadas em recibos,
+        documentos e outras áreas da plataforma.
+      </p>
+
+
+      <form id="form-configuracoes">
+
+        <div class="field-row">
+
+          <div class="field">
+
+            <label for="config-empresa-nome">
+              Nome da empresa
+            </label>
+
+            <input
+              type="text"
+              id="config-empresa-nome"
+              placeholder="Ex: Alx Garage"
+              maxlength="150"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="config-empresa-nome-exibicao">
+              Nome exibido no sistema
+            </label>
+
+            <input
+              type="text"
+              id="config-empresa-nome-exibicao"
+              placeholder="Ex: Alx Garage"
+              maxlength="150"
+            >
+
+            <small class="date-label">
+              Se preenchido, este nome poderá ser utilizado na identificação visual
+              da empresa.
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+          <div class="field">
+
+            <label for="config-empresa-email">
+              E-mail da empresa
+            </label>
+
+            <input
+              type="email"
+              id="config-empresa-email"
+              placeholder="contato@empresa.com"
+              maxlength="254"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="config-empresa-telefone">
+              Telefone
+            </label>
+
+            <input
+              type="text"
+              id="config-empresa-telefone"
+              placeholder="(47) 99999-9999"
+              maxlength="30"
+            >
+
+          </div>
+
         </div>
 
 
         <div class="field">
-          <label for="config-empresa-nome-exibicao">
-            Nome exibido no sistema
+
+          <label for="config-empresa-nicho">
+            Tipo de negócio
+          </label>
+
+          <select id="config-empresa-nicho">
+
+            <option value="lavajato">
+              Lava-jato / Estética automotiva
+            </option>
+
+            <option value="barbearia">
+              Barbearia / Salão de beleza
+            </option>
+
+            <option value="clinica">
+              Clínica / Consultório
+            </option>
+
+            <option value="pet">
+              Pet shop / Veterinária
+            </option>
+
+            <option value="oficina">
+              Oficina mecânica
+            </option>
+
+            <option value="personal">
+              Personal / Aulas / Consultoria
+            </option>
+
+            <option value="generico">
+              Outro
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-logo-url">
+            Logo da empresa
           </label>
 
           <input
-            type="text"
-            id="config-empresa-nome-exibicao"
-            placeholder="Ex: Alx Garage"
-            maxlength="150"
+            type="url"
+            id="config-logo-url"
+            placeholder="https://exemplo.com/logo.png"
+            maxlength="500"
           >
 
+          <strong>
+            Em fase de testes
+          </strong>
+
           <small class="date-label">
-            Se preenchido, este nome poderá ser utilizado na identificação visual
-            da empresa.
+            Informe a URL de uma imagem para utilizar como logo da empresa.
           </small>
+
+        </div>
+
+
+        <div
+          id="configuracoes-message"
+          class="auth-error"
+          style="display:none;"
+        ></div>
+
+
+        <div class="modal-actions">
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btn-salvar-configuracoes"
+          >
+            Salvar alterações
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    <!-- PREFERÊNCIAS REGIONAIS -->
+
+    <section class="block">
+
+      <h2>
+        Preferências regionais
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Defina como datas, horários, moeda e idioma serão apresentados no sistema.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-moeda">
+            Moeda
+          </label>
+
+          <select id="config-moeda">
+
+            <option value="BRL">
+              Real brasileiro (R$)
+            </option>
+
+            <option value="USD">
+              Dólar americano ($)
+            </option>
+
+            <option value="EUR">
+              Euro (€)
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-idioma">
+            Idioma
+          </label>
+
+          <select id="config-idioma">
+
+            <option value="pt-BR">
+              Português (Brasil)
+            </option>
+
+            <option value="en-US">
+              English (United States)
+            </option>
+
+            <option value="es-ES">
+              Español
+            </option>
+
+          </select>
+
         </div>
 
       </div>
@@ -1257,33 +2720,46 @@
 
         <div class="field">
 
-          <label for="config-empresa-email">
-            E-mail da empresa
+          <label for="config-formato-data">
+            Formato de data
           </label>
 
-          <input
-            type="email"
-            id="config-empresa-email"
-            placeholder="contato@empresa.com"
-            maxlength="254"
-            required
-          >
+          <select id="config-formato-data">
+
+            <option value="DD/MM/YYYY">
+              DD/MM/YYYY
+            </option>
+
+            <option value="MM/DD/YYYY">
+              MM/DD/YYYY
+            </option>
+
+            <option value="YYYY-MM-DD">
+              YYYY-MM-DD
+            </option>
+
+          </select>
 
         </div>
 
 
         <div class="field">
 
-          <label for="config-empresa-telefone">
-            Telefone
+          <label for="config-formato-hora">
+            Formato de horário
           </label>
 
-          <input
-            type="text"
-            id="config-empresa-telefone"
-            placeholder="(47) 99999-9999"
-            maxlength="30"
-          >
+          <select id="config-formato-hora">
+
+            <option value="24h">
+              24 horas
+            </option>
+
+            <option value="12h">
+              12 horas
+            </option>
+
+          </select>
 
         </div>
 
@@ -1292,67 +2768,443 @@
 
       <div class="field">
 
-        <label for="config-empresa-nicho">
-          Tipo de negócio
+        <label for="config-fuso-horario">
+          Fuso horário
         </label>
 
-        <select id="config-empresa-nicho">
+        <select id="config-fuso-horario">
 
-          <option value="lavajato">
-            Lava-jato / Estética automotiva
+          <option value="America/Sao_Paulo">
+            Brasília — America/Sao_Paulo
           </option>
 
-          <option value="barbearia">
-            Barbearia / Salão de beleza
+          <option value="America/Fortaleza">
+            Fortaleza — America/Fortaleza
           </option>
 
-          <option value="clinica">
-            Clínica / Consultório
+          <option value="America/Recife">
+            Recife — America/Recife
           </option>
 
-          <option value="pet">
-            Pet shop / Veterinária
+          <option value="America/Manaus">
+            Manaus — America/Manaus
           </option>
 
-          <option value="oficina">
-            Oficina mecânica
+          <option value="America/Belem">
+            Belém — America/Belem
           </option>
 
-          <option value="personal">
-            Personal / Aulas / Consultoria
+          <option value="America/Cuiaba">
+            Cuiabá — America/Cuiaba
           </option>
 
-          <option value="generico">
-            Outro
+          <option value="America/Porto_Velho">
+            Porto Velho — America/Porto_Velho
+          </option>
+
+          <option value="America/Boa_Vista">
+            Boa Vista — America/Boa_Vista
+          </option>
+
+          <option value="America/Rio_Branco">
+            Rio Branco — America/Rio_Branco
+          </option>
+
+          <option value="America/Noronha">
+            Fernando de Noronha — America/Noronha
+          </option>
+
+          <option value="UTC">
+            UTC
           </option>
 
         </select>
 
       </div>
 
+    </section>
+
+
+    <!-- PREFERÊNCIAS DO SISTEMA -->
+
+    <section class="block">
+
+      <h2>
+        Preferências do sistema
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Controle alguns comportamentos e informações exibidas pela plataforma.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-notificacoes-ativas">
+            Notificações
+          </label>
+
+          <select id="config-notificacoes-ativas">
+
+            <option value="true">
+              Ativadas
+            </option>
+
+            <option value="false">
+              Desativadas
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-mostrar-valores">
+            Valores financeiros
+          </label>
+
+          <select id="config-mostrar-valores">
+
+            <option value="true">
+              Exibir valores
+            </option>
+
+            <option value="false">
+              Ocultar valores
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-dashboard-inicial">
+            Dashboard inicial
+          </label>
+
+          <select id="config-dashboard-inicial">
+
+            <option value="true">
+              Abrir dashboard ao entrar
+            </option>
+
+            <option value="false">
+              Não abrir automaticamente
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-modo-compacto">
+            Modo compacto
+          </label>
+
+          <select id="config-modo-compacto">
+
+            <option value="false">
+              Desativado
+            </option>
+
+            <option value="true">
+              Ativado
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-salvar-preferencias"
+        >
+          Salvar preferências
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- APARÊNCIA -->
+
+    <section class="block">
+
+      <h2>
+        Aparência
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Personalize as cores e o tema visual do sistema.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-cor-principal">
+            Cor principal
+          </label>
+
+          <div class="color-picker">
+
+            <input
+              type="color"
+              id="config-cor-principal"
+              value="#0E3A4C"
+            >
+
+            <input
+              type="text"
+              id="config-cor-principal-text"
+              value="#0E3A4C"
+              maxlength="7"
+              placeholder="#0E3A4C"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-cor-destaque">
+            Cor de destaque
+          </label>
+
+          <div class="color-picker">
+
+            <input
+              type="color"
+              id="config-cor-destaque"
+              value="#06B6D4"
+            >
+
+            <input
+              type="text"
+              id="config-cor-destaque-text"
+              value="#06B6D4"
+              maxlength="7"
+              placeholder="#06B6D4"
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
 
       <div class="field">
 
-        <label for="config-logo-url">
-          Logo da empresa
+        <label for="config-cor-fundo">
+          Cor de fundo
         </label>
 
-        <input
-          type="url"
-          id="config-logo-url"
-          placeholder="https://exemplo.com/logo.png"
-          maxlength="500"
+        <div class="color-picker">
+
+          <input
+            type="color"
+            id="config-cor-fundo"
+            value="#F5F7FA"
+          >
+
+          <input
+            type="text"
+            id="config-cor-fundo-text"
+            value="#F5F7FA"
+            maxlength="7"
+            placeholder="#F5F7FA"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- TEMAS RÁPIDOS -->
+
+      <div class="field">
+
+        <label>
+          Temas rápidos
+        </label>
+
+        <div class="theme-presets">
+
+          <button
+            type="button"
+            class="theme-preset"
+            data-primary="#0E3A4C"
+            data-accent="#06B6D4"
+            data-background="#F5F7FA"
+          >
+
+            <span
+              class="theme-preset-color"
+              style="background:#0E3A4C;"
+            ></span>
+
+            Azul
+
+          </button>
+
+
+          <button
+            type="button"
+            class="theme-preset"
+            data-primary="#166534"
+            data-accent="#22C55E"
+            data-background="#F5F7F7"
+          >
+
+            <span
+              class="theme-preset-color"
+              style="background:#166534;"
+            ></span>
+
+            Verde
+
+          </button>
+
+
+          <button
+            type="button"
+            class="theme-preset"
+            data-primary="#581C87"
+            data-accent="#A855F7"
+            data-background="#FAF7FF"
+          >
+
+            <span
+              class="theme-preset-color"
+              style="background:#581C87;"
+            ></span>
+
+            Roxo
+
+          </button>
+
+
+          <button
+            type="button"
+            class="theme-preset"
+            data-primary="#991B1B"
+            data-accent="#EF4444"
+            data-background="#FFF7F7"
+          >
+
+            <span
+              class="theme-preset-color"
+              style="background:#991B1B;"
+            ></span>
+
+            Vermelho
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PREVIEW -->
+
+      <div class="field">
+
+        <label>
+          Pré-visualização
+        </label>
+
+        <div
+          id="config-tema-preview"
+          style="
+            border:1px solid var(--border);
+            border-radius:14px;
+            padding:20px;
+            background:#F5F7FA;
+            transition:.2s;
+          "
         >
-            <Strong>Em fase de testes</Strong>
-        <small class="date-label">
-          Informe a URL de uma imagem para utilizar como logo da empresa.
-        </small>
+
+          <div
+            id="config-tema-preview-title"
+            style="
+              font-size:16px;
+              font-weight:700;
+              margin-bottom:8px;
+            "
+          >
+            Visualização do tema
+          </div>
+
+          <div
+            id="config-tema-preview-badge"
+            style="
+              display:inline-block;
+              padding:5px 10px;
+              border-radius:8px;
+              font-size:12px;
+              font-weight:600;
+              color:#fff;
+              background:#06B6D4;
+              margin-bottom:12px;
+            "
+          >
+            Exemplo
+          </div>
+
+          <br>
+
+          <button
+            type="button"
+            id="config-tema-preview-button"
+            style="
+              border:0;
+              border-radius:8px;
+              padding:9px 14px;
+              color:#fff;
+              background:#0E3A4C;
+              cursor:pointer;
+            "
+          >
+            Botão de exemplo
+          </button>
+
+        </div>
 
       </div>
 
 
       <div
-        id="configuracoes-message"
+        id="config-aparencia-message"
         class="auth-error"
         style="display:none;"
       ></div>
@@ -1361,583 +3213,1020 @@
       <div class="modal-actions">
 
         <button
-          type="submit"
-          class="btn btn-primary"
-          id="btn-salvar-configuracoes"
+          type="button"
+          class="btn btn-ghost"
+          id="btn-restaurar-tema"
         >
-          Salvar alterações
+          Restaurar padrão
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-salvar-tema"
+        >
+          Salvar aparência
         </button>
 
       </div>
 
-    </form>
-
-  </section>
+    </section>
 
 
+    <!-- DOCUMENTOS -->
 
-  <!-- =========================================================
-       PREFERÊNCIAS REGIONAIS
-  ========================================================== -->
+    <section class="block">
 
-  <section class="block">
+      <h2>
+        Documentos
+      </h2>
 
-    <h2>Preferências regionais</h2>
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Configure as informações que poderão aparecer em recibos e documentos.
+      </p>
 
-    <p class="date-label" style="margin-bottom:20px;">
-      Defina como datas, horários, moeda e idioma serão apresentados no sistema.
-    </p>
-
-
-    <div class="field-row">
 
       <div class="field">
 
-        <label for="config-moeda">
-          Moeda
+        <label for="config-rodape-documentos">
+          Rodapé dos documentos
         </label>
 
-        <select id="config-moeda">
-
-          <option value="BRL">
-            Real brasileiro (R$)
-          </option>
-
-          <option value="USD">
-            Dólar americano ($)
-          </option>
-
-          <option value="EUR">
-            Euro (€)
-          </option>
-
-        </select>
+        <textarea
+          id="config-rodape-documentos"
+          rows="4"
+          maxlength="500"
+          placeholder="Ex: Obrigado pela preferência."
+        ></textarea>
 
       </div>
 
 
       <div class="field">
 
-        <label for="config-idioma">
-          Idioma
+        <label for="config-telefone-documentos">
+          Telefone nos documentos
         </label>
 
-        <select id="config-idioma">
-
-          <option value="pt-BR">
-            Português (Brasil)
-          </option>
-
-          <option value="en-US">
-            English (United States)
-          </option>
-
-          <option value="es-ES">
-            Español
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="field-row">
-
-      <div class="field">
-
-        <label for="config-formato-data">
-          Formato de data
-        </label>
-
-        <select id="config-formato-data">
-
-          <option value="DD/MM/YYYY">
-            DD/MM/YYYY
-          </option>
-
-          <option value="MM/DD/YYYY">
-            MM/DD/YYYY
-          </option>
-
-          <option value="YYYY-MM-DD">
-            YYYY-MM-DD
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="field">
-
-        <label for="config-formato-hora">
-          Formato de horário
-        </label>
-
-        <select id="config-formato-hora">
-
-          <option value="24h">
-            24 horas
-          </option>
-
-          <option value="12h">
-            12 horas
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="field">
-
-      <label for="config-fuso-horario">
-        Fuso horário
-      </label>
-
-      <select id="config-fuso-horario">
-
-        <option value="America/Sao_Paulo">
-          Brasília — America/Sao_Paulo
-        </option>
-
-        <option value="America/Fortaleza">
-          Fortaleza — America/Fortaleza
-        </option>
-
-        <option value="America/Recife">
-          Recife — America/Recife
-        </option>
-
-        <option value="America/Manaus">
-          Manaus — America/Manaus
-        </option>
-
-        <option value="America/Belem">
-          Belém — America/Belem
-        </option>
-
-        <option value="America/Cuiaba">
-          Cuiabá — America/Cuiaba
-        </option>
-
-        <option value="America/Porto_Velho">
-          Porto Velho — America/Porto_Velho
-        </option>
-
-        <option value="America/Boa_Vista">
-          Boa Vista — America/Boa_Vista
-        </option>
-
-        <option value="America/Rio_Branco">
-          Rio Branco — America/Rio_Branco
-        </option>
-
-        <option value="America/Noronha">
-          Fernando de Noronha — America/Noronha
-        </option>
-
-        <option value="UTC">
-          UTC
-        </option>
-
-      </select>
-
-    </div>
-
-  </section>
-
-
-
-  <!-- =========================================================
-       PREFERÊNCIAS DO SISTEMA
-  ========================================================== -->
-
-  <section class="block">
-
-    <h2>Preferências do sistema</h2>
-
-    <p class="date-label" style="margin-bottom:20px;">
-      Controle alguns comportamentos e informações exibidas pela plataforma.
-    </p>
-
-
-    <div class="field-row">
-
-      <div class="field">
-
-        <label for="config-notificacoes-ativas">
-          Notificações
-        </label>
-
-        <select id="config-notificacoes-ativas">
+        <select id="config-telefone-documentos">
 
           <option value="true">
-            Ativadas
+            Exibir telefone
           </option>
 
           <option value="false">
-            Desativadas
+            Não exibir telefone
           </option>
 
         </select>
+
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-salvar-documentos"
+        >
+          Salvar documentos
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- AGENDA -->
+
+    <section class="block">
+
+      <h2>
+        Agenda
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Defina o horário de funcionamento e o intervalo padrão dos horários.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-agenda-inicio">
+            Horário inicial
+          </label>
+
+          <input
+            type="time"
+            id="config-agenda-inicio"
+            value="08:00"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-agenda-fim">
+            Horário final
+          </label>
+
+          <input
+            type="time"
+            id="config-agenda-fim"
+            value="18:00"
+          >
+
+        </div>
 
       </div>
 
 
       <div class="field">
 
-        <label for="config-mostrar-valores">
-          Valores financeiros
+        <label for="config-agenda-intervalo">
+          Intervalo entre horários
         </label>
 
-        <select id="config-mostrar-valores">
+        <select id="config-agenda-intervalo">
 
-          <option value="true">
-            Exibir valores
+          <option value="15">
+            15 minutos
           </option>
 
-          <option value="false">
-            Ocultar valores
+          <option value="30">
+            30 minutos
+          </option>
+
+          <option value="45">
+            45 minutos
+          </option>
+
+          <option value="60">
+            1 hora
+          </option>
+
+          <option value="90">
+            1 hora e 30 minutos
+          </option>
+
+          <option value="120">
+            2 horas
           </option>
 
         </select>
 
       </div>
 
-    </div>
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-salvar-agenda"
+        >
+          Salvar agenda
+        </button>
+
+      </div>
+
+    </section>
 
 
-    <div class="field-row">
+    <!-- MINHA CONTA -->
+
+    <section class="block">
+
+      <h2>
+        Minha conta
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Informações do usuário atualmente conectado.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label for="config-usuario-nome">
+            Nome
+          </label>
+
+          <input
+            type="text"
+            id="config-usuario-nome"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="config-usuario-email">
+            E-mail
+          </label>
+
+          <input
+            type="email"
+            id="config-usuario-email"
+            readonly
+          >
+
+        </div>
+
+      </div>
+
 
       <div class="field">
 
-        <label for="config-dashboard-inicial">
-          Dashboard inicial
+        <label for="config-usuario-perfil">
+          Cargo
         </label>
 
-        <select id="config-dashboard-inicial">
+        <input
+          type="text"
+          id="config-usuario-perfil"
+          readonly
+        >
 
-          <option value="true">
-            Abrir dashboard ao entrar
-          </option>
+      </div>
 
-          <option value="false">
-            Não abrir automaticamente
-          </option>
+    </section>
 
-        </select>
+
+    <!-- INFORMAÇÕES DO SISTEMA -->
+
+    <section class="block">
+
+      <h2>
+        Informações do sistema
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Informações gerais da plataforma e da empresa.
+      </p>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            Plataforma
+          </label>
+
+          <input
+            type="text"
+            value="Orvix"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Status da empresa
+          </label>
+
+          <input
+            type="text"
+            id="config-info-status"
+            value="Ativa"
+            readonly
+          >
+
+        </div>
 
       </div>
 
 
       <div class="field">
 
-        <label for="config-modo-compacto">
-          Modo compacto
+        <label>
+          Empresa
         </label>
 
-        <select id="config-modo-compacto">
-
-          <option value="false">
-            Desativado
-          </option>
-
-          <option value="true">
-            Ativado
-          </option>
-
-        </select>
+        <input
+          type="text"
+          id="config-info-empresa"
+          readonly
+        >
 
       </div>
 
-    </div>
+    </section>
+
+  </div>
 
 
-    <div class="modal-actions">
+  <!-- =====================================================
+       LOGS E AUDITORIA
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-logs"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Logs e auditoria
+        </h1>
+
+        <div class="date-label">
+          Acompanhe as alterações realizadas na empresa
+        </div>
+
+      </div>
+
 
       <button
+        class="btn btn-ghost"
+        id="btn-atualizar-logs"
         type="button"
-        class="btn btn-primary"
-        id="btn-salvar-preferencias"
       >
-        Salvar preferências
+        Atualizar
       </button>
 
     </div>
 
-  </section>
-
-
-
-  <!-- =========================================================
-       APARÊNCIA
-  ========================================================== -->
-
-  <section class="block">
-
-    <h2>Aparência</h2>
-
-    <p class="date-label" style="margin-bottom:20px;">
-      Personalize as cores e o tema visual do sistema.
-    </p>
-
 
     <div class="field-row">
 
-
       <div class="field">
 
-        <label for="config-cor-principal">
-          Cor principal
+        <label for="logs-busca">
+          Buscar
         </label>
 
-        <div class="color-picker">
-
-          <input
-            type="color"
-            id="config-cor-principal"
-            value="#0E3A4C"
-          >
-
-          <input
-            type="text"
-            id="config-cor-principal-text"
-            value="#0E3A4C"
-            maxlength="7"
-            placeholder="#0E3A4C"
-          >
-
-        </div>
+        <input
+          type="search"
+          id="logs-busca"
+          placeholder="Usuário, ação ou entidade..."
+          autocomplete="off"
+        >
 
       </div>
 
 
       <div class="field">
 
-        <label for="config-cor-destaque">
-          Cor de destaque
+        <label for="logs-acao">
+          Ação
         </label>
 
-        <div class="color-picker">
+        <select id="logs-acao">
 
-          <input
-            type="color"
-            id="config-cor-destaque"
-            value="#06B6D4"
-          >
+          <option value="">
+            Todas
+          </option>
 
-          <input
-            type="text"
-            id="config-cor-destaque-text"
-            value="#06B6D4"
-            maxlength="7"
-            placeholder="#06B6D4"
-          >
+          <option value="criacao">
+            Criação
+          </option>
 
-        </div>
+          <option value="atualizacao">
+            Atualização
+          </option>
 
-      </div>
+          <option value="exclusao">
+            Exclusão
+          </option>
 
-    </div>
+          <option value="login">
+            Login
+          </option>
 
+          <option value="logout">
+            Logout
+          </option>
 
-    <div class="field">
-
-      <label for="config-cor-fundo">
-        Cor de fundo
-      </label>
-
-      <div class="color-picker">
-
-        <input
-          type="color"
-          id="config-cor-fundo"
-          value="#F5F7FA"
-        >
-
-        <input
-          type="text"
-          id="config-cor-fundo-text"
-          value="#F5F7FA"
-          maxlength="7"
-          placeholder="#F5F7FA"
-        >
+        </select>
 
       </div>
 
     </div>
-
-
-
-    <!-- TEMAS RÁPIDOS -->
-
-    <div class="field">
-
-      <label>
-        Temas rápidos
-      </label>
-
-      <div class="theme-presets">
-
-
-        <button
-          type="button"
-          class="theme-preset"
-          data-primary="#0E3A4C"
-          data-accent="#06B6D4"
-          data-background="#F5F7FA"
-        >
-
-          <span
-            class="theme-preset-color"
-            style="background:#0E3A4C;"
-          ></span>
-
-          Azul
-
-        </button>
-
-
-        <button
-          type="button"
-          class="theme-preset"
-          data-primary="#166534"
-          data-accent="#22C55E"
-          data-background="#F5F7F7"
-        >
-
-          <span
-            class="theme-preset-color"
-            style="background:#166534;"
-          ></span>
-
-          Verde
-
-        </button>
-
-
-        <button
-          type="button"
-          class="theme-preset"
-          data-primary="#581C87"
-          data-accent="#A855F7"
-          data-background="#FAF7FF"
-        >
-
-          <span
-            class="theme-preset-color"
-            style="background:#581C87;"
-          ></span>
-
-          Roxo
-
-        </button>
-
-
-        <button
-          type="button"
-          class="theme-preset"
-          data-primary="#991B1B"
-          data-accent="#EF4444"
-          data-background="#FFF7F7"
-        >
-
-          <span
-            class="theme-preset-color"
-            style="background:#991B1B;"
-          ></span>
-
-          Vermelho
-
-        </button>
-
-
-      </div>
-
-    </div>
-
-
-
-    <!-- PREVIEW -->
-
-    <div class="field">
-
-      <label>
-        Pré-visualização
-      </label>
-
-      <div
-        id="config-tema-preview"
-        style="
-          border:1px solid var(--border);
-          border-radius:14px;
-          padding:20px;
-          background:#F5F7FA;
-          transition:.2s;
-        "
-      >
-
-        <div
-          id="config-tema-preview-title"
-          style="
-            font-size:16px;
-            font-weight:700;
-            margin-bottom:8px;
-          "
-        >
-          Visualização do tema
-        </div>
-
-        <div
-          id="config-tema-preview-badge"
-          style="
-            display:inline-block;
-            padding:5px 10px;
-            border-radius:8px;
-            font-size:12px;
-            font-weight:600;
-            color:#fff;
-            background:#06B6D4;
-            margin-bottom:12px;
-          "
-        >
-          Exemplo
-        </div>
-
-        <br>
-
-        <button
-          type="button"
-          id="config-tema-preview-button"
-          style="
-            border:0;
-            border-radius:8px;
-            padding:9px 14px;
-            color:#fff;
-            background:#0E3A4C;
-            cursor:pointer;
-          "
-        >
-          Botão de exemplo
-        </button>
-
-      </div>
-
-    </div>
-
 
 
     <div
-      id="config-aparencia-message"
+      id="logs-message"
       class="auth-error"
       style="display:none;"
     ></div>
 
+
+    <div
+      class="ticket-list"
+      id="logs-list"
+    >
+
+      <div class="empty">
+
+        <strong>
+          Carregando logs...
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="logs-pagination">
+
+      <button
+        class="btn btn-ghost"
+        id="logs-anterior"
+        type="button"
+      >
+        Anterior
+      </button>
+
+      <span id="logs-pagina">
+        Página 1
+      </span>
+
+      <button
+        class="btn btn-ghost"
+        id="logs-proximo"
+        type="button"
+      >
+        Próxima
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       RELATÓRIOS
+       ===================================================== -->
+
+  <div
+    class="panel"
+    id="panel-relatorios"
+  >
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Relatórios
+        </h1>
+
+        <div class="date-label">
+          Acompanhe os principais indicadores da empresa
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn btn-ghost"
+        id="btn-atualizar-relatorios"
+        type="button"
+      >
+        Atualizar
+      </button>
+
+    </div>
+
+
+    <!-- FILTROS -->
+
+    <div class="relatorios-filtros">
+
+      <div class="field">
+
+        <label for="relatorios-periodo">
+          Período
+        </label>
+
+        <select id="relatorios-periodo">
+
+          <option value="7">
+            Últimos 7 dias
+          </option>
+
+          <option
+            value="30"
+            selected
+          >
+            Últimos 30 dias
+          </option>
+
+          <option value="90">
+            Últimos 90 dias
+          </option>
+
+          <option value="personalizado">
+            Personalizado
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        class="field"
+        id="relatorios-data-inicio-container"
+        style="display:none;"
+      >
+
+        <label for="relatorios-data-inicio">
+          Data inicial
+        </label>
+
+        <input
+          type="date"
+          id="relatorios-data-inicio"
+        >
+
+      </div>
+
+
+      <div
+        class="field"
+        id="relatorios-data-fim-container"
+        style="display:none;"
+      >
+
+        <label for="relatorios-data-fim">
+          Data final
+        </label>
+
+        <input
+          type="date"
+          id="relatorios-data-fim"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="relatorios-message"
+      class="auth-error"
+      style="display:none;"
+    ></div>
+
+
+    <div
+      class="relatorios-loading"
+      id="relatorios-loading"
+      style="display:none;"
+    >
+      Carregando relatórios...
+    </div>
+
+
+    <!-- CARDS -->
+
+    <div class="relatorios-grid">
+
+
+      <div class="relatorio-card">
+
+        <div class="relatorio-card-top">
+
+          <span class="relatorio-card-label">
+            Faturamento
+          </span>
+
+          <span class="relatorio-card-icon faturamento">
+            R$
+          </span>
+
+        </div>
+
+        <strong
+          class="relatorio-card-value"
+          id="relatorio-faturamento"
+        >
+          R$ 0,00
+        </strong>
+
+        <span class="relatorio-card-footer">
+          Período selecionado
+        </span>
+
+      </div>
+
+
+      <div class="relatorio-card">
+
+        <div class="relatorio-card-top">
+
+          <span class="relatorio-card-label">
+            Despesas
+          </span>
+
+          <span class="relatorio-card-icon despesas">
+            −
+          </span>
+
+        </div>
+
+        <strong
+          class="relatorio-card-value"
+          id="relatorio-despesas"
+        >
+          R$ 0,00
+        </strong>
+
+        <span class="relatorio-card-footer">
+          Período selecionado
+        </span>
+
+      </div>
+
+
+      <div class="relatorio-card">
+
+        <div class="relatorio-card-top">
+
+          <span class="relatorio-card-label">
+            Lucro estimado
+          </span>
+
+          <span class="relatorio-card-icon lucro">
+            +
+          </span>
+
+        </div>
+
+        <strong
+          class="relatorio-card-value"
+          id="relatorio-lucro"
+        >
+          R$ 0,00
+        </strong>
+
+        <span class="relatorio-card-footer">
+          Receitas menos despesas
+        </span>
+
+      </div>
+
+
+      <div class="relatorio-card">
+
+        <div class="relatorio-card-top">
+
+          <span class="relatorio-card-label">
+            Agendamentos
+          </span>
+
+          <span class="relatorio-card-icon agenda">
+            #
+          </span>
+
+        </div>
+
+        <strong
+          class="relatorio-card-value"
+          id="relatorio-agendamentos"
+        >
+          0
+        </strong>
+
+        <span class="relatorio-card-footer">
+          Total no período
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- INDICADORES -->
+
+    <div class="relatorios-grid-secundario">
+
+      <div class="relatorio-info-card">
+
+        <span>
+          Concluídos
+        </span>
+
+        <strong id="relatorio-concluidos">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="relatorio-info-card">
+
+        <span>
+          Cancelados
+        </span>
+
+        <strong id="relatorio-cancelados">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="relatorio-info-card">
+
+        <span>
+          Ticket médio
+        </span>
+
+        <strong id="relatorio-ticket-medio">
+          R$ 0,00
+        </strong>
+
+      </div>
+
+
+      <div class="relatorio-info-card">
+
+        <span>
+          Saldo
+        </span>
+
+        <strong id="relatorio-saldo">
+          R$ 0,00
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- MOVIMENTAÇÃO -->
+
+    <div class="relatorios-section">
+
+      <div class="relatorios-section-header">
+
+        <div>
+
+          <h2>
+            Movimentação
+          </h2>
+
+          <span>
+            Quantidade e faturamento por dia
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="relatorio-grafico"
+        id="relatorio-grafico"
+      >
+
+        <div class="relatorio-grafico-vazio">
+          Carregando dados...
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- SERVIÇOS -->
+
+    <div class="relatorios-section">
+
+      <div class="relatorios-section-header">
+
+        <div>
+
+          <h2>
+            Serviços
+          </h2>
+
+          <span>
+            Serviços com maior faturamento no período
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="relatorio-servicos"
+        id="relatorio-servicos"
+      >
+
+        <div class="relatorio-grafico-vazio">
+          Carregando dados...
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+  </div>
+
+  <!-- =========================================================
+       MODAL: NOVO AGENDAMENTO / EDITAR
+       ========================================================= -->
+
+  <div
+    class="overlay"
+    id="overlay-appointment"
+  >
+
+<div class="modal">
+
+  <h3 id="appointment-modal-title">
+    Novo agendamento
+  </h3>
+
+
+  <form id="form-appointment">
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Data
+        </label>
+
+        <input
+          type="date"
+          id="ap-date"
+          required
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Hora
+        </label>
+
+        <input
+          type="time"
+          id="ap-time"
+          required
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+
+      <label id="ap-client-label">
+        Cliente
+      </label>
+
+      <input
+        type="text"
+        id="ap-client"
+        placeholder="Nome"
+        required
+      >
+
+    </div>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Telefone
+        </label>
+
+        <input
+          type="text"
+          id="ap-phone"
+          placeholder="(00) 00000-0000"
+        >
+
+      </div>
+
+
+      <div
+        class="field"
+        id="ap-extra1-field"
+      >
+
+        <label id="ap-extra1-label">
+          Placa
+        </label>
+
+        <input
+          type="text"
+          id="ap-plate"
+          placeholder="ABC1D23"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="field"
+      id="ap-extra2-field"
+    >
+
+      <label id="ap-extra2-label">
+        Veículo
+      </label>
+
+      <input
+        type="text"
+        id="ap-vehicle"
+        placeholder="Modelo / cor"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label id="ap-service-label">
+        Serviço
+      </label>
+
+      <select
+        id="ap-service"
+        required
+      ></select>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Valor (R$)
+      </label>
+
+      <input
+        type="number"
+        id="ap-price"
+        step="0.01"
+        min="0"
+        required
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Observações
+      </label>
+
+      <textarea
+        id="ap-notes"
+        rows="2"
+        placeholder="Opcional"
+      ></textarea>
+
+    </div>
 
 
     <div class="modal-actions">
@@ -1945,269 +4234,59 @@
       <button
         type="button"
         class="btn btn-ghost"
-        id="btn-restaurar-tema"
+        id="btn-cancel-appointment"
       >
-        Restaurar padrão
+        Cancelar
       </button>
-
 
       <button
-        type="button"
+        type="submit"
         class="btn btn-primary"
-        id="btn-salvar-tema"
+        id="appointment-submit-btn"
       >
-        Salvar aparência
+        Agendar
       </button>
 
     </div>
 
-  </section>
+  </form>
+
+</div>
 
 
-
-  <!-- =========================================================
-       DOCUMENTOS
-  ========================================================== -->
-
-  <section class="block">
-
-    <h2>Documentos</h2>
-
-    <p class="date-label" style="margin-bottom:20px;">
-      Configure as informações que poderão aparecer em recibos e documentos.
-    </p>
-
-
-    <div class="field">
-
-      <label for="config-rodape-documentos">
-        Rodapé dos documentos
-      </label>
-
-      <textarea
-        id="config-rodape-documentos"
-        rows="4"
-        maxlength="500"
-        placeholder="Ex: Obrigado pela preferência."
-      ></textarea>
-
-    </div>
-
-
-    <div class="field">
-
-      <label for="config-telefone-documentos">
-        Telefone nos documentos
-      </label>
-
-      <select id="config-telefone-documentos">
-
-        <option value="true">
-          Exibir telefone
-        </option>
-
-        <option value="false">
-          Não exibir telefone
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="modal-actions">
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        id="btn-salvar-documentos"
-      >
-        Salvar documentos
-      </button>
-
-    </div>
-
-  </section>
-
-
+  </div>
 
   <!-- =========================================================
-       AGENDA
-  ========================================================== -->
+       MODAL: NOVO SERVIÇO
+       ========================================================= -->
 
-  <section class="block">
+  <div
+    class="overlay"
+    id="overlay-service"
+  >
 
-    <h2>Agenda</h2>
+<div class="modal">
 
-    <p class="date-label" style="margin-bottom:20px;">
-      Defina o horário de funcionamento e o intervalo padrão dos horários.
-    </p>
-
-
-    <div class="field-row">
-
-
-      <div class="field">
-
-        <label for="config-agenda-inicio">
-          Horário inicial
-        </label>
-
-        <input
-          type="time"
-          id="config-agenda-inicio"
-          value="08:00"
-        >
-
-      </div>
+  <h3>
+    Novo serviço
+  </h3>
 
 
-      <div class="field">
-
-        <label for="config-agenda-fim">
-          Horário final
-        </label>
-
-        <input
-          type="time"
-          id="config-agenda-fim"
-          value="18:00"
-        >
-
-      </div>
-
-    </div>
-
+  <form id="form-service">
 
     <div class="field">
 
-      <label for="config-agenda-intervalo">
-        Intervalo entre horários
-      </label>
-
-      <select id="config-agenda-intervalo">
-
-        <option value="15">
-          15 minutos
-        </option>
-
-        <option value="30">
-          30 minutos
-        </option>
-
-        <option value="45">
-          45 minutos
-        </option>
-
-        <option value="60">
-          1 hora
-        </option>
-
-        <option value="90">
-          1 hora e 30 minutos
-        </option>
-
-        <option value="120">
-          2 horas
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="modal-actions">
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        id="btn-salvar-agenda"
-      >
-        Salvar agenda
-      </button>
-
-    </div>
-
-  </section>
-
-
-
-  <!-- =========================================================
-       MINHA CONTA
-  ========================================================== -->
-
-  <section class="block">
-
-    <h2>Minha conta</h2>
-
-    <p class="date-label" style="margin-bottom:20px;">
-      Informações do usuário atualmente conectado.
-    </p>
-
-
-    <div class="field-row">
-
-      <div class="field">
-
-        <label for="config-usuario-nome">
-          Nome
-        </label>
-
-        <input
-          type="text"
-          id="config-usuario-nome"
-          readonly
-        >
-
-      </div>
-
-
-      <div class="field">
-
-        <label for="config-usuario-email">
-          E-mail
-        </label>
-
-        <input
-          type="email"
-          id="config-usuario-email"
-          readonly
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="field">
-
-      <label for="config-usuario-perfil">
-        Cargo
+      <label>
+        Nome
       </label>
 
       <input
         type="text"
-        id="config-usuario-perfil"
-        readonly
+        id="sv-name"
+        required
       >
 
     </div>
-
-  </section>
-
-
-
-  <!-- =========================================================
-       INFORMAÇÕES DO SISTEMA
-  ========================================================== -->
-
-  <section class="block">
-
-    <h2>Informações do sistema</h2>
-
-    <p class="date-label" style="margin-bottom:20px;">
-      Informações gerais da plataforma e da empresa.
-    </p>
 
 
     <div class="field-row">
@@ -2215,13 +4294,15 @@
       <div class="field">
 
         <label>
-          Plataforma
+          Preço (R$)
         </label>
 
         <input
-          type="text"
-          value="Orvix"
-          readonly
+          type="number"
+          id="sv-price"
+          step="0.01"
+          min="0"
+          required
         >
 
       </div>
@@ -2230,14 +4311,133 @@
       <div class="field">
 
         <label>
-          Status da empresa
+          Duração (min)
         </label>
 
         <input
-          type="text"
-          id="config-info-status"
-          value="Ativa"
-          readonly
+          type="number"
+          id="sv-duration"
+          min="0"
+          required
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-service"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+
+  </div>
+
+  <!-- =========================================================
+       MODAL: NOVA DESPESA
+       ========================================================= -->
+
+  <div
+    class="overlay"
+    id="overlay-expense"
+  >
+
+<div class="modal">
+
+  <h3>
+    Nova despesa
+  </h3>
+
+
+  <form id="form-expense">
+
+    <div class="field">
+
+      <label>
+        Descrição
+      </label>
+
+      <input
+        type="text"
+        id="ex-desc"
+        placeholder="Ex: Compra de materiais"
+        required
+      >
+
+    </div>
+
+
+    <div class="field-row">
+
+      <div class="field">
+
+        <label>
+          Categoria
+        </label>
+
+        <select id="ex-category">
+
+          <option>
+            Produtos de limpeza
+          </option>
+
+          <option>
+            Água
+          </option>
+
+          <option>
+            Energia
+          </option>
+
+          <option>
+            Manutenção de equipamentos
+          </option>
+
+          <option>
+            Salários
+          </option>
+
+          <option>
+            Aluguel
+          </option>
+
+          <option>
+            Outros
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Data
+        </label>
+
+        <input
+          type="date"
+          id="ex-date"
+          required
         >
 
       </div>
@@ -2248,59 +4448,90 @@
     <div class="field">
 
       <label>
-        Empresa
+        Valor (R$)
+      </label>
+
+      <input
+        type="number"
+        id="ex-value"
+        step="0.01"
+        min="0"
+        required
+      >
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-expense"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+
+  </div>
+
+  <!-- =========================================================
+       MODAL: USUÁRIO
+       ========================================================= -->
+
+  <div
+    class="overlay"
+    id="overlay-user"
+  >
+
+<div class="modal user-modal">
+
+  <h3 id="user-modal-title">
+    Novo usuário
+  </h3>
+
+
+  <form id="form-user">
+
+    <div class="field">
+
+      <label for="user-name">
+        Nome
       </label>
 
       <input
         type="text"
-        id="config-info-empresa"
-        readonly
+        id="user-name"
+        placeholder="Nome do usuário"
+        required
       >
 
     </div>
 
-  </section>
-
-</div>
-
-<!-- LOGS E AUDITORIA -->
-
-<div class="panel" id="panel-logs">
-
-  <div class="topbar">
-
-    <div>
-      <h1>Logs e auditoria</h1>
-
-      <div class="date-label">
-        Acompanhe as alterações realizadas na empresa
-      </div>
-    </div>
-
-    <button
-      class="btn btn-ghost"
-      id="btn-atualizar-logs"
-      type="button"
-    >
-      Atualizar
-    </button>
-
-  </div>
-
-
-  <div class="field-row">
 
     <div class="field">
 
-      <label for="logs-busca">
-        Buscar
+      <label for="user-email">
+        E-mail
       </label>
 
       <input
-        type="search"
-        id="logs-busca"
-        placeholder="Usuário, ação ou entidade..."
-        autocomplete="off"
+        type="email"
+        id="user-email"
+        placeholder="usuario@email.com"
+        required
       >
 
     </div>
@@ -2308,533 +4539,366 @@
 
     <div class="field">
 
-      <label for="logs-acao">
-        Ação
+      <label for="user-profile">
+        Cargo
       </label>
 
-      <select id="logs-acao">
+      <select id="user-profile">
 
-        <option value="">
-          Todas
+        <option value="funcionario">
+          Funcionário
         </option>
 
-        <option value="criacao">
-          Criação
-        </option>
-
-        <option value="atualizacao">
-          Atualização
-        </option>
-
-        <option value="exclusao">
-          Exclusão
-        </option>
-
-        <option value="login">
-          Login
-        </option>
-
-        <option value="logout">
-          Logout
+        <option value="administrador">
+          Administrador
         </option>
 
       </select>
 
     </div>
 
-  </div>
 
+    <div
+      class="field"
+      id="user-password-field"
+    >
 
-  <div
-    id="logs-message"
-    class="auth-error"
-    style="display:none;"
-  ></div>
+      <label for="user-password">
+        Senha
+      </label>
 
-
-  <div class="ticket-list" id="logs-list">
-
-    <div class="empty">
-
-      <strong>
-        Carregando logs...
-      </strong>
+      <input
+        type="password"
+        id="user-password"
+        placeholder="Mínimo 6 caracteres"
+        minlength="6"
+      >
 
     </div>
 
-  </div>
 
-
-  <div class="logs-pagination">
-
-    <button
-      class="btn btn-ghost"
-      id="logs-anterior"
-      type="button"
+    <div
+      class="field"
+      id="user-active-field"
+      style="display:none;"
     >
-      Anterior
-    </button>
 
-    <span id="logs-pagina">
-      Página 1
-    </span>
+      <label for="user-active">
+        Status
+      </label>
 
-    <button
-      class="btn btn-ghost"
-      id="logs-proximo"
-      type="button"
+      <select id="user-active">
+
+        <option value="true">
+          Ativo
+        </option>
+
+        <option value="false">
+          Bloqueado
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- PERMISSÕES -->
+
+    <div
+      class="user-permissions-section"
+      id="user-permissions-section"
     >
-      Próxima
-    </button>
 
-  </div>
+      <div class="user-permissions-header">
+
+        <div>
+
+          <label class="user-permissions-title">
+            Permissões de acesso
+          </label>
+
+          <p class="user-permissions-description">
+            Selecione quais áreas este funcionário poderá acessar.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="admin-permission-notice"
+        id="admin-permission-notice"
+        style="display:none;"
+      >
+
+        <strong>
+          Administrador
+        </strong>
+
+        <span>
+          Administradores possuem acesso completo ao sistema.
+        </span>
+
+      </div>
+
+
+      <div
+        class="permissions-grid"
+        id="permissions-grid"
+      >
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="agenda"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Agenda
+            </strong>
+
+            <small>
+              Agendamentos e atendimento
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="faturamento"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Faturamento
+            </strong>
+
+            <small>
+              Serviços e recebimentos
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="financeiro"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Financeiro
+            </strong>
+
+            <small>
+              Visão financeira do negócio
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="servicos"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Serviços
+            </strong>
+
+            <small>
+              Cadastro e preços dos serviços
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="clientes"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Clientes
+            </strong>
+
+            <small>
+              Consulta de clientes e histórico
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="despesas"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Despesas
+            </strong>
+
+            <small>
+              Controle de despesas
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="usuarios"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Usuários
+            </strong>
+
+            <small>
+              Gerenciamento de usuários
+            </small>
+
+          </span>
+
+        </label>
+
+
+        <label class="permission-item">
+
+          <input
+            type="checkbox"
+            value="configuracoes"
+            data-permission
+          >
+
+          <span class="permission-item-text">
+
+            <strong>
+              Configurações
+            </strong>
+
+            <small>
+              Configurações do sistema
+            </small>
+
+          </span>
+
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="btn-cancel-user"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        id="user-submit-btn"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </form>
 
 </div>
 
-
-  <!-- =========================================================
-     MODAL: NOVO AGENDAMENTO / EDITAR
-     ========================================================= -->
-
-  <div class="overlay" id="overlay-appointment">
-
-    <div class="modal">
-
-      <h3 id="appointment-modal-title">Novo agendamento</h3>
-
-      <form id="form-appointment">
-
-        <div class="field-row">
-
-          <div class="field">
-            <label>Data</label>
-            <input type="date" id="ap-date" required>
-          </div>
-
-          <div class="field">
-            <label>Hora</label>
-            <input type="time" id="ap-time" required>
-          </div>
-
-        </div>
-
-        <div class="field">
-          <label id="ap-client-label">Cliente</label>
-          <input
-            type="text"
-            id="ap-client"
-            placeholder="Nome"
-            required
-          >
-        </div>
-
-        <div class="field-row">
-
-          <div class="field">
-            <label>Telefone</label>
-            <input type="text" id="ap-phone" placeholder="(00) 00000-0000">
-          </div>
-
-          <div class="field" id="ap-extra1-field">
-            <label id="ap-extra1-label">Placa</label>
-            <input type="text" id="ap-plate" placeholder="ABC1D23">
-          </div>
-
-        </div>
-
-        <div class="field" id="ap-extra2-field">
-          <label id="ap-extra2-label">Veículo</label>
-          <input type="text" id="ap-vehicle" placeholder="Modelo / cor">
-        </div>
-
-        <div class="field">
-          <label id="ap-service-label">Serviço</label>
-          <select id="ap-service" required></select>
-        </div>
-
-        <div class="field">
-          <label>Valor (R$)</label>
-          <input
-            type="number"
-            id="ap-price"
-            step="0.01"
-            min="0"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label>Observações</label>
-          <textarea id="ap-notes" rows="2" placeholder="Opcional"></textarea>
-        </div>
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-appointment"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            id="appointment-submit-btn"
-          >
-            Agendar
-          </button>
-
-        </div>
-
-      </form>
-
-    </div>
-
   </div>
 
-
   <!-- =========================================================
-     MODAL: NOVO SERVIÇO
-     ========================================================= -->
-
-  <div class="overlay" id="overlay-service">
-
-    <div class="modal">
-
-      <h3>Novo serviço</h3>
-
-      <form id="form-service">
-
-        <div class="field">
-          <label>Nome</label>
-          <input type="text" id="sv-name" required>
-        </div>
-
-        <div class="field-row">
-
-          <div class="field">
-            <label>Preço (R$)</label>
-            <input
-              type="number"
-              id="sv-price"
-              step="0.01"
-              min="0"
-              required
-            >
-          </div>
-
-          <div class="field">
-            <label>Duração (min)</label>
-            <input type="number" id="sv-duration" min="0" required>
-          </div>
-
-        </div>
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-service"
-          >
-            Cancelar
-          </button>
-
-          <button type="submit" class="btn btn-primary">Salvar</button>
-
-        </div>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================================================
-     MODAL: NOVA DESPESA
-     ========================================================= -->
-
-  <div class="overlay" id="overlay-expense">
-
-    <div class="modal">
-
-      <h3>Nova despesa</h3>
-
-      <form id="form-expense">
-
-        <div class="field">
-          <label>Descrição</label>
-          <input
-            type="text"
-            id="ex-desc"
-            placeholder="Ex: Compra de materiais"
-            required
-          >
-        </div>
-
-        <div class="field-row">
-
-          <div class="field">
-
-            <label>Categoria</label>
-
-            <select id="ex-category">
-              <option>Produtos de limpeza</option>
-              <option>Água</option>
-              <option>Energia</option>
-              <option>Manutenção de equipamentos</option>
-              <option>Salários</option>
-              <option>Aluguel</option>
-              <option>Outros</option>
-            </select>
-
-          </div>
-
-          <div class="field">
-            <label>Data</label>
-            <input type="date" id="ex-date" required>
-          </div>
-
-        </div>
-
-        <div class="field">
-          <label>Valor (R$)</label>
-          <input
-            type="number"
-            id="ex-value"
-            step="0.01"
-            min="0"
-            required
-          >
-        </div>
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-expense"
-          >
-            Cancelar
-          </button>
-
-          <button type="submit" class="btn btn-primary">Salvar</button>
-
-        </div>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================================================
-     MODAL: USUÁRIO
-     ========================================================= -->
-
-  <div class="overlay" id="overlay-user">
-
-    <div class="modal user-modal">
-
-      <h3 id="user-modal-title">Novo usuário</h3>
-
-      <form id="form-user">
-
-        <div class="field">
-          <label for="user-name">Nome</label>
-          <input
-            type="text"
-            id="user-name"
-            placeholder="Nome do usuário"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label for="user-email">E-mail</label>
-          <input
-            type="email"
-            id="user-email"
-            placeholder="usuario@email.com"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label for="user-profile">Cargo</label>
-          <select id="user-profile">
-            <option value="funcionario">Funcionário</option>
-            <option value="administrador">Administrador</option>
-          </select>
-        </div>
-
-        <div class="field" id="user-password-field">
-          <label for="user-password">Senha</label>
-          <input
-            type="password"
-            id="user-password"
-            placeholder="Mínimo 6 caracteres"
-            minlength="6"
-          >
-        </div>
-
-        <div class="field" id="user-active-field" style="display:none;">
-          <label for="user-active">Status</label>
-          <select id="user-active">
-            <option value="true">Ativo</option>
-            <option value="false">Bloqueado</option>
-          </select>
-        </div>
-
-
-        <!-- PERMISSÕES -->
-
-        <div class="user-permissions-section" id="user-permissions-section">
-
-          <div class="user-permissions-header">
-            <div>
-              <label class="user-permissions-title">Permissões de acesso</label>
-              <p class="user-permissions-description">
-                Selecione quais áreas este funcionário poderá acessar.
-              </p>
-            </div>
-          </div>
-
-          <div
-            class="admin-permission-notice"
-            id="admin-permission-notice"
-            style="display:none;"
-          >
-            <strong>Administrador</strong>
-            <span>Administradores possuem acesso completo ao sistema.</span>
-          </div>
-
-          <div class="permissions-grid" id="permissions-grid">
-
-            <label class="permission-item">
-              <input type="checkbox" value="agenda" data-permission>
-              <span class="permission-item-text">
-                <strong>Agenda</strong>
-                <small>Agendamentos e atendimento</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="faturamento" data-permission>
-              <span class="permission-item-text">
-                <strong>Faturamento</strong>
-                <small>Serviços e recebimentos</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="financeiro" data-permission>
-              <span class="permission-item-text">
-                <strong>Financeiro</strong>
-                <small>Visão financeira do negócio</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="servicos" data-permission>
-              <span class="permission-item-text">
-                <strong>Serviços</strong>
-                <small>Cadastro e preços dos serviços</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="clientes" data-permission>
-              <span class="permission-item-text">
-                <strong>Clientes</strong>
-                <small>Consulta de clientes e histórico</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="despesas" data-permission>
-              <span class="permission-item-text">
-                <strong>Despesas</strong>
-                <small>Controle de despesas</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="usuarios" data-permission>
-              <span class="permission-item-text">
-                <strong>Usuários</strong>
-                <small>Gerenciamento de usuários</small>
-              </span>
-            </label>
-
-            <label class="permission-item">
-              <input type="checkbox" value="configuracoes" data-permission>
-              <span class="permission-item-text">
-                <strong>Configurações</strong>
-                <small>Configurações do sistema</small>
-              </span>
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="btn btn-ghost"
-            id="btn-cancel-user"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            id="user-submit-btn"
-          >
-            Salvar
-          </button>
-
-        </div>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- ÁREA DE IMPRESSÃO -->
+       ÁREA DE IMPRESSÃO
+       ========================================================= -->
 
   <div id="print-area"></div>
 
+  <!-- =========================================================
+       SCRIPTS
+       ========================================================= -->
+
   <script src="/js/bloqueio.js"></script>
-
-
-  <!-- JAVASCRIPT PRINCIPAL -->
 
   <script src="/js/app.js"></script>
 
   <!-- =========================================================
-     CONTROLE DA SIDEBAR
-     ========================================================= -->
+       CONTROLE DA SIDEBAR
+       ========================================================= -->
 
   <script>
 
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const sidebar =
+      document.getElementById('sidebar');
+
+    const sidebarToggle =
+      document.getElementById('sidebar-toggle');
+
+    const mobileMenuBtn =
+      document.getElementById('mobile-menu-btn');
+
+    const sidebarOverlay =
+      document.getElementById('sidebar-overlay');
 
 
-    /* ABRE MENU MOBILE */
+    /* =======================================================
+       ABRE MENU MOBILE
+       ======================================================= */
 
     if (mobileMenuBtn && sidebar) {
 
@@ -2842,12 +4906,18 @@
 
         sidebar.classList.add('mobile-open');
 
-        if (sidebarOverlay) sidebarOverlay.classList.add('active');
+        if (sidebarOverlay) {
+          sidebarOverlay.classList.add('active');
+        }
+
       });
+
     }
 
 
-    /* FECHA MENU */
+    /* =======================================================
+       FECHA MENU
+       ======================================================= */
 
     if (sidebarOverlay && sidebar) {
 
@@ -2856,11 +4926,15 @@
         sidebar.classList.remove('mobile-open');
 
         sidebarOverlay.classList.remove('active');
+
       });
+
     }
 
 
-    /* RECOLHE / EXPANDE */
+    /* =======================================================
+       RECOLHE / EXPANDE
+       ======================================================= */
 
     if (sidebarToggle && sidebar) {
 
@@ -2870,9 +4944,12 @@
 
           sidebar.classList.remove('mobile-open');
 
-          if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+          if (sidebarOverlay) {
+            sidebarOverlay.classList.remove('active');
+          }
 
           return;
+
         }
 
         sidebar.classList.toggle('collapsed');
@@ -2881,38 +4958,55 @@
           'lavajato-sidebar-collapsed',
           sidebar.classList.contains('collapsed')
         );
+
       });
+
     }
 
 
-    /* RECUPERA PREFERÊNCIA */
+    /* =======================================================
+       RECUPERA PREFERÊNCIA
+       ======================================================= */
 
     if (
       sidebar &&
       window.innerWidth > 760 &&
       localStorage.getItem('lavajato-sidebar-collapsed') === 'true'
     ) {
+
       sidebar.classList.add('collapsed');
+
     }
 
 
-    /* FECHA MENU MOBILE AO CLICAR */
+    /* =======================================================
+       FECHA MENU MOBILE AO CLICAR
+       ======================================================= */
 
-    document.querySelectorAll('.sidebar .nav-btn').forEach(button => {
+    document
+      .querySelectorAll('.sidebar .nav-btn')
+      .forEach(button => {
 
-      button.addEventListener('click', () => {
+        button.addEventListener('click', () => {
 
-        if (window.innerWidth <= 760) {
+          if (window.innerWidth <= 760) {
 
-          sidebar.classList.remove('mobile-open');
+            sidebar.classList.remove('mobile-open');
 
-          if (sidebarOverlay) sidebarOverlay.classList.remove('active');
-        }
+            if (sidebarOverlay) {
+              sidebarOverlay.classList.remove('active');
+            }
+
+          }
+
+        });
+
       });
-    });
 
 
-    /* REDIMENSIONAMENTO */
+    /* =======================================================
+       REDIMENSIONAMENTO
+       ======================================================= */
 
     window.addEventListener('resize', () => {
 
@@ -2921,7 +5015,9 @@
         sidebar?.classList.remove('mobile-open');
 
         sidebarOverlay?.classList.remove('active');
+
       }
+
     });
 
   </script>
@@ -2931,4 +5027,5 @@
   <script src="/js/configs.js"></script>
 
 </body>
+
 </html>

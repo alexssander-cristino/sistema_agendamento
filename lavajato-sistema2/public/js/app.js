@@ -1558,6 +1558,10 @@
   async function loadTabData(tab){
     console.log('>>> LOAD TAB:', tab);
 
+    if (tab === 'dashboard') {
+      carregarDashboard();
+    }
+
     if(tab === 'agenda'){
       await refreshAgenda();
     }
@@ -1618,9 +1622,16 @@
       if(isAdministrador()){
 
         await carregarLogs();
+
       }
     }
+
+    if (tab === 'relatorios') {
+  carregarRelatorios();
+}
+
   }
+
 
 
   // ============================================================
@@ -7062,6 +7073,1216 @@ async function carregarLogs() {
     aplicarNicho
   };
 
+  /* ============================================================
+ * ORVIX — RELATÓRIOS
+ * ============================================================ */
+
+let relatoriosCarregando = false;
+
+function formatarMoedaRelatorio(valor) {
+  const numero = Number(valor || 0);
+
+  return numero.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+}
+
+function escaparHtmlRelatorio(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatarDataRelatorio(data) {
+  if (!data) return '-';
+
+  const texto = String(data).slice(0, 10);
+
+  const partes = texto.split('-');
+
+  if (partes.length !== 3) {
+    return texto;
+  }
+
+  return `${partes[2]}/${partes[1]}`;
+}
+
+
+function obterPeriodoRelatorios() {
+
+  const periodo =
+    $('relatorios-periodo')?.value || '30';
+
+  const hoje = new Date();
+
+  const formatarData = (data) => {
+    const ano = data.getFullYear();
+
+    const mes = String(
+      data.getMonth() + 1
+    ).padStart(2, '0');
+
+    const dia = String(
+      data.getDate()
+    ).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}`;
+  };
+
+
+  if (periodo === 'personalizado') {
+
+    return {
+      data_inicio:
+        $('relatorios-data-inicio')?.value || '',
+
+      data_fim:
+        $('relatorios-data-fim')?.value || ''
+    };
+  }
+
+
+  const dias = Number(periodo || 30);
+
+  const inicio = new Date(hoje);
+
+  inicio.setDate(
+    inicio.getDate() - (dias - 1)
+  );
+
+
+  return {
+    data_inicio: formatarData(inicio),
+    data_fim: formatarData(hoje)
+  };
+}
+
+
+function atualizarVisibilidadeDatasRelatorios() {
+
+  const personalizado =
+    $('relatorios-periodo')?.value === 'personalizado';
+
+  const inicio =
+    $('relatorios-data-inicio-container');
+
+  const fim =
+    $('relatorios-data-fim-container');
+
+
+  if (inicio) {
+    inicio.style.display =
+      personalizado ? '' : 'none';
+  }
+
+  if (fim) {
+    fim.style.display =
+      personalizado ? '' : 'none';
+  }
+}
+
+
+async function carregarRelatorios() {
+
+  if (relatoriosCarregando) {
+    return;
+  }
+
+  const loading =
+    $('relatorios-loading');
+
+  const message =
+    $('relatorios-message');
+
+
+  try {
+
+    relatoriosCarregando = true;
+
+
+    if (loading) {
+      loading.style.display = '';
+    }
+
+    if (message) {
+      message.style.display = 'none';
+      message.textContent = '';
+    }
+
+
+    const periodo =
+      obterPeriodoRelatorios();
+
+
+    if (
+      !periodo.data_inicio ||
+      !periodo.data_fim
+    ) {
+
+      throw new Error(
+        'Informe a data inicial e a data final.'
+      );
+    }
+
+
+    if (
+      periodo.data_inicio >
+      periodo.data_fim
+    ) {
+
+      throw new Error(
+        'A data inicial não pode ser maior que a data final.'
+      );
+    }
+
+
+    const params =
+      new URLSearchParams();
+
+    params.set(
+      'data_inicio',
+      periodo.data_inicio
+    );
+
+    params.set(
+      'data_fim',
+      periodo.data_fim
+    );
+
+
+    const resumo =
+      await api(
+        `/relatorios/resumo?${params.toString()}`
+      );
+
+
+    const financeiro =
+      await api(
+        `/relatorios/financeiro?${params.toString()}`
+      );
+
+
+    const agendamentos =
+      await api(
+        `/relatorios/agendamentos?${params.toString()}`
+      );
+
+
+    const servicos =
+      await api(
+        `/relatorios/servicos?${params.toString()}`
+      );
+
+
+    const indicadores =
+      resumo?.indicadores || {};
+
+
+    if ($('relatorio-faturamento')) {
+      $('relatorio-faturamento').textContent =
+        formatarMoedaRelatorio(
+          indicadores.faturamento
+        );
+    }
+
+
+    if ($('relatorio-despesas')) {
+      $('relatorio-despesas').textContent =
+        formatarMoedaRelatorio(
+          indicadores.despesas
+        );
+    }
+
+
+    if ($('relatorio-lucro')) {
+      $('relatorio-lucro').textContent =
+        formatarMoedaRelatorio(
+          indicadores.lucro
+        );
+    }
+
+
+    if ($('relatorio-agendamentos')) {
+      $('relatorio-agendamentos').textContent =
+        Number(
+          indicadores.total_agendamentos || 0
+        ).toLocaleString('pt-BR');
+    }
+
+
+    if ($('relatorio-concluidos')) {
+      $('relatorio-concluidos').textContent =
+        Number(
+          indicadores.agendamentos_concluidos || 0
+        ).toLocaleString('pt-BR');
+    }
+
+
+    if ($('relatorio-cancelados')) {
+      $('relatorio-cancelados').textContent =
+        Number(
+          indicadores.agendamentos_cancelados || 0
+        ).toLocaleString('pt-BR');
+    }
+
+
+    if ($('relatorio-ticket-medio')) {
+      $('relatorio-ticket-medio').textContent =
+        formatarMoedaRelatorio(
+          indicadores.ticket_medio
+        );
+    }
+
+
+    if ($('relatorio-saldo')) {
+      $('relatorio-saldo').textContent =
+        formatarMoedaRelatorio(
+          financeiro?.saldo
+        );
+    }
+
+
+    renderizarGraficoRelatorios(
+      agendamentos?.dados || []
+    );
+
+
+    renderizarServicosRelatorios(
+      servicos?.dados || []
+    );
+
+
+  } catch (erro) {
+
+    console.error(
+      '[RELATORIOS] Erro:',
+      erro
+    );
+
+
+    if (message) {
+
+      message.textContent =
+        erro?.message ||
+        'Não foi possível carregar os relatórios.';
+
+      message.style.display = '';
+    }
+
+  } finally {
+
+    relatoriosCarregando = false;
+
+    if (loading) {
+      loading.style.display = 'none';
+    }
+  }
+}
+
+
+function renderizarGraficoRelatorios(dados) {
+
+  const container =
+    $('relatorio-grafico');
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!Array.isArray(dados) || !dados.length) {
+
+    container.innerHTML = `
+      <div class="relatorio-grafico-vazio">
+        Nenhum dado encontrado no período.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const maiorValor =
+    Math.max(
+      ...dados.map(
+        item => Number(item.valor || 0)
+      )
+    );
+
+
+  if (maiorValor <= 0) {
+
+    container.innerHTML = `
+      <div class="relatorio-grafico-vazio">
+        Nenhum faturamento registrado no período.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    dados.map(item => {
+
+      const valor =
+        Number(item.valor || 0);
+
+      const altura =
+        Math.max(
+          3,
+          (valor / maiorValor) * 170
+        );
+
+
+      const data =
+        formatarDataRelatorio(
+          item.data
+        );
+
+
+      return `
+        <div
+          class="relatorio-barra"
+          title="${escaparHtmlRelatorio(
+            formatarMoedaRelatorio(valor)
+          )}"
+        >
+
+          <span class="relatorio-barra-valor">
+            ${escaparHtmlRelatorio(
+              formatarMoedaRelatorio(valor)
+            )}
+          </span>
+
+          <div
+            class="relatorio-barra-coluna"
+            style="height:${altura}px"
+          ></div>
+
+          <span class="relatorio-barra-data">
+            ${escaparHtmlRelatorio(data)}
+          </span>
+
+        </div>
+      `;
+
+    }).join('');
+}
+
+
+function renderizarServicosRelatorios(dados) {
+
+  const container =
+    $('relatorio-servicos');
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!Array.isArray(dados) || !dados.length) {
+
+    container.innerHTML = `
+      <div class="relatorio-grafico-vazio">
+        Nenhum serviço encontrado no período.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    dados.map(item => {
+
+      const nome =
+        escaparHtmlRelatorio(
+          item.nome || 'Serviço'
+        );
+
+
+      const quantidade =
+        Number(
+          item.quantidade || 0
+        );
+
+
+      const faturamento =
+        Number(
+          item.faturamento || 0
+        );
+
+
+      return `
+        <div class="relatorio-servico">
+
+          <div class="relatorio-servico-nome">
+            ${nome}
+          </div>
+
+          <div class="relatorio-servico-quantidade">
+            ${quantidade.toLocaleString('pt-BR')}
+            ${quantidade === 1 ? 'atendimento' : 'atendimentos'}
+          </div>
+
+          <div class="relatorio-servico-valor">
+            ${formatarMoedaRelatorio(faturamento)}
+          </div>
+
+        </div>
+      `;
+
+    }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  const periodo =
+    $('relatorios-periodo');
+
+  const atualizar =
+    $('btn-atualizar-relatorios');
+
+
+  periodo?.addEventListener(
+    'change',
+    () => {
+
+      atualizarVisibilidadeDatasRelatorios();
+
+      if (
+        periodo.value !== 'personalizado'
+      ) {
+        carregarRelatorios();
+      }
+    }
+  );
+
+
+  $('relatorios-data-inicio')
+    ?.addEventListener(
+      'change',
+      carregarRelatorios
+    );
+
+
+  $('relatorios-data-fim')
+    ?.addEventListener(
+      'change',
+      carregarRelatorios
+    );
+
+
+  atualizar?.addEventListener(
+    'click',
+    carregarRelatorios
+  );
+
+
+  atualizarVisibilidadeDatasRelatorios();
+
+});
+
+// ============================================================
+// CARREGAR DASHBOARD
+// ============================================================
+
+async function carregarDashboard() {
+
+  if (dashboardCarregando) {
+    return;
+  }
+
+  dashboardCarregando = true;
+
+
+  const loading =
+    document.getElementById(
+      'dashboard-loading'
+    );
+
+  const message =
+    document.getElementById(
+      'dashboard-message'
+    );
+
+
+  if (loading) {
+    loading.style.display = 'block';
+  }
+
+  if (message) {
+
+    message.style.display =
+      'none';
+
+    message.textContent =
+      '';
+
+  }
+
+
+  try {
+
+    const periodo =
+      obterPeriodoDashboard();
+
+
+    if (
+      !periodo.data_inicio ||
+      !periodo.data_fim
+    ) {
+
+      throw new Error(
+        'Informe as duas datas do período.'
+      );
+
+    }
+
+
+    const params =
+      new URLSearchParams({
+
+        data_inicio:
+          periodo.data_inicio,
+
+        data_fim:
+          periodo.data_fim
+
+      });
+
+
+    const resposta =
+      await api(
+        `/dashboard?${params.toString()}`
+      );
+
+
+    if (!resposta || !resposta.resumo) {
+
+      throw new Error(
+        'Resposta inválida do dashboard.'
+      );
+
+    }
+
+
+    const resumo =
+      resposta.resumo;
+
+
+    // ========================================================
+    // CARDS
+    // ========================================================
+
+    const faturamento =
+      document.getElementById(
+        'dashboard-faturamento'
+      );
+
+    const despesas =
+      document.getElementById(
+        'dashboard-despesas'
+      );
+
+    const resultado =
+      document.getElementById(
+        'dashboard-resultado'
+      );
+
+    const agendamentos =
+      document.getElementById(
+        'dashboard-agendamentos'
+      );
+
+    const concluidos =
+      document.getElementById(
+        'dashboard-concluidos'
+      );
+
+    const cancelados =
+      document.getElementById(
+        'dashboard-cancelados'
+      );
+
+    const pendentes =
+      document.getElementById(
+        'dashboard-pendentes'
+      );
+
+    const ticket =
+      document.getElementById(
+        'dashboard-ticket-medio'
+      );
+
+    const pago =
+      document.getElementById(
+        'dashboard-pago'
+      );
+
+    const pendente =
+      document.getElementById(
+        'dashboard-pendente'
+      );
+
+
+    if (faturamento) {
+
+      faturamento.textContent =
+        formatarMoedaDashboard(
+          resumo.faturamento
+        );
+
+    }
+
+
+    if (despesas) {
+
+      despesas.textContent =
+        formatarMoedaDashboard(
+          resumo.despesas
+        );
+
+    }
+
+
+    if (resultado) {
+
+      resultado.textContent =
+        formatarMoedaDashboard(
+          resumo.resultado
+        );
+
+    }
+
+
+    if (agendamentos) {
+
+      agendamentos.textContent =
+        Number(
+          resumo.agendamentos || 0
+        ).toLocaleString('pt-BR');
+
+    }
+
+
+    if (concluidos) {
+
+      concluidos.textContent =
+        Number(
+          resumo.concluidos || 0
+        ).toLocaleString('pt-BR');
+
+    }
+
+
+    if (cancelados) {
+
+      cancelados.textContent =
+        Number(
+          resumo.cancelados || 0
+        ).toLocaleString('pt-BR');
+
+    }
+
+
+    if (pendentes) {
+
+      pendentes.textContent =
+        Number(
+          resumo.pendentes || 0
+        ).toLocaleString('pt-BR');
+
+    }
+
+
+    if (ticket) {
+
+      ticket.textContent =
+        formatarMoedaDashboard(
+          resumo.ticket_medio
+        );
+
+    }
+
+
+    if (pago) {
+
+      pago.textContent =
+        formatarMoedaDashboard(
+          resumo.valor_pago
+        );
+
+    }
+
+
+    if (pendente) {
+
+      pendente.textContent =
+        formatarMoedaDashboard(
+          resumo.valor_pendente
+        );
+
+    }
+
+
+    // ========================================================
+    // GRÁFICO
+    // ========================================================
+
+    renderizarMovimentacaoDashboard(
+      resposta.movimentacao || []
+    );
+
+
+    // ========================================================
+    // SERVIÇOS
+    // ========================================================
+
+    renderizarServicosDashboard(
+      resposta.servicos || []
+    );
+
+
+    // ========================================================
+    // AGENDAMENTOS RECENTES
+    // ========================================================
+
+    renderizarRecentesDashboard(
+      resposta.recentes || []
+    );
+
+
+  } catch (err) {
+
+    console.error(
+      'Erro ao carregar dashboard:',
+      err
+    );
+
+
+    if (message) {
+
+      message.textContent =
+        err?.message ||
+        'Não foi possível carregar o dashboard.';
+
+      message.style.display =
+        'block';
+
+    }
+
+  } finally {
+
+    dashboardCarregando =
+      false;
+
+    if (loading) {
+      loading.style.display =
+        'none';
+    }
+
+  }
+
+}
+
+
+// ============================================================
+// GRÁFICO
+// ============================================================
+
+
+function renderizarMovimentacaoDashboard(dados) {
+  const container = document.getElementById('dashboard-grafico');
+  if (!container) return;
+
+  if (!Array.isArray(dados) || dados.length === 0) {
+    container.innerHTML = `
+      <div class="dashboard-grafico-vazio">
+        Nenhuma movimentação encontrada para o período.
+      </div>
+    `;
+    return;
+  }
+
+  const valores = dados.flatMap(item => [
+    Number(item.faturamento || 0),
+    Number(item.despesas || 0),
+    Number(item.resultado || 0)
+  ]);
+
+  const maximo = Math.max(0, ...valores);
+  const minimo = Math.min(0, ...valores);
+  const amplitude = maximo - minimo || 1;
+
+  const largura = 900;
+  const altura = 300;
+  const margem = { top: 20, right: 24, bottom: 42, left: 70 };
+
+  const areaLargura = largura - margem.left - margem.right;
+  const areaAltura = altura - margem.top - margem.bottom;
+
+  const x = i => margem.left +
+    (dados.length === 1 ? areaLargura / 2 : i * areaLargura / (dados.length - 1));
+
+  const y = valor => margem.top +
+    ((maximo - valor) / amplitude) * areaAltura;
+
+  const formatarMoeda = valor =>
+    Number(valor).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0
+    });
+
+  const formatarDia = data => {
+    const partes = String(data).slice(0, 10).split('-');
+    return partes.length === 3 ? `${partes[2]}/${partes[1]}` : data;
+  };
+
+  const series = [
+    { chave: 'faturamento', nome: 'Faturamento', classe: 'faturamento' },
+    { chave: 'despesas', nome: 'Despesas', classe: 'despesas' },
+    { chave: 'resultado', nome: 'Resultado', classe: 'resultado' }
+  ];
+
+  const linha = chave => dados.map((item, i) =>
+    `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(Number(item[chave] || 0))}`
+  ).join(' ');
+
+  const grade = Array.from({ length: 5 }, (_, i) => {
+    const valor = maximo - (amplitude * i / 4);
+    const posY = margem.top + (areaAltura * i / 4);
+
+    return `
+      <line x1="${margem.left}" y1="${posY}"
+        x2="${largura - margem.right}" y2="${posY}"
+        class="mov-grade" />
+      <text x="${margem.left - 10}" y="${posY + 4}"
+        text-anchor="end" class="mov-eixo">
+        ${formatarMoeda(valor)}
+      </text>
+    `;
+  }).join('');
+
+  const passoRotulo = Math.max(1, Math.ceil(dados.length / 8));
+
+  const rotulos = dados.map((item, i) => {
+    if (i % passoRotulo !== 0 && i !== dados.length - 1) return '';
+
+    return `
+      <text x="${x(i)}" y="${altura - 12}"
+        text-anchor="middle" class="mov-eixo">
+        ${formatarDia(item.data)}
+      </text>
+    `;
+  }).join('');
+
+  const caminhos = series.map(serie => `
+    <path
+      d="${linha(serie.chave)}"
+      class="mov-linha mov-${serie.classe}"
+    />
+    ${dados.map((item, i) => `
+      <circle
+        cx="${x(i)}"
+        cy="${y(Number(item[serie.chave] || 0))}"
+        r="3"
+        class="mov-ponto mov-${serie.classe}"
+      >
+        <title>${formatarDia(item.data)} — ${serie.nome}: ${formatarMoeda(item[serie.chave] || 0)}</title>
+      </circle>
+    `).join('')}
+  `).join('');
+
+  const totais = series.map(serie => {
+    const total = dados.reduce(
+      (soma, item) => soma + Number(item[serie.chave] || 0),
+      0
+    );
+
+    return `
+      <div class="mov-resumo-item">
+        <span class="mov-legenda mov-${serie.classe}"></span>
+        <span>${serie.nome}</span>
+        <strong>${formatarMoeda(total)}</strong>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="movimentacao-dashboard">
+      <div class="mov-resumo">
+        ${totais}
+      </div>
+
+      <div class="mov-grafico-scroll">
+        <svg
+          class="mov-svg"
+          viewBox="0 0 ${largura} ${altura}"
+          role="img"
+          aria-label="Gráfico diário de faturamento, despesas e resultado"
+        >
+          ${grade}
+          ${caminhos}
+          ${rotulos}
+        </svg>
+      </div>
+    </div>
+  `;
+}
+
+
+// ============================================================
+// SERVIÇOS
+// ============================================================
+
+function renderizarServicosDashboard(
+  dados
+) {
+
+  const container =
+    document.getElementById(
+      'dashboard-servicos'
+    );
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!dados.length) {
+
+    container.innerHTML = `
+      <div class="dashboard-empty">
+        Nenhum serviço encontrado.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const maior =
+    Math.max(
+      ...dados.map(
+        item =>
+          Number(
+            item.faturamento || 0
+          )
+      ),
+      1
+    );
+
+
+  container.innerHTML =
+    dados.map(item => {
+
+      const valor =
+        Number(
+          item.faturamento || 0
+        );
+
+      const largura =
+        Math.max(
+          (valor / maior) * 100,
+          valor > 0 ? 2 : 0
+        );
+
+
+      return `
+        <div class="dashboard-ranking-item">
+
+          <div class="dashboard-ranking-top">
+
+            <strong>
+              ${escaparHtmlDashboard(item.nome)}
+            </strong>
+
+            <span>
+              ${formatarMoedaDashboard(valor)}
+            </span>
+
+          </div>
+
+          <div class="dashboard-ranking-bar">
+
+            <div
+              style="width:${largura}%"
+            ></div>
+
+          </div>
+
+          <small>
+            ${Number(item.quantidade || 0)}
+            atendimento(s)
+          </small>
+
+        </div>
+      `;
+
+    }).join('');
+
+}
+
+
+// ============================================================
+// AGENDAMENTOS RECENTES
+// ============================================================
+
+function renderizarRecentesDashboard(
+  dados
+) {
+
+  const container =
+    document.getElementById(
+      'dashboard-recentes'
+    );
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!dados.length) {
+
+    container.innerHTML = `
+      <div class="dashboard-empty">
+        Nenhum agendamento encontrado.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    dados.map(item => {
+
+      const cliente =
+        escaparHtmlDashboard(
+          item.cliente || 'Cliente'
+        );
+
+      const servico =
+        escaparHtmlDashboard(
+          item.servico_nome ||
+          'Serviço'
+        );
+
+      const status =
+        escaparHtmlDashboard(
+          item.status ||
+          'Pendente'
+        );
+
+
+      return `
+        <div class="dashboard-recent-item">
+
+          <div class="dashboard-recent-main">
+
+            <strong>
+              ${cliente}
+            </strong>
+
+            <span>
+              ${servico}
+            </span>
+
+          </div>
+
+          <div class="dashboard-recent-side">
+
+            <strong>
+              ${formatarMoedaDashboard(item.valor)}
+            </strong>
+
+            <span>
+              ${formatarDataDashboard(item.data)}
+              ${item.hora ? ` · ${escaparHtmlDashboard(item.hora)}` : ''}
+            </span>
+
+          </div>
+
+          <span class="dashboard-status">
+            ${status}
+          </span>
+
+        </div>
+      `;
+
+    }).join('');
+
+}
+
+
+// ============================================================
+// EVENTOS
+// ============================================================
+
+document.addEventListener(
+  'DOMContentLoaded',
+  () => {
+
+    const periodo =
+      document.getElementById(
+        'dashboard-periodo'
+      );
+
+    const atualizar =
+      document.getElementById(
+        'btn-atualizar-dashboard'
+      );
+
+
+    if (periodo) {
+
+      periodo.addEventListener(
+        'change',
+        () => {
+
+          atualizarDatasDashboard();
+
+          carregarDashboard();
+
+          renderizarMovimentacaoDashboard(dados.movimentacao);
+        }
+      );
+
+    }
+
+
+    if (atualizar) {
+
+      atualizar.addEventListener(
+        'click',
+        () => {
+
+          carregarDashboard();
+
+          renderizarMovimentacaoDashboard(dados.movimentacao);
+
+        }
+      );
+
+    }
+
+
+    atualizarDatasDashboard();
+
+    
+
+  }
+);
+
 
   // ============================================================
   // INICIALIZAÇÃO DO SISTEMA
@@ -7338,5 +8559,353 @@ async function carregarLogs() {
       }
     }
   );
+
+  // ============================================================
+// DASHBOARD
+// ============================================================
+
+let dashboardCarregando = false;
+
+
+// ============================================================
+// FORMATAÇÃO
+// ============================================================
+
+function formatarMoedaDashboard(valor) {
+
+  const numero =
+    Number(valor || 0);
+
+  return numero.toLocaleString(
+    'pt-BR',
+    {
+      style: 'currency',
+      currency: 'BRL'
+    }
+  );
+}
+
+
+function escaparHtmlDashboard(valor) {
+
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+}
+
+
+function formatarDataDashboard(valor) {
+
+  if (!valor) {
+    return '-';
+  }
+
+  const partes =
+    String(valor)
+      .slice(0, 10)
+      .split('-');
+
+  if (partes.length !== 3) {
+    return valor;
+  }
+
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+}
+
+
+// ============================================================
+// PERÍODO
+// ============================================================
+
+function obterPeriodoDashboard() {
+
+  const periodo =
+    document.getElementById(
+      'dashboard-periodo'
+    )?.value || '30';
+
+  if (periodo === 'personalizado') {
+
+    return {
+
+      data_inicio:
+        document.getElementById(
+          'dashboard-data-inicio'
+        )?.value || '',
+
+      data_fim:
+        document.getElementById(
+          'dashboard-data-fim'
+        )?.value || ''
+
+    };
+
+  }
+
+
+  const hoje =
+    new Date();
+
+  const inicio =
+    new Date(hoje);
+
+  inicio.setDate(
+    inicio.getDate() -
+    (Number(periodo) - 1)
+  );
+
+
+  const formatar =
+    data =>
+      data.toISOString()
+        .slice(0, 10);
+
+
+  return {
+
+    data_inicio:
+      formatar(inicio),
+
+    data_fim:
+      formatar(hoje)
+
+  };
+
+}
+
+
+// ============================================================
+// VISIBILIDADE DAS DATAS
+// ============================================================
+
+function atualizarDatasDashboard() {
+
+  const periodo =
+    document.getElementById(
+      'dashboard-periodo'
+    )?.value;
+
+  const container =
+    document.getElementById(
+      'dashboard-datas'
+    );
+
+  if (!container) {
+    return;
+  }
+
+  container.style.display =
+    periodo === 'personalizado'
+      ? 'grid'
+      : 'none';
+
+}
+
+
+/* =========================================================
+   CENTRAL DE NOTIFICAÇÕES — ORVIX
+   ========================================================= */
+
+(() => {
+    const btn = document.getElementById('btn-notificacoes');
+    const painel = document.getElementById('painel-notificacoes');
+
+    if (!btn || !painel || typeof api !== 'function') {
+        return;
+    }
+
+    const contador = document.getElementById('notificacoes-contador');
+    const resumo = document.getElementById('notificacoes-resumo');
+    const lista = document.getElementById('notificacoes-lista');
+    const btnFechar = document.getElementById('btn-notificacoes-fechar');
+    const btnTodasLidas = document.getElementById('btn-notificacoes-lidas');
+
+    let carregando = false;
+    let notificacoes = [];
+
+    function escaparHTML(valor) {
+        return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[caractere]);
+    }
+
+    function formatarData(valor) {
+        if (!valor) return '';
+
+        const data = new Date(valor);
+
+        if (Number.isNaN(data.getTime())) return '';
+
+        return data.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function atualizarContador(total) {
+        const quantidade = Math.max(0, Number(total) || 0);
+
+        contador.textContent = quantidade > 99 ? '99+' : String(quantidade);
+        contador.hidden = quantidade === 0;
+
+        resumo.textContent = quantidade === 0
+            ? 'Nenhuma notificação pendente'
+            : `${quantidade} não lida${quantidade === 1 ? '' : 's'}`;
+    }
+
+    function renderizarNotificacoes() {
+        if (!notificacoes.length) {
+            lista.innerHTML =
+                '<p class="notificacoes-vazio">Nenhuma notificação por enquanto.</p>';
+            return;
+        }
+
+        lista.innerHTML = notificacoes.map(n => {
+            const naoLida = !n.lida_em;
+
+            return `
+                <article
+                    class="notificacao-item ${naoLida ? 'nao-lida' : ''}"
+                    data-notificacao-id="${escaparHTML(n.id)}"
+                    data-notificacao-link="${escaparHTML(n.link || '')}"
+                    role="button"
+                    tabindex="0"
+                >
+                    <h4 class="notificacao-titulo">${escaparHTML(n.titulo)}</h4>
+                    <p class="notificacao-mensagem">${escaparHTML(n.mensagem)}</p>
+                    <time class="notificacao-data">${escaparHTML(formatarData(n.criado_em))}</time>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function carregarNotificacoes() {
+        if (carregando) return;
+
+        carregando = true;
+        lista.innerHTML =
+            '<p class="notificacoes-vazio">Carregando notificações...</p>';
+
+        try {
+            const [dados, contagem] = await Promise.all([
+                api('/notificacoes?pagina=1&limite=20'),
+                api('/notificacoes/contador')
+            ]);
+
+            notificacoes = Array.isArray(dados.notificacoes)
+                ? dados.notificacoes
+                : [];
+
+            atualizarContador(contagem.nao_lidas);
+            renderizarNotificacoes();
+        } catch (erro) {
+            console.error('Erro ao carregar notificações:', erro);
+
+            lista.innerHTML =
+                '<p class="notificacoes-vazio">Não foi possível carregar as notificações.</p>';
+        } finally {
+            carregando = false;
+        }
+    }
+
+    async function marcarComoLida(id) {
+        try {
+            await api(`/notificacoes/${encodeURIComponent(id)}/lida`, {
+                method: 'PATCH'
+            });
+
+            await carregarNotificacoes();
+        } catch (erro) {
+            console.error('Erro ao marcar notificação como lida:', erro);
+        }
+    }
+
+    async function abrirNotificacao(elemento) {
+        const id = elemento.dataset.notificacaoId;
+        const link = elemento.dataset.notificacaoLink;
+
+        const notificacao = notificacoes.find(n => String(n.id) === String(id));
+
+        if (notificacao && !notificacao.lida_em) {
+            await marcarComoLida(id);
+        }
+
+        if (link) {
+            // Aceita apenas caminhos internos relativos à aplicação.
+            if (link.startsWith('/') && !link.startsWith('//')) {
+                window.location.assign(link);
+            } else {
+                console.warn('Link externo ou inválido ignorado na notificação.');
+            }
+        }
+    }
+
+    btn.addEventListener('click', async () => {
+        const abrir = painel.hidden;
+
+        painel.hidden = !abrir;
+        btn.setAttribute('aria-expanded', String(abrir));
+
+        if (abrir) {
+            await carregarNotificacoes();
+        }
+    });
+
+    btnFechar?.addEventListener('click', () => {
+        painel.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+    });
+
+    lista.addEventListener('click', async evento => {
+        const item = evento.target.closest('.notificacao-item');
+        if (item) await abrirNotificacao(item);
+    });
+
+    lista.addEventListener('keydown', async evento => {
+        if (evento.key !== 'Enter' && evento.key !== ' ') return;
+
+        const item = evento.target.closest('.notificacao-item');
+        if (!item) return;
+
+        evento.preventDefault();
+        await abrirNotificacao(item);
+    });
+
+    btnTodasLidas?.addEventListener('click', async () => {
+        try {
+            await api('/notificacoes/lidas/todas', {
+                method: 'PATCH'
+            });
+
+            await carregarNotificacoes();
+        } catch (erro) {
+            console.error('Erro ao marcar todas como lidas:', erro);
+        }
+    });
+
+    document.addEventListener('click', evento => {
+        if (!painel.hidden &&
+            !evento.target.closest('#notificacoes-container')) {
+            painel.hidden = true;
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Contador atualizado periodicamente enquanto a sessão estiver aberta.
+    carregarNotificacoes();
+    window.setInterval(carregarNotificacoes, 60000);
+})();
 
 })();
