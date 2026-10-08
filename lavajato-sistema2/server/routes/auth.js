@@ -2,7 +2,6 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-
 const pool = require('../db');
 
 const autenticar = require('../middleware/auth');
@@ -20,6 +19,10 @@ const {
   enviarEmailRecuperacaoSenha
 } = require('../services/email');
 
+const {
+  registrarAuditoria
+} = require('../services/auditoria');
+
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -30,7 +33,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const TEMPO_RECUPERACAO_MINUTOS = 30;
 const TEMPO_JWT_DIAS = 7;
-
 const COOKIE_TOKEN = 'token';
 
 // ============================================================
@@ -58,18 +60,14 @@ function obterOpcoesCookieToken() {
 
   return {
     httpOnly: true,
-
     secure: producao,
-
     sameSite: 'lax',
-
     maxAge:
       TEMPO_JWT_DIAS *
       24 *
       60 *
       60 *
       1000,
-
     path: '/'
   };
 }
@@ -232,7 +230,6 @@ function gerarTokenJwt(usuario) {
 router.post(
   '/cadastro',
   async (req, res) => {
-
     const {
       empresa,
       email_empresa,
@@ -342,7 +339,6 @@ router.post(
       await pool.connect();
 
     try {
-
       await client.query(
         'BEGIN'
       );
@@ -488,11 +484,8 @@ router.post(
           `,
           [
             novaEmpresa.id,
-
             nomeUsuario,
-
             emailUsuarioNormalizado,
-
             senhaHash
           ]
         );
@@ -507,6 +500,27 @@ router.post(
       await client.query(
         'COMMIT'
       );
+
+      // ======================================================
+      // AUDITORIA DO CADASTRO
+      // ======================================================
+      //
+      // Importante:
+      // - Não registra senha
+      // - Não registra hash da senha
+      // - Não registra JWT
+      //
+
+      await registrarAuditoria(req, {
+        acao: 'criacao',
+        entidade: 'empresa',
+        entidadeId: novaEmpresa.id,
+        detalhes: {
+          origem: 'cadastro',
+          nome_empresa: novaEmpresa.nome,
+          usuario_id: usuario.id
+        }
+      });
 
       // ======================================================
       // PERMISSÕES
@@ -542,19 +556,14 @@ router.post(
       //
       // O cookie HttpOnly também é criado.
       //
-      // Depois que o frontend estiver usando somente cookie,
-      // podemos remover o campo token do JSON.
-      //
 
       return res.status(201).json({
-
         mensagem:
           'Empresa cadastrada com sucesso.',
 
         token,
 
         usuario: {
-
           id:
             usuario.id,
 
@@ -574,7 +583,6 @@ router.post(
         },
 
         empresa: {
-
           id:
             novaEmpresa.id,
 
@@ -593,7 +601,6 @@ router.post(
       });
 
     } catch (err) {
-
       try {
         await client.query(
           'ROLLBACK'
@@ -611,9 +618,7 @@ router.post(
       });
 
     } finally {
-
       client.release();
-
     }
   }
 );
@@ -625,7 +630,6 @@ router.post(
 router.post(
   '/login',
   async (req, res) => {
-
     const {
       email,
       senha
@@ -649,7 +653,6 @@ router.post(
       normalizarEmail(email);
 
     try {
-
       // ======================================================
       // BUSCAR USUÁRIO
       // ======================================================
@@ -687,7 +690,6 @@ router.post(
       if (
         rows.length === 0
       ) {
-
         const tentativas =
           req.rateLimit?.used || 1;
 
@@ -695,7 +697,6 @@ router.post(
           req.rateLimit?.limit || 10;
 
         return res.status(401).json({
-
           erro:
             `E-mail ou senha incorretos. Tentativa ${tentativas} de ${limite}.`,
 
@@ -741,7 +742,6 @@ router.post(
       if (
         !senhaValida
       ) {
-
         const tentativas =
           req.rateLimit?.used || 1;
 
@@ -749,7 +749,6 @@ router.post(
           req.rateLimit?.limit || 10;
 
         return res.status(401).json({
-
           erro:
             `E-mail ou senha incorretos. Tentativa ${tentativas} de ${limite}.`,
 
@@ -790,22 +789,35 @@ router.post(
       );
 
       // ======================================================
-      // RESPOSTA
+      // AUDITORIA DO LOGIN
       // ======================================================
       //
-      // Mantemos token no JSON para não quebrar o frontend
-      // existente.
+      // Não registra:
+      // - senha
+      // - JWT
+      // - dados sensíveis
       //
 
-      return res.json({
+      await registrarAuditoria(req, {
+        acao: 'login',
+        entidade: 'usuario',
+        entidadeId: usuario.id,
+        detalhes: {
+          origem: 'login'
+        }
+      });
 
+      // ======================================================
+      // RESPOSTA
+      // ======================================================
+
+      return res.json({
         mensagem:
           'Login realizado com sucesso.',
 
         token,
 
         usuario: {
-
           id:
             usuario.id,
 
@@ -826,11 +838,8 @@ router.post(
 
         empresa:
           usuario.perfil === 'dev'
-
             ? null
-
             : {
-
                 id:
                   usuario.empresa_id,
 
@@ -849,7 +858,6 @@ router.post(
       });
 
     } catch (err) {
-
       console.error(
         'Erro no login:',
         err
@@ -869,7 +877,31 @@ router.post(
 
 router.post(
   '/logout',
-  (req, res) => {
+  autenticar,
+  async (req, res) => {
+    try {
+      // ======================================================
+      // AUDITORIA DO LOGOUT
+      // ======================================================
+
+      await registrarAuditoria(req, {
+        acao: 'logout',
+        entidade: 'usuario',
+        entidadeId: req.usuario.id,
+        detalhes: {
+          origem: 'logout'
+        }
+      });
+    } catch (erro) {
+      console.error(
+        'Erro ao registrar auditoria do logout:',
+        erro.message
+      );
+    }
+
+    // ======================================================
+    // LIMPAR COOKIE
+    // ======================================================
 
     limparCookieToken(
       res
@@ -890,9 +922,7 @@ router.post(
   '/esqueci-senha',
   passwordResetRateLimit,
   async (req, res) => {
-
     const respostaPadrao = {
-
       mensagem:
         'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.'
     };
@@ -909,7 +939,6 @@ router.post(
     }
 
     try {
-
       // ======================================================
       // PROCURAR USUÁRIO
       // ======================================================
@@ -921,7 +950,8 @@ router.post(
             id,
             nome,
             email,
-            ativo
+            ativo,
+            empresa_id
           FROM usuarios
           WHERE LOWER(email) = $1
           LIMIT 1
@@ -1032,7 +1062,6 @@ router.post(
       // ======================================================
 
       await enviarEmailRecuperacaoSenha({
-
         para:
           usuario.email,
 
@@ -1041,6 +1070,43 @@ router.post(
 
         link
       });
+
+      // ======================================================
+      // AUDITORIA
+      // ======================================================
+      //
+      // NÃO registramos:
+      // - token
+      // - token_hash
+      // - link
+      //
+
+      if (usuario.empresa_id) {
+        const usuarioAuditoriaAnterior =
+          req.usuario;
+
+        req.usuario = {
+          ...(usuarioAuditoriaAnterior || {}),
+          id: usuario.id,
+          empresa_id: usuario.empresa_id,
+          nome: usuario.nome,
+          email: usuario.email
+        };
+
+        try {
+          await registrarAuditoria(req, {
+            acao: 'criacao',
+            entidade: 'recuperacao_senha',
+            entidadeId: usuario.id,
+            detalhes: {
+              origem: 'recuperacao_senha'
+            }
+          });
+        } finally {
+          req.usuario =
+            usuarioAuditoriaAnterior;
+        }
+      }
 
       console.log(
         'E-mail de recuperação de senha enviado.',
@@ -1055,7 +1121,6 @@ router.post(
       );
 
     } catch (err) {
-
       console.error(
         'Erro ao solicitar recuperação de senha:',
         err.message
@@ -1075,7 +1140,6 @@ router.post(
 router.post(
   '/redefinir-senha',
   async (req, res) => {
-
     const {
       token,
       senha
@@ -1135,7 +1199,6 @@ router.post(
       await pool.connect();
 
     try {
-
       await client.query(
         'BEGIN'
       );
@@ -1153,7 +1216,8 @@ router.post(
             r.expira_em,
             u.nome,
             u.email,
-            u.ativo
+            u.ativo,
+            u.empresa_id
           FROM recuperacao_senha r
           INNER JOIN usuarios u
             ON u.id = r.usuario_id
@@ -1175,7 +1239,6 @@ router.post(
       if (
         resultado.rows.length === 0
       ) {
-
         await client.query(
           'ROLLBACK'
         );
@@ -1196,7 +1259,6 @@ router.post(
       if (
         !recuperacao.ativo
       ) {
-
         await client.query(
           'ROLLBACK'
         );
@@ -1257,6 +1319,50 @@ router.post(
         'COMMIT'
       );
 
+      // ======================================================
+      // AUDITORIA DA ALTERAÇÃO DE SENHA
+      // ======================================================
+      //
+      // Não registramos:
+      // - senha antiga
+      // - senha nova
+      // - hash
+      // - token
+      //
+
+      if (recuperacao.empresa_id) {
+        const usuarioAnterior =
+          req.usuario;
+
+        req.usuario = {
+          ...(usuarioAnterior || {}),
+          id:
+            recuperacao.usuario_id,
+          empresa_id:
+            recuperacao.empresa_id,
+          nome:
+            recuperacao.nome,
+          email:
+            recuperacao.email
+        };
+
+        try {
+          await registrarAuditoria(req, {
+            acao: 'atualizacao',
+            entidade: 'usuario',
+            entidadeId:
+              recuperacao.usuario_id,
+            detalhes: {
+              origem: 'redefinicao_senha',
+              senha_alterada: true
+            }
+          });
+        } finally {
+          req.usuario =
+            usuarioAnterior;
+        }
+      }
+
       console.log(
         'Senha redefinida com sucesso.',
         {
@@ -1271,7 +1377,6 @@ router.post(
       });
 
     } catch (err) {
-
       try {
         await client.query(
           'ROLLBACK'
@@ -1289,9 +1394,7 @@ router.post(
       });
 
     } finally {
-
       client.release();
-
     }
   }
 );
@@ -1304,9 +1407,7 @@ router.get(
   '/me',
   autenticar,
   async (req, res) => {
-
     try {
-
       const { rows } =
         await pool.query(
           `
@@ -1389,9 +1490,7 @@ router.get(
       // ======================================================
 
       return res.json({
-
         usuario: {
-
           id:
             usuario.id,
 
@@ -1412,11 +1511,8 @@ router.get(
 
         empresa:
           usuario.perfil === 'dev'
-
             ? null
-
             : {
-
                 id:
                   usuario.empresa_id,
 
@@ -1435,7 +1531,6 @@ router.get(
       });
 
     } catch (err) {
-
       console.error(
         'Erro ao buscar usuário:',
         err
