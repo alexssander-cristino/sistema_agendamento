@@ -3144,11 +3144,9 @@
 
   const API_CONFIGURACOES = '/api/configuracoes';
   const CONFIGS_TOKEN_KEY = 'lavajato_auth_token';
-
   const NICHO_PADRAO = 'lavajato';
 
   let empresaConfiguracoes = null;
-
 
   // ============================================================
   // ELEMENTOS
@@ -3277,7 +3275,6 @@
       servico: 'Aula / Sessão',
       servicos: 'Aulas e sessões',
       novoServico: 'Nova aula / sessão',
-
       extra1: null,
       extra2: null
     },
@@ -3288,7 +3285,6 @@
       servico: 'Serviço',
       servicos: 'Serviços',
       novoServico: 'Novo serviço',
-
       extra1: null,
       extra2: null
     }
@@ -3491,13 +3487,34 @@
       empresaConfiguracoes.nicho
     );
 
+
+    // ==========================================================
+    // ATUALIZA ACESSO DOS USUÁRIOS
+    // ==========================================================
+    //
+    // IMPORTANTE:
+    // A função correta do sistema é
+    // atualizarAcessoUsuarios().
+    //
+    // Não utilizar atualizarSidebarUsuario().
+    //
+
     if (
-      typeof window.atualizarSidebarUsuario ===
-      'function'
+      typeof atualizarAcessoUsuarios === 'function'
     ) {
 
       try {
-        window.atualizarSidebarUsuario();
+        atualizarAcessoUsuarios();
+      } catch (_) {
+        // Ignorado.
+      }
+
+    } else if (
+      typeof window.atualizarAcessoUsuarios === 'function'
+    ) {
+
+      try {
+        window.atualizarAcessoUsuarios();
       } catch (_) {
         // Ignorado.
       }
@@ -3513,9 +3530,7 @@
           empresaConfiguracoes.nome_exibicao ||
           empresaConfiguracoes.nome ||
           'Empresa';
-
       }
-
     }
   }
 
@@ -3653,7 +3668,13 @@
           input.placeholder =
             cfg.placeholder;
 
-          if (cfg.upper) {
+          if (
+            cfg.upper &&
+            input.dataset.upperListener !== 'true'
+          ) {
+
+            input.dataset.upperListener =
+              'true';
 
             input.addEventListener(
               'input',
@@ -3662,7 +3683,6 @@
                   input.value.toUpperCase();
               }
             );
-
           }
 
         } else {
@@ -3672,7 +3692,6 @@
 
           input.value = '';
         }
-
       }
     );
 
@@ -3733,7 +3752,6 @@
               '...'
             )
           : 'Nome ou telefone...';
-
     }
 
 
@@ -3750,7 +3768,6 @@
       selConfig.value =
         chaveValida;
     }
-
   }
 
 
@@ -3811,13 +3828,11 @@
 
             empresaLogada.nicho =
               nicho;
-
           }
 
         } catch (_) {
           // Ignorado.
         }
-
       }
     );
   }
@@ -3857,7 +3872,6 @@
         '">' +
         escapeHtml(ap.veiculo) +
         '</span>';
-
     }
 
     if (ap?.placa) {
@@ -3877,7 +3891,6 @@
           )
         ) +
         '</span>';
-
     }
 
     if (ap?.observacoes) {
@@ -3888,7 +3901,6 @@
           ap.observacoes
         ) +
         '</span>';
-
     }
 
     return html;
@@ -3926,8 +3938,12 @@
   function headersAutenticacao() {
 
     const headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
+
+      Accept:
+        'application/json',
+
+      'Content-Type':
+        'application/json'
     };
 
     const token =
@@ -3937,7 +3953,6 @@
 
       headers.Authorization =
         `Bearer ${token}`;
-
     }
 
     return headers;
@@ -3954,7 +3969,9 @@
   ) {
 
     const headers = {
+
       ...headersAutenticacao(),
+
       ...(opcoes.headers || {})
     };
 
@@ -3963,9 +3980,11 @@
       {
         ...opcoes,
 
-        credentials: 'include',
+        credentials:
+          'include',
 
-        cache: 'no-store',
+        cache:
+          'no-store',
 
         headers
       }
@@ -4046,7 +4065,6 @@
           },
           5000
         );
-
     }
   }
 
@@ -4063,7 +4081,6 @@
 
       campo.textContent =
         '';
-
     }
   }
 
@@ -4095,7 +4112,6 @@
           'success',
           'error'
         );
-
       }
     );
   }
@@ -4128,7 +4144,6 @@
         botao.dataset
           .textoOriginal =
           botao.textContent;
-
       }
 
       botao.textContent =
@@ -4143,7 +4158,6 @@
         botao.dataset
           .textoOriginal ||
         textoNormal;
-
     }
   }
 
@@ -4163,6 +4177,10 @@
     empresaConfiguracoes =
       empresa;
 
+
+    // ----------------------------------------------------------
+    // EMPRESA
+    // ----------------------------------------------------------
 
     preencherCampo(
       'config-empresa-nome',
@@ -4370,9 +4388,12 @@
         empresa.nome_exibicao ||
         empresa.nome ||
         'Empresa';
-
     }
 
+
+    // ----------------------------------------------------------
+    // TEMA
+    // ----------------------------------------------------------
 
     aplicarTema(
       corPrimaria,
@@ -4395,7 +4416,6 @@
       dados
     );
 
-
     const resposta =
       await requisicaoConfiguracoes(
         API_CONFIGURACOES,
@@ -4406,7 +4426,6 @@
             JSON.stringify(dados)
         }
       );
-
 
     const resultado =
       await lerJsonSeguro(
@@ -4495,7 +4514,6 @@
       resultado
     );
 
-
     return resultado;
   }
 
@@ -4509,7 +4527,6 @@
     esconderMensagem(
       'configuracoes-message'
     );
-
 
     const nome =
       obterValor(
@@ -4549,8 +4566,7 @@
 
     if (
       !email ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        .test(email)
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     ) {
 
       throw new Error(
@@ -4627,14 +4643,12 @@
               'sucesso'
             );
 
-
           } catch (erro) {
 
             console.error(
               'Erro ao salvar dados da empresa:',
               erro
             );
-
 
             mostrarMensagem(
               'configuracoes-message',
@@ -4643,7 +4657,6 @@
               'erro'
             );
 
-
           } finally {
 
             alterarEstadoBotao(
@@ -4651,9 +4664,7 @@
               false,
               'Salvar alterações'
             );
-
           }
-
         }
       );
     }
@@ -4740,7 +4751,6 @@
 
           event.preventDefault();
 
-
           try {
 
             alterarEstadoBotao(
@@ -4791,14 +4801,12 @@
               'sucesso'
             );
 
-
           } catch (erro) {
 
             console.error(
               'Erro ao salvar preferências:',
               erro
             );
-
 
             mostrarMensagem(
               'configuracoes-message',
@@ -4807,7 +4815,6 @@
               'erro'
             );
 
-
           } finally {
 
             alterarEstadoBotao(
@@ -4815,9 +4822,7 @@
               false,
               'Salvar preferências'
             );
-
           }
-
         }
       );
     }
@@ -4882,7 +4887,6 @@
             .toUpperCase();
 
         atualizarPreviewTema();
-
       }
     );
 
@@ -4906,7 +4910,6 @@
 
           valor =
             '#' + valor;
-
         }
 
 
@@ -4923,7 +4926,6 @@
 
           atualizarPreviewTema();
         }
-
       }
     );
 
@@ -4947,7 +4949,6 @@
 
           valor =
             '#' + valor;
-
         }
 
 
@@ -4961,9 +4962,7 @@
 
           color.value =
             valor;
-
         }
-
       }
     );
   }
@@ -5032,21 +5031,28 @@
 
 
     if (preview) {
+
       preview.style.background =
         background;
     }
 
+
     if (title) {
+
       title.style.color =
         primary;
     }
 
+
     if (badge) {
+
       badge.style.background =
         accent;
     }
 
+
     if (button) {
+
       button.style.background =
         primary;
     }
@@ -5220,10 +5226,8 @@
               accent,
               background
             );
-
           }
         );
-
       }
     );
 
@@ -5244,12 +5248,12 @@
         .configsClickListener =
         'true';
 
+
       btnSalvarTema.addEventListener(
         'click',
         async event => {
 
           event.preventDefault();
-
 
           try {
 
@@ -5349,7 +5353,6 @@
               'sucesso'
             );
 
-
           } catch (erro) {
 
             console.error(
@@ -5365,7 +5368,6 @@
               'erro'
             );
 
-
           } finally {
 
             alterarEstadoBotao(
@@ -5373,9 +5375,7 @@
               false,
               'Salvar aparência'
             );
-
           }
-
         }
       );
     }
@@ -5397,6 +5397,7 @@
       btnRestaurarTema.dataset
         .configsClickListener =
         'true';
+
 
       btnRestaurarTema.addEventListener(
         'click',
@@ -5460,7 +5461,6 @@
             'Tema restaurado. Clique em "Salvar aparência" para confirmar.',
             'sucesso'
           );
-
         }
       );
     }
@@ -5483,12 +5483,12 @@
         .configsClickListener =
         'true';
 
+
       btnSalvarDocumentos.addEventListener(
         'click',
         async event => {
 
           event.preventDefault();
-
 
           try {
 
@@ -5530,7 +5530,6 @@
               'sucesso'
             );
 
-
           } catch (erro) {
 
             console.error(
@@ -5546,7 +5545,6 @@
               'erro'
             );
 
-
           } finally {
 
             alterarEstadoBotao(
@@ -5554,9 +5552,7 @@
               false,
               'Salvar documentos'
             );
-
           }
-
         }
       );
     }
@@ -5641,6 +5637,7 @@
       btnSalvarAgenda.dataset
         .configsClickListener =
         'true';
+
 
       btnSalvarAgenda.addEventListener(
         'click',
@@ -5837,7 +5834,6 @@
               'sucesso'
             );
 
-
           } catch (erro) {
 
             console.error(
@@ -5853,7 +5849,6 @@
               'erro'
             );
 
-
           } finally {
 
             alterarEstadoBotao(
@@ -5861,9 +5856,7 @@
               false,
               'Salvar agenda'
             );
-
           }
-
         }
       );
     }
@@ -5904,7 +5897,6 @@
     detalhesHtml,
 
     requisicaoConfiguracoes
-
   };
 
 
@@ -5915,13 +5907,13 @@
   window.salvarConfiguracoes =
     salvarConfiguracoes;
 
+
   window.salvarAgenda =
     async function () {
 
       if (btnSalvarAgenda) {
         btnSalvarAgenda.click();
       }
-
     };
 
 
@@ -5931,7 +5923,6 @@
       if (btnSalvarTema) {
         btnSalvarTema.click();
       }
-
     };
 
 
@@ -5941,7 +5932,6 @@
       if (btnSalvarDocumentos) {
         btnSalvarDocumentos.click();
       }
-
     };
 
 
@@ -5951,7 +5941,6 @@
       if (btnSalvarPreferencias) {
         btnSalvarPreferencias.click();
       }
-
     };
 
 
@@ -5974,11 +5963,5 @@
   limparMensagens();
 
   atualizarPreviewTema();
-
-  console.log(
-    '[Orvix] atualizarSidebarUsuario:',
-    typeof atualizarSidebarUsuario,
-    typeof window.atualizarSidebarUsuario
-);
 
 })();
