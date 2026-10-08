@@ -1556,6 +1556,7 @@
   // ============================================================
 
   async function loadTabData(tab){
+    console.log('>>> LOAD TAB:', tab);
 
     if(tab === 'agenda'){
       await refreshAgenda();
@@ -6288,6 +6289,7 @@
 
 
   async function carregarLogs(){
+    console.log('>>> CARREGAR LOGS FOI CHAMADO');
 
     if(logsCarregando){
       return;
