@@ -67,6 +67,8 @@ const adminTratamentosRouter =
 const adminIncidentesRouter =
   require('./routes/adminIncidentes');
 
+const logsRouter = require('./routes/logs');  
+
 
 // ============================================================
 // APP
@@ -463,6 +465,12 @@ app.use(
     publicPath
   )
 );
+
+// ============================================================
+// LOGS -  EMPRESAS
+// ============================================================
+
+app.use('/api/logs', logsRouter);
 
 
 // ============================================================
