@@ -30,7 +30,8 @@ const CONFIGS_CORES_PADRAO = {
   fundo: '#F5F7FA'
 };
 
-const CONFIGS_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CONFIGS_EMAIL_REGEX =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const CONFIGS_INTERVALOS_AGENDA = [
   15,
@@ -148,7 +149,10 @@ function preencherCampo(id, valor) {
     return;
   }
 
-  if (valor === null || valor === undefined) {
+  if (
+    valor === null ||
+    valor === undefined
+  ) {
     campo.value = '';
     return;
   }
@@ -193,6 +197,7 @@ function escaparTexto(valor) {
  *
  * 08:00
  */
+
 function normalizarHorarioInput(valor) {
   if (
     valor === null ||
@@ -244,7 +249,8 @@ function horarioParaMinutos(valor) {
     return NaN;
   }
 
-  const [hora, minuto] = valor.split(':').map(Number);
+  const [hora, minuto] =
+    valor.split(':').map(Number);
 
   return (hora * 60) + minuto;
 }
@@ -259,12 +265,15 @@ function corHexValida(valor) {
     return false;
   }
 
-  return /^#[0-9A-Fa-f]{6}$/.test(valor.trim());
+  return /^#[0-9A-Fa-f]{6}$/.test(
+    valor.trim()
+  );
 }
 
 
 function normalizarCor(valor, fallback) {
-  const cor = String(valor ?? '').trim();
+  const cor =
+    String(valor ?? '').trim();
 
   if (corHexValida(cor)) {
     return cor.toUpperCase();
@@ -278,16 +287,23 @@ function normalizarCor(valor, fallback) {
  * MENSAGENS
  * ============================================================ */
 
-function mostrarMensagem(id, mensagem, sucesso = true) {
-  const elementoMensagem = elemento(id);
+function mostrarMensagem(
+  id,
+  mensagem,
+  sucesso = true
+) {
+  const elementoMensagem =
+    elemento(id);
 
   if (!elementoMensagem) {
     return;
   }
 
-  elementoMensagem.textContent = mensagem;
+  elementoMensagem.textContent =
+    mensagem;
 
-  elementoMensagem.style.display = '';
+  elementoMensagem.style.display =
+    '';
 
   elementoMensagem.classList.remove(
     'success',
@@ -297,19 +313,31 @@ function mostrarMensagem(id, mensagem, sucesso = true) {
   );
 
   elementoMensagem.classList.add(
-    sucesso ? 'success' : 'error'
+    sucesso
+      ? 'success'
+      : 'error'
   );
 
-  clearTimeout(elementoMensagem._timeoutOrvix);
+  clearTimeout(
+    elementoMensagem._timeoutOrvix
+  );
 
-  elementoMensagem._timeoutOrvix = setTimeout(() => {
-    elementoMensagem.style.display = 'none';
-  }, 5000);
+  elementoMensagem._timeoutOrvix =
+    setTimeout(() => {
+      elementoMensagem.style.display =
+        'none';
+    }, 5000);
 }
 
 
-function mostrarErroPadrao(erro, mensagemId) {
-  console.error('[Orvix] Erro:', erro);
+function mostrarErroPadrao(
+  erro,
+  mensagemId
+) {
+  console.error(
+    '[Orvix] Erro:',
+    erro
+  );
 
   const mensagem =
     erro?.message ||
@@ -337,14 +365,17 @@ function alterarEstadoBotao(
   }
 
   if (carregando) {
-    if (!botao.dataset.textoOriginal) {
+    if (
+      !botao.dataset.textoOriginal
+    ) {
       botao.dataset.textoOriginal =
         botao.textContent;
     }
 
     botao.disabled = true;
 
-    botao.textContent = 'Salvando...';
+    botao.textContent =
+      'Salvando...';
 
     botao.setAttribute(
       'aria-busy',
@@ -356,7 +387,9 @@ function alterarEstadoBotao(
 
   botao.disabled = false;
 
-  botao.removeAttribute('aria-busy');
+  botao.removeAttribute(
+    'aria-busy'
+  );
 
   botao.textContent =
     botao.dataset.textoOriginal ||
@@ -389,7 +422,8 @@ async function requisicaoConfiguracoes(
   url,
   opcoes = {}
 ) {
-  const token = obterTokenConfiguracoes();
+  const token =
+    obterTokenConfiguracoes();
 
   const headers = {
     Accept: 'application/json',
@@ -409,24 +443,32 @@ async function requisicaoConfiguracoes(
       `Bearer ${token}`;
   }
 
-  const resposta = await fetch(
-    url,
-    {
-      ...opcoes,
-      credentials: 'include',
-      cache: 'no-store',
-      headers
-    }
-  );
+  const resposta =
+    await fetch(
+      url,
+      {
+        ...opcoes,
+        credentials: 'include',
+        cache: 'no-store',
+        headers
+      }
+    );
 
   let dados = null;
 
   const contentType =
-    resposta.headers.get('content-type') || '';
+    resposta.headers.get(
+      'content-type'
+    ) || '';
 
-  if (contentType.includes('application/json')) {
+  if (
+    contentType.includes(
+      'application/json'
+    )
+  ) {
     try {
-      dados = await resposta.json();
+      dados =
+        await resposta.json();
     } catch (erro) {
       console.warn(
         '[Orvix] Resposta JSON inválida.',
@@ -435,7 +477,8 @@ async function requisicaoConfiguracoes(
     }
   } else {
     try {
-      const texto = await resposta.text();
+      const texto =
+        await resposta.text();
 
       if (texto) {
         dados = {
@@ -456,7 +499,9 @@ async function requisicaoConfiguracoes(
       dados?.mensagem ||
       `Erro HTTP ${resposta.status}.`;
 
-    throw new Error(mensagem);
+    throw new Error(
+      mensagem
+    );
   }
 
   return dados || {};
@@ -474,13 +519,14 @@ async function requisicaoConfiguracoes(
  * Isso é especialmente importante para o nicho:
  *
  * empresa.nicho
- *       ↓
+ *      ↓
  * window.nichoAtual
- *       ↓
+ *      ↓
  * aplicarNicho()
- *       ↓
+ *      ↓
  * labels / serviços / clientes / sidebar
  */
+
 function sincronizarEmpresaComAplicacao(
   dados,
   empresa
@@ -489,10 +535,14 @@ function sincronizarEmpresaComAplicacao(
     return;
   }
 
-  empresaConfiguracoes = empresa;
+  empresaConfiguracoes =
+    empresa;
 
-  window.lavajatoEmpresa = empresa;
-  window.orvixEmpresa = empresa;
+  window.lavajatoEmpresa =
+    empresa;
+
+  window.orvixEmpresa =
+    empresa;
 
   /**
    * Se o app.js disponibilizar uma função para sincronizar
@@ -505,12 +555,15 @@ function sincronizarEmpresaComAplicacao(
    *   empresa
    * }
    */
+
   if (
     typeof window.atualizarEmpresaLocal ===
     'function'
   ) {
     try {
-      window.atualizarEmpresaLocal(dados);
+      window.atualizarEmpresaLocal(
+        dados
+      );
     } catch (erro) {
       console.warn(
         '[Orvix] Falha ao sincronizar empresa com app.js:',
@@ -524,8 +577,11 @@ function sincronizarEmpresaComAplicacao(
    * Isso evita depender exclusivamente do estado interno
    * do app.js.
    */
+
   const sidebarEmpresa =
-    elemento('sidebar-company');
+    elemento(
+      'sidebar-company'
+    );
 
   if (
     sidebarEmpresa &&
@@ -538,12 +594,15 @@ function sincronizarEmpresaComAplicacao(
   /**
    * Atualização do nicho.
    */
+
   if (empresa.nicho) {
     window.nichoAtual =
       empresa.nicho;
 
     const selectNicho =
-      elemento('config-empresa-nicho');
+      elemento(
+        'config-empresa-nicho'
+      );
 
     if (selectNicho) {
       selectNicho.value =
@@ -572,6 +631,7 @@ function sincronizarEmpresaComAplicacao(
    * sincronizado empresaLogada, podemos atualizar
    * a sidebar inteira.
    */
+
   if (
     typeof window.atualizarEmpresaLocal ===
       'function' &&
@@ -782,9 +842,9 @@ function preencherDadosEmpresa(
     )
   );
 
-
-  aplicarCoresEmpresa(empresa);
-}
+  aplicarCoresEmpresa(
+    empresa
+);
 
 
 /* ============================================================
@@ -809,28 +869,37 @@ async function carregarUsuarioConfiguracoes() {
 
     if (
       usuarioConfiguracoes &&
-      typeof usuarioConfiguracoes === 'object'
+      typeof usuarioConfiguracoes ===
+        'object'
     ) {
       window.orvixUsuario =
         usuarioConfiguracoes;
 
       const nome =
-        elemento('config-usuario-nome');
+        elemento(
+          'config-usuario-nome'
+        );
 
       const email =
-        elemento('config-usuario-email');
+        elemento(
+          'config-usuario-email'
+        );
 
       const perfil =
-        elemento('config-usuario-perfil');
+        elemento(
+          'config-usuario-perfil'
+        );
 
       if (nome) {
         nome.value =
-          usuarioConfiguracoes.nome || '';
+          usuarioConfiguracoes.nome ||
+          '';
       }
 
       if (email) {
         email.value =
-          usuarioConfiguracoes.email || '';
+          usuarioConfiguracoes.email ||
+          '';
       }
 
       if (perfil) {
@@ -840,9 +909,11 @@ async function carregarUsuarioConfiguracoes() {
           '';
 
         perfil.value =
-          perfilValor === 'administrador'
+          perfilValor ===
+          'administrador'
             ? 'Administrador'
-            : perfilValor === 'funcionario'
+            : perfilValor ===
+              'funcionario'
               ? 'Funcionário'
               : perfilValor;
       }
@@ -869,7 +940,8 @@ async function carregarConfiguracoes() {
     return empresaConfiguracoes;
   }
 
-  carregandoConfiguracoes = true;
+  carregandoConfiguracoes =
+    true;
 
   try {
     const dados =
@@ -948,10 +1020,14 @@ function atualizarInformacoesSistema(
   }
 
   const status =
-    elemento('config-info-status');
+    elemento(
+      'config-info-status'
+    );
 
   const empresaElemento =
-    elemento('config-info-empresa');
+    elemento(
+      'config-info-empresa'
+    );
 
   if (status) {
     status.textContent =
@@ -971,30 +1047,45 @@ function atualizarInformacoesSistema(
  * ============================================================ */
 
 function montarPayloadEmpresa() {
-  return {
-    nome: obterValor(
+  const nome =
+    obterValor(
       'config-empresa-nome'
-    ),
+    );
 
-    nome_exibicao: obterValor(
+  const nomeExibicao =
+    obterValor(
       'config-empresa-nome-exibicao'
-    ),
+    );
 
-    email: obterValor(
-      'config-empresa-email'
-    ),
+  return {
+    nome,
 
-    telefone: obterValor(
-      'config-empresa-telefone'
-    ),
+    /*
+     * Nome de exibição é opcional.
+     * Se estiver vazio, não obrigamos o preenchimento.
+     */
+    nome_exibicao:
+      nomeExibicao || null,
 
-    nicho: obterValor(
-      'config-empresa-nicho'
-    ).toLowerCase(),
+    email:
+      obterValor(
+        'config-empresa-email'
+      ),
 
-    logo_url: obterValor(
-      'config-logo-url'
-    )
+    telefone:
+      obterValor(
+        'config-empresa-telefone'
+      ),
+
+    nicho:
+      obterValor(
+        'config-empresa-nicho'
+      ).toLowerCase(),
+
+    logo_url:
+      obterValor(
+        'config-logo-url'
+      )
   };
 }
 
@@ -1002,9 +1093,7 @@ function montarPayloadEmpresa() {
 function validarPayloadEmpresa(
   payload
 ) {
-  if (
-    !payload.nome
-  ) {
+  if (!payload.nome) {
     throw new Error(
       'Informe o nome da empresa.'
     );
@@ -1018,15 +1107,14 @@ function validarPayloadEmpresa(
     );
   }
 
-  if (
-    !payload.nome_exibicao
-  ) {
-    throw new Error(
-      'Informe o nome de exibição.'
-    );
-  }
+  /*
+   * NOME DE EXIBIÇÃO NÃO É OBRIGATÓRIO.
+   *
+   * Só validamos o limite caso ele tenha sido informado.
+   */
 
   if (
+    payload.nome_exibicao &&
     payload.nome_exibicao.length > 150
   ) {
     throw new Error(
@@ -1066,25 +1154,30 @@ function validarPayloadEmpresa(
 
 function montarPayloadPreferencias() {
   return {
-    moeda: obterValor(
-      'config-moeda'
-    ),
+    moeda:
+      obterValor(
+        'config-moeda'
+      ),
 
-    idioma: obterValor(
-      'config-idioma'
-    ),
+    idioma:
+      obterValor(
+        'config-idioma'
+      ),
 
-    formato_data: obterValor(
-      'config-formato-data'
-    ),
+    formato_data:
+      obterValor(
+        'config-formato-data'
+      ),
 
-    formato_hora: obterValor(
-      'config-formato-hora'
-    ),
+    formato_hora:
+      obterValor(
+        'config-formato-hora'
+      ),
 
-    fuso_horario: obterValor(
-      'config-fuso-horario'
-    ),
+    fuso_horario:
+      obterValor(
+        'config-fuso-horario'
+      ),
 
     notificacoes_ativas:
       obterBooleano(
@@ -1374,7 +1467,9 @@ function validarPayloadAgenda(
 
   if (
     !CONFIGS_INTERVALOS_AGENDA.includes(
-      Number(payload.agenda_intervalo)
+      Number(
+        payload.agenda_intervalo
+      )
     )
   ) {
     throw new Error(
@@ -1403,13 +1498,13 @@ function validarPayloadAgenda(
  * Isso mantém compatibilidade com outras partes do app
  * que eventualmente chamem window.salvarConfiguracoes().
  */
+
 async function salvarConfiguracoes(
   payload,
-  mensagemId = 'configuracoes-message'
+  mensagemId =
+    'configuracoes-message'
 ) {
-  if (
-    salvandoConfiguracoes
-  ) {
+  if (salvandoConfiguracoes) {
     return false;
   }
 
@@ -1423,7 +1518,8 @@ async function salvarConfiguracoes(
     );
   }
 
-  salvandoConfiguracoes = true;
+  salvandoConfiguracoes =
+    true;
 
   try {
     const dados =
@@ -1437,9 +1533,10 @@ async function salvarConfiguracoes(
               'application/json'
           },
 
-          body: JSON.stringify(
-            payload
-          )
+          body:
+            JSON.stringify(
+              payload
+            )
         }
       );
 
@@ -1596,6 +1693,14 @@ async function salvarDadosEmpresa() {
       erro
     );
 
+    if (erro?.message) {
+      mostrarMensagem(
+        'configuracoes-message',
+        erro.message,
+        false
+      );
+    }
+
     return false;
   } finally {
     alterarEstadoBotao(
@@ -1650,6 +1755,14 @@ async function salvarPreferencias() {
       '[Orvix] Erro ao salvar preferências:',
       erro
     );
+
+    if (erro?.message) {
+      mostrarMensagem(
+        'configuracoes-message',
+        erro.message,
+        false
+      );
+    }
 
     return false;
   } finally {
@@ -1764,6 +1877,14 @@ async function salvarDocumentos() {
       erro
     );
 
+    if (erro?.message) {
+      mostrarMensagem(
+        'configuracoes-message',
+        erro.message,
+        false
+      );
+    }
+
     return false;
   } finally {
     alterarEstadoBotao(
@@ -1814,6 +1935,7 @@ async function salvarAgenda() {
      * Garante que o retorno da API seja aplicado
      * imediatamente nos campos da tela.
      */
+
     if (
       resultado?.empresa
     ) {
@@ -1836,6 +1958,7 @@ async function salvarAgenda() {
      * Isso garante que o estado da tela seja exatamente
      * o que está salvo no banco.
      */
+
     await atualizarDadosDepoisDeSalvar();
 
     mostrarMensagem(
@@ -1934,7 +2057,6 @@ function aplicarCoresEmpresa(
     '--background-color',
     fundo
   );
-
 
   preencherCampo(
     'config-cor-principal',
@@ -2055,7 +2177,9 @@ function atualizarPreviewTema() {
  * PRESETS DE TEMA
  * ============================================================ */
 
-function aplicarPresetTema(preset) {
+function aplicarPresetTema(
+  preset
+) {
   if (!preset) {
     return;
   }
@@ -2069,7 +2193,9 @@ function aplicarPresetTema(preset) {
   const fundo =
     preset.dataset.background;
 
-  if (corHexValida(primaria)) {
+  if (
+    corHexValida(primaria)
+  ) {
     preencherCampo(
       'config-cor-principal',
       primaria
@@ -2081,7 +2207,9 @@ function aplicarPresetTema(preset) {
     );
   }
 
-  if (corHexValida(destaque)) {
+  if (
+    corHexValida(destaque)
+  ) {
     preencherCampo(
       'config-cor-destaque',
       destaque
@@ -2093,7 +2221,9 @@ function aplicarPresetTema(preset) {
     );
   }
 
-  if (corHexValida(fundo)) {
+  if (
+    corHexValida(fundo)
+  ) {
     preencherCampo(
       'config-cor-fundo',
       fundo
@@ -2156,7 +2286,8 @@ function configurarCampoCor(
         !valor.startsWith('#') &&
         /^[0-9A-F]{6}$/.test(valor)
       ) {
-        valor = `#${valor}`;
+        valor =
+          `#${valor}`;
       }
 
       if (
@@ -2242,6 +2373,7 @@ function restaurarTema() {
  * ============================================================ */
 
 function configurarEventosConfiguracoes() {
+
   /* ----------------------------------------------------------
    * EMPRESA
    * ---------------------------------------------------------- */
@@ -2572,4 +2704,4 @@ if (
   );
 } else {
   inicializarConfiguracoes();
-}
+}};
