@@ -741,6 +741,23 @@
   <span class="nav-text">Logs e auditoria</span>
 </button>
 
+<button class="nav-btn" data-tab="relatorios" type="button" data-permission-module="financeiro">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 19V5M4 19H20M8 16V12M12 16V8M16 16V5M20 16V3"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </span>
+
+  <span class="nav-text">Relatórios</span>
+</button>
+
       </nav>
 
 
@@ -2386,6 +2403,294 @@
     >
       Próxima
     </button>
+
+  </div>
+
+</div>
+
+<div class="panel" id="panel-relatorios">
+
+  <div class="topbar">
+    <div>
+      <h1>Relatórios</h1>
+      <div class="date-label">
+        Acompanhe os principais indicadores da empresa
+      </div>
+    </div>
+
+    <button
+      class="btn btn-ghost"
+      id="btn-atualizar-relatorios"
+      type="button"
+    >
+      Atualizar
+    </button>
+  </div>
+
+
+  <!-- ========================================================
+       FILTROS
+       ======================================================== -->
+
+  <div class="relatorios-filtros">
+
+    <div class="field">
+      <label for="relatorios-periodo">Período</label>
+
+      <select id="relatorios-periodo">
+        <option value="7">Últimos 7 dias</option>
+        <option value="30" selected>Últimos 30 dias</option>
+        <option value="90">Últimos 90 dias</option>
+        <option value="personalizado">Personalizado</option>
+      </select>
+    </div>
+
+    <div
+      class="field"
+      id="relatorios-data-inicio-container"
+      style="display:none;"
+    >
+      <label for="relatorios-data-inicio">
+        Data inicial
+      </label>
+
+      <input
+        type="date"
+        id="relatorios-data-inicio"
+      >
+    </div>
+
+    <div
+      class="field"
+      id="relatorios-data-fim-container"
+      style="display:none;"
+    >
+      <label for="relatorios-data-fim">
+        Data final
+      </label>
+
+      <input
+        type="date"
+        id="relatorios-data-fim"
+      >
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================
+       CARDS PRINCIPAIS
+       ======================================================== -->
+
+  <div
+    id="relatorios-message"
+    class="auth-error"
+    style="display:none;"
+  ></div>
+
+
+  <div
+    class="relatorios-loading"
+    id="relatorios-loading"
+    style="display:none;"
+  >
+    Carregando relatórios...
+  </div>
+
+
+  <div class="relatorios-grid">
+
+    <div class="relatorio-card">
+      <div class="relatorio-card-top">
+        <span class="relatorio-card-label">
+          Faturamento
+        </span>
+
+        <span class="relatorio-card-icon faturamento">
+          R$
+        </span>
+      </div>
+
+      <strong
+        class="relatorio-card-value"
+        id="relatorio-faturamento"
+      >
+        R$ 0,00
+      </strong>
+
+      <span class="relatorio-card-footer">
+        Período selecionado
+      </span>
+    </div>
+
+
+    <div class="relatorio-card">
+      <div class="relatorio-card-top">
+        <span class="relatorio-card-label">
+          Despesas
+        </span>
+
+        <span class="relatorio-card-icon despesas">
+          −
+        </span>
+      </div>
+
+      <strong
+        class="relatorio-card-value"
+        id="relatorio-despesas"
+      >
+        R$ 0,00
+      </strong>
+
+      <span class="relatorio-card-footer">
+        Período selecionado
+      </span>
+    </div>
+
+
+    <div class="relatorio-card">
+      <div class="relatorio-card-top">
+        <span class="relatorio-card-label">
+          Lucro estimado
+        </span>
+
+        <span class="relatorio-card-icon lucro">
+          +
+        </span>
+      </div>
+
+      <strong
+        class="relatorio-card-value"
+        id="relatorio-lucro"
+      >
+        R$ 0,00
+      </strong>
+
+      <span class="relatorio-card-footer">
+        Receitas menos despesas
+      </span>
+    </div>
+
+
+    <div class="relatorio-card">
+      <div class="relatorio-card-top">
+        <span class="relatorio-card-label">
+          Agendamentos
+        </span>
+
+        <span class="relatorio-card-icon agenda">
+          #
+        </span>
+      </div>
+
+      <strong
+        class="relatorio-card-value"
+        id="relatorio-agendamentos"
+      >
+        0
+      </strong>
+
+      <span class="relatorio-card-footer">
+        Total no período
+      </span>
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================
+       INDICADORES SECUNDÁRIOS
+       ======================================================== -->
+
+  <div class="relatorios-grid-secundario">
+
+    <div class="relatorio-info-card">
+      <span>Concluídos</span>
+
+      <strong id="relatorio-concluidos">
+        0
+      </strong>
+    </div>
+
+    <div class="relatorio-info-card">
+      <span>Cancelados</span>
+
+      <strong id="relatorio-cancelados">
+        0
+      </strong>
+    </div>
+
+    <div class="relatorio-info-card">
+      <span>Ticket médio</span>
+
+      <strong id="relatorio-ticket-medio">
+        R$ 0,00
+      </strong>
+    </div>
+
+    <div class="relatorio-info-card">
+      <span>Saldo</span>
+
+      <strong id="relatorio-saldo">
+        R$ 0,00
+      </strong>
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================
+       EVOLUÇÃO
+       ======================================================== -->
+
+  <div class="relatorios-section">
+
+    <div class="relatorios-section-header">
+      <div>
+        <h2>Movimentação</h2>
+
+        <span>
+          Quantidade e faturamento por dia
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="relatorio-grafico"
+      id="relatorio-grafico"
+    >
+      <div class="relatorio-grafico-vazio">
+        Carregando dados...
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================
+       SERVIÇOS
+       ======================================================== -->
+
+  <div class="relatorios-section">
+
+    <div class="relatorios-section-header">
+      <div>
+        <h2>Serviços</h2>
+
+        <span>
+          Serviços com maior faturamento no período
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="relatorio-servicos"
+      id="relatorio-servicos"
+    >
+      <div class="relatorio-grafico-vazio">
+        Carregando dados...
+      </div>
+    </div>
 
   </div>
 

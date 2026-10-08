@@ -72,6 +72,8 @@ const adminIncidentesRouter =
 
 const logsRouter = require('./routes/logs');  
 
+const relatoriosRouter = require('./routes/relatorios');
+
 
 // ============================================================
 // APP
@@ -304,6 +306,7 @@ app.use(
   configuracoesRouter
 );
 
+app.use('/api/relatorios', relatoriosRouter);
 
 app.use(
   '/api/planos',

@@ -7062,6 +7062,522 @@ async function carregarLogs() {
     aplicarNicho
   };
 
+  /* ============================================================
+ * ORVIX — RELATÓRIOS
+ * ============================================================ */
+
+let relatoriosCarregando = false;
+
+function formatarMoedaRelatorio(valor) {
+  const numero = Number(valor || 0);
+
+  return numero.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+}
+
+function escaparHtmlRelatorio(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatarDataRelatorio(data) {
+  if (!data) return '-';
+
+  const texto = String(data).slice(0, 10);
+
+  const partes = texto.split('-');
+
+  if (partes.length !== 3) {
+    return texto;
+  }
+
+  return `${partes[2]}/${partes[1]}`;
+}
+
+
+function obterPeriodoRelatorios() {
+
+  const periodo =
+    $('relatorios-periodo')?.value || '30';
+
+  const hoje = new Date();
+
+  const formatarData = (data) => {
+    const ano = data.getFullYear();
+
+    const mes = String(
+      data.getMonth() + 1
+    ).padStart(2, '0');
+
+    const dia = String(
+      data.getDate()
+    ).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}`;
+  };
+
+
+  if (periodo === 'personalizado') {
+
+    return {
+      data_inicio:
+        $('relatorios-data-inicio')?.value || '',
+
+      data_fim:
+        $('relatorios-data-fim')?.value || ''
+    };
+  }
+
+
+  const dias = Number(periodo || 30);
+
+  const inicio = new Date(hoje);
+
+  inicio.setDate(
+    inicio.getDate() - (dias - 1)
+  );
+
+
+  return {
+    data_inicio: formatarData(inicio),
+    data_fim: formatarData(hoje)
+  };
+}
+
+
+function atualizarVisibilidadeDatasRelatorios() {
+
+  const personalizado =
+    $('relatorios-periodo')?.value === 'personalizado';
+
+  const inicio =
+    $('relatorios-data-inicio-container');
+
+  const fim =
+    $('relatorios-data-fim-container');
+
+
+  if (inicio) {
+    inicio.style.display =
+      personalizado ? '' : 'none';
+  }
+
+  if (fim) {
+    fim.style.display =
+      personalizado ? '' : 'none';
+  }
+}
+
+
+async function carregarRelatorios() {
+
+  if (relatoriosCarregando) {
+    return;
+  }
+
+  const loading =
+    $('relatorios-loading');
+
+  const message =
+    $('relatorios-message');
+
+
+  try {
+
+    relatoriosCarregando = true;
+
+
+    if (loading) {
+      loading.style.display = '';
+    }
+
+    if (message) {
+      message.style.display = 'none';
+      message.textContent = '';
+    }
+
+
+    const periodo =
+      obterPeriodoRelatorios();
+
+
+    if (
+      !periodo.data_inicio ||
+      !periodo.data_fim
+    ) {
+
+      throw new Error(
+        'Informe a data inicial e a data final.'
+      );
+    }
+
+
+    if (
+      periodo.data_inicio >
+      periodo.data_fim
+    ) {
+
+      throw new Error(
+        'A data inicial não pode ser maior que a data final.'
+      );
+    }
+
+
+    const params =
+      new URLSearchParams();
+
+    params.set(
+      'data_inicio',
+      periodo.data_inicio
+    );
+
+    params.set(
+      'data_fim',
+      periodo.data_fim
+    );
+
+
+    const resumo =
+      await api(
+        `/relatorios/resumo?${params.toString()}`
+      );
+
+
+    const financeiro =
+      await api(
+        `/relatorios/financeiro?${params.toString()}`
+      );
+
+
+    const agendamentos =
+      await api(
+        `/relatorios/agendamentos?${params.toString()}`
+      );
+
+
+    const servicos =
+      await api(
+        `/relatorios/servicos?${params.toString()}`
+      );
+
+
+    const indicadores =
+      resumo?.indicadores || {};
+
+
+    if ($('relatorio-faturamento')) {
+      $('relatorio-faturamento').textContent =
+        formatarMoedaRelatorio(
+          indicadores.faturamento
+        );
+    }
+
+
+    if ($('relatorio-despesas')) {
+      $('relatorio-despesas').textContent =
+        formatarMoedaRelatorio(
+          indicadores.despesas
+        );
+    }
+
+
+    if ($('relatorio-lucro')) {
+      $('relatorio-lucro').textContent =
+        formatarMoedaRelatorio(
+          indicadores.lucro
+        );
+    }
+
+
+    if ($('relatorio-agendamentos')) {
+      $('relatorio-agendamentos').textContent =
+        Number(
+          indicadores.total_agendamentos || 0
+        ).toLocaleString('pt-BR');
+    }
+
+
+    if ($('relatorio-concluidos')) {
+      $('relatorio-concluidos').textContent =
+        Number(
+          indicadores.agendamentos_concluidos || 0
+        ).toLocaleString('pt-BR');
+    }
+
+
+    if ($('relatorio-cancelados')) {
+      $('relatorio-cancelados').textContent =
+        Number(
+          indicadores.agendamentos_cancelados || 0
+        ).toLocaleString('pt-BR');
+    }
+
+
+    if ($('relatorio-ticket-medio')) {
+      $('relatorio-ticket-medio').textContent =
+        formatarMoedaRelatorio(
+          indicadores.ticket_medio
+        );
+    }
+
+
+    if ($('relatorio-saldo')) {
+      $('relatorio-saldo').textContent =
+        formatarMoedaRelatorio(
+          financeiro?.saldo
+        );
+    }
+
+
+    renderizarGraficoRelatorios(
+      agendamentos?.dados || []
+    );
+
+
+    renderizarServicosRelatorios(
+      servicos?.dados || []
+    );
+
+
+  } catch (erro) {
+
+    console.error(
+      '[RELATORIOS] Erro:',
+      erro
+    );
+
+
+    if (message) {
+
+      message.textContent =
+        erro?.message ||
+        'Não foi possível carregar os relatórios.';
+
+      message.style.display = '';
+    }
+
+  } finally {
+
+    relatoriosCarregando = false;
+
+    if (loading) {
+      loading.style.display = 'none';
+    }
+  }
+}
+
+
+function renderizarGraficoRelatorios(dados) {
+
+  const container =
+    $('relatorio-grafico');
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!Array.isArray(dados) || !dados.length) {
+
+    container.innerHTML = `
+      <div class="relatorio-grafico-vazio">
+        Nenhum dado encontrado no período.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const maiorValor =
+    Math.max(
+      ...dados.map(
+        item => Number(item.valor || 0)
+      )
+    );
+
+
+  if (maiorValor <= 0) {
+
+    container.innerHTML = `
+      <div class="relatorio-grafico-vazio">
+        Nenhum faturamento registrado no período.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    dados.map(item => {
+
+      const valor =
+        Number(item.valor || 0);
+
+      const altura =
+        Math.max(
+          3,
+          (valor / maiorValor) * 170
+        );
+
+
+      const data =
+        formatarDataRelatorio(
+          item.data
+        );
+
+
+      return `
+        <div
+          class="relatorio-barra"
+          title="${escaparHtmlRelatorio(
+            formatarMoedaRelatorio(valor)
+          )}"
+        >
+
+          <span class="relatorio-barra-valor">
+            ${escaparHtmlRelatorio(
+              formatarMoedaRelatorio(valor)
+            )}
+          </span>
+
+          <div
+            class="relatorio-barra-coluna"
+            style="height:${altura}px"
+          ></div>
+
+          <span class="relatorio-barra-data">
+            ${escaparHtmlRelatorio(data)}
+          </span>
+
+        </div>
+      `;
+
+    }).join('');
+}
+
+
+function renderizarServicosRelatorios(dados) {
+
+  const container =
+    $('relatorio-servicos');
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!Array.isArray(dados) || !dados.length) {
+
+    container.innerHTML = `
+      <div class="relatorio-grafico-vazio">
+        Nenhum serviço encontrado no período.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    dados.map(item => {
+
+      const nome =
+        escaparHtmlRelatorio(
+          item.nome || 'Serviço'
+        );
+
+
+      const quantidade =
+        Number(
+          item.quantidade || 0
+        );
+
+
+      const faturamento =
+        Number(
+          item.faturamento || 0
+        );
+
+
+      return `
+        <div class="relatorio-servico">
+
+          <div class="relatorio-servico-nome">
+            ${nome}
+          </div>
+
+          <div class="relatorio-servico-quantidade">
+            ${quantidade.toLocaleString('pt-BR')}
+            ${quantidade === 1 ? 'atendimento' : 'atendimentos'}
+          </div>
+
+          <div class="relatorio-servico-valor">
+            ${formatarMoedaRelatorio(faturamento)}
+          </div>
+
+        </div>
+      `;
+
+    }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  const periodo =
+    $('relatorios-periodo');
+
+  const atualizar =
+    $('btn-atualizar-relatorios');
+
+
+  periodo?.addEventListener(
+    'change',
+    () => {
+
+      atualizarVisibilidadeDatasRelatorios();
+
+      if (
+        periodo.value !== 'personalizado'
+      ) {
+        carregarRelatorios();
+      }
+    }
+  );
+
+
+  $('relatorios-data-inicio')
+    ?.addEventListener(
+      'change',
+      carregarRelatorios
+    );
+
+
+  $('relatorios-data-fim')
+    ?.addEventListener(
+      'change',
+      carregarRelatorios
+    );
+
+
+  atualizar?.addEventListener(
+    'click',
+    carregarRelatorios
+  );
+
+
+  atualizarVisibilidadeDatasRelatorios();
+
+});
 
   // ============================================================
   // INICIALIZAÇÃO DO SISTEMA
