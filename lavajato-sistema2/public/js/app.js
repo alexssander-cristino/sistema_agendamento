@@ -6309,7 +6309,8 @@ async function carregarLogs() {
 
     lista.innerHTML = `
       <div class="empty">
-        <strong>Carregando logs...</strong>
+        <strong>Carregando atividades...</strong>
+        <span>Buscando as últimas alterações realizadas na empresa.</span>
       </div>
     `;
 
@@ -6348,9 +6349,12 @@ async function carregarLogs() {
 
     if (!logs.length) {
       lista.innerHTML = `
-        <div class="empty">
-          <strong>Nenhum registro encontrado</strong>
-          Não existem registros de auditoria para os filtros selecionados.
+        <div class="empty logs-empty-state">
+          <div class="logs-empty-icon">✓</div>
+          <strong>Nenhuma atividade encontrada</strong>
+          <span>
+            Não existem registros de auditoria para os filtros selecionados.
+          </span>
         </div>
       `;
 
@@ -6364,58 +6368,300 @@ async function carregarLogs() {
         obterNomeUsuarioLog(log)
       );
 
-      const acaoFormatada = escaparHtmlLogs(
-        formatarAcaoLog(log.acao)
+      const acaoOriginal = String(
+        log.acao || ''
+      ).toLowerCase();
+
+      const entidadeOriginal = String(
+        log.entidade || ''
+      ).toLowerCase();
+
+      const acaoFormatada = formatarAcaoLog(
+        log.acao
       );
 
-      const entidade = escaparHtmlLogs(
-        formatarEntidadeLog(log.entidade)
+      const entidade = formatarEntidadeLog(
+        log.entidade
       );
 
-      const data = escaparHtmlLogs(
-        formatarDataLog(log.criado_em)
+      const data = formatarDataLog(
+        log.criado_em
       );
 
-      const detalhes = escaparHtmlLogs(
-        formatarDetalhesLog(log.detalhes)
+      const detalhes = formatarDetalhesLog(
+        log.detalhes
       );
 
-      const entidadeId = log.entidade_id != null
-        ? escaparHtmlLogs(log.entidade_id)
-        : '-';
+      const entidadeId =
+        log.entidade_id != null &&
+        log.entidade_id !== ''
+          ? String(log.entidade_id)
+          : null;
+
+      /*
+       * ---------------------------------------------------------
+       * TEXTO PRINCIPAL DA ATIVIDADE
+       * ---------------------------------------------------------
+       */
+
+      let titulo = `${acaoFormatada} · ${entidade}`;
+
+      if (acaoOriginal === 'criacao') {
+        titulo = `${entidade} criado`;
+      }
+
+      if (
+        acaoOriginal === 'atualizacao' ||
+        acaoOriginal === 'atualização'
+      ) {
+        titulo = `${entidade} atualizado`;
+      }
+
+      if (acaoOriginal === 'exclusao' ||
+          acaoOriginal === 'exclusão') {
+        titulo = `${entidade} excluído`;
+      }
+
+      if (acaoOriginal === 'login') {
+        titulo = 'Login realizado';
+      }
+
+      if (acaoOriginal === 'logout') {
+        titulo = 'Logout realizado';
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * ÍCONE / TIPO DA ATIVIDADE
+       * ---------------------------------------------------------
+       */
+
+      let classeAcao = 'default';
+      let iconeAcao = '•';
+
+      if (acaoOriginal === 'criacao') {
+        classeAcao = 'criacao';
+        iconeAcao = '+';
+      }
+
+      if (
+        acaoOriginal === 'atualizacao' ||
+        acaoOriginal === 'atualização'
+      ) {
+        classeAcao = 'atualizacao';
+        iconeAcao = '↻';
+      }
+
+      if (
+        acaoOriginal === 'exclusao' ||
+        acaoOriginal === 'exclusão'
+      ) {
+        classeAcao = 'exclusao';
+        iconeAcao = '×';
+      }
+
+      if (acaoOriginal === 'login') {
+        classeAcao = 'login';
+        iconeAcao = '→';
+      }
+
+      if (acaoOriginal === 'logout') {
+        classeAcao = 'logout';
+        iconeAcao = '←';
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * DESCRIÇÃO
+       * ---------------------------------------------------------
+       */
+
+      let descricao = '';
+
+      if (acaoOriginal === 'criacao') {
+        descricao = `Criado por ${usuario}`;
+      } else if (
+        acaoOriginal === 'atualizacao' ||
+        acaoOriginal === 'atualização'
+      ) {
+        descricao = `Alterado por ${usuario}`;
+      } else if (
+        acaoOriginal === 'exclusao' ||
+        acaoOriginal === 'exclusão'
+      ) {
+        descricao = `Removido por ${usuario}`;
+      } else if (acaoOriginal === 'login') {
+        descricao = `${usuario} entrou no sistema`;
+      } else if (acaoOriginal === 'logout') {
+        descricao = `${usuario} saiu do sistema`;
+      } else {
+        descricao = `Realizado por ${usuario}`;
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * BADGE DO REGISTRO
+       * ---------------------------------------------------------
+       */
+
+      const badgeId = entidadeId
+        ? `
+          <span class="log-id">
+            #${escaparHtmlLogs(entidadeId)}
+          </span>
+        `
+        : '';
+
+      /*
+       * ---------------------------------------------------------
+       * DETALHES
+       * ---------------------------------------------------------
+       */
+
+      const detalhesHtml = detalhes
+        ? `
+          <div class="log-details">
+            <div class="log-details-label">
+              Detalhes
+            </div>
+
+            <div class="log-details-text">
+              ${escaparHtmlLogs(detalhes)}
+            </div>
+          </div>
+        `
+        : '';
+
+      /*
+       * ---------------------------------------------------------
+       * METADADOS TÉCNICOS
+       * ---------------------------------------------------------
+       */
+
+      let dadosTecnicos = '';
+
+      if (log.detalhes) {
+        try {
+          const dados =
+            typeof log.detalhes === 'string'
+              ? JSON.parse(log.detalhes)
+              : log.detalhes;
+
+          const rota = dados?.rota || '';
+          const metodo = dados?.metodo || '';
+          const status = dados?.status || '';
+
+          if (rota || metodo || status) {
+            dadosTecnicos = `
+              <div class="log-technical">
+
+                ${
+                  metodo
+                    ? `
+                      <span class="log-method">
+                        ${escaparHtmlLogs(metodo)}
+                      </span>
+                    `
+                    : ''
+                }
+
+                ${
+                  rota
+                    ? `
+                      <span class="log-route">
+                        ${escaparHtmlLogs(rota)}
+                      </span>
+                    `
+                    : ''
+                }
+
+                ${
+                  status
+                    ? `
+                      <span class="log-status">
+                        ${escaparHtmlLogs(status)}
+                      </span>
+                    `
+                    : ''
+                }
+
+              </div>
+            `;
+          }
+
+        } catch (_) {
+          // Detalhes inválidos não impedem a exibição do log.
+        }
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * CARD
+       * ---------------------------------------------------------
+       */
 
       return `
-        <div class="ticket-item log-item">
+        <article class="log-card">
 
-          <div class="ticket-main">
+          <div class="log-card-icon ${classeAcao}">
+            ${iconeAcao}
+          </div>
 
-            <div class="ticket-title">
-              ${acaoFormatada}
+          <div class="log-card-content">
+
+            <div class="log-card-header">
+
+              <div class="log-card-title-area">
+
+                <div class="log-card-title">
+                  ${escaparHtmlLogs(titulo)}
+                  ${badgeId}
+                </div>
+
+                <div class="log-card-description">
+                  ${escaparHtmlLogs(descricao)}
+                </div>
+
+              </div>
+
+              <div class="log-card-date">
+                ${escaparHtmlLogs(data)}
+              </div>
+
             </div>
 
-            <div class="ticket-meta">
-              ${usuario}
-              · ${entidade}
-              · ID ${entidadeId}
+            <div class="log-card-meta">
+
+              <span class="log-meta-user">
+                ${usuario}
+              </span>
+
+              <span class="log-meta-separator">·</span>
+
+              <span>
+                ${escaparHtmlLogs(entidade)}
+              </span>
+
+              ${
+                entidadeId
+                  ? `
+                    <span class="log-meta-separator">·</span>
+                    <span>
+                      Registro #${escaparHtmlLogs(entidadeId)}
+                    </span>
+                  `
+                  : ''
+              }
+
             </div>
 
-            ${
-              detalhes
-                ? `
-                  <div class="ticket-meta">
-                    ${detalhes}
-                  </div>
-                `
-                : ''
-            }
+            ${dadosTecnicos}
+
+            ${detalhesHtml}
 
           </div>
 
-          <div class="ticket-side">
-            ${data}
-          </div>
-
-        </div>
+        </article>
       `;
     }).join('');
 
@@ -6429,9 +6675,16 @@ async function carregarLogs() {
     );
 
     lista.innerHTML = `
-      <div class="empty">
-        <strong>Não foi possível carregar os logs</strong>
-        Verifique sua conexão e tente novamente.
+      <div class="empty logs-empty-state">
+        <div class="logs-empty-icon">!</div>
+
+        <strong>
+          Não foi possível carregar as atividades
+        </strong>
+
+        <span>
+          Verifique sua conexão e tente novamente.
+        </span>
       </div>
     `;
 
@@ -6441,7 +6694,6 @@ async function carregarLogs() {
 
   }
 }
-
 
   function renderizarLogs(logs){
 
