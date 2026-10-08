@@ -1,4 +1,4 @@
-const { registrarAuditoria } = require('../service/auditoria');
+const { registrarAuditoria } = require('../services/auditoria');
 
 /**
  * ============================================================
