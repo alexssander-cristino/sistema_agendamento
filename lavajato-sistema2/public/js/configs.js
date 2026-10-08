@@ -16,9 +16,27 @@ const CONFIGS_CORES_PADRAO = {
 const CONFIGS_EMAIL_REGEX =
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const CONFIGS_NICHOS_VALIDOS = [
+  'lavajato',
+  'barbearia',
+  'clinica',
+  'pet',
+  'oficina',
+  'personal',
+  'generico'
+];
+
+const CONFIGS_INTERVALOS_AGENDA = [
+  15,
+  30,
+  45,
+  60,
+  90,
+  120
+];
+
 let empresaConfiguracoes = null;
 let usuarioConfiguracoes = null;
-
 let carregandoConfiguracoes = false;
 let salvandoConfiguracoes = false;
 
@@ -39,7 +57,9 @@ function obterValor(id, fallback = '') {
   }
 
   if (typeof campo.value === 'string') {
-    return campo.value.trim();
+    const valor = campo.value.trim();
+
+    return valor || fallback;
   }
 
   return campo.value ?? fallback;
@@ -70,10 +90,11 @@ function obterBoolean(id, fallback = false) {
     return Boolean(campo.checked);
   }
 
-  const valor =
-    String(campo.value || '')
-      .trim()
-      .toLowerCase();
+  const valor = String(
+    campo.value || ''
+  )
+    .trim()
+    .toLowerCase();
 
   if (valor === 'true') {
     return true;
@@ -94,7 +115,8 @@ function preencherCampo(id, valor) {
   }
 
   campo.value =
-    valor === null || valor === undefined
+    valor === null ||
+    valor === undefined
       ? ''
       : String(valor);
 }
@@ -269,11 +291,17 @@ function obterEmpresaAtual() {
     // Ignorado.
   }
 
-  if (window.empresaLogada) {
+  if (
+    typeof window !== 'undefined' &&
+    window.empresaLogada
+  ) {
     return window.empresaLogada;
   }
 
-  if (window.orvixEmpresa) {
+  if (
+    typeof window !== 'undefined' &&
+    window.orvixEmpresa
+  ) {
     return window.orvixEmpresa;
   }
 
@@ -295,6 +323,10 @@ function guardarEmpresa(empresa) {
   window.orvixEmpresa =
     empresaConfiguracoes;
 
+  /*
+   * Compatibilidade com código antigo.
+   * Não é usado como fonte principal.
+   */
   window.lavajatoEmpresa =
     empresaConfiguracoes;
 
@@ -310,27 +342,47 @@ function guardarEmpresa(empresa) {
     // Ignorado.
   }
 
+  /*
+   * Atualiza o nicho usando a função
+   * ORIGINAL do app.js.
+   */
   if (
     empresa.nicho &&
     typeof aplicarNicho === 'function'
   ) {
-    aplicarNicho(
-      empresa.nicho
-    );
-  }
-
-  if (
-    typeof atualizarSidebarUsuario ===
-    'function'
-  ) {
     try {
-      atualizarSidebarUsuario();
+      aplicarNicho(
+        normalizarNicho(
+          empresa.nicho
+        )
+      );
     } catch (erro) {
       console.warn(
-        'Erro ao atualizar sidebar:',
+        'Erro ao aplicar nicho:',
         erro
       );
     }
+  }
+
+  /*
+   * NÃO sobrescrevemos
+   * window.atualizarSidebarUsuario.
+   *
+   * O app.js continua sendo o dono
+   * dessa função.
+   */
+  try {
+    if (
+      typeof atualizarSidebarUsuario ===
+      'function'
+    ) {
+      atualizarSidebarUsuario();
+    }
+  } catch (erro) {
+    console.warn(
+      'Erro ao atualizar sidebar:',
+      erro
+    );
   }
 }
 
@@ -339,23 +391,16 @@ function guardarEmpresa(empresa) {
    NICHO
    ============================================================ */
 
-const NICHOS_CONFIGS = [
-  'lavajato',
-  'barbearia',
-  'clinica',
-  'pet',
-  'oficina',
-  'personal',
-  'generico'
-];
-
 function normalizarNicho(valor) {
-  const nicho =
-    String(valor || '')
-      .trim()
-      .toLowerCase();
+  const nicho = String(
+    valor || ''
+  )
+    .trim()
+    .toLowerCase();
 
-  return NICHOS_CONFIGS.includes(nicho)
+  return CONFIGS_NICHOS_VALIDOS.includes(
+    nicho
+  )
     ? nicho
     : 'generico';
 }
@@ -368,6 +413,9 @@ function aplicarNichoNaInterface(nicho) {
     chave;
 
   try {
+    /*
+     * Usa a função existente no app.js.
+     */
     if (
       typeof aplicarNicho ===
       'function'
@@ -443,6 +491,10 @@ function atualizarSidebarConfiguracoes() {
       'Minha empresa';
   }
 
+  /*
+   * Chama a função ORIGINAL do app.js,
+   * sem sobrescrevê-la.
+   */
   try {
     if (
       typeof atualizarSidebarUsuario ===
@@ -450,8 +502,11 @@ function atualizarSidebarConfiguracoes() {
     ) {
       atualizarSidebarUsuario();
     }
-  } catch {
-    // Ignorado.
+  } catch (erro) {
+    console.warn(
+      'Erro ao atualizar sidebar:',
+      erro
+    );
   }
 }
 
@@ -460,7 +515,9 @@ function atualizarSidebarConfiguracoes() {
    PREENCHER EMPRESA
    ============================================================ */
 
-function preencherDadosEmpresa(empresa) {
+function preencherDadosEmpresa(
+  empresa
+) {
   if (!empresa) {
     return;
   }
@@ -472,7 +529,9 @@ function preencherDadosEmpresa(empresa) {
 
   preencherCampo(
     'config-empresa-nome-exibicao',
-    empresa.nome_exibicao
+    empresa.nome_exibicao ||
+      empresa.nome ||
+      ''
   );
 
   preencherCampo(
@@ -606,7 +665,8 @@ function preencherDadosEmpresa(empresa) {
   preencherCampo(
     'config-info-empresa',
     empresa.nome_exibicao ||
-      empresa.nome
+      empresa.nome ||
+      ''
   );
 
   aplicarNichoNaInterface(
@@ -625,7 +685,9 @@ function preencherDadosEmpresa(empresa) {
    USUÁRIO
    ============================================================ */
 
-function preencherDadosUsuario(usuario) {
+function preencherDadosUsuario(
+  usuario
+) {
   if (!usuario) {
     return;
   }
@@ -684,6 +746,7 @@ async function carregarUsuarioConfiguracoes() {
         'Não foi possível carregar usuário:',
         dados
       );
+
       return;
     }
 
@@ -731,9 +794,27 @@ async function carregarConfiguracoes() {
         resposta
       );
 
+    if (
+      resposta.status === 401
+    ) {
+      throw new Error(
+        'Sua sessão expirou. Faça login novamente.'
+      );
+    }
+
+    if (
+      resposta.status === 403
+    ) {
+      throw new Error(
+        dados.erro ||
+        'Você não possui permissão para acessar estas configurações.'
+      );
+    }
+
     if (!resposta.ok) {
       throw new Error(
         dados.erro ||
+        dados.mensagem ||
         'Não foi possível carregar as configurações.'
       );
     }
@@ -773,30 +854,38 @@ async function carregarConfiguracoes() {
    ============================================================ */
 
 function corValida(cor) {
-  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
-    .test(
-      String(cor || '').trim()
-    );
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(
+    String(cor || '').trim()
+  );
 }
 
 function normalizarTextoCor(valor) {
-  let cor =
-    String(valor || '')
-      .trim()
-      .toUpperCase();
+  let cor = String(
+    valor || ''
+  )
+    .trim()
+    .toUpperCase();
 
   if (
     !cor.startsWith('#') &&
-    /^[0-9A-F]{3,6}$/.test(cor)
+    /^[0-9A-F]{3}$/.test(cor)
   ) {
-    cor =
-      `#${cor}`;
+    cor = `#${cor}`;
+  }
+
+  if (
+    !cor.startsWith('#') &&
+    /^[0-9A-F]{6}$/.test(cor)
+  ) {
+    cor = `#${cor}`;
   }
 
   return cor;
 }
 
-function aplicarCoresEmpresa(empresa) {
+function aplicarCoresEmpresa(
+  empresa
+) {
   if (!empresa) {
     return;
   }
@@ -869,20 +958,29 @@ function aplicarCoresEmpresa(empresa) {
 
 function atualizarPreviewTema() {
   const primaria =
-    obterValor(
-      'config-cor-principal'
+    normalizarTextoCor(
+      obterValor(
+        'config-cor-principal',
+        CONFIGS_CORES_PADRAO.primaria
+      )
     ) ||
     CONFIGS_CORES_PADRAO.primaria;
 
   const destaque =
-    obterValor(
-      'config-cor-destaque'
+    normalizarTextoCor(
+      obterValor(
+        'config-cor-destaque',
+        CONFIGS_CORES_PADRAO.destaque
+      )
     ) ||
     CONFIGS_CORES_PADRAO.destaque;
 
   const fundo =
-    obterValor(
-      'config-cor-fundo'
+    normalizarTextoCor(
+      obterValor(
+        'config-cor-fundo',
+        CONFIGS_CORES_PADRAO.fundo
+      )
     ) ||
     CONFIGS_CORES_PADRAO.fundo;
 
@@ -957,7 +1055,8 @@ function configurarCores() {
 
       if (
         color.dataset
-          .configsListener === 'true'
+          .configsListener ===
+        'true'
       ) {
         return;
       }
@@ -969,8 +1068,13 @@ function configurarCores() {
       color.addEventListener(
         'input',
         () => {
+          const valor =
+            normalizarTextoCor(
+              color.value
+            );
+
           text.value =
-            color.value.toUpperCase();
+            valor;
 
           atualizarPreviewTema();
         }
@@ -991,6 +1095,125 @@ function configurarCores() {
             text.value =
               valor;
           }
+
+          atualizarPreviewTema();
+        }
+      );
+
+      text.addEventListener(
+        'blur',
+        () => {
+          const valor =
+            normalizarTextoCor(
+              text.value
+            );
+
+          if (corValida(valor)) {
+            color.value =
+              valor;
+
+            text.value =
+              valor;
+          }
+        }
+      );
+    }
+  );
+}
+
+
+/* ============================================================
+   PRESETS DE TEMA
+   ============================================================ */
+
+function configurarPresetsTema() {
+  const presets =
+    document.querySelectorAll(
+      '.theme-preset'
+    );
+
+  presets.forEach(
+    preset => {
+      if (
+        preset.dataset
+          .configsPresetListener ===
+        'true'
+      ) {
+        return;
+      }
+
+      preset.dataset
+        .configsPresetListener =
+        'true';
+
+      preset.addEventListener(
+        'click',
+        () => {
+          const primaria =
+            normalizarTextoCor(
+              preset.dataset.primary ||
+              CONFIGS_CORES_PADRAO.primaria
+            );
+
+          const destaque =
+            normalizarTextoCor(
+              preset.dataset.accent ||
+              CONFIGS_CORES_PADRAO.destaque
+            );
+
+          const fundo =
+            normalizarTextoCor(
+              preset.dataset.background ||
+              CONFIGS_CORES_PADRAO.fundo
+            );
+
+          if (
+            corValida(primaria)
+          ) {
+            preencherCampo(
+              'config-cor-principal',
+              primaria
+            );
+
+            preencherCampo(
+              'config-cor-principal-text',
+              primaria
+            );
+          }
+
+          if (
+            corValida(destaque)
+          ) {
+            preencherCampo(
+              'config-cor-destaque',
+              destaque
+            );
+
+            preencherCampo(
+              'config-cor-destaque-text',
+              destaque
+            );
+          }
+
+          if (
+            corValida(fundo)
+          ) {
+            preencherCampo(
+              'config-cor-fundo',
+              fundo
+            );
+
+            preencherCampo(
+              'config-cor-fundo-text',
+              fundo
+            );
+          }
+
+          aplicarCoresEmpresa({
+            cor_primaria: primaria,
+            cor_destaque: destaque,
+            cor_fundo: fundo
+          });
 
           atualizarPreviewTema();
         }
@@ -1263,9 +1486,7 @@ async function salvarConfiguracoes(
         '/429.html'
       );
 
-      throw new Error(
-        'Muitas requisições. Aguarde alguns instantes.'
-      );
+      return false;
     }
 
     if (!resposta.ok) {
@@ -1323,16 +1544,14 @@ async function salvarDadosEmpresa() {
   const payload =
     montarPayloadEmpresa();
 
-  if (
-    !payload.nome
-  ) {
+  if (!payload.nome) {
     mostrarMensagem(
       'configuracoes-message',
       'Informe o nome da empresa.',
       'erro'
     );
 
-    return;
+    return false;
   }
 
   if (
@@ -1346,7 +1565,7 @@ async function salvarDadosEmpresa() {
       'erro'
     );
 
-    return;
+    return false;
   }
 
   return salvarConfiguracoes(
@@ -1393,7 +1612,7 @@ async function salvarAparencia() {
       'erro'
     );
 
-    return;
+    return false;
   }
 
   const resultado =
@@ -1403,9 +1622,15 @@ async function salvarAparencia() {
     );
 
   if (resultado) {
-    aplicarCoresEmpresa(
+    const empresa =
       resultado.empresa ||
-      payload
+      {
+        ...obterEmpresaAtual(),
+        ...payload
+      };
+
+    aplicarCoresEmpresa(
+      empresa
     );
 
     atualizarPreviewTema();
@@ -1444,7 +1669,7 @@ async function salvarAgenda() {
       'erro'
     );
 
-    return;
+    return false;
   }
 
   if (
@@ -1456,7 +1681,7 @@ async function salvarAgenda() {
       'erro'
     );
 
-    return;
+    return false;
   }
 
   const inicio =
@@ -1486,20 +1711,11 @@ async function salvarAgenda() {
       'erro'
     );
 
-    return;
+    return false;
   }
 
-  const intervalosValidos = [
-    15,
-    30,
-    45,
-    60,
-    90,
-    120
-  ];
-
   if (
-    !intervalosValidos.includes(
+    !CONFIGS_INTERVALOS_AGENDA.includes(
       payload.agenda_intervalo
     )
   ) {
@@ -1509,7 +1725,7 @@ async function salvarAgenda() {
       'erro'
     );
 
-    return;
+    return false;
   }
 
   return salvarConfiguracoes(
@@ -1535,9 +1751,14 @@ function alterarEstadoBotao(
   if (carregando) {
     botao.disabled = true;
 
-    botao.dataset
-      .textoOriginal =
-      botao.textContent;
+    if (
+      !botao.dataset
+        .textoOriginal
+    ) {
+      botao.dataset
+        .textoOriginal =
+        botao.textContent;
+    }
 
     botao.textContent =
       'Salvando...';
@@ -1547,7 +1768,8 @@ function alterarEstadoBotao(
     botao.textContent =
       botao.dataset
         .textoOriginal ||
-      textoNormal;
+      textoNormal ||
+      'Salvar';
   }
 }
 
@@ -1564,7 +1786,8 @@ function configurarBotao(
 
   if (
     botao.dataset
-      .configsListener === 'true'
+      .configsListener ===
+    'true'
   ) {
     return;
   }
@@ -1578,10 +1801,13 @@ function configurarBotao(
     async evento => {
       evento.preventDefault();
 
+      const textoOriginal =
+        botao.textContent;
+
       alterarEstadoBotao(
         botao,
         true,
-        botao.textContent
+        textoOriginal
       );
 
       try {
@@ -1590,9 +1816,7 @@ function configurarBotao(
         alterarEstadoBotao(
           botao,
           false,
-          botao.dataset
-            .textoOriginal ||
-          'Salvar'
+          textoOriginal
         );
       }
     }
@@ -1616,7 +1840,8 @@ function configurarFormulario() {
 
   if (
     form.dataset
-      .configsListener === 'true'
+      .configsListener ===
+    'true'
   ) {
     return;
   }
@@ -1673,9 +1898,6 @@ window.aplicarNichoNaInterface =
 window.normalizarNicho =
   normalizarNicho;
 
-window.atualizarSidebarUsuario =
-  atualizarSidebarConfiguracoes;
-
 
 /* ============================================================
    INICIALIZAÇÃO
@@ -1685,7 +1907,11 @@ document.addEventListener(
   'DOMContentLoaded',
   async () => {
     configurarCores();
+
+    configurarPresetsTema();
+
     configurarTrocaDeNicho();
+
     configurarFormulario();
 
     configurarBotao(
@@ -1734,8 +1960,10 @@ document.addEventListener(
         aplicarCoresEmpresa({
           cor_primaria:
             CONFIGS_CORES_PADRAO.primaria,
+
           cor_destaque:
             CONFIGS_CORES_PADRAO.destaque,
+
           cor_fundo:
             CONFIGS_CORES_PADRAO.fundo
         });
@@ -1759,6 +1987,8 @@ document.addEventListener(
     await carregarUsuarioConfiguracoes();
 
     await carregarConfiguracoes();
+
+    configurarCores();
 
     atualizarPreviewTema();
   }
