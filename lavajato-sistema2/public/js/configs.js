@@ -13,13 +13,116 @@ const CONFIGS_CORES_PADRAO = {
   fundo: '#F5F7FA'
 };
 
-const CONFIGS_EMAIL_REGEX =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CONFIGS_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 let empresaConfiguracoes = null;
 let usuarioConfiguracoes = null;
 let carregandoConfiguracoes = false;
 let salvandoConfiguracoes = false;
+
+/* ============================================================
+   NICHOS
+   ============================================================ */
+
+const NICHOS_CONFIG = {
+  lavajato: {
+    nome: 'Lava-jato / Estética automotiva',
+    termos: {
+      cliente: 'Cliente',
+      clientes: 'Clientes',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      agendamento: 'Agendamento',
+      novoAgendamento: 'Novo agendamento'
+    },
+    extra1: { label: 'Placa', placeholder: 'ABC1D23' },
+    extra2: { label: 'Veículo', placeholder: 'Modelo / cor' }
+  },
+
+  oficina: {
+    nome: 'Oficina mecânica',
+    termos: {
+      cliente: 'Cliente',
+      clientes: 'Clientes',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      agendamento: 'Agendamento',
+      novoAgendamento: 'Novo agendamento'
+    },
+    extra1: { label: 'Placa', placeholder: 'ABC1D23' },
+    extra2: { label: 'Veículo', placeholder: 'Modelo / ano' }
+  },
+
+  barbearia: {
+    nome: 'Barbearia / Salão de beleza',
+    termos: {
+      cliente: 'Cliente',
+      clientes: 'Clientes',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      agendamento: 'Horário',
+      novoAgendamento: 'Novo horário'
+    },
+    extra1: null,
+    extra2: null
+  },
+
+  clinica: {
+    nome: 'Clínica / Consultório',
+    termos: {
+      cliente: 'Paciente',
+      clientes: 'Pacientes',
+      servico: 'Procedimento',
+      servicos: 'Procedimentos',
+      agendamento: 'Consulta',
+      novoAgendamento: 'Nova consulta'
+    },
+    extra1: { label: 'Convênio', placeholder: 'Particular / convênio' },
+    extra2: null
+  },
+
+  pet: {
+    nome: 'Pet shop / Veterinária',
+    termos: {
+      cliente: 'Tutor',
+      clientes: 'Tutores',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      agendamento: 'Agendamento',
+      novoAgendamento: 'Novo agendamento'
+    },
+    extra1: { label: 'Pet', placeholder: 'Nome do pet' },
+    extra2: { label: 'Raça / porte', placeholder: 'Ex: Poodle, pequeno' }
+  },
+
+  personal: {
+    nome: 'Personal / Aulas / Consultoria',
+    termos: {
+      cliente: 'Aluno',
+      clientes: 'Alunos',
+      servico: 'Aula / Serviço',
+      servicos: 'Aulas e serviços',
+      agendamento: 'Aula',
+      novoAgendamento: 'Nova aula'
+    },
+    extra1: null,
+    extra2: null
+  },
+
+  generico: {
+    nome: 'Outro',
+    termos: {
+      cliente: 'Cliente',
+      clientes: 'Clientes',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      agendamento: 'Agendamento',
+      novoAgendamento: 'Novo agendamento'
+    },
+    extra1: null,
+    extra2: null
+  }
+};
 
 /* ============================================================
    ELEMENTOS
@@ -37,11 +140,7 @@ function obterToken() {
   try {
     return localStorage.getItem(CONFIGS_TOKEN_KEY);
   } catch (erro) {
-    console.warn(
-      'Não foi possível acessar o localStorage:',
-      erro
-    );
-
+    console.warn('Não foi possível acessar o localStorage:', erro);
     return null;
   }
 }
@@ -69,10 +168,7 @@ function headersAutenticacao() {
    FETCH PADRÃO
    ============================================================ */
 
-async function requisicaoConfiguracoes(
-  url,
-  opcoes = {}
-) {
+async function requisicaoConfiguracoes(url, opcoes = {}) {
   const headers = {
     ...headersAutenticacao(),
     ...(opcoes.headers || {})
@@ -102,11 +198,7 @@ async function lerJsonSeguro(resposta) {
    MENSAGENS
    ============================================================ */
 
-function mostrarMensagem(
-  id,
-  mensagem,
-  tipo = 'sucesso'
-) {
+function mostrarMensagem(id, mensagem, tipo = 'sucesso') {
   const campo = elemento(id);
 
   if (!campo) {
@@ -115,12 +207,7 @@ function mostrarMensagem(
 
   campo.textContent = mensagem || '';
 
-  campo.classList.remove(
-    'sucesso',
-    'erro',
-    'success',
-    'error'
-  );
+  campo.classList.remove('sucesso', 'erro', 'success', 'error');
 
   if (tipo === 'erro') {
     campo.classList.add('erro');
@@ -134,10 +221,7 @@ function mostrarMensagem(
 }
 
 function limparMensagens() {
-  [
-    'configuracoes-message',
-    'config-aparencia-message'
-  ].forEach(id => {
+  ['configuracoes-message', 'config-aparencia-message'].forEach(id => {
     const campo = elemento(id);
 
     if (!campo) {
@@ -145,12 +229,7 @@ function limparMensagens() {
     }
 
     campo.textContent = '';
-    campo.classList.remove(
-      'sucesso',
-      'erro',
-      'success',
-      'error'
-    );
+    campo.classList.remove('sucesso', 'erro', 'success', 'error');
   });
 }
 
@@ -181,9 +260,7 @@ function obterBoolean(id) {
     return false;
   }
 
-  if (
-    campo.type === 'checkbox'
-  ) {
+  if (campo.type === 'checkbox') {
     return campo.checked;
   }
 
@@ -194,20 +271,14 @@ function obterBoolean(id) {
    PREENCHER INPUT
    ============================================================ */
 
-function preencherCampo(
-  id,
-  valor
-) {
+function preencherCampo(id, valor) {
   const campo = elemento(id);
 
   if (!campo) {
     return;
   }
 
-  if (
-    valor === null ||
-    valor === undefined
-  ) {
+  if (valor === null || valor === undefined) {
     campo.value = '';
     return;
   }
@@ -219,10 +290,7 @@ function preencherCampo(
    PREENCHER SELECT/BOOLEAN
    ============================================================ */
 
-function preencherBoolean(
-  id,
-  valor
-) {
+function preencherBoolean(id, valor) {
   const campo = elemento(id);
 
   if (!campo) {
@@ -231,16 +299,117 @@ function preencherBoolean(
 
   const booleano = Boolean(valor);
 
-  if (
-    campo.type === 'checkbox'
-  ) {
+  if (campo.type === 'checkbox') {
     campo.checked = booleano;
     return;
   }
 
-  campo.value = booleano
-    ? 'true'
-    : 'false';
+  campo.value = booleano ? 'true' : 'false';
+}
+
+/* ============================================================
+   NICHOS — FUNÇÕES
+   ============================================================ */
+
+function normalizarNicho(valor) {
+  const chave = String(valor || '').trim().toLowerCase();
+
+  return NICHOS_CONFIG[chave] ? chave : 'generico';
+}
+
+function definirTexto(id, texto) {
+  const campo = elemento(id);
+
+  if (campo && texto) {
+    campo.textContent = texto;
+  }
+}
+
+function configurarCampoExtra(idCampo, idLabel, idInput, extra) {
+  const campo = elemento(idCampo);
+
+  if (!campo) {
+    return;
+  }
+
+  if (!extra) {
+    campo.style.display = 'none';
+
+    const input = elemento(idInput);
+
+    if (input) {
+      input.value = '';
+    }
+
+    return;
+  }
+
+  campo.style.display = '';
+
+  definirTexto(idLabel, extra.label);
+
+  const input = elemento(idInput);
+
+  if (input) {
+    input.placeholder = extra.placeholder || '';
+  }
+}
+
+function aplicarNichoNaInterface(valor) {
+  const chave = normalizarNicho(valor);
+  const cfg = NICHOS_CONFIG[chave];
+  const t = cfg.termos;
+
+  document.body.dataset.nicho = chave;
+
+  window.orvixNicho = {
+    chave,
+    nome: cfg.nome,
+    termos: t,
+    extra1: cfg.extra1,
+    extra2: cfg.extra2
+  };
+
+  /* Qualquer elemento com data-nicho-termo="cliente" etc. */
+  document.querySelectorAll('[data-nicho-termo]').forEach(el => {
+    const termo = t[el.dataset.nichoTermo];
+
+    if (termo) {
+      el.textContent = termo;
+    }
+  });
+
+  /* Modal de agendamento */
+  definirTexto('ap-client-label', t.cliente);
+  definirTexto('ap-service-label', t.servico);
+
+  configurarCampoExtra(
+    'ap-extra1-field',
+    'ap-extra1-label',
+    'ap-plate',
+    cfg.extra1
+  );
+
+  configurarCampoExtra(
+    'ap-extra2-field',
+    'ap-extra2-label',
+    'ap-vehicle',
+    cfg.extra2
+  );
+
+  document.dispatchEvent(
+    new CustomEvent('orvix:nicho-alterado', {
+      detail: window.orvixNicho
+    })
+  );
+}
+
+function configurarTrocaDeNicho() {
+  const select = elemento('config-empresa-nicho');
+
+  select?.addEventListener('change', () => {
+    aplicarNichoNaInterface(select.value);
+  });
 }
 
 /* ============================================================
@@ -256,161 +425,86 @@ function preencherDadosEmpresa(empresa) {
      DADOS DA EMPRESA
      ---------------------------------------------------------- */
 
-  preencherCampo(
-    'config-empresa-nome',
-    empresa.nome
-  );
-
-  preencherCampo(
-    'config-empresa-nome-exibicao',
-    empresa.nome_exibicao
-  );
-
-  preencherCampo(
-    'config-empresa-email',
-    empresa.email
-  );
-
-  preencherCampo(
-    'config-empresa-telefone',
-    empresa.telefone
-  );
+  preencherCampo('config-empresa-nome', empresa.nome);
+  preencherCampo('config-empresa-nome-exibicao', empresa.nome_exibicao);
+  preencherCampo('config-empresa-email', empresa.email);
+  preencherCampo('config-empresa-telefone', empresa.telefone);
 
   preencherCampo(
     'config-empresa-nicho',
-    empresa.nicho
+    normalizarNicho(empresa.nicho)
   );
 
+  preencherCampo('config-logo-url', empresa.logo_url);
+
+  /* ----------------------------------------------------------
+     NICHO + INFORMAÇÕES DA EMPRESA
+     ---------------------------------------------------------- */
+
+  aplicarNichoNaInterface(empresa.nicho);
+
   preencherCampo(
-    'config-logo-url',
-    empresa.logo_url
+    'config-info-empresa',
+    empresa.nome_exibicao || empresa.nome
   );
+
+  const empresaSidebar = elemento('sidebar-company');
+
+  if (empresaSidebar) {
+    empresaSidebar.textContent =
+      empresa.nome_exibicao || empresa.nome || 'Empresa';
+  }
 
   /* ----------------------------------------------------------
      REGIONAL
      ---------------------------------------------------------- */
 
-  preencherCampo(
-    'config-moeda',
-    empresa.moeda
-  );
-
-  preencherCampo(
-    'config-idioma',
-    empresa.idioma
-  );
-
-  preencherCampo(
-    'config-formato-data',
-    empresa.formato_data
-  );
-
-  preencherCampo(
-    'config-formato-hora',
-    empresa.formato_hora
-  );
-
-  preencherCampo(
-    'config-fuso-horario',
-    empresa.fuso_horario
-  );
+  preencherCampo('config-moeda', empresa.moeda);
+  preencherCampo('config-idioma', empresa.idioma);
+  preencherCampo('config-formato-data', empresa.formato_data);
+  preencherCampo('config-formato-hora', empresa.formato_hora);
+  preencherCampo('config-fuso-horario', empresa.fuso_horario);
 
   /* ----------------------------------------------------------
      PREFERÊNCIAS
      ---------------------------------------------------------- */
 
-  preencherBoolean(
-    'config-notificacoes-ativas',
-    empresa.notificacoes_ativas
-  );
-
-  preencherBoolean(
-    'config-mostrar-valores',
-    empresa.mostrar_valores
-  );
-
-  preencherBoolean(
-    'config-dashboard-inicial',
-    empresa.dashboard_inicial
-  );
-
-  preencherBoolean(
-    'config-modo-compacto',
-    empresa.modo_compacto
-  );
+  preencherBoolean('config-notificacoes-ativas', empresa.notificacoes_ativas);
+  preencherBoolean('config-mostrar-valores', empresa.mostrar_valores);
+  preencherBoolean('config-dashboard-inicial', empresa.dashboard_inicial);
+  preencherBoolean('config-modo-compacto', empresa.modo_compacto);
 
   /* ----------------------------------------------------------
      DOCUMENTOS
      ---------------------------------------------------------- */
 
-  preencherCampo(
-    'config-rodape-documentos',
-    empresa.rodape_documentos
-  );
-
-  preencherBoolean(
-    'config-telefone-documentos',
-    empresa.telefone_documentos
-  );
+  preencherCampo('config-rodape-documentos', empresa.rodape_documentos);
+  preencherBoolean('config-telefone-documentos', empresa.telefone_documentos);
 
   /* ----------------------------------------------------------
      AGENDA
      ---------------------------------------------------------- */
 
-  preencherCampo(
-    'config-agenda-inicio',
-    empresa.agenda_horario_inicio
-  );
-
-  preencherCampo(
-    'config-agenda-fim',
-    empresa.agenda_horario_fim
-  );
-
-  preencherCampo(
-    'config-agenda-intervalo',
-    empresa.agenda_intervalo
-  );
+  preencherCampo('config-agenda-inicio', empresa.agenda_horario_inicio);
+  preencherCampo('config-agenda-fim', empresa.agenda_horario_fim);
+  preencherCampo('config-agenda-intervalo', empresa.agenda_intervalo);
 
   /* ----------------------------------------------------------
      CORES
      ---------------------------------------------------------- */
 
-  preencherCampo(
-    'config-cor-principal',
-    empresa.cor_primaria ||
-      CONFIGS_CORES_PADRAO.primaria
-  );
+  const primaria = empresa.cor_primaria || CONFIGS_CORES_PADRAO.primaria;
+  const destaque = empresa.cor_destaque || CONFIGS_CORES_PADRAO.destaque;
+  const fundo = empresa.cor_fundo || CONFIGS_CORES_PADRAO.fundo;
 
-  preencherCampo(
-    'config-cor-principal-text',
-    empresa.cor_primaria ||
-      CONFIGS_CORES_PADRAO.primaria
-  );
+  preencherCampo('config-cor-principal', primaria);
+  preencherCampo('config-cor-principal-text', primaria);
 
-  preencherCampo(
-    'config-cor-destaque',
-    empresa.cor_destaque ||
-      CONFIGS_CORES_PADRAO.destaque
-  );
+  preencherCampo('config-cor-destaque', destaque);
+  preencherCampo('config-cor-destaque-text', destaque);
 
-  preencherCampo(
-    'config-cor-destaque-text',
-    empresa.cor_destaque ||
-      CONFIGS_CORES_PADRAO.destaque
-  );
-
-  preencherCampo(
-    'config-cor-fundo',
-    empresa.cor_fundo ||
-      CONFIGS_CORES_PADRAO.fundo
-  );
-
-  preencherCampo(
-    'config-cor-fundo-text',
-    empresa.cor_fundo ||
-      CONFIGS_CORES_PADRAO.fundo
-  );
+  preencherCampo('config-cor-fundo', fundo);
+  preencherCampo('config-cor-fundo-text', fundo);
 
   aplicarCoresEmpresa(empresa);
 
@@ -426,19 +520,10 @@ function preencherDadosUsuario(usuario) {
     return;
   }
 
-  preencherCampo(
-    'config-usuario-nome',
-    usuario.nome
-  );
+  preencherCampo('config-usuario-nome', usuario.nome);
+  preencherCampo('config-usuario-email', usuario.email);
 
-  preencherCampo(
-    'config-usuario-email',
-    usuario.email
-  );
-
-  const perfil = elemento(
-    'config-usuario-perfil'
-  );
+  const perfil = elemento('config-usuario-perfil');
 
   if (perfil) {
     if (usuario.perfil === 'administrador') {
@@ -450,25 +535,28 @@ function preencherDadosUsuario(usuario) {
     }
   }
 
-  const nomeSidebar = elemento(
-    'sidebar-user-name'
-  );
+  const nomeSidebar = elemento('sidebar-user-name');
 
   if (nomeSidebar) {
     nomeSidebar.textContent =
-      usuario.nome ||
-      usuario.email ||
-      'Usuário';
+      usuario.nome || usuario.email || 'Usuário';
   }
 
-  const emailSidebar = elemento(
-    'sidebar-user-email'
-  );
+  const emailSidebar = elemento('sidebar-user-email');
 
   if (emailSidebar) {
-    emailSidebar.textContent =
-      usuario.email || '';
+    emailSidebar.textContent = usuario.email || '';
   }
+}
+
+/* ============================================================
+   GUARDAR EMPRESA NA MEMÓRIA
+   ============================================================ */
+
+function guardarEmpresa(empresa) {
+  empresaConfiguracoes = empresa;
+  window.lavajatoEmpresa = empresa;
+  window.orvixEmpresa = empresa;
 }
 
 /* ============================================================
@@ -477,57 +565,30 @@ function preencherDadosUsuario(usuario) {
 
 async function carregarUsuarioConfiguracoes() {
   try {
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/auth/me',
-        {
-          method: 'GET'
-        }
-      );
+    const resposta = await requisicaoConfiguracoes('/api/auth/me', {
+      method: 'GET'
+    });
 
-    const dados =
-      await lerJsonSeguro(resposta);
+    const dados = await lerJsonSeguro(resposta);
 
     if (!resposta.ok) {
-      console.warn(
-        'Não foi possível carregar o usuário:',
-        dados
-      );
-
+      console.warn('Não foi possível carregar o usuário:', dados);
       return;
     }
 
-    usuarioConfiguracoes =
-      dados.usuario ||
-      dados.user ||
-      null;
+    usuarioConfiguracoes = dados.usuario || dados.user || null;
 
     if (dados.empresa) {
-      empresaConfiguracoes =
-        dados.empresa;
-
-      window.lavajatoEmpresa =
-        dados.empresa;
-
-      window.orvixEmpresa =
-        dados.empresa;
+      guardarEmpresa(dados.empresa);
     }
 
-    preencherDadosUsuario(
-      usuarioConfiguracoes
-    );
+    preencherDadosUsuario(usuarioConfiguracoes);
 
     if (dados.empresa) {
-      preencherDadosEmpresa(
-        dados.empresa
-      );
+      preencherDadosEmpresa(dados.empresa);
     }
-
   } catch (erro) {
-    console.error(
-      'Erro ao carregar usuário:',
-      erro
-    );
+    console.error('Erro ao carregar usuário:', erro);
   }
 }
 
@@ -543,65 +604,37 @@ async function carregarConfiguracoes() {
   carregandoConfiguracoes = true;
 
   try {
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/configuracoes',
-        {
-          method: 'GET'
-        }
-      );
+    const resposta = await requisicaoConfiguracoes('/api/configuracoes', {
+      method: 'GET'
+    });
 
-    const dados =
-      await lerJsonSeguro(resposta);
+    const dados = await lerJsonSeguro(resposta);
 
     if (!resposta.ok) {
       throw new Error(
-        dados.erro ||
-        'Não foi possível carregar as configurações.'
+        dados.erro || 'Não foi possível carregar as configurações.'
       );
     }
 
-    const empresa =
-      dados.empresa ||
-      dados;
+    const empresa = dados.empresa || dados;
 
     if (!empresa) {
-      throw new Error(
-        'Os dados da empresa não foram retornados.'
-      );
+      throw new Error('Os dados da empresa não foram retornados.');
     }
 
-    empresaConfiguracoes =
-      empresa;
+    guardarEmpresa(empresa);
 
-    window.lavajatoEmpresa =
-      empresa;
+    preencherDadosEmpresa(empresa);
 
-    window.orvixEmpresa =
-      empresa;
-
-    preencherDadosEmpresa(
-      empresa
-    );
-
-    console.log(
-      'Configurações carregadas:',
-      empresa
-    );
-
+    console.log('Configurações carregadas:', empresa);
   } catch (erro) {
-    console.error(
-      'Erro ao carregar configurações:',
-      erro
-    );
+    console.error('Erro ao carregar configurações:', erro);
 
     mostrarMensagem(
       'configuracoes-message',
-      erro.message ||
-        'Não foi possível carregar as configurações.',
+      erro.message || 'Não foi possível carregar as configurações.',
       'erro'
     );
-
   } finally {
     carregandoConfiguracoes = false;
   }
@@ -616,66 +649,24 @@ function aplicarCoresEmpresa(empresa) {
     return;
   }
 
-  const primaria =
-    empresa.cor_primaria ||
-    CONFIGS_CORES_PADRAO.primaria;
+  const primaria = empresa.cor_primaria || CONFIGS_CORES_PADRAO.primaria;
+  const destaque = empresa.cor_destaque || CONFIGS_CORES_PADRAO.destaque;
+  const fundo = empresa.cor_fundo || CONFIGS_CORES_PADRAO.fundo;
 
-  const destaque =
-    empresa.cor_destaque ||
-    CONFIGS_CORES_PADRAO.destaque;
-
-  const fundo =
-    empresa.cor_fundo ||
-    CONFIGS_CORES_PADRAO.fundo;
-
-  const root =
-    document.documentElement;
+  const root = document.documentElement;
 
   /* Variáveis mais comuns */
-  root.style.setProperty(
-    '--primary',
-    primaria
-  );
+  root.style.setProperty('--primary', primaria);
+  root.style.setProperty('--primary-color', primaria);
+  root.style.setProperty('--cor-primaria', primaria);
 
-  root.style.setProperty(
-    '--primary-color',
-    primaria
-  );
+  root.style.setProperty('--accent', destaque);
+  root.style.setProperty('--accent-color', destaque);
+  root.style.setProperty('--cor-destaque', destaque);
 
-  root.style.setProperty(
-    '--cor-primaria',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--accent',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--accent-color',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--cor-destaque',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--bg',
-    fundo
-  );
-
-  root.style.setProperty(
-    '--background',
-    fundo
-  );
-
-  root.style.setProperty(
-    '--cor-fundo',
-    fundo
-  );
+  root.style.setProperty('--bg', fundo);
+  root.style.setProperty('--background', fundo);
+  root.style.setProperty('--cor-fundo', fundo);
 }
 
 /* ============================================================
@@ -692,75 +683,49 @@ function corValida(cor) {
    SINCRONIZAR CAMPOS DE COR
    ============================================================ */
 
-function sincronizarCampoCor(
-  inputId,
-  textoId
-) {
-  const input =
-    elemento(inputId);
+function normalizarTextoCor(valor) {
+  let texto = valor.trim().toUpperCase();
 
-  const texto =
-    elemento(textoId);
+  if (!texto.startsWith('#') && /^[0-9A-F]{3,6}$/.test(texto)) {
+    texto = `#${texto}`;
+  }
+
+  return texto;
+}
+
+function sincronizarCampoCor(inputId, textoId) {
+  const input = elemento(inputId);
+  const texto = elemento(textoId);
 
   if (!input || !texto) {
     return;
   }
 
-  input.addEventListener(
-    'input',
-    () => {
-      texto.value =
-        input.value.toUpperCase();
+  input.addEventListener('input', () => {
+    texto.value = input.value.toUpperCase();
 
-      atualizarPreviewTema();
+    atualizarPreviewTema();
+  });
+
+  texto.addEventListener('input', () => {
+    const valor = normalizarTextoCor(texto.value);
+
+    if (corValida(valor)) {
+      input.value = valor;
+      texto.value = valor;
     }
-  );
 
-  texto.addEventListener(
-    'input',
-    () => {
-      let valor =
-        texto.value
-          .trim()
-          .toUpperCase();
+    atualizarPreviewTema();
+  });
 
-      if (
-        !valor.startsWith('#') &&
-        /^[0-9A-F]{3,6}$/.test(valor)
-      ) {
-        valor = `#${valor}`;
-      }
+  texto.addEventListener('blur', () => {
+    const valor = normalizarTextoCor(texto.value);
 
-      if (corValida(valor)) {
-        input.value = valor;
-        texto.value = valor;
-      }
-
-      atualizarPreviewTema();
+    if (corValida(valor)) {
+      input.value = valor;
+      texto.value = valor;
     }
-  );
-
-  texto.addEventListener(
-    'blur',
-    () => {
-      let valor =
-        texto.value
-          .trim()
-          .toUpperCase();
-
-      if (
-        !valor.startsWith('#') &&
-        /^[0-9A-F]{3,6}$/.test(valor)
-      ) {
-        valor = `#${valor}`;
-      }
-
-      if (corValida(valor)) {
-        input.value = valor;
-        texto.value = valor;
-      }
-    }
-  );
+  });
 }
 
 /* ============================================================
@@ -768,78 +733,35 @@ function sincronizarCampoCor(
    ============================================================ */
 
 function configurarSelecaoDeCores() {
-  sincronizarCampoCor(
-    'config-cor-principal',
-    'config-cor-principal-text'
-  );
+  sincronizarCampoCor('config-cor-principal', 'config-cor-principal-text');
+  sincronizarCampoCor('config-cor-destaque', 'config-cor-destaque-text');
+  sincronizarCampoCor('config-cor-fundo', 'config-cor-fundo-text');
 
-  sincronizarCampoCor(
-    'config-cor-destaque',
-    'config-cor-destaque-text'
-  );
-
-  sincronizarCampoCor(
-    'config-cor-fundo',
-    'config-cor-fundo-text'
-  );
-
-  const presets =
-    document.querySelectorAll(
-      '.theme-preset'
-    );
+  const presets = document.querySelectorAll('.theme-preset');
 
   presets.forEach(preset => {
-    preset.addEventListener(
-      'click',
-      () => {
-        const primaria =
-          preset.dataset.primary;
+    preset.addEventListener('click', () => {
+      const primaria = preset.dataset.primary;
+      const destaque = preset.dataset.accent;
+      const fundo = preset.dataset.background;
 
-        const destaque =
-          preset.dataset.accent;
-
-        const fundo =
-          preset.dataset.background;
-
-        if (corValida(primaria)) {
-          preencherCampo(
-            'config-cor-principal',
-            primaria
-          );
-
-          preencherCampo(
-            'config-cor-principal-text',
-            primaria
-          );
-        }
-
-        if (corValida(destaque)) {
-          preencherCampo(
-            'config-cor-destaque',
-            destaque
-          );
-
-          preencherCampo(
-            'config-cor-destaque-text',
-            destaque
-          );
-        }
-
-        if (corValida(fundo)) {
-          preencherCampo(
-            'config-cor-fundo',
-            fundo
-          );
-
-          preencherCampo(
-            'config-cor-fundo-text',
-            fundo
-          );
-        }
-
-        atualizarPreviewTema();
+      if (corValida(primaria)) {
+        preencherCampo('config-cor-principal', primaria);
+        preencherCampo('config-cor-principal-text', primaria);
       }
-    );
+
+      if (corValida(destaque)) {
+        preencherCampo('config-cor-destaque', destaque);
+        preencherCampo('config-cor-destaque-text', destaque);
+      }
+
+      if (corValida(fundo)) {
+        preencherCampo('config-cor-fundo', fundo);
+        preencherCampo('config-cor-fundo-text', fundo);
+      }
+
+      atualizarPreviewTema();
+    });
   });
 }
 
@@ -849,61 +771,36 @@ function configurarSelecaoDeCores() {
 
 function atualizarPreviewTema() {
   const primaria =
-    obterValor(
-      'config-cor-principal'
-    ) ||
-    CONFIGS_CORES_PADRAO.primaria;
+    obterValor('config-cor-principal') || CONFIGS_CORES_PADRAO.primaria;
 
   const destaque =
-    obterValor(
-      'config-cor-destaque'
-    ) ||
-    CONFIGS_CORES_PADRAO.destaque;
+    obterValor('config-cor-destaque') || CONFIGS_CORES_PADRAO.destaque;
 
   const fundo =
-    obterValor(
-      'config-cor-fundo'
-    ) ||
-    CONFIGS_CORES_PADRAO.fundo;
+    obterValor('config-cor-fundo') || CONFIGS_CORES_PADRAO.fundo;
 
-  const preview =
-    elemento(
-      'config-tema-preview'
-    );
+  const preview = elemento('config-tema-preview');
 
   if (preview) {
-    preview.style.background =
-      fundo;
+    preview.style.background = fundo;
   }
 
-  const titulo =
-    elemento(
-      'config-tema-preview-title'
-    );
+  const titulo = elemento('config-tema-preview-title');
 
   if (titulo) {
-    titulo.style.color =
-      primaria;
+    titulo.style.color = primaria;
   }
 
-  const badge =
-    elemento(
-      'config-tema-preview-badge'
-    );
+  const badge = elemento('config-tema-preview-badge');
 
   if (badge) {
-    badge.style.background =
-      destaque;
+    badge.style.background = destaque;
   }
 
-  const botao =
-    elemento(
-      'config-tema-preview-button'
-    );
+  const botao = elemento('config-tema-preview-button');
 
   if (botao) {
-    botao.style.background =
-      primaria;
+    botao.style.background = primaria;
   }
 }
 
@@ -913,29 +810,12 @@ function atualizarPreviewTema() {
 
 function montarPayloadEmpresa() {
   return {
-    nome: obterValor(
-      'config-empresa-nome'
-    ),
-
-    nome_exibicao: obterValor(
-      'config-empresa-nome-exibicao'
-    ),
-
-    email: obterValor(
-      'config-empresa-email'
-    ),
-
-    telefone: obterValor(
-      'config-empresa-telefone'
-    ),
-
-    nicho: obterValor(
-      'config-empresa-nicho'
-    ),
-
-    logo_url: obterValor(
-      'config-logo-url'
-    )
+    nome: obterValor('config-empresa-nome'),
+    nome_exibicao: obterValor('config-empresa-nome-exibicao'),
+    email: obterValor('config-empresa-email'),
+    telefone: obterValor('config-empresa-telefone'),
+    nicho: obterValor('config-empresa-nicho'),
+    logo_url: obterValor('config-logo-url')
   };
 }
 
@@ -945,45 +825,16 @@ function montarPayloadEmpresa() {
 
 function montarPayloadPreferencias() {
   return {
-    moeda: obterValor(
-      'config-moeda'
-    ),
+    moeda: obterValor('config-moeda'),
+    idioma: obterValor('config-idioma'),
+    formato_data: obterValor('config-formato-data'),
+    formato_hora: obterValor('config-formato-hora'),
+    fuso_horario: obterValor('config-fuso-horario'),
 
-    idioma: obterValor(
-      'config-idioma'
-    ),
-
-    formato_data: obterValor(
-      'config-formato-data'
-    ),
-
-    formato_hora: obterValor(
-      'config-formato-hora'
-    ),
-
-    fuso_horario: obterValor(
-      'config-fuso-horario'
-    ),
-
-    notificacoes_ativas:
-      obterBoolean(
-        'config-notificacoes-ativas'
-      ),
-
-    mostrar_valores:
-      obterBoolean(
-        'config-mostrar-valores'
-      ),
-
-    dashboard_inicial:
-      obterBoolean(
-        'config-dashboard-inicial'
-      ),
-
-    modo_compacto:
-      obterBoolean(
-        'config-modo-compacto'
-      )
+    notificacoes_ativas: obterBoolean('config-notificacoes-ativas'),
+    mostrar_valores: obterBoolean('config-mostrar-valores'),
+    dashboard_inicial: obterBoolean('config-dashboard-inicial'),
+    modo_compacto: obterBoolean('config-modo-compacto')
   };
 }
 
@@ -993,20 +844,9 @@ function montarPayloadPreferencias() {
 
 function montarPayloadAparencia() {
   return {
-    cor_primaria:
-      obterValor(
-        'config-cor-principal'
-      ).toUpperCase(),
-
-    cor_destaque:
-      obterValor(
-        'config-cor-destaque'
-      ).toUpperCase(),
-
-    cor_fundo:
-      obterValor(
-        'config-cor-fundo'
-      ).toUpperCase()
+    cor_primaria: obterValor('config-cor-principal').toUpperCase(),
+    cor_destaque: obterValor('config-cor-destaque').toUpperCase(),
+    cor_fundo: obterValor('config-cor-fundo').toUpperCase()
   };
 }
 
@@ -1016,15 +856,8 @@ function montarPayloadAparencia() {
 
 function montarPayloadDocumentos() {
   return {
-    rodape_documentos:
-      obterValor(
-        'config-rodape-documentos'
-      ),
-
-    telefone_documentos:
-      obterBoolean(
-        'config-telefone-documentos'
-      )
+    rodape_documentos: obterValor('config-rodape-documentos'),
+    telefone_documentos: obterBoolean('config-telefone-documentos')
   };
 }
 
@@ -1033,33 +866,14 @@ function montarPayloadDocumentos() {
    ============================================================ */
 
 function montarPayloadAgenda() {
-  const inicio =
-    obterValor(
-      'config-agenda-inicio'
-    );
-
-  const fim =
-    obterValor(
-      'config-agenda-fim'
-    );
-
-  const intervaloTexto =
-    obterValor(
-      'config-agenda-intervalo'
-    );
-
-  const intervalo =
-    Number(intervaloTexto);
+  const inicio = obterValor('config-agenda-inicio');
+  const fim = obterValor('config-agenda-fim');
+  const intervalo = Number(obterValor('config-agenda-intervalo'));
 
   return {
-    agenda_horario_inicio:
-      inicio,
-
-    agenda_horario_fim:
-      fim,
-
-    agenda_intervalo:
-      intervalo
+    agenda_horario_inicio: inicio,
+    agenda_horario_fim: fim,
+    agenda_intervalo: intervalo
   };
 }
 
@@ -1068,59 +882,35 @@ function montarPayloadAgenda() {
    ============================================================ */
 
 function validarPayloadEmpresa(payload) {
-  if (
-    !payload.nome ||
-    payload.nome.length === 0
-  ) {
+  if (!payload.nome || payload.nome.length === 0) {
     return 'Informe o nome da empresa.';
   }
 
-  if (
-    payload.nome.length > 150
-  ) {
+  if (payload.nome.length > 150) {
     return 'O nome da empresa é muito grande.';
   }
 
-  if (
-    !payload.email ||
-    !CONFIGS_EMAIL_REGEX.test(
-      payload.email
-    )
-  ) {
+  if (!payload.email || !CONFIGS_EMAIL_REGEX.test(payload.email)) {
     return 'Informe um e-mail válido.';
   }
 
-  if (
-    payload.email.length > 254
-  ) {
+  if (payload.email.length > 254) {
     return 'O e-mail informado é muito grande.';
   }
 
-  if (
-    payload.telefone &&
-    payload.telefone.length > 30
-  ) {
+  if (payload.telefone && payload.telefone.length > 30) {
     return 'O telefone possui caracteres demais.';
   }
 
-  if (
-    payload.nicho &&
-    payload.nicho.length > 30
-  ) {
+  if (payload.nicho && payload.nicho.length > 30) {
     return 'O tipo de negócio informado é inválido.';
   }
 
-  if (
-    payload.nome_exibicao &&
-    payload.nome_exibicao.length > 150
-  ) {
+  if (payload.nome_exibicao && payload.nome_exibicao.length > 150) {
     return 'O nome de exibição é muito grande.';
   }
 
-  if (
-    payload.logo_url &&
-    payload.logo_url.length > 500
-  ) {
+  if (payload.logo_url && payload.logo_url.length > 500) {
     return 'O endereço da logo é muito grande.';
   }
 
@@ -1131,19 +921,11 @@ function validarPayloadEmpresa(payload) {
    VALIDAR APARÊNCIA
    ============================================================ */
 
-function validarPayloadAparencia(
-  payload
-) {
+function validarPayloadAparencia(payload) {
   if (
-    !corValida(
-      payload.cor_primaria
-    ) ||
-    !corValida(
-      payload.cor_destaque
-    ) ||
-    !corValida(
-      payload.cor_fundo
-    )
+    !corValida(payload.cor_primaria) ||
+    !corValida(payload.cor_destaque) ||
+    !corValida(payload.cor_fundo)
   ) {
     return 'Uma ou mais cores informadas são inválidas.';
   }
@@ -1155,42 +937,20 @@ function validarPayloadAparencia(
    VALIDAR AGENDA
    ============================================================ */
 
-function validarPayloadAgenda(
-  payload
-) {
-  const horariosValidos =
-    /^([01]\d|2[0-3]):([0-5]\d)$/;
+function validarPayloadAgenda(payload) {
+  const horariosValidos = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-  if (
-    !horariosValidos.test(
-      payload.agenda_horario_inicio
-    )
-  ) {
+  if (!horariosValidos.test(payload.agenda_horario_inicio)) {
     return 'Informe um horário inicial válido.';
   }
 
-  if (
-    !horariosValidos.test(
-      payload.agenda_horario_fim
-    )
-  ) {
+  if (!horariosValidos.test(payload.agenda_horario_fim)) {
     return 'Informe um horário final válido.';
   }
 
-  const intervalosValidos = [
-    15,
-    30,
-    45,
-    60,
-    90,
-    120
-  ];
+  const intervalosValidos = [15, 30, 45, 60, 90, 120];
 
-  if (
-    !intervalosValidos.includes(
-      payload.agenda_intervalo
-    )
-  ) {
+  if (!intervalosValidos.includes(payload.agenda_intervalo)) {
     return 'Selecione um intervalo de agenda válido.';
   }
 
@@ -1201,10 +961,7 @@ function validarPayloadAgenda(
    SALVAR NO BACKEND
    ============================================================ */
 
-async function salvarConfiguracoes(
-  payload,
-  mensagemId
-) {
+async function salvarConfiguracoes(payload, mensagemId) {
   if (salvandoConfiguracoes) {
     return false;
   }
@@ -1212,75 +969,46 @@ async function salvarConfiguracoes(
   salvandoConfiguracoes = true;
 
   try {
-    console.log(
-      'Payload enviado para /api/configuracoes:',
-      payload
-    );
+    console.log('Payload enviado para /api/configuracoes:', payload);
 
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/configuracoes',
-        {
-          method: 'PUT',
-          body: JSON.stringify(
-            payload
-          )
-        }
-      );
+    const resposta = await requisicaoConfiguracoes('/api/configuracoes', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
 
-    const dados =
-      await lerJsonSeguro(resposta);
+    const dados = await lerJsonSeguro(resposta);
 
     if (!resposta.ok) {
       throw new Error(
-        dados.erro ||
-        'Não foi possível salvar as configurações.'
+        dados.erro || 'Não foi possível salvar as configurações.'
       );
     }
 
-    const empresa =
-      dados.empresa ||
-      null;
+    const empresa = dados.empresa || null;
 
     if (empresa) {
-      empresaConfiguracoes =
-        empresa;
+      guardarEmpresa(empresa);
 
-      window.lavajatoEmpresa =
-        empresa;
-
-      window.orvixEmpresa =
-        empresa;
-
-      preencherDadosEmpresa(
-        empresa
-      );
+      preencherDadosEmpresa(empresa);
     }
 
     mostrarMensagem(
       mensagemId,
-      dados.mensagem ||
-        'Configurações salvas com sucesso.',
+      dados.mensagem || 'Configurações salvas com sucesso.',
       'sucesso'
     );
 
     return true;
-
   } catch (erro) {
-    console.error(
-      'Erro ao salvar configurações:',
-      erro
-    );
+    console.error('Erro ao salvar configurações:', erro);
 
     mostrarMensagem(
       mensagemId,
-      erro.message ||
-        'Não foi possível salvar as configurações.',
+      erro.message || 'Não foi possível salvar as configurações.',
       'erro'
     );
 
     return false;
-
   } finally {
     salvandoConfiguracoes = false;
   }
@@ -1291,29 +1019,16 @@ async function salvarConfiguracoes(
    ============================================================ */
 
 async function salvarDadosEmpresa() {
-  const payload =
-    montarPayloadEmpresa();
+  const payload = montarPayloadEmpresa();
 
-  const erro =
-    validarPayloadEmpresa(
-      payload
-    );
+  const erro = validarPayloadEmpresa(payload);
 
   if (erro) {
-    mostrarMensagem(
-      'configuracoes-message',
-      erro,
-      'erro'
-    );
-
+    mostrarMensagem('configuracoes-message', erro, 'erro');
     return;
   }
 
-  const salvou =
-    await salvarConfiguracoes(
-      payload,
-      'configuracoes-message'
-    );
+  const salvou = await salvarConfiguracoes(payload, 'configuracoes-message');
 
   if (salvou) {
     await atualizarDadosDepoisDeSalvar();
@@ -1325,14 +1040,9 @@ async function salvarDadosEmpresa() {
    ============================================================ */
 
 async function salvarPreferencias() {
-  const payload =
-    montarPayloadPreferencias();
+  const payload = montarPayloadPreferencias();
 
-  const salvou =
-    await salvarConfiguracoes(
-      payload,
-      'configuracoes-message'
-    );
+  const salvou = await salvarConfiguracoes(payload, 'configuracoes-message');
 
   if (salvou) {
     await atualizarDadosDepoisDeSalvar();
@@ -1344,29 +1054,19 @@ async function salvarPreferencias() {
    ============================================================ */
 
 async function salvarAparencia() {
-  const payload =
-    montarPayloadAparencia();
+  const payload = montarPayloadAparencia();
 
-  const erro =
-    validarPayloadAparencia(
-      payload
-    );
+  const erro = validarPayloadAparencia(payload);
 
   if (erro) {
-    mostrarMensagem(
-      'config-aparencia-message',
-      erro,
-      'erro'
-    );
-
+    mostrarMensagem('config-aparencia-message', erro, 'erro');
     return;
   }
 
-  const salvou =
-    await salvarConfiguracoes(
-      payload,
-      'config-aparencia-message'
-    );
+  const salvou = await salvarConfiguracoes(
+    payload,
+    'config-aparencia-message'
+  );
 
   if (salvou) {
     aplicarCoresEmpresa({
@@ -1385,14 +1085,9 @@ async function salvarAparencia() {
    ============================================================ */
 
 async function salvarDocumentos() {
-  const payload =
-    montarPayloadDocumentos();
+  const payload = montarPayloadDocumentos();
 
-  const salvou =
-    await salvarConfiguracoes(
-      payload,
-      'configuracoes-message'
-    );
+  const salvou = await salvarConfiguracoes(payload, 'configuracoes-message');
 
   if (salvou) {
     await atualizarDadosDepoisDeSalvar();
@@ -1404,21 +1099,12 @@ async function salvarDocumentos() {
    ============================================================ */
 
 async function salvarAgenda() {
-  const payload =
-    montarPayloadAgenda();
+  const payload = montarPayloadAgenda();
 
-  const erro =
-    validarPayloadAgenda(
-      payload
-    );
+  const erro = validarPayloadAgenda(payload);
 
   if (erro) {
-    mostrarMensagem(
-      'configuracoes-message',
-      erro,
-      'erro'
-    );
-
+    mostrarMensagem('configuracoes-message', erro, 'erro');
     return;
   }
 
@@ -1433,16 +1119,9 @@ async function salvarAgenda() {
    * "30"
    */
 
-  console.log(
-    'Salvando configuração da agenda:',
-    payload
-  );
+  console.log('Salvando configuração da agenda:', payload);
 
-  const salvou =
-    await salvarConfiguracoes(
-      payload,
-      'configuracoes-message'
-    );
+  const salvou = await salvarConfiguracoes(payload, 'configuracoes-message');
 
   if (salvou) {
     await atualizarDadosDepoisDeSalvar();
@@ -1455,47 +1134,27 @@ async function salvarAgenda() {
 
 async function atualizarDadosDepoisDeSalvar() {
   try {
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/configuracoes',
-        {
-          method: 'GET'
-        }
-      );
+    const resposta = await requisicaoConfiguracoes('/api/configuracoes', {
+      method: 'GET'
+    });
 
-    const dados =
-      await lerJsonSeguro(resposta);
+    const dados = await lerJsonSeguro(resposta);
 
     if (!resposta.ok) {
       return;
     }
 
-    const empresa =
-      dados.empresa ||
-      dados;
+    const empresa = dados.empresa || dados;
 
     if (!empresa) {
       return;
     }
 
-    empresaConfiguracoes =
-      empresa;
+    guardarEmpresa(empresa);
 
-    window.lavajatoEmpresa =
-      empresa;
-
-    window.orvixEmpresa =
-      empresa;
-
-    preencherDadosEmpresa(
-      empresa
-    );
-
+    preencherDadosEmpresa(empresa);
   } catch (erro) {
-    console.warn(
-      'Não foi possível atualizar os dados após salvar:',
-      erro
-    );
+    console.warn('Não foi possível atualizar os dados após salvar:', erro);
   }
 }
 
@@ -1504,44 +1163,18 @@ async function atualizarDadosDepoisDeSalvar() {
    ============================================================ */
 
 async function restaurarTema() {
-  const primaria =
-    CONFIGS_CORES_PADRAO.primaria;
+  const primaria = CONFIGS_CORES_PADRAO.primaria;
+  const destaque = CONFIGS_CORES_PADRAO.destaque;
+  const fundo = CONFIGS_CORES_PADRAO.fundo;
 
-  const destaque =
-    CONFIGS_CORES_PADRAO.destaque;
+  preencherCampo('config-cor-principal', primaria);
+  preencherCampo('config-cor-principal-text', primaria);
 
-  const fundo =
-    CONFIGS_CORES_PADRAO.fundo;
+  preencherCampo('config-cor-destaque', destaque);
+  preencherCampo('config-cor-destaque-text', destaque);
 
-  preencherCampo(
-    'config-cor-principal',
-    primaria
-  );
-
-  preencherCampo(
-    'config-cor-principal-text',
-    primaria
-  );
-
-  preencherCampo(
-    'config-cor-destaque',
-    destaque
-  );
-
-  preencherCampo(
-    'config-cor-destaque-text',
-    destaque
-  );
-
-  preencherCampo(
-    'config-cor-fundo',
-    fundo
-  );
-
-  preencherCampo(
-    'config-cor-fundo-text',
-    fundo
-  );
+  preencherCampo('config-cor-fundo', fundo);
+  preencherCampo('config-cor-fundo-text', fundo);
 
   atualizarPreviewTema();
 
@@ -1563,143 +1196,55 @@ async function restaurarTema() {
    ============================================================ */
 
 function configurarFormularioEmpresa() {
-  const form =
-    elemento(
-      'form-configuracoes'
-    );
+  const form = elemento('form-configuracoes');
 
   if (!form) {
     return;
   }
 
-  form.addEventListener(
-    'submit',
-    async evento => {
-      evento.preventDefault();
+  form.addEventListener('submit', async evento => {
+    evento.preventDefault();
 
-      await salvarDadosEmpresa();
-    }
-  );
+    await salvarDadosEmpresa();
+  });
 }
 
 /* ============================================================
-   BOTÃO PREFERÊNCIAS
+   BOTÕES
    ============================================================ */
+
+function configurarBotao(id, acao) {
+  const botao = elemento(id);
+
+  if (!botao) {
+    return;
+  }
+
+  botao.addEventListener('click', async evento => {
+    evento.preventDefault();
+
+    await acao();
+  });
+}
 
 function configurarBotaoPreferencias() {
-  const botao =
-    elemento(
-      'btn-salvar-preferencias'
-    );
-
-  if (!botao) {
-    return;
-  }
-
-  botao.addEventListener(
-    'click',
-    async evento => {
-      evento.preventDefault();
-
-      await salvarPreferencias();
-    }
-  );
+  configurarBotao('btn-salvar-preferencias', salvarPreferencias);
 }
-
-/* ============================================================
-   BOTÃO APARÊNCIA
-   ============================================================ */
 
 function configurarBotaoAparencia() {
-  const botao =
-    elemento(
-      'btn-salvar-tema'
-    );
-
-  if (!botao) {
-    return;
-  }
-
-  botao.addEventListener(
-    'click',
-    async evento => {
-      evento.preventDefault();
-
-      await salvarAparencia();
-    }
-  );
+  configurarBotao('btn-salvar-tema', salvarAparencia);
 }
-
-/* ============================================================
-   BOTÃO RESTAURAR TEMA
-   ============================================================ */
 
 function configurarBotaoRestaurarTema() {
-  const botao =
-    elemento(
-      'btn-restaurar-tema'
-    );
-
-  if (!botao) {
-    return;
-  }
-
-  botao.addEventListener(
-    'click',
-    evento => {
-      evento.preventDefault();
-
-      restaurarTema();
-    }
-  );
+  configurarBotao('btn-restaurar-tema', restaurarTema);
 }
-
-/* ============================================================
-   BOTÃO DOCUMENTOS
-   ============================================================ */
 
 function configurarBotaoDocumentos() {
-  const botao =
-    elemento(
-      'btn-salvar-documentos'
-    );
-
-  if (!botao) {
-    return;
-  }
-
-  botao.addEventListener(
-    'click',
-    async evento => {
-      evento.preventDefault();
-
-      await salvarDocumentos();
-    }
-  );
+  configurarBotao('btn-salvar-documentos', salvarDocumentos);
 }
 
-/* ============================================================
-   BOTÃO AGENDA
-   ============================================================ */
-
 function configurarBotaoAgenda() {
-  const botao =
-    elemento(
-      'btn-salvar-agenda'
-    );
-
-  if (!botao) {
-    return;
-  }
-
-  botao.addEventListener(
-    'click',
-    async evento => {
-      evento.preventDefault();
-
-      await salvarAgenda();
-    }
-  );
+  configurarBotao('btn-salvar-agenda', salvarAgenda);
 }
 
 /* ============================================================
@@ -1707,57 +1252,31 @@ function configurarBotaoAgenda() {
    ============================================================ */
 
 function configurarCamposAgenda() {
-  const inicio =
-    elemento(
-      'config-agenda-inicio'
-    );
-
-  const fim =
-    elemento(
-      'config-agenda-fim'
-    );
-
-  const intervalo =
-    elemento(
-      'config-agenda-intervalo'
-    );
+  const inicio = elemento('config-agenda-inicio');
+  const fim = elemento('config-agenda-fim');
+  const intervalo = elemento('config-agenda-intervalo');
 
   if (inicio) {
-    inicio.addEventListener(
-      'change',
-      () => {
-        console.log(
-          'Horário inicial:',
-          inicio.value
-        );
-      }
-    );
+    inicio.addEventListener('change', () => {
+      console.log('Horário inicial:', inicio.value);
+    });
   }
 
   if (fim) {
-    fim.addEventListener(
-      'change',
-      () => {
-        console.log(
-          'Horário final:',
-          fim.value
-        );
-      }
-    );
+    fim.addEventListener('change', () => {
+      console.log('Horário final:', fim.value);
+    });
   }
 
   if (intervalo) {
-    intervalo.addEventListener(
-      'change',
-      () => {
-        console.log(
-          'Intervalo selecionado:',
-          intervalo.value,
-          'Número:',
-          Number(intervalo.value)
-        );
-      }
-    );
+    intervalo.addEventListener('change', () => {
+      console.log(
+        'Intervalo selecionado:',
+        intervalo.value,
+        'Número:',
+        Number(intervalo.value)
+      );
+    });
   }
 }
 
@@ -1765,209 +1284,58 @@ function configurarCamposAgenda() {
    COMPATIBILIDADE
    ============================================================ */
 
-window.carregarConfiguracoes =
-  carregarConfiguracoes;
-
-window.carregarUsuarioConfiguracoes =
-  carregarUsuarioConfiguracoes;
-
-window.salvarConfiguracoes =
-  salvarConfiguracoes;
-
-window.salvarDadosEmpresa =
-  salvarDadosEmpresa;
-
-window.salvarPreferencias =
-  salvarPreferencias;
-
-window.salvarAparencia =
-  salvarAparencia;
-
-window.salvarDocumentos =
-  salvarDocumentos;
-
-window.salvarAgenda =
-  salvarAgenda;
-
-window.restaurarTema =
-  restaurarTema;
-
-window.aplicarCoresEmpresa =
-  aplicarCoresEmpresa;
+window.carregarConfiguracoes = carregarConfiguracoes;
+window.carregarUsuarioConfiguracoes = carregarUsuarioConfiguracoes;
+window.salvarConfiguracoes = salvarConfiguracoes;
+window.salvarDadosEmpresa = salvarDadosEmpresa;
+window.salvarPreferencias = salvarPreferencias;
+window.salvarAparencia = salvarAparencia;
+window.salvarDocumentos = salvarDocumentos;
+window.salvarAgenda = salvarAgenda;
+window.restaurarTema = restaurarTema;
+window.aplicarCoresEmpresa = aplicarCoresEmpresa;
+window.aplicarNichoNaInterface = aplicarNichoNaInterface;
+window.normalizarNicho = normalizarNicho;
 
 /* ============================================================
    INICIALIZAÇÃO
    ============================================================ */
 
-document.addEventListener(
-  'DOMContentLoaded',
-  async () => {
-    console.log(
-      'Orvix: inicializando configurações...'
-    );
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('Orvix: inicializando configurações...');
 
-    configurarSelecaoDeCores();
+  configurarSelecaoDeCores();
 
-    configurarFormularioEmpresa();
+  configurarFormularioEmpresa();
 
-    configurarBotaoPreferencias();
+  configurarBotaoPreferencias();
 
-    configurarBotaoAparencia();
+  configurarBotaoAparencia();
 
-    configurarBotaoRestaurarTema();
+  configurarBotaoRestaurarTema();
 
-    configurarBotaoDocumentos();
+  configurarBotaoDocumentos();
 
-    configurarBotaoAgenda();
+  configurarBotaoAgenda();
 
-    configurarCamposAgenda();
+  configurarCamposAgenda();
 
-    limparMensagens();
+  configurarTrocaDeNicho();
 
-    /*
-     * Carrega primeiro o usuário.
-     */
-    await carregarUsuarioConfiguracoes();
+  limparMensagens();
 
-    /*
-     * Depois busca diretamente as configurações
-     * no endpoint específico.
-     */
-    await carregarConfiguracoes();
+  /*
+   * Carrega primeiro o usuário.
+   */
+  await carregarUsuarioConfiguracoes();
 
-    atualizarPreviewTema();
+  /*
+   * Depois busca diretamente as configurações
+   * no endpoint específico.
+   */
+  await carregarConfiguracoes();
 
-    console.log(
-      'Orvix: configurações inicializadas.'
-    );
-  }
-);
+  atualizarPreviewTema();
 
-/* ----------------------------------------------------------
-   Normaliza o valor vindo do banco
-   ---------------------------------------------------------- */
-
-function normalizarNicho(valor) {
-  const limpo = String(valor || '')
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-  if (NICHOS_CONFIG[limpo]) {
-    return limpo;
-  }
-
-  if (NICHOS_ALIASES[limpo]) {
-    return NICHOS_ALIASES[limpo];
-  }
-
-  return limpo ? 'outros' : 'lavajato';
-}
-
-function obterConfigNicho(valor) {
-  return NICHOS_CONFIG[normalizarNicho(valor)];
-}
-
-/* ----------------------------------------------------------
-   Popula o <select> de nicho (se estiver vazio)
-   ---------------------------------------------------------- */
-
-function popularSelectNichos() {
-  const select = elemento('config-empresa-nicho');
-
-  if (!select || select.tagName !== 'SELECT') {
-    return;
-  }
-
-  if (select.options.length > 1) {
-    return;
-  }
-
-  select.innerHTML = '';
-
-  Object.entries(NICHOS_CONFIG).forEach(([chave, cfg]) => {
-    const opcao = document.createElement('option');
-
-    opcao.value = chave;
-    opcao.textContent = cfg.nome;
-
-    select.appendChild(opcao);
-  });
-}
-
-/* ----------------------------------------------------------
-   Aplica o nicho na interface
-   ---------------------------------------------------------- */
-
-function aplicarNichoNaInterface(valor) {
-  const chave = normalizarNicho(valor);
-  const cfg = NICHOS_CONFIG[chave];
-
-  nichoAtual = chave;
-
-  document.body.dataset.nicho = chave;
-
-  /* Disponível para outras páginas (agenda, clientes...) */
-  window.orvixNicho = {
-    chave,
-    nome: cfg.nome,
-    termos: cfg.termos
-  };
-
-  /* Textos: <span data-nicho-termo="cliente"></span> */
-  document.querySelectorAll('[data-nicho-termo]').forEach(el => {
-    const termo = cfg.termos[el.dataset.nichoTermo];
-
-    if (termo !== undefined && termo !== '') {
-      el.textContent = termo;
-    }
-  });
-
-  /* Placeholders: <input data-nicho-placeholder="itemPlaca"> */
-  document.querySelectorAll('[data-nicho-placeholder]').forEach(el => {
-    const termo = cfg.termos[el.dataset.nichoPlaceholder];
-
-    if (termo) {
-      el.placeholder = termo;
-    }
-  });
-
-  /* Mostrar/esconder: <div data-nicho-mostrar="lavajato,oficina"> */
-  document.querySelectorAll('[data-nicho-mostrar]').forEach(el => {
-    const permitidos = el.dataset.nichoMostrar
-      .split(',')
-      .map(n => n.trim());
-
-    el.hidden = !permitidos.includes(chave);
-  });
-
-  /* Esconder em nichos específicos: data-nicho-ocultar="clinica" */
-  document.querySelectorAll('[data-nicho-ocultar]').forEach(el => {
-    const ocultos = el.dataset.nichoOcultar
-      .split(',')
-      .map(n => n.trim());
-
-    el.hidden = ocultos.includes(chave);
-  });
-
-  document.dispatchEvent(
-    new CustomEvent('orvix:nicho-alterado', {
-      detail: window.orvixNicho
-    })
-  );
-}
-
-/* ----------------------------------------------------------
-   Preview ao trocar o select (antes de salvar)
-   ---------------------------------------------------------- */
-
-function configurarTrocaDeNicho() {
-  popularSelectNichos();
-
-  const select = elemento('config-empresa-nicho');
-
-  select?.addEventListener('change', () => {
-    aplicarNichoNaInterface(select.value);
-  });
-}
+  console.log('Orvix: configurações inicializadas.');
+});
