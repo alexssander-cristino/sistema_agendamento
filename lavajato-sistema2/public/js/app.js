@@ -6288,211 +6288,98 @@
   }
 
 
-  async function carregarLogs(){
-    console.log('>>> CARREGAR LOGS FOI CHAMADO');
+  async function carregarLogs() {
+  console.log('>>> CARREGAR LOGS FOI CHAMADO');
 
-    if(logsCarregando){
-      return;
-    }
+  const tbody = $('logs-tbody');
 
-    if(!isAdministrador()){
-      return;
-    }
+  if (!tbody) {
+    console.error('>>> ERRO: #logs-tbody não encontrado');
+    return;
+  }
 
-    const tbody =
-      document.getElementById(
-        'logs-tbody'
-      );
+  console.log('>>> tbody encontrado');
 
-    if(!tbody){
-      return;
-    }
-
-    logsCarregando =
-      true;
-
-    const mensagem =
-      document.getElementById(
-        'logs-message'
-      );
-
-    if(mensagem){
-
-      mensagem.textContent =
-        '';
-
-      mensagem.style.display =
-        'none';
-    }
+  try {
+    logsCarregando = true;
 
     tbody.innerHTML = `
-
       <tr>
-
-        <td
-          colspan="6"
-          class="empty-state"
-        >
+        <td colspan="6" class="empty-state">
           Carregando logs...
         </td>
-
       </tr>
-
     `;
 
-    const busca =
-      document
-        .getElementById(
-          'logs-busca'
-        )
-        ?.value
-        ?.trim() ||
-      '';
+    const params = new URLSearchParams();
 
-    const acao =
-      document
-        .getElementById(
-          'logs-acao'
-        )
-        ?.value ||
-      '';
+    params.set('pagina', String(logsPaginaAtual));
+    params.set('limite', String(LOGS_POR_PAGINA));
 
-    try{
+    const busca = $('logs-busca')?.value?.trim() || '';
+    const acao = $('logs-acao')?.value?.trim() || '';
 
-      const params =
-        new URLSearchParams();
+    if (busca) {
+      params.set('busca', busca);
+    }
 
-      params.set(
-        'pagina',
-        String(
-          logsPaginaAtual
-        )
-      );
+    if (acao) {
+      params.set('acao', acao);
+    }
 
-      params.set(
-        'limite',
-        String(
-          LOGS_POR_PAGINA
-        )
-      );
+    console.log('>>> PARAMS:', params.toString());
+    console.log('>>> CHAMANDO API:', `/logs?${params.toString()}`);
 
-      if(busca){
+    const resposta = await api(
+      `/logs?${params.toString()}`
+    );
 
-        params.set(
-          'busca',
-          busca
-        );
-      }
+    console.log('>>> RESPOSTA DA API:', resposta);
 
-      if(acao){
+    const logs = Array.isArray(resposta)
+      ? resposta
+      : (resposta?.logs || []);
 
-        params.set(
-          'acao',
-          acao
-        );
-      }
+    console.log('>>> LOGS RECEBIDOS:', logs);
 
-      // IMPORTANTE:
-      // api() já adiciona /api.
-      // Portanto aqui é /logs e NÃO /api/logs.
-
-      const resposta =
-        await api(
-          `/logs?${params.toString()}`
-        );
-
-      const logs =
-        Array.isArray(
-          resposta
-        )
-          ? resposta
-          : (
-              Array.isArray(
-                resposta.logs
-              )
-                ? resposta.logs
-                : []
-            );
-
-      renderizarLogs(
-        logs
-      );
-
-      const total =
-        Number(
-          resposta?.total ||
-          logs.length
-        );
-
-      const totalPaginas =
-        Math.max(
-          1,
-          Math.ceil(
-            total /
-            LOGS_POR_PAGINA
-          )
-        );
-
-      if(
-        logsPaginaAtual >
-        totalPaginas
-      ){
-
-        logsPaginaAtual =
-          totalPaginas;
-
-        if(
-          totalPaginas > 0
-        ){
-
-          await carregarLogs();
-
-          return;
-        }
-      }
-
-      atualizarPaginacaoLogs(
-        totalPaginas
-      );
-
-    }catch(erro){
-
-      console.error(
-        'Erro ao carregar logs:',
-        erro
-      );
-
+    if (!logs.length) {
       tbody.innerHTML = `
-
         <tr>
-
-          <td
-            colspan="6"
-            class="empty-state"
-          >
-            Não foi possível carregar os logs.
+          <td colspan="6" class="empty-state">
+            Nenhum registro de auditoria encontrado.
           </td>
-
         </tr>
-
       `;
 
-      if(mensagem){
-
-        mensagem.textContent =
-          erro?.message ||
-          'Não foi possível carregar os logs.';
-
-        mensagem.style.display =
-          'block';
-      }
-
-    }finally{
-
-      logsCarregando =
-        false;
+      return;
     }
+
+    tbody.innerHTML = logs.map(log => `
+      <tr>
+        <td>${escaparHtmlLogs(formatarDataLog(log.criado_em))}</td>
+        <td>${escaparHtmlLogs(obterNomeUsuarioLog(log))}</td>
+        <td>${escaparHtmlLogs(formatarAcaoLog(log.acao))}</td>
+        <td>${escaparHtmlLogs(formatarEntidadeLog(log.entidade))}</td>
+        <td>${escaparHtmlLogs(log.entidade_id ?? '-')}</td>
+        <td>${escaparHtmlLogs(formatarDetalhesLog(log.detalhes))}</td>
+      </tr>
+    `).join('');
+
+  } catch (erro) {
+    console.error('>>> ERRO AO CARREGAR LOGS:', erro);
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty-state">
+          Não foi possível carregar os logs.
+        </td>
+      </tr>
+    `;
+
+  } finally {
+    logsCarregando = false;
   }
+}
 
 
   function renderizarLogs(logs){
