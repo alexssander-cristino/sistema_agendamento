@@ -41,11 +41,17 @@
 
 })();
 
+
+// ============================================================
+// ORVIX — APLICAÇÃO PRINCIPAL
+// ============================================================
+
 (function(){
   "use strict";
 
   const API = '/api';
   const AUTH_TOKEN_KEY = 'lavajato_auth_token';
+  const NICHO_PADRAO = 'lavajato';
 
   let state = { services: [], appointments: [] };
 
@@ -64,23 +70,33 @@
   let connectionInterval = null;
   let assinaturaVerificada = false;
 
+  // Permite que o configuracoes.js (arquivo separado) leia/atualize
+  // a empresa e o usuário atuais sem duplicar estado.
+  Object.defineProperty(window, 'empresaLogada', {
+    configurable: true,
+    get(){ return empresaLogada; },
+    set(v){ empresaLogada = v; }
+  });
+
+  Object.defineProperty(window, 'usuarioLogado', {
+    configurable: true,
+    get(){ return usuarioLogado; },
+    set(v){ usuarioLogado = v; }
+  });
+
+
   // ============================================================
   // UTILITÁRIOS
   // ============================================================
 
-  function todayISO(){
-    const d = new Date();
-    const off = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - off * 60000);
-
+  function toLocalISO(d){
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
     return local.toISOString().slice(0,10);
   }
 
 
-  function uid(){
-    return 'tmp-' +
-      Date.now().toString(36) +
-      Math.random().toString(36).slice(2,6);
+  function todayISO(){
+    return toLocalISO(new Date());
   }
 
 
@@ -124,8 +140,233 @@
   }
 
 
+  function $(id){
+    return document.getElementById(id);
+  }
+
+
   function isAdministrador(){
     return (usuarioLogado && usuarioLogado.perfil === 'administrador');
+  }
+
+
+  function mesmoId(a, b){
+    return String(a) === String(b);
+  }
+
+
+  // ============================================================
+  // NICHOS
+  // ============================================================
+
+  const NICHOS = {
+
+    lavajato: {
+      nome: 'Lava-jato / Estética automotiva',
+      cliente: 'Cliente',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      novoServico: 'Novo serviço',
+      extra1: { label: 'Placa', placeholder: 'ABC1D23', upper: true },
+      extra2: { label: 'Veículo', placeholder: 'Modelo / cor' }
+    },
+
+    barbearia: {
+      nome: 'Barbearia / Salão de beleza',
+      cliente: 'Cliente',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      novoServico: 'Novo serviço',
+      extra1: { label: 'Profissional', placeholder: 'Quem vai atender' },
+      extra2: null
+    },
+
+    clinica: {
+      nome: 'Clínica / Consultório',
+      cliente: 'Paciente',
+      servico: 'Procedimento',
+      servicos: 'Procedimentos',
+      novoServico: 'Novo procedimento',
+      extra1: { label: 'Convênio', placeholder: 'Particular, Unimed...' },
+      extra2: { label: 'Profissional', placeholder: 'Médico / dentista' }
+    },
+
+    pet: {
+      nome: 'Pet shop / Veterinária',
+      cliente: 'Tutor',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      novoServico: 'Novo serviço',
+      extra1: { label: 'Nome do pet', placeholder: 'Ex: Thor' },
+      extra2: { label: 'Raça / porte', placeholder: 'Ex: Golden, grande' }
+    },
+
+    oficina: {
+      nome: 'Oficina mecânica',
+      cliente: 'Cliente',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      novoServico: 'Novo serviço',
+      extra1: { label: 'Placa', placeholder: 'ABC1D23', upper: true },
+      extra2: { label: 'Veículo', placeholder: 'Modelo / ano' }
+    },
+
+    personal: {
+      nome: 'Personal / Aulas / Consultoria',
+      cliente: 'Aluno / Cliente',
+      servico: 'Aula / Sessão',
+      servicos: 'Aulas e sessões',
+      novoServico: 'Nova aula / sessão',
+      extra1: null,
+      extra2: null
+    },
+
+    generico: {
+      nome: 'Outro',
+      cliente: 'Cliente',
+      servico: 'Serviço',
+      servicos: 'Serviços',
+      novoServico: 'Novo serviço',
+      extra1: null,
+      extra2: null
+    }
+  };
+
+
+  function normalizarNicho(valor){
+
+    const chave = String(valor || '').trim().toLowerCase();
+
+    return NICHOS[chave] ? chave : NICHO_PADRAO;
+  }
+
+
+  function getNicho(){
+
+    const chave = empresaLogada?.nicho || window.nichoAtual || NICHO_PADRAO;
+
+    return NICHOS[normalizarNicho(chave)] || NICHOS[NICHO_PADRAO];
+  }
+
+
+  function aplicarNicho(chave){
+
+    if(!chave){
+      chave = window.nichoAtual || empresaLogada?.nicho || NICHO_PADRAO;
+    }
+
+    const chaveValida = NICHOS[chave] ? chave : NICHO_PADRAO;
+    const n = NICHOS[chaveValida];
+
+    window.nichoAtual = chaveValida;
+
+    if(empresaLogada){ empresaLogada.nicho = chaveValida; }
+
+    // Modal de agendamento
+    const lblServico = $('ap-service-label');
+    if(lblServico){ lblServico.textContent = n.servico; }
+
+    const lblCliente = $('ap-client-label');
+    if(lblCliente){ lblCliente.textContent = n.cliente; }
+
+    [
+      ['extra1', 'ap-plate'],
+      ['extra2', 'ap-vehicle']
+    ].forEach(([chaveExtra, inputId]) => {
+
+      const cfg = n[chaveExtra];
+      const campo = $(`ap-${chaveExtra}-field`);
+      const input = $(inputId);
+      const label = $(`ap-${chaveExtra}-label`);
+
+      if(!campo || !input){ return; }
+
+      if(cfg){
+
+        campo.style.display = '';
+
+        if(label){ label.textContent = cfg.label; }
+
+        input.placeholder = cfg.placeholder;
+
+        if(cfg.upper && input.dataset.upperListener !== 'true'){
+
+          input.dataset.upperListener = 'true';
+
+          input.addEventListener('input', () => {
+            input.value = input.value.toUpperCase();
+          });
+        }
+
+      }else{
+
+        campo.style.display = 'none';
+        input.value = '';
+      }
+    });
+
+    // Menu de serviços
+    const navServicos = document.querySelector('[data-tab="servicos"] .nav-text');
+    if(navServicos){ navServicos.textContent = n.servicos; }
+
+    const h1Servicos = document.querySelector('#panel-servicos h1');
+    if(h1Servicos){ h1Servicos.textContent = n.servicos; }
+
+    const btnNovoServico = $('btn-new-service');
+    if(btnNovoServico){ btnNovoServico.textContent = n.novoServico; }
+
+    // Busca de clientes
+    const buscaCli = $('cli-search-input');
+
+    if(buscaCli){
+      buscaCli.placeholder =
+        n.extra1
+          ? 'Nome, telefone ou ' + n.extra1.label.toLowerCase() + '...'
+          : 'Nome ou telefone...';
+    }
+
+    // Select de nicho nas configurações
+    const selConfig = $('config-empresa-nicho');
+    if(selConfig){ selConfig.value = chaveValida; }
+  }
+
+
+  function formatExtra(valor, cfg){
+
+    const v = String(valor || '');
+
+    return cfg && cfg.upper ? v.toUpperCase() : v;
+  }
+
+
+  function detalhesHtml(ap){
+
+    const n = getNicho();
+
+    let html = '';
+
+    if(ap?.veiculo){
+      html +=
+        '<span title="' + escapeHtml(n.extra2 ? n.extra2.label : 'Detalhe') + '">' +
+        escapeHtml(ap.veiculo) +
+        '</span>';
+    }
+
+    if(ap?.placa){
+      html +=
+        '<span title="' + escapeHtml(n.extra1 ? n.extra1.label : 'Detalhe') + '">' +
+        escapeHtml(formatExtra(ap.placa, n.extra1)) +
+        '</span>';
+    }
+
+    if(ap?.observacoes){
+      html +=
+        '<span title="Observações">' +
+        escapeHtml(ap.observacoes) +
+        '</span>';
+    }
+
+    return html;
   }
 
 
@@ -146,7 +387,7 @@
   window.abrirPrivacidade = abrirPrivacidade;
 
 
-  const btnPrivacidade = document.getElementById('btn-privacidade');
+  const btnPrivacidade = $('btn-privacidade');
 
   if(btnPrivacidade){
     btnPrivacidade.addEventListener('click', function(event){
@@ -178,9 +419,7 @@
     if(usuarioLogado.perfil === 'administrador'){ return true; }
 
     const permissoes =
-      Array.isArray(usuarioLogado.permissoes)
-        ? usuarioLogado.permissoes
-        : [];
+      Array.isArray(usuarioLogado.permissoes) ? usuarioLogado.permissoes : [];
 
     return permissoes.includes(chave);
   }
@@ -207,7 +446,6 @@
 
     const res = await fetch(API + path, requestOptions);
 
-
     if(res.status === 401){
 
       if(path !== '/auth/login' && path !== '/auth/cadastro'){
@@ -219,10 +457,12 @@
 
         showAuthScreen();
 
-        throw new Error('Sessão expirada. Faça login novamente.');
+        const erroSessao = new Error('Sessão expirada. Faça login novamente.');
+        erroSessao.status = 401;
+
+        throw erroSessao;
       }
     }
-
 
     if(!res.ok){
 
@@ -243,7 +483,6 @@
       throw erro;
     }
 
-
     if(res.status === 204){ return null; }
 
     return res.json();
@@ -254,15 +493,15 @@
   // AUTENTICAÇÃO
   // ============================================================
 
-  const authScreen = document.getElementById('auth-screen');
-  const loginForm = document.getElementById('login-form');
-  const registerForm = document.getElementById('register-form');
-  const loginError = document.getElementById('login-error');
-  const registerError = document.getElementById('register-error');
-  const loginSubmit = document.getElementById('login-submit');
-  const registerSubmit = document.getElementById('register-submit');
-  const showRegisterBtn = document.getElementById('show-register');
-  const showLoginBtn = document.getElementById('show-login');
+  const authScreen = $('auth-screen');
+  const loginForm = $('login-form');
+  const registerForm = $('register-form');
+  const loginError = $('login-error');
+  const registerError = $('register-error');
+  const loginSubmit = $('login-submit');
+  const registerSubmit = $('register-submit');
+  const showRegisterBtn = $('show-register');
+  const showLoginBtn = $('show-login');
 
 
   function showAuthScreen(){
@@ -291,13 +530,68 @@
   }
 
 
+  function ehRateLimit(error){
+    return (
+      error?.status === 429 ||
+      error?.statusCode === 429 ||
+      error?.response?.status === 429 ||
+      error?.codigo === 'RATE_LIMIT_AUTENTICACAO'
+    );
+  }
+
+
   // ============================================================
-  // ACESSO À ÁREA DE USUÁRIOS
+  // SIDEBAR DO USUÁRIO
+  // ============================================================
+
+  function atualizarSidebarUsuario(){
+
+    const nomeEl = $('sidebar-user-name');
+    const perfilEl = $('sidebar-user-role');
+    const avatarEl = $('sidebar-user-avatar');
+    const empresaEl = $('sidebar-company');
+
+    if(usuarioLogado){
+
+      if(nomeEl){ nomeEl.textContent = usuarioLogado.nome || 'Usuário'; }
+
+      if(perfilEl){
+        perfilEl.textContent =
+          usuarioLogado.perfil === 'administrador'
+            ? 'Administrador'
+            : 'Funcionário';
+      }
+
+      if(avatarEl){
+        avatarEl.textContent =
+          (usuarioLogado.nome || 'U').charAt(0).toUpperCase();
+      }
+    }
+
+    if(empresaEl && empresaLogada){
+      empresaEl.textContent =
+        empresaLogada.nome_exibicao ||
+        empresaLogada.nome ||
+        'Empresa';
+    }
+
+    atualizarAcessoUsuarios();
+
+    try{
+      aplicarNicho(empresaLogada?.nicho);
+    }catch(e){
+      console.warn('Não foi possível aplicar o nicho:', e);
+    }
+  }
+
+
+  // ============================================================
+  // ACESSO À ÁREA DE USUÁRIOS / PERMISSÕES NO MENU
   // ============================================================
 
   function atualizarAcessoUsuarios(){
 
-    const btn = document.getElementById('nav-usuarios');
+    const btn = $('nav-usuarios');
 
     if(btn){
 
@@ -315,7 +609,6 @@
       }
     }
 
-
     document
       .querySelectorAll('.nav-btn, .bn-btn')
       .forEach(navBtn => {
@@ -327,11 +620,9 @@
         navBtn.style.display = temPermissao(tab) ? '' : 'none';
       });
 
-
     if(activeTab !== 'usuarios' && !temPermissao(activeTab)){
 
-      const proxima =
-        PERMISSOES_DISPONIVEIS.find(p => temPermissao(p.chave));
+      const proxima = PERMISSOES_DISPONIVEIS.find(p => temPermissao(p.chave));
 
       goToTab(proxima ? proxima.chave : 'agenda');
     }
@@ -350,7 +641,7 @@
     clearAuthError(loginError);
     clearAuthError(registerError);
 
-    const subtitle = document.getElementById('auth-subtitle');
+    const subtitle = $('auth-subtitle');
 
     if(subtitle){
       subtitle.textContent =
@@ -367,7 +658,7 @@
     clearAuthError(loginError);
     clearAuthError(registerError);
 
-    const subtitle = document.getElementById('auth-subtitle');
+    const subtitle = $('auth-subtitle');
 
     if(subtitle){
       subtitle.textContent = 'Entre na sua conta para continuar';
@@ -390,8 +681,8 @@
       loginSubmit.textContent = 'Entrando...';
     }
 
-    const email = document.getElementById('login-email')?.value.trim();
-    const senha = document.getElementById('login-password')?.value;
+    const email = $('login-email')?.value.trim();
+    const senha = $('login-password')?.value;
 
     try{
 
@@ -417,16 +708,8 @@
 
     }catch(error){
 
-      // HTTP 429 - limite de tentativas
-      if(
-        error?.status === 429 ||
-        error?.statusCode === 429 ||
-        error?.response?.status === 429 ||
-        error?.codigo === 'RATE_LIMIT_AUTENTICACAO'
-      ){
-
+      if(ehRateLimit(error)){
         window.location.replace('/429.html');
-
         return;
       }
 
@@ -460,13 +743,13 @@
       registerSubmit.textContent = 'Criando conta...';
     }
 
-    const empresa = document.getElementById('register-company')?.value.trim();
-    const email_empresa = document.getElementById('register-company-email')?.value.trim();
-    const telefone = document.getElementById('register-phone')?.value.trim();
-    const nicho = document.getElementById('register-nicho')?.value || NICHO_PADRAO;
-    const nome = document.getElementById('register-name')?.value.trim();
-    const email = document.getElementById('register-email')?.value.trim();
-    const senha = document.getElementById('register-password')?.value;
+    const empresa = $('register-company')?.value.trim();
+    const email_empresa = $('register-company-email')?.value.trim();
+    const telefone = $('register-phone')?.value.trim();
+    const nicho = $('register-nicho')?.value || NICHO_PADRAO;
+    const nome = $('register-name')?.value.trim();
+    const email = $('register-email')?.value.trim();
+    const senha = $('register-password')?.value;
 
     try{
 
@@ -495,16 +778,8 @@
 
     }catch(error){
 
-      // HTTP 429 - limite de cadastro
-      if(
-        error?.status === 429 ||
-        error?.statusCode === 429 ||
-        error?.response?.status === 429 ||
-        error?.codigo === 'RATE_LIMIT_AUTENTICACAO'
-      ){
-
+      if(ehRateLimit(error)){
         window.location.replace('/429.html');
-
         return;
       }
 
@@ -561,7 +836,10 @@
 
     }catch(error){
 
-      localStorage.removeItem(AUTH_TOKEN_KEY);
+      // Só descarta o token quando a sessão realmente é inválida.
+      if(error?.status === 401 || error?.status === 403){
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+      }
 
       usuarioLogado = null;
       empresaLogada = null;
@@ -580,7 +858,7 @@
 
   async function checkConnection(){
 
-    const badge = document.getElementById('conn-badge');
+    const badge = $('conn-badge');
 
     if(!badge){ return; }
 
@@ -623,7 +901,7 @@
       .querySelectorAll('.panel')
       .forEach(p => p.classList.remove('active'));
 
-    const panel = document.getElementById('panel-' + tab);
+    const panel = $('panel-' + tab);
 
     if(panel){ panel.classList.add('active'); }
 
@@ -655,13 +933,19 @@
     if(tab === 'servicos'){ await refreshServicos(); }
 
     if(tab === 'clientes'){
-      document.getElementById('cli-search-input')?.focus();
+      $('cli-search-input')?.focus();
     }
 
     if(tab === 'despesas'){ await refreshDespesas(); }
 
     if(tab === 'usuarios'){
       if(isAdministrador()){ await refreshUsuarios(); }
+    }
+
+    if(tab === 'configuracoes'){
+      try{
+        await window.OrvixConfiguracoes?.carregarConfiguracoes?.();
+      }catch(e){}
     }
   }
 
@@ -677,7 +961,7 @@
 
   function serviceName(id){
 
-    const s = state.services.find(x => String(x.id) === String(id));
+    const s = state.services.find(x => mesmoId(x.id, id));
 
     return s ? s.nome : getNicho().servico + ' removido';
   }
@@ -687,7 +971,7 @@
   // AGENDA
   // ============================================================
 
-  const dateInput = document.getElementById('agenda-date-input');
+  const dateInput = $('agenda-date-input');
 
   if(dateInput){
 
@@ -700,7 +984,7 @@
   }
 
 
-  document.getElementById('btn-today')?.addEventListener('click', () => {
+  $('btn-today')?.addEventListener('click', () => {
 
     selectedDate = todayISO();
 
@@ -712,13 +996,13 @@
 
   async function refreshAgenda(){
 
-    const label = document.getElementById('agenda-date-label');
+    const label = $('agenda-date-label');
 
     if(label){
       label.textContent = capitalize(fmtDatePretty(selectedDate));
     }
 
-    const list = document.getElementById('agenda-list');
+    const list = $('agenda-list');
 
     if(!list){ return; }
 
@@ -747,7 +1031,7 @@
 
   function renderAgendaList(items){
 
-    const list = document.getElementById('agenda-list');
+    const list = $('agenda-list');
 
     if(!list){ return; }
 
@@ -836,7 +1120,7 @@
       }).join('');
     }
 
-    const navCount = document.getElementById('nav-count-agenda');
+    const navCount = $('nav-count-agenda');
 
     if(navCount){
       navCount.textContent =
@@ -849,47 +1133,40 @@
   // NOVO AGENDAMENTO
   // ============================================================
 
-  const overlayAppointment = document.getElementById('overlay-appointment');
+  const overlayAppointment = $('overlay-appointment');
 
 
-  document
-    .getElementById('btn-new-appointment')
-    ?.addEventListener('click', async () => {
+  $('btn-new-appointment')?.addEventListener('click', async () => {
 
-      editingAppointmentId = null;
+    editingAppointmentId = null;
 
-      document.getElementById('appointment-modal-title').textContent =
-        'Novo agendamento';
+    $('appointment-modal-title').textContent = 'Novo agendamento';
+    $('appointment-submit-btn').textContent = 'Agendar';
 
-      document.getElementById('appointment-submit-btn').textContent =
-        'Agendar';
+    $('ap-date').value = selectedDate;
+    $('ap-time').value = '';
+    $('ap-client').value = '';
+    $('ap-phone').value = '';
+    $('ap-plate').value = '';
+    $('ap-vehicle').value = '';
 
-      document.getElementById('ap-date').value = selectedDate;
-      document.getElementById('ap-time').value = '';
-      document.getElementById('ap-client').value = '';
-      document.getElementById('ap-phone').value = '';
-      document.getElementById('ap-plate').value = '';
-      document.getElementById('ap-vehicle').value = '';
+    const notes = $('ap-notes');
+    if(notes){ notes.value = ''; }
 
-      const notes = document.getElementById('ap-notes');
-      if(notes){ notes.value = ''; }
+    if(state.services.length === 0){ await loadServices(); }
 
-      if(state.services.length === 0){ await loadServices(); }
+    fillServiceSelect();
+    updatePriceFromService();
 
-      fillServiceSelect();
-      updatePriceFromService();
+    overlayAppointment?.classList.add('active');
 
-      overlayAppointment?.classList.add('active');
-
-      document.getElementById('ap-client')?.focus();
-    });
+    $('ap-client')?.focus();
+  });
 
 
-  document
-    .getElementById('btn-cancel-appointment')
-    ?.addEventListener('click', () => {
-      overlayAppointment?.classList.remove('active');
-    });
+  $('btn-cancel-appointment')?.addEventListener('click', () => {
+    overlayAppointment?.classList.remove('active');
+  });
 
 
   overlayAppointment?.addEventListener('click', e => {
@@ -902,32 +1179,29 @@
 
   async function openEditAppointment(id){
 
-    const ap = currentAgendaItems.find(a => String(a.id) === String(id));
+    const ap = currentAgendaItems.find(a => mesmoId(a.id, id));
 
     if(!ap){ return; }
 
     editingAppointmentId = id;
 
-    document.getElementById('appointment-modal-title').textContent =
-      'Editar agendamento';
-
-    document.getElementById('appointment-submit-btn').textContent =
-      'Salvar alterações';
+    $('appointment-modal-title').textContent = 'Editar agendamento';
+    $('appointment-submit-btn').textContent = 'Salvar alterações';
 
     if(state.services.length === 0){ await loadServices(); }
 
     fillServiceSelect();
 
-    document.getElementById('ap-date').value = ap.data;
-    document.getElementById('ap-time').value = ap.hora.slice(0,5);
-    document.getElementById('ap-client').value = ap.cliente;
-    document.getElementById('ap-phone').value = ap.telefone || '';
-    document.getElementById('ap-plate').value = ap.placa || '';
-    document.getElementById('ap-vehicle').value = ap.veiculo || '';
-    document.getElementById('ap-service').value = ap.servico_id;
-    document.getElementById('ap-price').value = ap.valor;
+    $('ap-date').value = ap.data;
+    $('ap-time').value = ap.hora.slice(0,5);
+    $('ap-client').value = ap.cliente;
+    $('ap-phone').value = ap.telefone || '';
+    $('ap-plate').value = ap.placa || '';
+    $('ap-vehicle').value = ap.veiculo || '';
+    $('ap-service').value = ap.servico_id;
+    $('ap-price').value = ap.valor;
 
-    const notes = document.getElementById('ap-notes');
+    const notes = $('ap-notes');
     if(notes){ notes.value = ap.observacoes || ''; }
 
     overlayAppointment?.classList.add('active');
@@ -936,7 +1210,7 @@
 
   function fillServiceSelect(){
 
-    const sel = document.getElementById('ap-service');
+    const sel = $('ap-service');
 
     if(!sel){ return; }
 
@@ -951,21 +1225,19 @@
   }
 
 
-  document
-    .getElementById('ap-service')
-    ?.addEventListener('change', updatePriceFromService);
+  $('ap-service')?.addEventListener('change', updatePriceFromService);
 
 
   function updatePriceFromService(){
 
-    const sel = document.getElementById('ap-service');
+    const sel = $('ap-service');
 
     if(!sel){ return; }
 
-    const s = state.services.find(x => String(x.id) === String(sel.value));
+    const s = state.services.find(x => mesmoId(x.id, sel.value));
 
     if(s){
-      const price = document.getElementById('ap-price');
+      const price = $('ap-price');
       if(price){ price.value = s.preco; }
     }
   }
@@ -1001,7 +1273,7 @@
 
   function serviceDuration(servico_id){
 
-    const s = state.services.find(x => String(x.id) === String(servico_id));
+    const s = state.services.find(x => mesmoId(x.id, servico_id));
 
     return s ? Number(s.duracao_min) || 30 : 30;
   }
@@ -1024,7 +1296,7 @@
 
       if(ap.status === 'cancelado'){ continue; }
 
-      if(excludeId && String(ap.id) === String(excludeId)){ continue; }
+      if(excludeId && mesmoId(ap.id, excludeId)){ continue; }
 
       const inicio = timeToMinutes(ap.hora.slice(0,5));
       const fim = inicio + serviceDuration(ap.servico_id);
@@ -1042,76 +1314,74 @@
   // FORMULÁRIO AGENDAMENTO
   // ============================================================
 
-  document
-    .getElementById('form-appointment')
-    ?.addEventListener('submit', async e => {
+  $('form-appointment')?.addEventListener('submit', async e => {
 
-      e.preventDefault();
+    e.preventDefault();
 
-      const n = getNicho();
+    const n = getNicho();
 
-      const payload = {
-        data: document.getElementById('ap-date').value,
-        hora: document.getElementById('ap-time').value,
-        cliente: document.getElementById('ap-client').value.trim(),
-        telefone: document.getElementById('ap-phone').value.trim(),
-        placa: n.extra1 ? document.getElementById('ap-plate').value.trim() : '',
-        veiculo: n.extra2 ? document.getElementById('ap-vehicle').value.trim() : '',
-        observacoes: (document.getElementById('ap-notes')?.value || '').trim(),
-        servico_id: document.getElementById('ap-service').value,
-        valor: parseFloat(document.getElementById('ap-price').value) || 0
-      };
+    const payload = {
+      data: $('ap-date').value,
+      hora: $('ap-time').value,
+      cliente: $('ap-client').value.trim(),
+      telefone: $('ap-phone').value.trim(),
+      placa: n.extra1 ? $('ap-plate').value.trim() : '',
+      veiculo: n.extra2 ? $('ap-vehicle').value.trim() : '',
+      observacoes: ($('ap-notes')?.value || '').trim(),
+      servico_id: $('ap-service').value,
+      valor: parseFloat($('ap-price').value) || 0
+    };
 
-      const conflito = await findConflict(
-        payload.data,
-        payload.hora,
-        payload.servico_id,
-        editingAppointmentId
+    const conflito = await findConflict(
+      payload.data,
+      payload.hora,
+      payload.servico_id,
+      editingAppointmentId
+    );
+
+    if(conflito){
+
+      const nomeServico =
+        conflito.servico_nome || serviceName(conflito.servico_id);
+
+      const seguir = confirm(
+        `Esse horário conflita com o agendamento de ${conflito.cliente} às ${conflito.hora.slice(0,5)} (${nomeServico}).\n\nAgendar mesmo assim?`
       );
 
-      if(conflito){
+      if(!seguir){ return; }
+    }
 
-        const nomeServico =
-          conflito.servico_nome || serviceName(conflito.servico_id);
+    try{
 
-        const seguir = confirm(
-          `Esse horário conflita com o agendamento de ${conflito.cliente} às ${conflito.hora.slice(0,5)} (${nomeServico}).\n\nAgendar mesmo assim?`
-        );
+      if(editingAppointmentId){
 
-        if(!seguir){ return; }
+        await api('/agendamentos/' + editingAppointmentId, {
+          method:'PATCH',
+          body:JSON.stringify(payload)
+        });
+
+      }else{
+
+        await api('/agendamentos', {
+          method:'POST',
+          body:JSON.stringify(payload)
+        });
       }
 
-      try{
+      overlayAppointment?.classList.remove('active');
 
-        if(editingAppointmentId){
+      selectedDate = payload.data;
 
-          await api('/agendamentos/' + editingAppointmentId, {
-            method:'PATCH',
-            body:JSON.stringify(payload)
-          });
+      if(dateInput){ dateInput.value = selectedDate; }
 
-        }else{
+      await refreshAgenda();
+      await refreshSideStats();
 
-          await api('/agendamentos', {
-            method:'POST',
-            body:JSON.stringify(payload)
-          });
-        }
+    }catch(err){
 
-        overlayAppointment?.classList.remove('active');
-
-        selectedDate = payload.data;
-
-        if(dateInput){ dateInput.value = selectedDate; }
-
-        await refreshAgenda();
-        await refreshSideStats();
-
-      }catch(err){
-
-        alert('Não foi possível salvar: ' + err.message);
-      }
-    });
+      alert('Não foi possível salvar: ' + err.message);
+    }
+  });
 
 
   // ============================================================
@@ -1180,6 +1450,10 @@
         body:JSON.stringify({ forma_pagamento })
       });
 
+      // Mantém o cache local em dia (usado no recibo)
+      const item = allDoneCache.find(a => mesmoId(a.id, id));
+      if(item){ item.forma_pagamento = forma_pagamento; }
+
     }catch(e){
 
       console.error(e);
@@ -1221,7 +1495,7 @@
 
   async function refreshFaturamento(){
 
-    const container = document.getElementById('fat-list');
+    const container = $('fat-list');
 
     if(!container){ return; }
 
@@ -1260,18 +1534,18 @@
 
     const pendente = total - pago;
 
-    document.getElementById('fat-total').textContent = money(total);
-    document.getElementById('fat-pago').textContent = money(pago);
-    document.getElementById('fat-pendente').textContent = money(pendente);
+    $('fat-total').textContent = money(total);
+    $('fat-pago').textContent = money(pago);
+    $('fat-pendente').textContent = money(pendente);
 
-    const navCount = document.getElementById('nav-count-fat');
+    const navCount = $('nav-count-fat');
 
     if(navCount){
       navCount.textContent =
         done.filter(a => a.status_pagamento === 'pendente').length || '';
     }
 
-    const list = document.getElementById('fat-list');
+    const list = $('fat-list');
 
     if(!list){ return; }
 
@@ -1366,9 +1640,16 @@
   }
 
 
+  function nomeEmpresaDocumento(){
+    return escapeHtml(
+      (empresaLogada && (empresaLogada.nome_exibicao || empresaLogada.nome)) || 'Orvix'
+    );
+  }
+
+
   function printReceipt(id){
 
-    const ap = allDoneCache.find(a => String(a.id) === String(id));
+    const ap = allDoneCache.find(a => mesmoId(a.id, id));
 
     if(!ap){ return; }
 
@@ -1387,10 +1668,10 @@
           </div>`
         : '';
 
-    document.getElementById('print-area').innerHTML = `
+    $('print-area').innerHTML = `
 
       <div class="recibo-header">
-        <h2>${escapeHtml((empresaLogada && empresaLogada.nome) || 'Orvix')} — Recibo</h2>
+        <h2>${nomeEmpresaDocumento()} — Recibo</h2>
         <div>${dataHora}</div>
       </div>
 
@@ -1431,7 +1712,7 @@
   // FECHAMENTO DO DIA
   // ============================================================
 
-  document.getElementById('btn-closing')?.addEventListener('click', printClosing);
+  $('btn-closing')?.addEventListener('click', printClosing);
 
 
   async function printClosing(){
@@ -1508,10 +1789,10 @@
     const pendentesQtd =
       items.filter(a => a.status === 'agendado' || a.status === 'em_andamento').length;
 
-    document.getElementById('print-area').innerHTML = `
+    $('print-area').innerHTML = `
 
       <div class="recibo-header">
-        <h2>${escapeHtml((empresaLogada && empresaLogada.nome) || 'Orvix')} — Fechamento do dia</h2>
+        <h2>${nomeEmpresaDocumento()} — Fechamento do dia</h2>
         <div>${capitalize(fmtDatePretty(selectedDate))}</div>
       </div>
 
@@ -1577,7 +1858,7 @@
 
     }catch(e){
 
-      const bars = document.getElementById('fin-bars');
+      const bars = $('fin-bars');
 
       if(bars){
         bars.innerHTML =
@@ -1598,8 +1879,8 @@
     past.setDate(now.getDate() - 90);
 
     return {
-      de: past.toISOString().slice(0,10),
-      ate: now.toISOString().slice(0,10)
+      de: toLocalISO(past),
+      ate: toLocalISO(now)
     };
   }
 
@@ -1618,7 +1899,7 @@
 
   function renderBars(containerId, entries, emptyMsg){
 
-    const el = document.getElementById(containerId);
+    const el = $(containerId);
 
     if(!el){ return; }
 
@@ -1650,6 +1931,8 @@
     const sevenDaysAgo = new Date(now);
     sevenDaysAgo.setDate(now.getDate() - 6);
 
+    const inicioSemana = toLocalISO(sevenDaysAgo);
+
     const monthStr = today.slice(0,7);
 
     const sumWhere = fn =>
@@ -1657,16 +1940,16 @@
 
     const hoje = sumWhere(a => a.data === today);
 
-    const semana = sumWhere(a => a.data >= sevenDaysAgo.toISOString().slice(0,10));
+    const semana = sumWhere(a => a.data >= inicioSemana);
 
     const mes = sumWhere(a => a.data.slice(0,7) === monthStr);
 
     const doneMes = done.filter(a => a.data.slice(0,7) === monthStr);
 
-    document.getElementById('fin-hoje').textContent = money(hoje);
-    document.getElementById('fin-semana').textContent = money(semana);
-    document.getElementById('fin-mes').textContent = money(mes);
-    document.getElementById('fin-count').textContent = doneMes.length;
+    $('fin-hoje').textContent = money(hoje);
+    $('fin-semana').textContent = money(semana);
+    $('fin-mes').textContent = money(mes);
+    $('fin-count').textContent = doneMes.length;
 
     const despesasMes =
       allExpensesCache.filter(d => d.data.slice(0,7) === monthStr);
@@ -1676,16 +1959,13 @@
 
     const lucroMes = mes - totalDespesasMes;
 
-    document.getElementById('fin-despesas-mes').textContent =
-      money(totalDespesasMes);
+    $('fin-despesas-mes').textContent = money(totalDespesasMes);
 
-    const lucroEl = document.getElementById('fin-lucro-mes');
+    const lucroEl = $('fin-lucro-mes');
 
     if(lucroEl){ lucroEl.textContent = money(lucroMes); }
 
-    document
-      .getElementById('fin-lucro-card')
-      ?.classList.toggle('negative', lucroMes < 0);
+    $('fin-lucro-card')?.classList.toggle('negative', lucroMes < 0);
 
     const bySvc = {};
 
@@ -1733,7 +2013,7 @@
           .reduce((s,a) => s + Number(a.valor), 0);
     }
 
-    const todayEl = document.getElementById('side-today');
+    const todayEl = $('side-today');
 
     if(todayEl){ todayEl.textContent = money(hojeVal); }
 
@@ -1742,7 +2022,7 @@
         .filter(a => a.status_pagamento === 'pendente')
         .reduce((s,a) => s + Number(a.valor), 0);
 
-    const pendingEl = document.getElementById('side-pending');
+    const pendingEl = $('side-pending');
 
     if(pendingEl){ pendingEl.textContent = money(pendenteTotal); }
   }
@@ -1752,24 +2032,24 @@
   // SERVIÇOS (CRUD)
   // ============================================================
 
-  const overlayService = document.getElementById('overlay-service');
+  const overlayService = $('overlay-service');
 
 
-  document.getElementById('btn-new-service')?.addEventListener('click', () => {
+  $('btn-new-service')?.addEventListener('click', () => {
 
     editingServiceId = null;
 
-    document.getElementById('sv-name').value = '';
-    document.getElementById('sv-price').value = '';
-    document.getElementById('sv-duration').value = '';
+    $('sv-name').value = '';
+    $('sv-price').value = '';
+    $('sv-duration').value = '';
 
     overlayService?.classList.add('active');
   });
 
 
-  document
-    .getElementById('btn-cancel-service')
-    ?.addEventListener('click', () => overlayService?.classList.remove('active'));
+  $('btn-cancel-service')?.addEventListener('click', () => {
+    overlayService?.classList.remove('active');
+  });
 
 
   overlayService?.addEventListener('click', e => {
@@ -1780,13 +2060,13 @@
   });
 
 
-  document.getElementById('form-service')?.addEventListener('submit', async e => {
+  $('form-service')?.addEventListener('submit', async e => {
 
     e.preventDefault();
 
-    const nome = document.getElementById('sv-name').value.trim();
-    const preco = parseFloat(document.getElementById('sv-price').value) || 0;
-    const duracao_min = parseInt(document.getElementById('sv-duration').value) || 0;
+    const nome = $('sv-name').value.trim();
+    const preco = parseFloat($('sv-price').value) || 0;
+    const duracao_min = parseInt($('sv-duration').value) || 0;
 
     try{
 
@@ -1819,15 +2099,15 @@
 
   function editService(id){
 
-    const s = state.services.find(x => String(x.id) === String(id));
+    const s = state.services.find(x => mesmoId(x.id, id));
 
     if(!s){ return; }
 
     editingServiceId = id;
 
-    document.getElementById('sv-name').value = s.nome;
-    document.getElementById('sv-price').value = s.preco;
-    document.getElementById('sv-duration').value = s.duracao_min;
+    $('sv-name').value = s.nome;
+    $('sv-price').value = s.preco;
+    $('sv-duration').value = s.duracao_min;
 
     overlayService?.classList.add('active');
   }
@@ -1857,7 +2137,7 @@
 
     if(state.services.length === 0){ await loadServices(); }
 
-    const list = document.getElementById('services-list');
+    const list = $('services-list');
 
     if(!list){ return; }
 
@@ -1914,10 +2194,10 @@
   }
 
 
-  document.getElementById('btn-cli-search')?.addEventListener('click', runClientSearch);
+  $('btn-cli-search')?.addEventListener('click', runClientSearch);
 
 
-  document.getElementById('cli-search-input')?.addEventListener('keydown', e => {
+  $('cli-search-input')?.addEventListener('keydown', e => {
 
     if(e.key === 'Enter'){
       e.preventDefault();
@@ -1926,26 +2206,24 @@
   });
 
 
-  document.getElementById('cli-search-input')?.addEventListener('input', e => {
+  $('cli-search-input')?.addEventListener('input', e => {
 
-    document
-      .getElementById('btn-cli-clear')
-      ?.classList.toggle('visible', e.target.value.length > 0);
+    $('btn-cli-clear')?.classList.toggle('visible', e.target.value.length > 0);
   });
 
 
-  document.getElementById('btn-cli-clear')?.addEventListener('click', () => {
+  $('btn-cli-clear')?.addEventListener('click', () => {
 
-    const input = document.getElementById('cli-search-input');
+    const input = $('cli-search-input');
 
     if(!input){ return; }
 
     input.value = '';
 
-    document.getElementById('btn-cli-clear')?.classList.remove('visible');
+    $('btn-cli-clear')?.classList.remove('visible');
 
-    document.getElementById('cli-summary').innerHTML = '';
-    document.getElementById('cli-results').innerHTML = clientesEmptyHtml();
+    $('cli-summary').innerHTML = '';
+    $('cli-results').innerHTML = clientesEmptyHtml();
 
     input.focus();
   });
@@ -1953,10 +2231,10 @@
 
   async function runClientSearch(){
 
-    const termo = document.getElementById('cli-search-input').value.trim();
+    const termo = $('cli-search-input').value.trim();
 
-    const resultsEl = document.getElementById('cli-results');
-    const summaryEl = document.getElementById('cli-summary');
+    const resultsEl = $('cli-results');
+    const summaryEl = $('cli-summary');
 
     if(!termo){
 
@@ -1988,8 +2266,8 @@
 
   function renderClientResults(items){
 
-    const summaryEl = document.getElementById('cli-summary');
-    const resultsEl = document.getElementById('cli-results');
+    const summaryEl = $('cli-summary');
+    const resultsEl = $('cli-results');
 
     if(items.length === 0){
 
@@ -2086,25 +2364,25 @@
   // DESPESAS
   // ============================================================
 
-  const overlayExpense = document.getElementById('overlay-expense');
+  const overlayExpense = $('overlay-expense');
 
 
-  document.getElementById('btn-new-expense')?.addEventListener('click', () => {
+  $('btn-new-expense')?.addEventListener('click', () => {
 
-    document.getElementById('ex-desc').value = '';
-    document.getElementById('ex-category').value = 'Produtos de limpeza';
-    document.getElementById('ex-date').value = todayISO();
-    document.getElementById('ex-value').value = '';
+    $('ex-desc').value = '';
+    $('ex-category').value = 'Produtos de limpeza';
+    $('ex-date').value = todayISO();
+    $('ex-value').value = '';
 
     overlayExpense?.classList.add('active');
 
-    document.getElementById('ex-desc')?.focus();
+    $('ex-desc')?.focus();
   });
 
 
-  document
-    .getElementById('btn-cancel-expense')
-    ?.addEventListener('click', () => overlayExpense?.classList.remove('active'));
+  $('btn-cancel-expense')?.addEventListener('click', () => {
+    overlayExpense?.classList.remove('active');
+  });
 
 
   overlayExpense?.addEventListener('click', e => {
@@ -2115,15 +2393,15 @@
   });
 
 
-  document.getElementById('form-expense')?.addEventListener('submit', async e => {
+  $('form-expense')?.addEventListener('submit', async e => {
 
     e.preventDefault();
 
     const payload = {
-      descricao: document.getElementById('ex-desc').value.trim(),
-      categoria: document.getElementById('ex-category').value,
-      data: document.getElementById('ex-date').value,
-      valor: parseFloat(document.getElementById('ex-value').value) || 0
+      descricao: $('ex-desc').value.trim(),
+      categoria: $('ex-category').value,
+      data: $('ex-date').value,
+      valor: parseFloat($('ex-value').value) || 0
     };
 
     try{
@@ -2163,7 +2441,7 @@
 
   async function refreshDespesas(){
 
-    const listEl = document.getElementById('desp-list');
+    const listEl = $('desp-list');
 
     if(!listEl){ return; }
 
@@ -2190,8 +2468,8 @@
 
     const total = items.reduce((s,d) => s + Number(d.valor), 0);
 
-    document.getElementById('desp-total').textContent = money(total);
-    document.getElementById('desp-count').textContent = items.length;
+    $('desp-total').textContent = money(total);
+    $('desp-count').textContent = items.length;
 
     if(items.length === 0){
 
@@ -2231,11 +2509,11 @@
   // USUÁRIOS
   // ============================================================
 
-  const overlayUser = document.getElementById('overlay-user');
-  const formUser = document.getElementById('form-user');
+  const overlayUser = $('overlay-user');
+  const formUser = $('form-user');
 
 
-  document.getElementById('btn-new-user')?.addEventListener('click', openNewUser);
+  $('btn-new-user')?.addEventListener('click', openNewUser);
 
 
   function openNewUser(){
@@ -2247,18 +2525,18 @@
 
     editingUserId = null;
 
-    const title = document.getElementById('user-modal-title');
+    const title = $('user-modal-title');
     if(title){ title.textContent = 'Novo usuário'; }
 
-    const submit = document.getElementById('user-submit-btn');
+    const submit = $('user-submit-btn');
     if(submit){ submit.textContent = 'Criar usuário'; }
 
-    const name = document.getElementById('user-name');
-    const email = document.getElementById('user-email');
-    const profile = document.getElementById('user-profile');
-    const password = document.getElementById('user-password');
-    const passwordField = document.getElementById('user-password-field');
-    const activeField = document.getElementById('user-active-field');
+    const name = $('user-name');
+    const email = $('user-email');
+    const profile = $('user-profile');
+    const password = $('user-password');
+    const passwordField = $('user-password-field');
+    const activeField = $('user-active-field');
 
     if(name){ name.value = ''; }
     if(email){ email.value = ''; }
@@ -2267,6 +2545,7 @@
     if(password){
       password.value = '';
       password.required = true;
+      password.placeholder = '';
     }
 
     if(passwordField){ passwordField.style.display = ''; }
@@ -2281,7 +2560,7 @@
   }
 
 
-  document.getElementById('btn-cancel-user')?.addEventListener('click', closeUserModal);
+  $('btn-cancel-user')?.addEventListener('click', closeUserModal);
 
 
   overlayUser?.addEventListener('click', e => {
@@ -2344,13 +2623,11 @@
 
   function atualizarVisibilidadePermissoes(){
 
-    const profileEl = document.getElementById('user-profile');
+    const profileEl = $('user-profile');
 
-    const grid =
-      document.getElementById('permissions-grid') ||
-      document.getElementById('user-permissions-field');
+    const grid = $('permissions-grid') || $('user-permissions-field');
 
-    const aviso = document.getElementById('admin-permission-notice');
+    const aviso = $('admin-permission-notice');
 
     if(!profileEl){ return; }
 
@@ -2361,9 +2638,7 @@
   }
 
 
-  document
-    .getElementById('user-profile')
-    ?.addEventListener('change', atualizarVisibilidadePermissoes);
+  $('user-profile')?.addEventListener('change', atualizarVisibilidadePermissoes);
 
 
   // FORMULÁRIO USUÁRIO
@@ -2377,21 +2652,27 @@
       return;
     }
 
-    const nome = document.getElementById('user-name')?.value.trim();
-    const email = document.getElementById('user-email')?.value.trim();
-    const perfil = document.getElementById('user-profile')?.value;
-    const senha = document.getElementById('user-password')?.value;
+    const nome = $('user-name')?.value.trim();
+    const email = $('user-email')?.value.trim();
+    const perfil = $('user-profile')?.value;
+    const senha = $('user-password')?.value;
 
     if(!nome || !email){
       alert('Informe nome e e-mail.');
       return;
     }
 
-    const submit = document.getElementById('user-submit-btn');
+    if(!editingUserId && !senha){
+      alert('Informe uma senha para o novo usuário.');
+      return;
+    }
+
+    const submit = $('user-submit-btn');
+    const editando = Boolean(editingUserId);
 
     if(submit){
       submit.disabled = true;
-      submit.textContent = editingUserId ? 'Salvando...' : 'Criando...';
+      submit.textContent = editando ? 'Salvando...' : 'Criando...';
     }
 
     const permissoes =
@@ -2399,9 +2680,9 @@
 
     try{
 
-      if(editingUserId){
+      if(editando){
 
-        const ativoSelect = document.getElementById('user-active');
+        const ativoSelect = $('user-active');
 
         const ativo = ativoSelect ? ativoSelect.value === 'true' : true;
 
@@ -2419,11 +2700,6 @@
         }
 
       }else{
-
-        if(!senha){
-          alert('Informe uma senha para o novo usuário.');
-          return;
-        }
 
         await api('/usuarios', {
           method:'POST',
@@ -2443,7 +2719,7 @@
 
       if(submit){
         submit.disabled = false;
-        submit.textContent = editingUserId ? 'Salvar alterações' : 'Criar usuário';
+        submit.textContent = editando ? 'Salvar alterações' : 'Criar usuário';
       }
     }
   });
@@ -2458,7 +2734,7 @@
       return;
     }
 
-    const list = document.getElementById('usuarios-list');
+    const list = $('usuarios-list');
 
     if(!list){ return; }
 
@@ -2483,13 +2759,13 @@
 
   function renderUsuarios(usuarios){
 
-    const list = document.getElementById('usuarios-list');
+    const list = $('usuarios-list');
 
     if(!list){ return; }
 
-    const total = document.getElementById('usuarios-total');
-    const admins = document.getElementById('usuarios-admins');
-    const funcionarios = document.getElementById('usuarios-funcionarios');
+    const total = $('usuarios-total');
+    const admins = $('usuarios-admins');
+    const funcionarios = $('usuarios-funcionarios');
 
     const qtdAdmins = usuarios.filter(u => u.perfil === 'administrador').length;
     const qtdFuncionarios = usuarios.filter(u => u.perfil === 'funcionario').length;
@@ -2520,7 +2796,7 @@
     const email = escapeHtml(usuario.email);
     const inicial = (usuario.nome || 'U').charAt(0).toUpperCase();
 
-    const isCurrentUser = Number(usuario.id) === Number(usuarioLogado?.id);
+    const isCurrentUser = mesmoId(usuario.id, usuarioLogado?.id);
 
     const perfilLabel =
       usuario.perfil === 'administrador' ? 'Administrador' : 'Funcionário';
@@ -2600,7 +2876,7 @@
 
       const usuarios = await api('/usuarios');
 
-      const usuario = usuarios.find(u => String(u.id) === String(id));
+      const usuario = usuarios.find(u => mesmoId(u.id, id));
 
       if(!usuario){
         alert('Usuário não encontrado.');
@@ -2609,19 +2885,19 @@
 
       editingUserId = id;
 
-      const title = document.getElementById('user-modal-title');
+      const title = $('user-modal-title');
       if(title){ title.textContent = 'Editar usuário'; }
 
-      const submit = document.getElementById('user-submit-btn');
+      const submit = $('user-submit-btn');
       if(submit){ submit.textContent = 'Salvar alterações'; }
 
-      const name = document.getElementById('user-name');
-      const email = document.getElementById('user-email');
-      const profile = document.getElementById('user-profile');
-      const password = document.getElementById('user-password');
-      const passwordField = document.getElementById('user-password-field');
-      const activeField = document.getElementById('user-active-field');
-      const active = document.getElementById('user-active');
+      const name = $('user-name');
+      const email = $('user-email');
+      const profile = $('user-profile');
+      const password = $('user-password');
+      const passwordField = $('user-password-field');
+      const activeField = $('user-active-field');
+      const active = $('user-active');
 
       if(name){ name.value = usuario.nome || ''; }
       if(email){ email.value = usuario.email || ''; }
@@ -2686,7 +2962,7 @@
       return;
     }
 
-    if(Number(id) === Number(usuarioLogado?.id)){
+    if(mesmoId(id, usuarioLogado?.id)){
       alert('Você não pode bloquear o próprio usuário.');
       return;
     }
@@ -2718,7 +2994,7 @@
       return;
     }
 
-    if(Number(id) === Number(usuarioLogado?.id)){
+    if(mesmoId(id, usuarioLogado?.id)){
       alert('Você não pode excluir o próprio usuário.');
       return;
     }
@@ -2744,7 +3020,7 @@
 
   function mostrarModalPlano(){
 
-    const modal = document.getElementById('modal-plano-obrigatorio');
+    const modal = $('modal-plano-obrigatorio');
 
     if(!modal){
       console.warn('Modal obrigatório de plano não encontrado no HTML.');
@@ -2759,7 +3035,7 @@
 
   function esconderModalPlano(){
 
-    const modal = document.getElementById('modal-plano-obrigatorio');
+    const modal = $('modal-plano-obrigatorio');
 
     if(!modal){ return; }
 
@@ -2771,9 +3047,9 @@
 
   async function carregarPlanosObrigatorios(){
 
-    const loading = document.getElementById('modal-plano-loading');
-    const lista = document.getElementById('modal-plano-lista');
-    const erro = document.getElementById('modal-plano-erro');
+    const loading = $('modal-plano-loading');
+    const lista = $('modal-plano-lista');
+    const erro = $('modal-plano-erro');
 
     if(!lista){ return; }
 
@@ -2819,13 +3095,17 @@
 
         const valor = Number(plano.valor || 0);
 
-        preco.innerHTML =
+        // textContent + elemento <small> (evita injetar HTML vindo da API)
+        preco.textContent =
           'R$ ' +
           valor.toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          }) +
-          ' <small>/' + (plano.periodo || 'mês') + '</small>';
+          }) + ' ';
+
+        const periodo = document.createElement('small');
+        periodo.textContent = '/' + (plano.periodo || 'mês');
+        preco.appendChild(periodo);
 
         const botao = document.createElement('button');
         botao.type = 'button';
@@ -2961,6 +3241,8 @@
 
   window.NICHOS = NICHOS;
   window.aplicarNicho = aplicarNicho;
+  window.atualizarSidebarUsuario = atualizarSidebarUsuario;
+  window.atualizarAcessoUsuarios = atualizarAcessoUsuarios;
 
   window.App = {
     setStatus,
@@ -2991,20 +3273,13 @@
     // Sem assinatura válida, o dashboard não carrega os dados da empresa
     const assinaturaLiberada = await verificarAssinaturaObrigatoria();
 
-    if(!assinaturaLiberada){
-
-      if(!connectionInterval){
-        connectionInterval = setInterval(checkConnection, 30000);
-      }
-
-      return;
-    }
-
-    checkConnection();
-
     if(!connectionInterval){
       connectionInterval = setInterval(checkConnection, 30000);
     }
+
+    if(!assinaturaLiberada){ return; }
+
+    checkConnection();
 
     atualizarSidebarUsuario();
 
@@ -3017,6 +3292,13 @@
     }catch(error){
 
       console.error('Erro ao iniciar o sistema:', error);
+    }
+
+    // Carrega as configurações da empresa (tema, agenda, etc.)
+    try{
+      await window.OrvixConfiguracoes?.carregarConfiguracoes?.();
+    }catch(error){
+      console.warn('Não foi possível carregar as configurações:', error);
     }
   }
 
@@ -3039,7 +3321,7 @@
   // LOGOUT
   // ============================================================
 
-  document.getElementById('btn-logout')?.addEventListener('click', () => {
+  $('btn-logout')?.addEventListener('click', () => {
 
     if(!confirm('Deseja sair da sua conta?')){ return; }
 
@@ -3056,10 +3338,10 @@
   // SIDEBAR / MENU
   // ============================================================
 
-  const sidebar = document.getElementById('sidebar');
-  const sidebarToggle = document.getElementById('sidebar-toggle');
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const sidebarOverlay = document.getElementById('sidebar-overlay');
+  const sidebar = $('sidebar');
+  const sidebarToggle = $('sidebar-toggle');
+  const mobileMenuBtn = $('mobile-menu-btn');
+  const sidebarOverlay = $('sidebar-overlay');
 
 
   if(sidebar && sidebarToggle){
@@ -3130,2838 +3412,5 @@
       sidebarOverlay?.classList.remove('active');
     }
   });
-
-})();
-
-
-// ============================================================
-// ORVIX — CONFIGURAÇÕES
-// ============================================================
-
-(() => {
-
-  'use strict';
-
-  const API_CONFIGURACOES = '/api/configuracoes';
-  const CONFIGS_TOKEN_KEY = 'lavajato_auth_token';
-  const NICHO_PADRAO = 'lavajato';
-
-  let empresaConfiguracoes = null;
-
-  // ============================================================
-  // ELEMENTOS
-  // ============================================================
-
-  const formEmpresa =
-    document.getElementById('form-configuracoes');
-
-  const btnSalvarEmpresa =
-    document.getElementById('btn-salvar-configuracoes');
-
-  const btnSalvarPreferencias =
-    document.getElementById('btn-salvar-preferencias');
-
-  const btnSalvarTema =
-    document.getElementById('btn-salvar-tema');
-
-  const btnRestaurarTema =
-    document.getElementById('btn-restaurar-tema');
-
-  const btnSalvarDocumentos =
-    document.getElementById('btn-salvar-documentos');
-
-  const btnSalvarAgenda =
-    document.getElementById('btn-salvar-agenda');
-
-
-  // ============================================================
-  // NICHOS
-  // ============================================================
-
-  const NICHOS = {
-
-    lavajato: {
-      nome: 'Lava-jato / Estética automotiva',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-
-      extra1: {
-        label: 'Placa',
-        placeholder: 'ABC1D23',
-        upper: true
-      },
-
-      extra2: {
-        label: 'Veículo',
-        placeholder: 'Modelo / cor'
-      }
-    },
-
-    barbearia: {
-      nome: 'Barbearia / Salão de beleza',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-
-      extra1: {
-        label: 'Profissional',
-        placeholder: 'Quem vai atender'
-      },
-
-      extra2: null
-    },
-
-    clinica: {
-      nome: 'Clínica / Consultório',
-      cliente: 'Paciente',
-      servico: 'Procedimento',
-      servicos: 'Procedimentos',
-      novoServico: 'Novo procedimento',
-
-      extra1: {
-        label: 'Convênio',
-        placeholder: 'Particular, Unimed...'
-      },
-
-      extra2: {
-        label: 'Profissional',
-        placeholder: 'Médico / dentista'
-      }
-    },
-
-    pet: {
-      nome: 'Pet shop / Veterinária',
-      cliente: 'Tutor',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-
-      extra1: {
-        label: 'Nome do pet',
-        placeholder: 'Ex: Thor'
-      },
-
-      extra2: {
-        label: 'Raça / porte',
-        placeholder: 'Ex: Golden, grande'
-      }
-    },
-
-    oficina: {
-      nome: 'Oficina mecânica',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-
-      extra1: {
-        label: 'Placa',
-        placeholder: 'ABC1D23',
-        upper: true
-      },
-
-      extra2: {
-        label: 'Veículo',
-        placeholder: 'Modelo / ano'
-      }
-    },
-
-    personal: {
-      nome: 'Personal / Aulas / Consultoria',
-      cliente: 'Aluno / Cliente',
-      servico: 'Aula / Sessão',
-      servicos: 'Aulas e sessões',
-      novoServico: 'Nova aula / sessão',
-      extra1: null,
-      extra2: null
-    },
-
-    generico: {
-      nome: 'Outro',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: null,
-      extra2: null
-    }
-
-  };
-
-
-  // ============================================================
-  // HELPERS
-  // ============================================================
-
-  function elemento(id) {
-    return document.getElementById(id);
-  }
-
-
-  function obterValor(id, fallback = '') {
-
-    const campo = elemento(id);
-
-    if (!campo) {
-      return fallback;
-    }
-
-    return typeof campo.value === 'string'
-      ? campo.value.trim()
-      : fallback;
-  }
-
-
-  function obterBooleano(id, fallback = false) {
-
-    const campo = elemento(id);
-
-    if (!campo) {
-      return fallback;
-    }
-
-    if (campo.type === 'checkbox') {
-      return Boolean(campo.checked);
-    }
-
-    const valor =
-      String(campo.value || '')
-        .trim()
-        .toLowerCase();
-
-    if (valor === 'true') {
-      return true;
-    }
-
-    if (valor === 'false') {
-      return false;
-    }
-
-    return fallback;
-  }
-
-
-  function obterNumero(id, fallback = 0) {
-
-    const campo = elemento(id);
-
-    if (!campo) {
-      return fallback;
-    }
-
-    const valor = Number(campo.value);
-
-    return Number.isFinite(valor)
-      ? valor
-      : fallback;
-  }
-
-
-  function preencherCampo(id, valor) {
-
-    const campo = elemento(id);
-
-    if (!campo) {
-      return;
-    }
-
-    campo.value =
-      valor === null ||
-      valor === undefined
-        ? ''
-        : String(valor);
-  }
-
-
-  function preencherBoolean(id, valor) {
-
-    const campo = elemento(id);
-
-    if (!campo) {
-      return;
-    }
-
-    if (campo.type === 'checkbox') {
-      campo.checked = Boolean(valor);
-      return;
-    }
-
-    campo.value =
-      Boolean(valor)
-        ? 'true'
-        : 'false';
-  }
-
-
-  function escapeHtml(valor) {
-
-    return String(valor ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-
-  // ============================================================
-  // EMPRESA ATUAL
-  // ============================================================
-
-  function obterEmpresaAtual() {
-
-    try {
-
-      if (
-        typeof empresaLogada !== 'undefined' &&
-        empresaLogada
-      ) {
-        return empresaLogada;
-      }
-
-    } catch (_) {
-      // Ignorado.
-    }
-
-    if (window.empresaLogada) {
-      return window.empresaLogada;
-    }
-
-    if (window.orvixEmpresa) {
-      return window.orvixEmpresa;
-    }
-
-    if (empresaConfiguracoes) {
-      return empresaConfiguracoes;
-    }
-
-    return null;
-  }
-
-
-  // ============================================================
-  // ATUALIZA EMPRESA LOCAL
-  // ============================================================
-
-  function atualizarEmpresaLocal(resultado) {
-
-    if (
-      !resultado ||
-      !resultado.empresa
-    ) {
-      return;
-    }
-
-    empresaConfiguracoes = {
-      ...(obterEmpresaAtual() || {}),
-      ...resultado.empresa
-    };
-
-    window.empresaLogada =
-      empresaConfiguracoes;
-
-    window.orvixEmpresa =
-      empresaConfiguracoes;
-
-    try {
-
-      if (
-        typeof empresaLogada !== 'undefined'
-      ) {
-
-        empresaLogada = {
-          ...empresaLogada,
-          ...resultado.empresa
-        };
-
-      }
-
-    } catch (_) {
-      // Ignorado.
-    }
-
-    aplicarNicho(
-      empresaConfiguracoes.nicho
-    );
-
-
-    // ==========================================================
-    // ATUALIZA ACESSO DOS USUÁRIOS
-    // ==========================================================
-    //
-    // IMPORTANTE:
-    // A função correta do sistema é
-    // atualizarAcessoUsuarios().
-    //
-    // Não utilizar atualizarSidebarUsuario().
-    //
-
-    if (
-      typeof atualizarAcessoUsuarios === 'function'
-    ) {
-
-      try {
-        atualizarAcessoUsuarios();
-      } catch (_) {
-        // Ignorado.
-      }
-
-    } else if (
-      typeof window.atualizarAcessoUsuarios === 'function'
-    ) {
-
-      try {
-        window.atualizarAcessoUsuarios();
-      } catch (_) {
-        // Ignorado.
-      }
-
-    } else {
-
-      const empresaSidebar =
-        elemento('sidebar-company');
-
-      if (empresaSidebar) {
-
-        empresaSidebar.textContent =
-          empresaConfiguracoes.nome_exibicao ||
-          empresaConfiguracoes.nome ||
-          'Empresa';
-      }
-    }
-  }
-
-
-  // ============================================================
-  // NICHO
-  // ============================================================
-
-  function normalizarNicho(valor) {
-
-    const chave =
-      String(valor || '')
-        .trim()
-        .toLowerCase();
-
-    return NICHOS[chave]
-      ? chave
-      : NICHO_PADRAO;
-  }
-
-
-  function getNicho() {
-
-    const empresa =
-      obterEmpresaAtual();
-
-    const chave =
-      empresa?.nicho ||
-      window.nichoAtual ||
-      NICHO_PADRAO;
-
-    return (
-      NICHOS[
-        normalizarNicho(chave)
-      ] ||
-      NICHOS[NICHO_PADRAO]
-    );
-  }
-
-
-  // ============================================================
-  // APLICAÇÃO DO NICHO
-  // ============================================================
-
-  function aplicarNicho(chave) {
-
-    if (!chave) {
-
-      const empresa =
-        obterEmpresaAtual();
-
-      chave =
-        window.nichoAtual ||
-        empresa?.nicho ||
-        NICHO_PADRAO;
-    }
-
-    const chaveValida =
-      NICHOS[chave]
-        ? chave
-        : NICHO_PADRAO;
-
-    const n =
-      NICHOS[chaveValida];
-
-    window.nichoAtual =
-      chaveValida;
-
-    const empresa =
-      obterEmpresaAtual();
-
-    if (empresa) {
-      empresa.nicho =
-        chaveValida;
-    }
-
-
-    // ----------------------------------------------------------
-    // MODAL DE AGENDAMENTO
-    // ----------------------------------------------------------
-
-    const lblServico =
-      elemento('ap-service-label');
-
-    if (lblServico) {
-      lblServico.textContent =
-        n.servico;
-    }
-
-
-    const lblCliente =
-      elemento('ap-client-label');
-
-    if (lblCliente) {
-      lblCliente.textContent =
-        n.cliente;
-    }
-
-
-    [
-      ['extra1', 'ap-plate'],
-      ['extra2', 'ap-vehicle']
-    ].forEach(
-      ([chaveExtra, inputId]) => {
-
-        const cfg =
-          n[chaveExtra];
-
-        const campo =
-          elemento(
-            `ap-${chaveExtra}-field`
-          );
-
-        const input =
-          elemento(inputId);
-
-        const label =
-          elemento(
-            `ap-${chaveExtra}-label`
-          );
-
-        if (!campo || !input) {
-          return;
-        }
-
-        if (cfg) {
-
-          campo.style.display = '';
-
-          if (label) {
-            label.textContent =
-              cfg.label;
-          }
-
-          input.placeholder =
-            cfg.placeholder;
-
-          if (
-            cfg.upper &&
-            input.dataset.upperListener !== 'true'
-          ) {
-
-            input.dataset.upperListener =
-              'true';
-
-            input.addEventListener(
-              'input',
-              () => {
-                input.value =
-                  input.value.toUpperCase();
-              }
-            );
-          }
-
-        } else {
-
-          campo.style.display =
-            'none';
-
-          input.value = '';
-        }
-      }
-    );
-
-
-    // ----------------------------------------------------------
-    // MENU DE SERVIÇOS
-    // ----------------------------------------------------------
-
-    const navServicos =
-      document.querySelector(
-        '[data-tab="servicos"] .nav-text'
-      );
-
-    if (navServicos) {
-      navServicos.textContent =
-        n.servicos;
-    }
-
-
-    const h1Servicos =
-      document.querySelector(
-        '#panel-servicos h1'
-      );
-
-    if (h1Servicos) {
-      h1Servicos.textContent =
-        n.servicos;
-    }
-
-
-    const btnNovoServico =
-      elemento(
-        'btn-new-service'
-      );
-
-    if (btnNovoServico) {
-      btnNovoServico.textContent =
-        n.novoServico;
-    }
-
-
-    // ----------------------------------------------------------
-    // BUSCA DE CLIENTES
-    // ----------------------------------------------------------
-
-    const buscaCli =
-      elemento(
-        'cli-search-input'
-      );
-
-    if (buscaCli) {
-
-      buscaCli.placeholder =
-        n.extra1
-          ? (
-              'Nome, telefone ou ' +
-              n.extra1.label.toLowerCase() +
-              '...'
-            )
-          : 'Nome ou telefone...';
-    }
-
-
-    // ----------------------------------------------------------
-    // SELECT DE NICHO
-    // ----------------------------------------------------------
-
-    const selConfig =
-      elemento(
-        'config-empresa-nicho'
-      );
-
-    if (selConfig) {
-      selConfig.value =
-        chaveValida;
-    }
-  }
-
-
-  function aplicarNichoNaInterface(chave) {
-    aplicarNicho(chave);
-  }
-
-
-  function configurarTrocaDeNicho() {
-
-    const seletor =
-      elemento(
-        'config-empresa-nicho'
-      );
-
-    if (!seletor) {
-      return;
-    }
-
-    if (
-      seletor.dataset
-        .configsNichoListener ===
-      'true'
-    ) {
-      return;
-    }
-
-    seletor.dataset
-      .configsNichoListener =
-      'true';
-
-    seletor.addEventListener(
-      'change',
-      () => {
-
-        const nicho =
-          normalizarNicho(
-            seletor.value
-          );
-
-        window.nichoAtual =
-          nicho;
-
-        aplicarNicho(nicho);
-
-        if (empresaConfiguracoes) {
-          empresaConfiguracoes.nicho =
-            nicho;
-        }
-
-        try {
-
-          if (
-            typeof empresaLogada !==
-              'undefined' &&
-            empresaLogada
-          ) {
-
-            empresaLogada.nicho =
-              nicho;
-          }
-
-        } catch (_) {
-          // Ignorado.
-        }
-      }
-    );
-  }
-
-
-  // ============================================================
-  // DETALHES
-  // ============================================================
-
-  function formatExtra(valor, cfg) {
-
-    const v =
-      String(valor || '');
-
-    return cfg && cfg.upper
-      ? v.toUpperCase()
-      : v;
-  }
-
-
-  function detalhesHtml(ap) {
-
-    const n =
-      getNicho();
-
-    let html = '';
-
-    if (ap?.veiculo) {
-
-      html +=
-        '<span title="' +
-        escapeHtml(
-          n.extra2
-            ? n.extra2.label
-            : 'Detalhe'
-        ) +
-        '">' +
-        escapeHtml(ap.veiculo) +
-        '</span>';
-    }
-
-    if (ap?.placa) {
-
-      html +=
-        '<span title="' +
-        escapeHtml(
-          n.extra1
-            ? n.extra1.label
-            : 'Detalhe'
-        ) +
-        '">' +
-        escapeHtml(
-          formatExtra(
-            ap.placa,
-            n.extra1
-          )
-        ) +
-        '</span>';
-    }
-
-    if (ap?.observacoes) {
-
-      html +=
-        '<span title="Observações">' +
-        escapeHtml(
-          ap.observacoes
-        ) +
-        '</span>';
-    }
-
-    return html;
-  }
-
-
-  // ============================================================
-  // TOKEN
-  // ============================================================
-
-  function obterToken() {
-
-    try {
-
-      return localStorage.getItem(
-        CONFIGS_TOKEN_KEY
-      );
-
-    } catch (erro) {
-
-      console.warn(
-        'Não foi possível acessar o localStorage:',
-        erro
-      );
-
-      return null;
-    }
-  }
-
-
-  // ============================================================
-  // HEADERS
-  // ============================================================
-
-  function headersAutenticacao() {
-
-    const headers = {
-
-      Accept:
-        'application/json',
-
-      'Content-Type':
-        'application/json'
-    };
-
-    const token =
-      obterToken();
-
-    if (token) {
-
-      headers.Authorization =
-        `Bearer ${token}`;
-    }
-
-    return headers;
-  }
-
-
-  // ============================================================
-  // FETCH PADRÃO
-  // ============================================================
-
-  async function requisicaoConfiguracoes(
-    url,
-    opcoes = {}
-  ) {
-
-    const headers = {
-
-      ...headersAutenticacao(),
-
-      ...(opcoes.headers || {})
-    };
-
-    return fetch(
-      url,
-      {
-        ...opcoes,
-
-        credentials:
-          'include',
-
-        cache:
-          'no-store',
-
-        headers
-      }
-    );
-  }
-
-
-  // ============================================================
-  // JSON SEGURO
-  // ============================================================
-
-  async function lerJsonSeguro(
-    resposta
-  ) {
-
-    try {
-
-      return await resposta.json();
-
-    } catch (_) {
-
-      return {};
-    }
-  }
-
-
-  // ============================================================
-  // MENSAGENS
-  // ============================================================
-
-  function mostrarMensagem(
-    id,
-    mensagem,
-    tipo = 'erro'
-  ) {
-
-    const campo =
-      elemento(id);
-
-    if (!campo) {
-      return;
-    }
-
-    campo.textContent =
-      mensagem || '';
-
-    campo.classList.remove(
-      'sucesso',
-      'erro',
-      'success',
-      'error'
-    );
-
-    campo.classList.add(
-      tipo === 'sucesso'
-        ? 'sucesso'
-        : 'erro'
-    );
-
-    campo.style.display =
-      mensagem
-        ? ''
-        : 'none';
-
-    clearTimeout(
-      campo._timeoutMensagem
-    );
-
-    if (mensagem) {
-
-      campo._timeoutMensagem =
-        setTimeout(
-          () => {
-
-            campo.style.display =
-              'none';
-
-          },
-          5000
-        );
-    }
-  }
-
-
-  function esconderMensagem(id) {
-
-    const campo =
-      elemento(id);
-
-    if (campo) {
-
-      campo.style.display =
-        'none';
-
-      campo.textContent =
-        '';
-    }
-  }
-
-
-  function limparMensagens() {
-
-    [
-      'configuracoes-message',
-      'config-aparencia-message'
-    ].forEach(
-      id => {
-
-        const campo =
-          elemento(id);
-
-        if (!campo) {
-          return;
-        }
-
-        campo.textContent =
-          '';
-
-        campo.style.display =
-          'none';
-
-        campo.classList.remove(
-          'sucesso',
-          'erro',
-          'success',
-          'error'
-        );
-      }
-    );
-  }
-
-
-  // ============================================================
-  // ESTADO DOS BOTÕES
-  // ============================================================
-
-  function alterarEstadoBotao(
-    botao,
-    carregando,
-    textoNormal
-  ) {
-
-    if (!botao) {
-      return;
-    }
-
-    if (carregando) {
-
-      botao.disabled =
-        true;
-
-      if (
-        !botao.dataset
-          .textoOriginal
-      ) {
-
-        botao.dataset
-          .textoOriginal =
-          botao.textContent;
-      }
-
-      botao.textContent =
-        'Salvando...';
-
-    } else {
-
-      botao.disabled =
-        false;
-
-      botao.textContent =
-        botao.dataset
-          .textoOriginal ||
-        textoNormal;
-    }
-  }
-
-
-  // ============================================================
-  // PREENCHER DADOS DA EMPRESA
-  // ============================================================
-
-  function preencherDadosEmpresa(
-    empresa
-  ) {
-
-    if (!empresa) {
-      return;
-    }
-
-    empresaConfiguracoes =
-      empresa;
-
-
-    // ----------------------------------------------------------
-    // EMPRESA
-    // ----------------------------------------------------------
-
-    preencherCampo(
-      'config-empresa-nome',
-      empresa.nome
-    );
-
-    preencherCampo(
-      'config-empresa-nome-exibicao',
-      empresa.nome_exibicao
-    );
-
-    preencherCampo(
-      'config-empresa-email',
-      empresa.email
-    );
-
-    preencherCampo(
-      'config-empresa-telefone',
-      empresa.telefone
-    );
-
-    preencherCampo(
-      'config-empresa-nicho',
-      normalizarNicho(
-        empresa.nicho
-      )
-    );
-
-    preencherCampo(
-      'config-logo-url',
-      empresa.logo_url
-    );
-
-
-    // ----------------------------------------------------------
-    // PREFERÊNCIAS REGIONAIS
-    // ----------------------------------------------------------
-
-    preencherCampo(
-      'config-moeda',
-      empresa.moeda
-    );
-
-    preencherCampo(
-      'config-idioma',
-      empresa.idioma
-    );
-
-    preencherCampo(
-      'config-formato-data',
-      empresa.formato_data
-    );
-
-    preencherCampo(
-      'config-formato-hora',
-      empresa.formato_hora
-    );
-
-    preencherCampo(
-      'config-fuso-horario',
-      empresa.fuso_horario
-    );
-
-
-    // ----------------------------------------------------------
-    // PREFERÊNCIAS DO SISTEMA
-    // ----------------------------------------------------------
-
-    preencherBoolean(
-      'config-notificacoes-ativas',
-      empresa.notificacoes_ativas
-    );
-
-    preencherBoolean(
-      'config-mostrar-valores',
-      empresa.mostrar_valores
-    );
-
-    preencherBoolean(
-      'config-dashboard-inicial',
-      empresa.dashboard_inicial
-    );
-
-    preencherBoolean(
-      'config-modo-compacto',
-      empresa.modo_compacto
-    );
-
-
-    // ----------------------------------------------------------
-    // DOCUMENTOS
-    // ----------------------------------------------------------
-
-    preencherCampo(
-      'config-rodape-documentos',
-      empresa.rodape_documentos
-    );
-
-    preencherBoolean(
-      'config-telefone-documentos',
-      empresa.telefone_documentos
-    );
-
-
-    // ----------------------------------------------------------
-    // AGENDA
-    // ----------------------------------------------------------
-
-    preencherCampo(
-      'config-agenda-inicio',
-      empresa.agenda_horario_inicio
-    );
-
-    preencherCampo(
-      'config-agenda-fim',
-      empresa.agenda_horario_fim
-    );
-
-    preencherCampo(
-      'config-agenda-intervalo',
-      empresa.agenda_intervalo
-    );
-
-
-    // ----------------------------------------------------------
-    // APARÊNCIA
-    // ----------------------------------------------------------
-
-    const corPrimaria =
-      empresa.cor_primaria ||
-      '#0E3A4C';
-
-    const corDestaque =
-      empresa.cor_destaque ||
-      '#06B6C4';
-
-    const corFundo =
-      empresa.cor_fundo ||
-      '#F5F7FA';
-
-
-    preencherCampo(
-      'config-cor-principal',
-      corPrimaria
-    );
-
-    preencherCampo(
-      'config-cor-principal-text',
-      corPrimaria
-    );
-
-    preencherCampo(
-      'config-cor-destaque',
-      corDestaque
-    );
-
-    preencherCampo(
-      'config-cor-destaque-text',
-      corDestaque
-    );
-
-    preencherCampo(
-      'config-cor-fundo',
-      corFundo
-    );
-
-    preencherCampo(
-      'config-cor-fundo-text',
-      corFundo
-    );
-
-
-    // ----------------------------------------------------------
-    // INFORMAÇÕES DO SISTEMA
-    // ----------------------------------------------------------
-
-    preencherCampo(
-      'config-info-empresa',
-      empresa.nome_exibicao ||
-      empresa.nome
-    );
-
-
-    // ----------------------------------------------------------
-    // NICHO
-    // ----------------------------------------------------------
-
-    aplicarNicho(
-      empresa.nicho
-    );
-
-
-    // ----------------------------------------------------------
-    // SIDEBAR
-    // ----------------------------------------------------------
-
-    const empresaSidebar =
-      elemento(
-        'sidebar-company'
-      );
-
-    if (empresaSidebar) {
-
-      empresaSidebar.textContent =
-        empresa.nome_exibicao ||
-        empresa.nome ||
-        'Empresa';
-    }
-
-
-    // ----------------------------------------------------------
-    // TEMA
-    // ----------------------------------------------------------
-
-    aplicarTema(
-      corPrimaria,
-      corDestaque,
-      corFundo
-    );
-  }
-
-
-  // ============================================================
-  // REQUISIÇÃO — SALVAR
-  // ============================================================
-
-  async function salvarConfiguracoes(
-    dados
-  ) {
-
-    console.log(
-      '[Orvix] Salvando configurações:',
-      dados
-    );
-
-    const resposta =
-      await requisicaoConfiguracoes(
-        API_CONFIGURACOES,
-        {
-          method: 'PUT',
-
-          body:
-            JSON.stringify(dados)
-        }
-      );
-
-    const resultado =
-      await lerJsonSeguro(
-        resposta
-      );
-
-
-    // ----------------------------------------------------------
-    // 401
-    // ----------------------------------------------------------
-
-    if (
-      resposta.status === 401
-    ) {
-
-      try {
-
-        localStorage.removeItem(
-          CONFIGS_TOKEN_KEY
-        );
-
-      } catch (_) {
-        // Ignorado.
-      }
-
-      throw new Error(
-        'Sua sessão expirou. Faça login novamente.'
-      );
-    }
-
-
-    // ----------------------------------------------------------
-    // 403
-    // ----------------------------------------------------------
-
-    if (
-      resposta.status === 403
-    ) {
-
-      throw new Error(
-        resultado.erro ||
-        'Você não possui permissão para alterar estas configurações.'
-      );
-    }
-
-
-    // ----------------------------------------------------------
-    // 429
-    // ----------------------------------------------------------
-
-    if (
-      resposta.status === 429
-    ) {
-
-      window.location.replace(
-        '/429.html'
-      );
-
-      throw new Error(
-        'Muitas requisições. Aguarde alguns instantes.'
-      );
-    }
-
-
-    // ----------------------------------------------------------
-    // OUTROS ERROS
-    // ----------------------------------------------------------
-
-    if (!resposta.ok) {
-
-      throw new Error(
-        resultado.erro ||
-        resultado.mensagem ||
-        'Não foi possível salvar as configurações.'
-      );
-    }
-
-
-    console.log(
-      '[Orvix] Configurações salvas:',
-      resultado
-    );
-
-
-    atualizarEmpresaLocal(
-      resultado
-    );
-
-    return resultado;
-  }
-
-
-  // ============================================================
-  // SALVAR DADOS DA EMPRESA
-  // ============================================================
-
-  async function salvarDadosEmpresa() {
-
-    esconderMensagem(
-      'configuracoes-message'
-    );
-
-    const nome =
-      obterValor(
-        'config-empresa-nome'
-      );
-
-    const email =
-      obterValor(
-        'config-empresa-email'
-      );
-
-    const telefone =
-      obterValor(
-        'config-empresa-telefone'
-      );
-
-    const nicho =
-      normalizarNicho(
-        obterValor(
-          'config-empresa-nicho'
-        )
-      );
-
-    const nomeExibicao =
-      obterValor(
-        'config-empresa-nome-exibicao'
-      );
-
-
-    if (!nome) {
-
-      throw new Error(
-        'Informe o nome da empresa.'
-      );
-    }
-
-
-    if (
-      !email ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    ) {
-
-      throw new Error(
-        'Informe um e-mail válido.'
-      );
-    }
-
-
-    const dados = {
-
-      nome,
-
-      email,
-
-      telefone:
-        telefone || null,
-
-      nicho,
-
-      nome_exibicao:
-        nomeExibicao ||
-        nome,
-
-      logo_url:
-        obterValor(
-          'config-logo-url'
-        ) || null
-    };
-
-
-    return salvarConfiguracoes(
-      dados
-    );
-  }
-
-
-  // ============================================================
-  // FORMULÁRIO DA EMPRESA
-  // ============================================================
-
-  if (formEmpresa) {
-
-    if (
-      formEmpresa.dataset
-        .configsSubmitListener !==
-      'true'
-    ) {
-
-      formEmpresa.dataset
-        .configsSubmitListener =
-        'true';
-
-      formEmpresa.addEventListener(
-        'submit',
-        async event => {
-
-          event.preventDefault();
-
-          try {
-
-            alterarEstadoBotao(
-              btnSalvarEmpresa,
-              true,
-              'Salvar alterações'
-            );
-
-
-            await salvarDadosEmpresa();
-
-
-            mostrarMensagem(
-              'configuracoes-message',
-              'Dados da empresa salvos com sucesso.',
-              'sucesso'
-            );
-
-          } catch (erro) {
-
-            console.error(
-              'Erro ao salvar dados da empresa:',
-              erro
-            );
-
-            mostrarMensagem(
-              'configuracoes-message',
-              erro.message ||
-              'Não foi possível salvar os dados da empresa.',
-              'erro'
-            );
-
-          } finally {
-
-            alterarEstadoBotao(
-              btnSalvarEmpresa,
-              false,
-              'Salvar alterações'
-            );
-          }
-        }
-      );
-    }
-  }
-
-
-  // ============================================================
-  // PREFERÊNCIAS REGIONAIS
-  // ============================================================
-
-  async function salvarPreferenciasRegionais() {
-
-    const dados = {
-
-      moeda:
-        obterValor(
-          'config-moeda'
-        ),
-
-      idioma:
-        obterValor(
-          'config-idioma'
-        ),
-
-      formato_data:
-        obterValor(
-          'config-formato-data'
-        ),
-
-      formato_hora:
-        obterValor(
-          'config-formato-hora'
-        ),
-
-      fuso_horario:
-        obterValor(
-          'config-fuso-horario'
-        )
-    };
-
-
-    console.log(
-      '[Orvix] Preferências regionais:',
-      dados
-    );
-
-
-    const resultado =
-      await salvarConfiguracoes(
-        dados
-      );
-
-
-    mostrarMensagem(
-      'configuracoes-message',
-      'Preferências regionais salvas com sucesso.',
-      'sucesso'
-    );
-
-
-    return resultado;
-  }
-
-
-  // ============================================================
-  // PREFERÊNCIAS DO SISTEMA
-  // ============================================================
-
-  if (btnSalvarPreferencias) {
-
-    if (
-      btnSalvarPreferencias.dataset
-        .configsClickListener !==
-      'true'
-    ) {
-
-      btnSalvarPreferencias.dataset
-        .configsClickListener =
-        'true';
-
-      btnSalvarPreferencias.addEventListener(
-        'click',
-        async event => {
-
-          event.preventDefault();
-
-          try {
-
-            alterarEstadoBotao(
-              btnSalvarPreferencias,
-              true,
-              'Salvar preferências'
-            );
-
-
-            const dados = {
-
-              notificacoes_ativas:
-                obterBooleano(
-                  'config-notificacoes-ativas'
-                ),
-
-              mostrar_valores:
-                obterBooleano(
-                  'config-mostrar-valores'
-                ),
-
-              dashboard_inicial:
-                obterBooleano(
-                  'config-dashboard-inicial'
-                ),
-
-              modo_compacto:
-                obterBooleano(
-                  'config-modo-compacto'
-                )
-            };
-
-
-            console.log(
-              '[Orvix] Preferências do sistema:',
-              dados
-            );
-
-
-            await salvarConfiguracoes(
-              dados
-            );
-
-
-            mostrarMensagem(
-              'configuracoes-message',
-              'Preferências salvas com sucesso.',
-              'sucesso'
-            );
-
-          } catch (erro) {
-
-            console.error(
-              'Erro ao salvar preferências:',
-              erro
-            );
-
-            mostrarMensagem(
-              'configuracoes-message',
-              erro.message ||
-              'Não foi possível salvar as preferências.',
-              'erro'
-            );
-
-          } finally {
-
-            alterarEstadoBotao(
-              btnSalvarPreferencias,
-              false,
-              'Salvar preferências'
-            );
-          }
-        }
-      );
-    }
-  }
-
-
-  // ============================================================
-  // CORES
-  // ============================================================
-
-  function corValida(cor) {
-
-    return /^#[0-9A-Fa-f]{6}$/
-      .test(
-        String(cor || '')
-          .trim()
-      );
-  }
-
-
-  function sincronizarCor(
-    inputColorId,
-    inputTextId
-  ) {
-
-    const color =
-      elemento(
-        inputColorId
-      );
-
-    const text =
-      elemento(
-        inputTextId
-      );
-
-
-    if (!color || !text) {
-      return;
-    }
-
-
-    if (
-      color.dataset
-        .configsColorListener ===
-      'true'
-    ) {
-      return;
-    }
-
-
-    color.dataset
-      .configsColorListener =
-      'true';
-
-
-    color.addEventListener(
-      'input',
-      () => {
-
-        text.value =
-          color.value
-            .toUpperCase();
-
-        atualizarPreviewTema();
-      }
-    );
-
-
-    text.addEventListener(
-      'input',
-      () => {
-
-        let valor =
-          text.value
-            .trim()
-            .toUpperCase();
-
-
-        if (
-          !valor.startsWith('#') &&
-          /^[0-9A-F]{6}$/.test(
-            valor
-          )
-        ) {
-
-          valor =
-            '#' + valor;
-        }
-
-
-        if (
-          /^#[0-9A-F]{6}$/
-            .test(valor)
-        ) {
-
-          color.value =
-            valor;
-
-          text.value =
-            valor;
-
-          atualizarPreviewTema();
-        }
-      }
-    );
-
-
-    text.addEventListener(
-      'blur',
-      () => {
-
-        let valor =
-          text.value
-            .trim()
-            .toUpperCase();
-
-
-        if (
-          !valor.startsWith('#') &&
-          /^[0-9A-F]{6}$/.test(
-            valor
-          )
-        ) {
-
-          valor =
-            '#' + valor;
-        }
-
-
-        if (
-          /^#[0-9A-F]{6}$/
-            .test(valor)
-        ) {
-
-          text.value =
-            valor;
-
-          color.value =
-            valor;
-        }
-      }
-    );
-  }
-
-
-  sincronizarCor(
-    'config-cor-principal',
-    'config-cor-principal-text'
-  );
-
-  sincronizarCor(
-    'config-cor-destaque',
-    'config-cor-destaque-text'
-  );
-
-  sincronizarCor(
-    'config-cor-fundo',
-    'config-cor-fundo-text'
-  );
-
-
-  // ============================================================
-  // PREVIEW
-  // ============================================================
-
-  function atualizarPreviewTema() {
-
-    const primary =
-      obterValor(
-        'config-cor-principal'
-      ) ||
-      '#0E3A4C';
-
-    const accent =
-      obterValor(
-        'config-cor-destaque'
-      ) ||
-      '#06B6C4';
-
-    const background =
-      obterValor(
-        'config-cor-fundo'
-      ) ||
-      '#F5F7FA';
-
-
-    const preview =
-      elemento(
-        'config-tema-preview'
-      );
-
-    const title =
-      elemento(
-        'config-tema-preview-title'
-      );
-
-    const badge =
-      elemento(
-        'config-tema-preview-badge'
-      );
-
-    const button =
-      elemento(
-        'config-tema-preview-button'
-      );
-
-
-    if (preview) {
-
-      preview.style.background =
-        background;
-    }
-
-
-    if (title) {
-
-      title.style.color =
-        primary;
-    }
-
-
-    if (badge) {
-
-      badge.style.background =
-        accent;
-    }
-
-
-    if (button) {
-
-      button.style.background =
-        primary;
-    }
-  }
-
-
-  // ============================================================
-  // APLICAR TEMA
-  // ============================================================
-
-  function aplicarTema(
-    primary,
-    accent,
-    background
-  ) {
-
-    primary =
-      primary ||
-      '#0E3A4C';
-
-    accent =
-      accent ||
-      '#06B6C4';
-
-    background =
-      background ||
-      '#F5F7FA';
-
-
-    const root =
-      document.documentElement;
-
-
-    root.style.setProperty(
-      '--primary',
-      primary
-    );
-
-    root.style.setProperty(
-      '--primary-color',
-      primary
-    );
-
-    root.style.setProperty(
-      '--cor-primaria',
-      primary
-    );
-
-
-    root.style.setProperty(
-      '--accent',
-      accent
-    );
-
-    root.style.setProperty(
-      '--accent-color',
-      accent
-    );
-
-    root.style.setProperty(
-      '--cor-destaque',
-      accent
-    );
-
-
-    root.style.setProperty(
-      '--bg',
-      background
-    );
-
-    root.style.setProperty(
-      '--background',
-      background
-    );
-
-    root.style.setProperty(
-      '--background-color',
-      background
-    );
-
-    root.style.setProperty(
-      '--cor-fundo',
-      background
-    );
-
-
-    atualizarPreviewTema();
-  }
-
-
-  // ============================================================
-  // TEMAS RÁPIDOS
-  // ============================================================
-
-  document
-    .querySelectorAll(
-      '.theme-preset'
-    )
-    .forEach(
-      botao => {
-
-        if (
-          botao.dataset
-            .configsThemeListener ===
-          'true'
-        ) {
-          return;
-        }
-
-
-        botao.dataset
-          .configsThemeListener =
-          'true';
-
-
-        botao.addEventListener(
-          'click',
-          event => {
-
-            event.preventDefault();
-
-
-            const primary =
-              botao.dataset.primary ||
-              '#0E3A4C';
-
-            const accent =
-              botao.dataset.accent ||
-              '#06B6C4';
-
-            const background =
-              botao.dataset.background ||
-              '#F5F7FA';
-
-
-            preencherCampo(
-              'config-cor-principal',
-              primary
-            );
-
-            preencherCampo(
-              'config-cor-principal-text',
-              primary.toUpperCase()
-            );
-
-
-            preencherCampo(
-              'config-cor-destaque',
-              accent
-            );
-
-            preencherCampo(
-              'config-cor-destaque-text',
-              accent.toUpperCase()
-            );
-
-
-            preencherCampo(
-              'config-cor-fundo',
-              background
-            );
-
-            preencherCampo(
-              'config-cor-fundo-text',
-              background.toUpperCase()
-            );
-
-
-            aplicarTema(
-              primary,
-              accent,
-              background
-            );
-          }
-        );
-      }
-    );
-
-
-  // ============================================================
-  // SALVAR APARÊNCIA
-  // ============================================================
-
-  if (btnSalvarTema) {
-
-    if (
-      btnSalvarTema.dataset
-        .configsClickListener !==
-      'true'
-    ) {
-
-      btnSalvarTema.dataset
-        .configsClickListener =
-        'true';
-
-
-      btnSalvarTema.addEventListener(
-        'click',
-        async event => {
-
-          event.preventDefault();
-
-          try {
-
-            alterarEstadoBotao(
-              btnSalvarTema,
-              true,
-              'Salvar aparência'
-            );
-
-
-            const corPrimaria =
-              obterValor(
-                'config-cor-principal'
-              );
-
-            const corDestaque =
-              obterValor(
-                'config-cor-destaque'
-              );
-
-            const corFundo =
-              obterValor(
-                'config-cor-fundo'
-              );
-
-
-            if (
-              !corValida(
-                corPrimaria
-              )
-            ) {
-
-              throw new Error(
-                'A cor principal é inválida.'
-              );
-            }
-
-
-            if (
-              !corValida(
-                corDestaque
-              )
-            ) {
-
-              throw new Error(
-                'A cor de destaque é inválida.'
-              );
-            }
-
-
-            if (
-              !corValida(
-                corFundo
-              )
-            ) {
-
-              throw new Error(
-                'A cor de fundo é inválida.'
-              );
-            }
-
-
-            const dados = {
-
-              cor_primaria:
-                corPrimaria,
-
-              cor_destaque:
-                corDestaque,
-
-              cor_fundo:
-                corFundo
-            };
-
-
-            console.log(
-              '[Orvix] Aparência:',
-              dados
-            );
-
-
-            await salvarConfiguracoes(
-              dados
-            );
-
-
-            aplicarTema(
-              corPrimaria,
-              corDestaque,
-              corFundo
-            );
-
-
-            mostrarMensagem(
-              'config-aparencia-message',
-              'Aparência salva com sucesso.',
-              'sucesso'
-            );
-
-          } catch (erro) {
-
-            console.error(
-              'Erro ao salvar aparência:',
-              erro
-            );
-
-
-            mostrarMensagem(
-              'config-aparencia-message',
-              erro.message ||
-              'Não foi possível salvar a aparência.',
-              'erro'
-            );
-
-          } finally {
-
-            alterarEstadoBotao(
-              btnSalvarTema,
-              false,
-              'Salvar aparência'
-            );
-          }
-        }
-      );
-    }
-  }
-
-
-  // ============================================================
-  // RESTAURAR TEMA
-  // ============================================================
-
-  if (btnRestaurarTema) {
-
-    if (
-      btnRestaurarTema.dataset
-        .configsClickListener !==
-      'true'
-    ) {
-
-      btnRestaurarTema.dataset
-        .configsClickListener =
-        'true';
-
-
-      btnRestaurarTema.addEventListener(
-        'click',
-        event => {
-
-          event.preventDefault();
-
-
-          const primary =
-            '#0E3A4C';
-
-          const accent =
-            '#06B6C4';
-
-          const background =
-            '#F5F7FA';
-
-
-          preencherCampo(
-            'config-cor-principal',
-            primary
-          );
-
-          preencherCampo(
-            'config-cor-principal-text',
-            primary
-          );
-
-
-          preencherCampo(
-            'config-cor-destaque',
-            accent
-          );
-
-          preencherCampo(
-            'config-cor-destaque-text',
-            accent
-          );
-
-
-          preencherCampo(
-            'config-cor-fundo',
-            background
-          );
-
-          preencherCampo(
-            'config-cor-fundo-text',
-            background
-          );
-
-
-          aplicarTema(
-            primary,
-            accent,
-            background
-          );
-
-
-          mostrarMensagem(
-            'config-aparencia-message',
-            'Tema restaurado. Clique em "Salvar aparência" para confirmar.',
-            'sucesso'
-          );
-        }
-      );
-    }
-  }
-
-
-  // ============================================================
-  // DOCUMENTOS
-  // ============================================================
-
-  if (btnSalvarDocumentos) {
-
-    if (
-      btnSalvarDocumentos.dataset
-        .configsClickListener !==
-      'true'
-    ) {
-
-      btnSalvarDocumentos.dataset
-        .configsClickListener =
-        'true';
-
-
-      btnSalvarDocumentos.addEventListener(
-        'click',
-        async event => {
-
-          event.preventDefault();
-
-          try {
-
-            alterarEstadoBotao(
-              btnSalvarDocumentos,
-              true,
-              'Salvar documentos'
-            );
-
-
-            const dados = {
-
-              rodape_documentos:
-                obterValor(
-                  'config-rodape-documentos'
-                ) || null,
-
-              telefone_documentos:
-                obterBooleano(
-                  'config-telefone-documentos'
-                )
-            };
-
-
-            console.log(
-              '[Orvix] Documentos:',
-              dados
-            );
-
-
-            await salvarConfiguracoes(
-              dados
-            );
-
-
-            mostrarMensagem(
-              'configuracoes-message',
-              'Configurações de documentos salvas com sucesso.',
-              'sucesso'
-            );
-
-          } catch (erro) {
-
-            console.error(
-              'Erro ao salvar documentos:',
-              erro
-            );
-
-
-            mostrarMensagem(
-              'configuracoes-message',
-              erro.message ||
-              'Não foi possível salvar os documentos.',
-              'erro'
-            );
-
-          } finally {
-
-            alterarEstadoBotao(
-              btnSalvarDocumentos,
-              false,
-              'Salvar documentos'
-            );
-          }
-        }
-      );
-    }
-  }
-
-
-  // ============================================================
-  // AGENDA
-  // ============================================================
-
-  function normalizarHorario(valor) {
-
-    if (
-      valor === null ||
-      valor === undefined
-    ) {
-      return null;
-    }
-
-
-    const horario =
-      String(valor).trim();
-
-
-    if (!horario) {
-      return null;
-    }
-
-
-    const match =
-      horario.match(
-        /^(\d{2}):(\d{2})(?::\d{2})?$/
-      );
-
-
-    if (!match) {
-
-      throw new Error(
-        `Horário inválido: "${horario}". Use o formato HH:MM.`
-      );
-    }
-
-
-    const horas =
-      Number(match[1]);
-
-    const minutos =
-      Number(match[2]);
-
-
-    if (
-      horas < 0 ||
-      horas > 23 ||
-      minutos < 0 ||
-      minutos > 59
-    ) {
-
-      throw new Error(
-        `Horário inválido: "${horario}".`
-      );
-    }
-
-
-    return (
-      String(horas)
-        .padStart(2, '0') +
-      ':' +
-      String(minutos)
-        .padStart(2, '0')
-    );
-  }
-
-
-  if (btnSalvarAgenda) {
-
-    if (
-      btnSalvarAgenda.dataset
-        .configsClickListener !==
-      'true'
-    ) {
-
-      btnSalvarAgenda.dataset
-        .configsClickListener =
-        'true';
-
-
-      btnSalvarAgenda.addEventListener(
-        'click',
-        async event => {
-
-          event.preventDefault();
-
-
-          try {
-
-            alterarEstadoBotao(
-              btnSalvarAgenda,
-              true,
-              'Salvar agenda'
-            );
-
-
-            const campoInicio =
-              elemento(
-                'config-agenda-inicio'
-              );
-
-            const campoFim =
-              elemento(
-                'config-agenda-fim'
-              );
-
-            const campoIntervalo =
-              elemento(
-                'config-agenda-intervalo'
-              );
-
-
-            if (!campoInicio) {
-
-              throw new Error(
-                'Campo de horário inicial da agenda não encontrado.'
-              );
-            }
-
-
-            if (!campoFim) {
-
-              throw new Error(
-                'Campo de horário final da agenda não encontrado.'
-              );
-            }
-
-
-            if (!campoIntervalo) {
-
-              throw new Error(
-                'Campo de intervalo da agenda não encontrado.'
-              );
-            }
-
-
-            const inicio =
-              normalizarHorario(
-                campoInicio.value
-              );
-
-            const fim =
-              normalizarHorario(
-                campoFim.value
-              );
-
-
-            if (!inicio) {
-
-              throw new Error(
-                'Informe o horário inicial da agenda.'
-              );
-            }
-
-
-            if (!fim) {
-
-              throw new Error(
-                'Informe o horário final da agenda.'
-              );
-            }
-
-
-            const intervaloTexto =
-              String(
-                campoIntervalo.value ??
-                ''
-              ).trim();
-
-
-            const intervaloMatch =
-              intervaloTexto.match(
-                /\d+/
-              );
-
-
-            if (!intervaloMatch) {
-
-              throw new Error(
-                'Intervalo da agenda inválido.'
-              );
-            }
-
-
-            const intervalo =
-              Number(
-                intervaloMatch[0]
-              );
-
-
-            const intervalosValidos = [
-              15,
-              30,
-              45,
-              60,
-              90,
-              120
-            ];
-
-
-            if (
-              !intervalosValidos.includes(
-                intervalo
-              )
-            ) {
-
-              throw new Error(
-                'Intervalo inválido. Escolha 15, 30, 45, 60, 90 ou 120 minutos.'
-              );
-            }
-
-
-            const inicioMinutos =
-              (
-                Number(
-                  inicio.substring(0, 2)
-                ) * 60
-              ) +
-              Number(
-                inicio.substring(3, 5)
-              );
-
-
-            const fimMinutos =
-              (
-                Number(
-                  fim.substring(0, 2)
-                ) * 60
-              ) +
-              Number(
-                fim.substring(3, 5)
-              );
-
-
-            if (
-              fimMinutos <=
-              inicioMinutos
-            ) {
-
-              throw new Error(
-                'O horário final deve ser maior que o horário inicial.'
-              );
-            }
-
-
-            const dados = {
-
-              agenda_horario_inicio:
-                inicio,
-
-              agenda_horario_fim:
-                fim,
-
-              agenda_intervalo:
-                intervalo
-            };
-
-
-            console.log(
-              '[Orvix] Agenda:',
-              dados
-            );
-
-
-            await salvarConfiguracoes(
-              dados
-            );
-
-
-            mostrarMensagem(
-              'configuracoes-message',
-              'Configurações da agenda salvas com sucesso.',
-              'sucesso'
-            );
-
-          } catch (erro) {
-
-            console.error(
-              '[Orvix] Erro ao salvar agenda:',
-              erro
-            );
-
-
-            mostrarMensagem(
-              'configuracoes-message',
-              erro.message ||
-              'Não foi possível salvar a agenda.',
-              'erro'
-            );
-
-          } finally {
-
-            alterarEstadoBotao(
-              btnSalvarAgenda,
-              false,
-              'Salvar agenda'
-            );
-          }
-        }
-      );
-    }
-  }
-
-
-  // ============================================================
-  // TROCA DE NICHO
-  // ============================================================
-
-  configurarTrocaDeNicho();
-
-
-  // ============================================================
-  // EXPOSIÇÃO GLOBAL
-  // ============================================================
-
-  window.OrvixConfiguracoes = {
-
-    salvarConfiguracoes,
-
-    salvarDadosEmpresa,
-
-    salvarPreferenciasRegionais,
-
-    aplicarTema,
-
-    atualizarPreviewTema,
-
-    aplicarNicho,
-
-    aplicarNichoNaInterface,
-
-    normalizarNicho,
-
-    preencherDadosEmpresa,
-
-    detalhesHtml,
-
-    requisicaoConfiguracoes
-  };
-
-
-  // ============================================================
-  // COMPATIBILIDADE COM OUTROS ARQUIVOS
-  // ============================================================
-
-  window.salvarConfiguracoes =
-    salvarConfiguracoes;
-
-
-  window.salvarAgenda =
-    async function () {
-
-      if (btnSalvarAgenda) {
-        btnSalvarAgenda.click();
-      }
-    };
-
-
-  window.salvarAparencia =
-    async function () {
-
-      if (btnSalvarTema) {
-        btnSalvarTema.click();
-      }
-    };
-
-
-  window.salvarDocumentos =
-    async function () {
-
-      if (btnSalvarDocumentos) {
-        btnSalvarDocumentos.click();
-      }
-    };
-
-
-  window.salvarPreferencias =
-    async function () {
-
-      if (btnSalvarPreferencias) {
-        btnSalvarPreferencias.click();
-      }
-    };
-
-
-  window.aplicarNicho =
-    aplicarNicho;
-
-
-  window.aplicarNichoNaInterface =
-    aplicarNichoNaInterface;
-
-
-  window.atualizarPreviewTema =
-    atualizarPreviewTema;
-
-
-  // ============================================================
-  // INICIALIZAÇÃO
-  // ============================================================
-
-  limparMensagens();
-
-  atualizarPreviewTema();
 
 })();
