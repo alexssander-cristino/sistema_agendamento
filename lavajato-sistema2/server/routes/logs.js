@@ -160,6 +160,7 @@ function validarData(
 //
 // ?pagina=1
 // ?limite=50
+// ?busca=alex
 // ?acao=atualizacao
 // ?entidade=empresa
 // ?usuario_id=10
@@ -245,7 +246,7 @@ router.get(
       // ======================================================
 
       const filtros = [
-        'empresa_id = $1'
+        'l.empresa_id = $1'
       ];
 
       const valores = [
@@ -253,6 +254,49 @@ router.get(
       ];
 
       let parametro = 2;
+
+
+      // ======================================================
+      // BUSCA
+      // ======================================================
+      //
+      // Pesquisa por:
+      //
+      // - nome do usuário
+      // - ação
+      // - entidade
+      //
+      // ======================================================
+
+      if (
+        req.query.busca
+      ) {
+
+        const busca =
+          String(
+            req.query.busca
+          ).trim();
+
+
+        if (busca) {
+
+          filtros.push(`
+            (
+              COALESCE(u.nome, '') ILIKE $${parametro}
+              OR COALESCE(l.acao, '') ILIKE $${parametro}
+              OR COALESCE(l.entidade, '') ILIKE $${parametro}
+            )
+          `);
+
+          valores.push(
+            `%${busca}%`
+          );
+
+          parametro++;
+
+        }
+
+      }
 
 
       // ======================================================
@@ -264,7 +308,7 @@ router.get(
       ) {
 
         filtros.push(
-          `acao = $${parametro}`
+          `l.acao = $${parametro}`
         );
 
         valores.push(
@@ -287,7 +331,7 @@ router.get(
       ) {
 
         filtros.push(
-          `entidade = $${parametro}`
+          `l.entidade = $${parametro}`
         );
 
         valores.push(
@@ -323,7 +367,7 @@ router.get(
         ) {
 
           filtros.push(
-            `usuario_id = $${parametro}`
+            `l.usuario_id = $${parametro}`
           );
 
           valores.push(
@@ -360,7 +404,7 @@ router.get(
 
 
         filtros.push(
-          `criado_em >= $${parametro}::date`
+          `l.criado_em >= $${parametro}::date`
         );
 
         valores.push(
@@ -395,7 +439,7 @@ router.get(
 
 
         filtros.push(
-          `criado_em < ($${parametro}::date + INTERVAL '1 day')`
+          `l.criado_em < ($${parametro}::date + INTERVAL '1 day')`
         );
 
         valores.push(
@@ -422,7 +466,13 @@ router.get(
           `
             SELECT
               COUNT(*)::integer AS total
-            FROM logs_auditoria
+
+            FROM logs_auditoria l
+
+            LEFT JOIN usuarios u
+              ON u.id = l.usuario_id
+             AND u.empresa_id = l.empresa_id
+
             WHERE ${where}
           `,
           valores
@@ -436,6 +486,20 @@ router.get(
 
       // ======================================================
       // LOGS
+      // ======================================================
+      //
+      // Agora retornamos também:
+      //
+      // usuario_nome
+      //
+      // para o frontend poder mostrar:
+      //
+      // "Alexssander"
+      //
+      // em vez de:
+      //
+      // "Usuário #6"
+      //
       // ======================================================
 
       const valoresConsulta = [
@@ -451,17 +515,36 @@ router.get(
         await pool.query(
           `
             SELECT
-              id,
-              usuario_id,
-              acao,
-              entidade,
-              entidade_id,
-              detalhes,
-              criado_em
-            FROM logs_auditoria
+              l.id,
+              l.usuario_id,
+
+              COALESCE(
+                NULLIF(
+                  TRIM(u.nome),
+                  ''
+                ),
+                'Usuário #' || l.usuario_id
+              ) AS usuario_nome,
+
+              l.acao,
+              l.entidade,
+              l.entidade_id,
+              l.detalhes,
+              l.criado_em
+
+            FROM logs_auditoria l
+
+            LEFT JOIN usuarios u
+              ON u.id = l.usuario_id
+             AND u.empresa_id = l.empresa_id
+
             WHERE ${where}
-            ORDER BY criado_em DESC
+
+            ORDER BY
+              l.criado_em DESC
+
             LIMIT $${parametro}
+
             OFFSET $${parametro + 1}
           `,
           valoresConsulta

@@ -6364,9 +6364,10 @@ async function carregarLogs() {
 
     lista.innerHTML = logs.map(log => {
 
-      const usuario = escaparHtmlLogs(
-        obterNomeUsuarioLog(log)
-      );
+     const usuario = escaparHtmlLogs(
+  log.usuario_nome ||
+  obterNomeUsuarioLog(log)
+);
 
       const acaoOriginal = String(
         log.acao || ''
