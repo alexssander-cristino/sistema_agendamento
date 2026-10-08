@@ -8380,6 +8380,8 @@ document.addEventListener(
         localStorage.removeItem(
           AUTH_TOKEN_KEY
         );
+        
+        window.dispatchEvent(new Event('orvix:sessao-alterada'));
 
         usuarioLogado =
           null;
@@ -8707,26 +8709,182 @@ function atualizarDatasDashboard() {
 }
 
 
+
+
 /* =========================================================
-   CENTRAL DE NOTIFICAÇÕES — ORVIX
+   ORVIX — CENTRAL DE NOTIFICAÇÕES
+   Compatível com lavajato_auth_token
    ========================================================= */
 
 (() => {
+    'use strict';
+
+    const TOKEN_KEY = 'lavajato_auth_token';
+    const API_BASE = '/api';
+    const INTERVALO_ATUALIZACAO = 60000;
+
+    const container = document.getElementById('notificacoes-container');
     const btn = document.getElementById('btn-notificacoes');
     const painel = document.getElementById('painel-notificacoes');
-
-    if (!btn || !painel || typeof api !== 'function') {
-        return;
-    }
-
     const contador = document.getElementById('notificacoes-contador');
     const resumo = document.getElementById('notificacoes-resumo');
     const lista = document.getElementById('notificacoes-lista');
     const btnFechar = document.getElementById('btn-notificacoes-fechar');
     const btnTodasLidas = document.getElementById('btn-notificacoes-lidas');
 
-    let carregando = false;
+    if (!container || !btn || !painel || !lista) {
+        console.warn(
+            '[Orvix] Central de notificações: elementos HTML não encontrados.'
+        );
+        return;
+    }
+
     let notificacoes = [];
+    let carregando = false;
+    let atualizacaoPendente = false;
+    let intervalo = null;
+    let sessaoAnterior = null;
+    let requisicaoAtual = 0;
+
+    /* =====================================================
+       SESSÃO
+       ===================================================== */
+
+    function obterToken() {
+        return localStorage.getItem(TOKEN_KEY);
+    }
+
+    function telaAutenticacaoVisivel() {
+        const tela = document.getElementById('auth-screen');
+
+        if (!tela) return false;
+
+        return window.getComputedStyle(tela).display !== 'none';
+    }
+
+    function usuarioAutenticado() {
+        return Boolean(obterToken()) && !telaAutenticacaoVisivel();
+    }
+
+    function ocultarCentral() {
+        container.hidden = true;
+        container.style.display = 'none';
+
+        painel.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+
+        notificacoes = [];
+
+        if (contador) {
+            contador.textContent = '0';
+            contador.hidden = true;
+        }
+
+        if (resumo) {
+            resumo.textContent = 'Entre na sua conta para ver notificações';
+        }
+
+        lista.innerHTML = '';
+    }
+
+    function mostrarCentral() {
+        container.hidden = false;
+        container.style.display = '';
+    }
+
+    function sincronizarSessao() {
+        const autenticado = usuarioAutenticado();
+
+        if (!autenticado) {
+            if (sessaoAnterior !== false) {
+                requisicaoAtual++;
+                carregando = false;
+                atualizacaoPendente = false;
+                notificacoes = [];
+            }
+
+            sessaoAnterior = false;
+            ocultarCentral();
+            return false;
+        }
+
+        mostrarCentral();
+
+        if (sessaoAnterior !== true) {
+            sessaoAnterior = true;
+            carregarNotificacoes();
+        }
+
+        return true;
+    }
+
+    /* =====================================================
+       REQUISIÇÕES
+       ===================================================== */
+
+    async function requisitar(path, options = {}, tokenEsperado = obterToken()) {
+        if (!tokenEsperado || !usuarioAutenticado()) {
+            throw new Error('Sessão não autenticada.');
+        }
+
+        const headers = {
+            Accept: 'application/json',
+            ...(options.headers || {}),
+            Authorization: `Bearer ${tokenEsperado}`
+        };
+
+        if (options.body !== undefined) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        const resposta = await fetch(`${API_BASE}${path}`, {
+            ...options,
+            headers,
+            cache: 'no-store'
+        });
+
+        // Impede que uma resposta de outra sessão seja exibida.
+        if (obterToken() !== tokenEsperado) {
+            throw new Error('A sessão foi alterada.');
+        }
+
+        if (resposta.status === 401) {
+            localStorage.removeItem(TOKEN_KEY);
+
+            window.dispatchEvent(
+                new Event('orvix:sessao-alterada')
+            );
+
+            throw new Error('Sessão expirada. Entre novamente.');
+        }
+
+        if (resposta.status === 403) {
+            throw new Error('Acesso às notificações não autorizado.');
+        }
+
+        if (!resposta.ok) {
+            let mensagem = 'Não foi possível concluir a requisição.';
+
+            try {
+                const dados = await resposta.clone().json();
+                mensagem = dados.erro || mensagem;
+            } catch (_) {}
+
+            const erro = new Error(mensagem);
+            erro.status = resposta.status;
+            throw erro;
+        }
+
+        if (resposta.status === 204) {
+            return null;
+        }
+
+        return resposta.json();
+    }
+
+    /* =====================================================
+       FORMATAÇÃO E SEGURANÇA HTML
+       ===================================================== */
 
     function escaparHTML(valor) {
         return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
@@ -8754,105 +8912,253 @@ function atualizarDatasDashboard() {
         });
     }
 
+    function mostrarMensagem(mensagem) {
+        lista.innerHTML =
+            `<p class="notificacoes-vazio">${escaparHTML(mensagem)}</p>`;
+    }
+
     function atualizarContador(total) {
         const quantidade = Math.max(0, Number(total) || 0);
 
-        contador.textContent = quantidade > 99 ? '99+' : String(quantidade);
-        contador.hidden = quantidade === 0;
+        if (contador) {
+            contador.textContent = quantidade > 99
+                ? '99+'
+                : String(quantidade);
 
-        resumo.textContent = quantidade === 0
-            ? 'Nenhuma notificação pendente'
-            : `${quantidade} não lida${quantidade === 1 ? '' : 's'}`;
+            contador.hidden = quantidade === 0;
+        }
+
+        if (resumo) {
+            resumo.textContent = quantidade === 0
+                ? 'Nenhuma notificação pendente'
+                : `${quantidade} não lida${quantidade === 1 ? '' : 's'}`;
+        }
     }
 
     function renderizarNotificacoes() {
         if (!notificacoes.length) {
-            lista.innerHTML =
-                '<p class="notificacoes-vazio">Nenhuma notificação por enquanto.</p>';
+            mostrarMensagem('Nenhuma notificação por enquanto.');
             return;
         }
 
-        lista.innerHTML = notificacoes.map(n => {
-            const naoLida = !n.lida_em;
+        lista.innerHTML = notificacoes.map(notificacao => {
+            const naoLida = !notificacao.lida_em;
 
             return `
                 <article
                     class="notificacao-item ${naoLida ? 'nao-lida' : ''}"
-                    data-notificacao-id="${escaparHTML(n.id)}"
-                    data-notificacao-link="${escaparHTML(n.link || '')}"
+                    data-notificacao-id="${escaparHTML(notificacao.id)}"
+                    data-notificacao-link="${escaparHTML(notificacao.link || '')}"
                     role="button"
                     tabindex="0"
+                    aria-label="${escaparHTML(notificacao.titulo)}"
                 >
-                    <h4 class="notificacao-titulo">${escaparHTML(n.titulo)}</h4>
-                    <p class="notificacao-mensagem">${escaparHTML(n.mensagem)}</p>
-                    <time class="notificacao-data">${escaparHTML(formatarData(n.criado_em))}</time>
+                    <h4 class="notificacao-titulo">
+                        ${escaparHTML(notificacao.titulo)}
+                    </h4>
+
+                    <p class="notificacao-mensagem">
+                        ${escaparHTML(notificacao.mensagem)}
+                    </p>
+
+                    <time class="notificacao-data">
+                        ${escaparHTML(formatarData(notificacao.criado_em))}
+                    </time>
                 </article>
             `;
         }).join('');
     }
 
+    /* =====================================================
+       CARREGAR NOTIFICAÇÕES
+       ===================================================== */
+
     async function carregarNotificacoes() {
-        if (carregando) return;
+        if (!sincronizarSessao()) return;
+
+        if (carregando) {
+            atualizacaoPendente = true;
+            return;
+        }
+
+        const token = obterToken();
+        const idRequisicao = ++requisicaoAtual;
 
         carregando = true;
-        lista.innerHTML =
-            '<p class="notificacoes-vazio">Carregando notificações...</p>';
+        mostrarMensagem('Carregando notificações...');
 
         try {
             const [dados, contagem] = await Promise.all([
-                api('/notificacoes?pagina=1&limite=20'),
-                api('/notificacoes/contador')
+                requisitar(
+                    '/notificacoes?pagina=1&limite=20',
+                    {},
+                    token
+                ),
+                requisitar(
+                    '/notificacoes/contador',
+                    {},
+                    token
+                )
             ]);
 
-            notificacoes = Array.isArray(dados.notificacoes)
+            if (
+                idRequisicao !== requisicaoAtual ||
+                obterToken() !== token ||
+                !usuarioAutenticado()
+            ) {
+                return;
+            }
+
+            notificacoes = Array.isArray(dados?.notificacoes)
                 ? dados.notificacoes
                 : [];
 
-            atualizarContador(contagem.nao_lidas);
+            atualizarContador(contagem?.nao_lidas);
             renderizarNotificacoes();
-        } catch (erro) {
-            console.error('Erro ao carregar notificações:', erro);
 
-            lista.innerHTML =
-                '<p class="notificacoes-vazio">Não foi possível carregar as notificações.</p>';
+        } catch (erro) {
+            if (
+                idRequisicao !== requisicaoAtual ||
+                obterToken() !== token
+            ) {
+                return;
+            }
+
+            if (!usuarioAutenticado()) {
+                sincronizarSessao();
+                return;
+            }
+
+            console.error(
+                '[Orvix] Erro ao carregar notificações:',
+                erro
+            );
+
+            mostrarMensagem(
+                erro.status === 403
+                    ? 'Você não tem autorização para consultar as notificações.'
+                    : 'Não foi possível carregar as notificações. Tente novamente.'
+            );
+
         } finally {
-            carregando = false;
+            if (idRequisicao === requisicaoAtual) {
+                carregando = false;
+
+                if (atualizacaoPendente) {
+                    atualizacaoPendente = false;
+
+                    if (usuarioAutenticado()) {
+                        carregarNotificacoes();
+                    }
+                }
+            }
         }
     }
+
+    /* =====================================================
+       MARCAR COMO LIDA
+       ===================================================== */
 
     async function marcarComoLida(id) {
-        try {
-            await api(`/notificacoes/${encodeURIComponent(id)}/lida`, {
-                method: 'PATCH'
-            });
+        if (!sincronizarSessao()) return;
 
-            await carregarNotificacoes();
+        const token = obterToken();
+
+        try {
+            await requisitar(
+                `/notificacoes/${encodeURIComponent(id)}/lida`,
+                { method: 'PATCH' },
+                token
+            );
+
+            if (
+                obterToken() === token &&
+                usuarioAutenticado()
+            ) {
+                await carregarNotificacoes();
+            }
         } catch (erro) {
-            console.error('Erro ao marcar notificação como lida:', erro);
+            console.error(
+                '[Orvix] Erro ao marcar notificação como lida:',
+                erro
+            );
         }
     }
 
+    async function marcarTodasComoLidas() {
+        if (!sincronizarSessao()) return;
+
+        const token = obterToken();
+
+        if (btnTodasLidas) {
+            btnTodasLidas.disabled = true;
+        }
+
+        try {
+            await requisitar(
+                '/notificacoes/lidas/todas',
+                { method: 'PATCH' },
+                token
+            );
+
+            if (
+                obterToken() === token &&
+                usuarioAutenticado()
+            ) {
+                await carregarNotificacoes();
+            }
+        } catch (erro) {
+            console.error(
+                '[Orvix] Erro ao marcar todas como lidas:',
+                erro
+            );
+        } finally {
+            if (btnTodasLidas) {
+                btnTodasLidas.disabled = false;
+            }
+        }
+    }
+
+    /* =====================================================
+       ABRIR NOTIFICAÇÃO
+       ===================================================== */
+
     async function abrirNotificacao(elemento) {
+        if (!sincronizarSessao()) return;
+
         const id = elemento.dataset.notificacaoId;
         const link = elemento.dataset.notificacaoLink;
 
-        const notificacao = notificacoes.find(n => String(n.id) === String(id));
+        const notificacao = notificacoes.find(
+            item => String(item.id) === String(id)
+        );
 
         if (notificacao && !notificacao.lida_em) {
             await marcarComoLida(id);
         }
 
+        if (!usuarioAutenticado()) return;
+
         if (link) {
-            // Aceita apenas caminhos internos relativos à aplicação.
+            // Somente caminhos internos; evita redirecionamento externo.
             if (link.startsWith('/') && !link.startsWith('//')) {
                 window.location.assign(link);
             } else {
-                console.warn('Link externo ou inválido ignorado na notificação.');
+                console.warn(
+                    '[Orvix] Link inválido ignorado:',
+                    link
+                );
             }
         }
     }
 
+    /* =====================================================
+       EVENTOS DA INTERFACE
+       ===================================================== */
+
     btn.addEventListener('click', async () => {
+        if (!sincronizarSessao()) return;
+
         const abrir = painel.hidden;
 
         painel.hidden = !abrir;
@@ -8870,7 +9176,10 @@ function atualizarDatasDashboard() {
 
     lista.addEventListener('click', async evento => {
         const item = evento.target.closest('.notificacao-item');
-        if (item) await abrirNotificacao(item);
+
+        if (item) {
+            await abrirNotificacao(item);
+        }
     });
 
     lista.addEventListener('keydown', async evento => {
@@ -8883,29 +9192,82 @@ function atualizarDatasDashboard() {
         await abrirNotificacao(item);
     });
 
-    btnTodasLidas?.addEventListener('click', async () => {
-        try {
-            await api('/notificacoes/lidas/todas', {
-                method: 'PATCH'
-            });
-
-            await carregarNotificacoes();
-        } catch (erro) {
-            console.error('Erro ao marcar todas como lidas:', erro);
-        }
-    });
+    btnTodasLidas?.addEventListener(
+        'click',
+        marcarTodasComoLidas
+    );
 
     document.addEventListener('click', evento => {
-        if (!painel.hidden &&
-            !evento.target.closest('#notificacoes-container')) {
+        if (
+            !painel.hidden &&
+            !evento.target.closest('#notificacoes-container')
+        ) {
             painel.hidden = true;
             btn.setAttribute('aria-expanded', 'false');
         }
     });
 
-    // Contador atualizado periodicamente enquanto a sessão estiver aberta.
-    carregarNotificacoes();
-    window.setInterval(carregarNotificacoes, 60000);
-})();
+    /* =====================================================
+       LOGIN, LOGOUT E TROCA DE CONTA
+       ===================================================== */
 
+    window.addEventListener('orvix:sessao-alterada', () => {
+        sessaoAnterior = null;
+        sincronizarSessao();
+    });
+
+    window.addEventListener('storage', evento => {
+        if (evento.key === TOKEN_KEY || evento.key === null) {
+            sessaoAnterior = null;
+            sincronizarSessao();
+        }
+    });
+
+    /*
+     * Ao voltar para a aba, verifica a sessão e atualiza a lista.
+     */
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && sincronizarSessao()) {
+            carregarNotificacoes();
+        }
+    });
+
+    /*
+     * Observa a tela de login. Isso cobre os casos em que
+     * showAuthScreen() / hideAuthScreen() alteram sua exibição.
+     */
+    const telaAuth = document.getElementById('auth-screen');
+
+    if (telaAuth && typeof MutationObserver !== 'undefined') {
+        const observador = new MutationObserver(() => {
+            sincronizarSessao();
+        });
+
+        observador.observe(telaAuth, {
+            attributes: true,
+            attributeFilter: ['style', 'class', 'hidden']
+        });
+    }
+
+    /*
+     * Inicialização e atualização periódica.
+     */
+    sincronizarSessao();
+
+    intervalo = window.setInterval(() => {
+        if (sincronizarSessao()) {
+            carregarNotificacoes();
+        }
+    }, INTERVALO_ATUALIZACAO);
+
+    /*
+     * Não deixa o intervalo continuar após a página ser encerrada.
+     */
+    window.addEventListener('pagehide', () => {
+        if (intervalo !== null) {
+            window.clearInterval(intervalo);
+            intervalo = null;
+        }
+    });
+})();
 })();
