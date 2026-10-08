@@ -29,7 +29,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // ============================================================
 
 const TEMPO_RECUPERACAO_MINUTOS = 30;
-
 const TEMPO_JWT_DIAS = 7;
 
 const COOKIE_TOKEN = 'token';
@@ -109,7 +108,7 @@ function limparCookieToken(res) {
 
 if (!JWT_SECRET) {
   console.error(
-    'ERRO: JWT_SECRET não foi configurado.'
+    'ERRO: JWT_SECRET não foi configurado no ambiente.'
   );
 }
 
@@ -188,14 +187,52 @@ function obterUrlAplicacao() {
 }
 
 // ============================================================
+// GERAR JWT
+// ============================================================
+
+function gerarTokenJwt(usuario) {
+  if (!JWT_SECRET) {
+    throw new Error(
+      'JWT_SECRET não configurado.'
+    );
+  }
+
+  return jwt.sign(
+    {
+      id: usuario.id,
+
+      empresa_id:
+        usuario.empresa_id ?? null,
+
+      nome:
+        usuario.nome,
+
+      email:
+        usuario.email,
+
+      perfil:
+        usuario.perfil
+    },
+
+    JWT_SECRET,
+
+    {
+      expiresIn:
+        `${TEMPO_JWT_DIAS}d`
+    }
+  );
+}
+
+// ============================================================
 // POST /api/auth/cadastro
-// Cria uma nova empresa + primeiro usuário administrador
+// ============================================================
+// Cria uma nova empresa e o primeiro administrador.
 // ============================================================
 
 router.post(
   '/cadastro',
-  authRateLimit,
   async (req, res) => {
+
     const {
       empresa,
       email_empresa,
@@ -305,10 +342,13 @@ router.post(
       await pool.connect();
 
     try {
-      await client.query('BEGIN');
+
+      await client.query(
+        'BEGIN'
+      );
 
       // ======================================================
-      // VERIFICA EMPRESA
+      // VERIFICAR EMPRESA
       // ======================================================
 
       const empresaExistente =
@@ -327,7 +367,9 @@ router.post(
       if (
         empresaExistente.rows.length > 0
       ) {
-        await client.query('ROLLBACK');
+        await client.query(
+          'ROLLBACK'
+        );
 
         return res.status(409).json({
           erro:
@@ -336,7 +378,7 @@ router.post(
       }
 
       // ======================================================
-      // VERIFICA USUÁRIO
+      // VERIFICAR USUÁRIO
       // ======================================================
 
       const usuarioExistente =
@@ -355,7 +397,9 @@ router.post(
       if (
         usuarioExistente.rows.length > 0
       ) {
-        await client.query('ROLLBACK');
+        await client.query(
+          'ROLLBACK'
+        );
 
         return res.status(409).json({
           erro:
@@ -364,26 +408,24 @@ router.post(
       }
 
       // ======================================================
-      // CRIA EMPRESA
+      // CRIAR EMPRESA
       // ======================================================
 
       const empresaResult =
         await client.query(
           `
-          INSERT INTO empresas
-            (
-              nome,
-              email,
-              telefone,
-              conta_teste
-            )
-          VALUES
-            (
-              $1,
-              $2,
-              $3,
-              FALSE
-            )
+          INSERT INTO empresas (
+            nome,
+            email,
+            telefone,
+            conta_teste
+          )
+          VALUES (
+            $1,
+            $2,
+            $3,
+            FALSE
+          )
           RETURNING
             id,
             nome,
@@ -393,7 +435,9 @@ router.post(
           `,
           [
             nomeEmpresa,
+
             emailEmpresaNormalizado,
+
             telefone
               ? String(telefone).trim()
               : null
@@ -404,7 +448,7 @@ router.post(
         empresaResult.rows[0];
 
       // ======================================================
-      // CRIA SENHA CRIPTOGRAFADA
+      // CRIAR SENHA CRIPTOGRAFADA
       // ======================================================
 
       const senhaHash =
@@ -414,28 +458,26 @@ router.post(
         );
 
       // ======================================================
-      // CRIA ADMINISTRADOR
+      // CRIAR ADMINISTRADOR
       // ======================================================
 
       const usuarioResult =
         await client.query(
           `
-          INSERT INTO usuarios
-            (
-              empresa_id,
-              nome,
-              email,
-              senha,
-              perfil
-            )
-          VALUES
-            (
-              $1,
-              $2,
-              $3,
-              $4,
-              'administrador'
-            )
+          INSERT INTO usuarios (
+            empresa_id,
+            nome,
+            email,
+            senha,
+            perfil
+          )
+          VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            'administrador'
+          )
           RETURNING
             id,
             empresa_id,
@@ -446,8 +488,11 @@ router.post(
           `,
           [
             novaEmpresa.id,
+
             nomeUsuario,
+
             emailUsuarioNormalizado,
+
             senhaHash
           ]
         );
@@ -455,7 +500,13 @@ router.post(
       const usuario =
         usuarioResult.rows[0];
 
-      await client.query('COMMIT');
+      // ======================================================
+      // COMMIT
+      // ======================================================
+
+      await client.query(
+        'COMMIT'
+      );
 
       // ======================================================
       // PERMISSÕES
@@ -465,47 +516,16 @@ router.post(
         PERMISSOES_ADMINISTRADOR;
 
       // ======================================================
-      // VALIDAR JWT
-      // ======================================================
-
-      if (!JWT_SECRET) {
-        return res.status(500).json({
-          erro:
-            'O servidor não está configurado corretamente.'
-        });
-      }
-
-      // ======================================================
       // GERAR JWT
       // ======================================================
 
       const token =
-        jwt.sign(
-          {
-            id:
-              usuario.id,
-
-            empresa_id:
-              usuario.empresa_id,
-
-            nome:
-              usuario.nome,
-
-            email:
-              usuario.email,
-
-            perfil:
-              usuario.perfil
-          },
-          JWT_SECRET,
-          {
-            expiresIn:
-              `${TEMPO_JWT_DIAS}d`
-          }
+        gerarTokenJwt(
+          usuario
         );
 
       // ======================================================
-      // SALVAR JWT NO COOKIE
+      // SALVAR JWT NO COOKIE HTTPONLY
       // ======================================================
 
       definirCookieToken(
@@ -516,12 +536,25 @@ router.post(
       // ======================================================
       // RESPOSTA
       // ======================================================
+      //
+      // O token continua sendo enviado na resposta por
+      // compatibilidade com o frontend atual.
+      //
+      // O cookie HttpOnly também é criado.
+      //
+      // Depois que o frontend estiver usando somente cookie,
+      // podemos remover o campo token do JSON.
+      //
 
       return res.status(201).json({
+
         mensagem:
           'Empresa cadastrada com sucesso.',
 
+        token,
+
         usuario: {
+
           id:
             usuario.id,
 
@@ -541,6 +574,7 @@ router.post(
         },
 
         empresa: {
+
           id:
             novaEmpresa.id,
 
@@ -559,6 +593,7 @@ router.post(
       });
 
     } catch (err) {
+
       try {
         await client.query(
           'ROLLBACK'
@@ -576,7 +611,9 @@ router.post(
       });
 
     } finally {
+
       client.release();
+
     }
   }
 );
@@ -587,8 +624,8 @@ router.post(
 
 router.post(
   '/login',
-  authRateLimit,
   async (req, res) => {
+
     const {
       email,
       senha
@@ -612,6 +649,7 @@ router.post(
       normalizarEmail(email);
 
     try {
+
       // ======================================================
       // BUSCAR USUÁRIO
       // ======================================================
@@ -649,6 +687,7 @@ router.post(
       if (
         rows.length === 0
       ) {
+
         const tentativas =
           req.rateLimit?.used || 1;
 
@@ -656,6 +695,7 @@ router.post(
           req.rateLimit?.limit || 10;
 
         return res.status(401).json({
+
           erro:
             `E-mail ou senha incorretos. Tentativa ${tentativas} de ${limite}.`,
 
@@ -663,6 +703,7 @@ router.post(
             'CREDENCIAIS_INVALIDAS',
 
           tentativas,
+
           limite
         });
       }
@@ -700,6 +741,7 @@ router.post(
       if (
         !senhaValida
       ) {
+
         const tentativas =
           req.rateLimit?.used || 1;
 
@@ -707,6 +749,7 @@ router.post(
           req.rateLimit?.limit || 10;
 
         return res.status(401).json({
+
           erro:
             `E-mail ou senha incorretos. Tentativa ${tentativas} de ${limite}.`,
 
@@ -714,6 +757,7 @@ router.post(
             'CREDENCIAIS_INVALIDAS',
 
           tentativas,
+
           limite
         });
       }
@@ -728,47 +772,16 @@ router.post(
         );
 
       // ======================================================
-      // VALIDAR JWT
-      // ======================================================
-
-      if (!JWT_SECRET) {
-        return res.status(500).json({
-          erro:
-            'O servidor não está configurado corretamente.'
-        });
-      }
-
-      // ======================================================
       // GERAR JWT
       // ======================================================
 
       const token =
-        jwt.sign(
-          {
-            id:
-              usuario.id,
-
-            empresa_id:
-              usuario.empresa_id,
-
-            nome:
-              usuario.nome,
-
-            email:
-              usuario.email,
-
-            perfil:
-              usuario.perfil
-          },
-          JWT_SECRET,
-          {
-            expiresIn:
-              `${TEMPO_JWT_DIAS}d`
-          }
+        gerarTokenJwt(
+          usuario
         );
 
       // ======================================================
-      // SALVAR JWT NO COOKIE
+      // SALVAR JWT NO COOKIE HTTPONLY
       // ======================================================
 
       definirCookieToken(
@@ -779,12 +792,20 @@ router.post(
       // ======================================================
       // RESPOSTA
       // ======================================================
+      //
+      // Mantemos token no JSON para não quebrar o frontend
+      // existente.
+      //
 
       return res.json({
+
         mensagem:
           'Login realizado com sucesso.',
 
+        token,
+
         usuario: {
+
           id:
             usuario.id,
 
@@ -805,8 +826,11 @@ router.post(
 
         empresa:
           usuario.perfil === 'dev'
+
             ? null
+
             : {
+
                 id:
                   usuario.empresa_id,
 
@@ -825,6 +849,7 @@ router.post(
       });
 
     } catch (err) {
+
       console.error(
         'Erro no login:',
         err
@@ -845,7 +870,10 @@ router.post(
 router.post(
   '/logout',
   (req, res) => {
-    limparCookieToken(res);
+
+    limparCookieToken(
+      res
+    );
 
     return res.json({
       mensagem:
@@ -862,7 +890,9 @@ router.post(
   '/esqueci-senha',
   passwordResetRateLimit,
   async (req, res) => {
+
     const respostaPadrao = {
+
       mensagem:
         'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.'
     };
@@ -879,8 +909,9 @@ router.post(
     }
 
     try {
+
       // ======================================================
-      // PROCURA USUÁRIO
+      // PROCURAR USUÁRIO
       // ======================================================
 
       const resultado =
@@ -924,7 +955,7 @@ router.post(
       }
 
       // ======================================================
-      // GERA TOKEN
+      // GERAR TOKEN
       // ======================================================
 
       const token =
@@ -936,7 +967,7 @@ router.post(
         );
 
       // ======================================================
-      // REMOVE TOKENS ANTERIORES
+      // REMOVER TOKENS ANTERIORES
       // ======================================================
 
       await pool.query(
@@ -963,23 +994,21 @@ router.post(
         );
 
       // ======================================================
-      // SALVA TOKEN
+      // SALVAR TOKEN
       // ======================================================
 
       await pool.query(
         `
-        INSERT INTO recuperacao_senha
-          (
-            usuario_id,
-            token_hash,
-            expira_em
-          )
-        VALUES
-          (
-            $1,
-            $2,
-            $3
-          )
+        INSERT INTO recuperacao_senha (
+          usuario_id,
+          token_hash,
+          expira_em
+        )
+        VALUES (
+          $1,
+          $2,
+          $3
+        )
         `,
         [
           usuario.id,
@@ -999,10 +1028,11 @@ router.post(
         `${appUrl}/recuperar-senha.html?token=${encodeURIComponent(token)}`;
 
       // ======================================================
-      // ENVIA E-MAIL
+      // ENVIAR E-MAIL
       // ======================================================
 
       await enviarEmailRecuperacaoSenha({
+
         para:
           usuario.email,
 
@@ -1025,6 +1055,7 @@ router.post(
       );
 
     } catch (err) {
+
       console.error(
         'Erro ao solicitar recuperação de senha:',
         err.message
@@ -1044,6 +1075,7 @@ router.post(
 router.post(
   '/redefinir-senha',
   async (req, res) => {
+
     const {
       token,
       senha
@@ -1103,12 +1135,13 @@ router.post(
       await pool.connect();
 
     try {
+
       await client.query(
         'BEGIN'
       );
 
       // ======================================================
-      // BUSCA TOKEN
+      // BUSCAR TOKEN
       // ======================================================
 
       const resultado =
@@ -1142,6 +1175,7 @@ router.post(
       if (
         resultado.rows.length === 0
       ) {
+
         await client.query(
           'ROLLBACK'
         );
@@ -1162,6 +1196,7 @@ router.post(
       if (
         !recuperacao.ativo
       ) {
+
         await client.query(
           'ROLLBACK'
         );
@@ -1183,7 +1218,7 @@ router.post(
         );
 
       // ======================================================
-      // ATUALIZA SENHA
+      // ATUALIZAR SENHA
       // ======================================================
 
       await client.query(
@@ -1199,7 +1234,7 @@ router.post(
       );
 
       // ======================================================
-      // INVALIDA TODOS OS TOKENS
+      // INVALIDAR TODOS OS TOKENS
       // ======================================================
 
       await client.query(
@@ -1213,6 +1248,10 @@ router.post(
           recuperacao.usuario_id
         ]
       );
+
+      // ======================================================
+      // COMMIT
+      // ======================================================
 
       await client.query(
         'COMMIT'
@@ -1232,6 +1271,7 @@ router.post(
       });
 
     } catch (err) {
+
       try {
         await client.query(
           'ROLLBACK'
@@ -1249,7 +1289,9 @@ router.post(
       });
 
     } finally {
+
       client.release();
+
     }
   }
 );
@@ -1262,7 +1304,9 @@ router.get(
   '/me',
   autenticar,
   async (req, res) => {
+
     try {
+
       const { rows } =
         await pool.query(
           `
@@ -1319,7 +1363,7 @@ router.get(
         rows[0];
 
       // ======================================================
-      // USUÁRIO ATIVO
+      // USUÁRIO DESATIVADO
       // ======================================================
 
       if (
@@ -1345,7 +1389,9 @@ router.get(
       // ======================================================
 
       return res.json({
+
         usuario: {
+
           id:
             usuario.id,
 
@@ -1366,8 +1412,11 @@ router.get(
 
         empresa:
           usuario.perfil === 'dev'
+
             ? null
+
             : {
+
                 id:
                   usuario.empresa_id,
 
@@ -1386,6 +1435,7 @@ router.get(
       });
 
     } catch (err) {
+
       console.error(
         'Erro ao buscar usuário:',
         err
