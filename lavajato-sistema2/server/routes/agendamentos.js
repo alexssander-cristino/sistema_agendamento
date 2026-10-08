@@ -1,17 +1,15 @@
+
 const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
 const exigirPermissao = require('../middleware/permissao');
-
 const verificarAssinatura = require('../middleware/assinatura');
+const { criarNotificacao } = require('../services/notificacoes');
 
 const router = express.Router();
 
 router.use(autenticar);
 router.use(verificarAssinatura);
-
-// Todas as rotas de agendamentos exigem autenticação
-router.use(autenticar);
 
 const SELECT_BASE = `
   SELECT a.*, s.nome AS servico_nome
@@ -20,7 +18,6 @@ const SELECT_BASE = `
     ON s.id = a.servico_id
    AND s.empresa_id = a.empresa_id
 `;
-
 
 // ============================================================
 // GET /api/agendamentos
@@ -31,7 +28,6 @@ router.get('/', async (req, res) => {
   const empresaId = req.usuario.empresa_id;
 
   try {
-
     if (busca) {
       const termo = `%${busca}%`;
 
@@ -81,24 +77,22 @@ router.get('/', async (req, res) => {
       [empresaId]
     );
 
-    res.json(rows);
-
+    return res.json(rows);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao carregar agendamentos:', err);
 
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível carregar os agendamentos.'
     });
   }
 });
 
-
 // ============================================================
 // POST /api/agendamentos
+// Cria um agendamento e gera uma notificação.
 // ============================================================
 
 router.post('/', async (req, res) => {
-
   const empresaId = req.usuario.empresa_id;
 
   const {
@@ -120,8 +114,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-
-    // Garante que o serviço pertence à empresa logada
+    // Confirma que o serviço pertence à empresa autenticada.
     const servico = await pool.query(
       `SELECT id
        FROM servicos
@@ -138,22 +131,20 @@ router.post('/', async (req, res) => {
     }
 
     const { rows } = await pool.query(
-      `INSERT INTO agendamentos
-        (
-          empresa_id,
-          cliente,
-          telefone,
-          veiculo,
-          placa,
-          servico_id,
-          data,
-          hora,
-          valor,
-          observacoes
-        )
-       VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-       RETURNING *`,
+      `INSERT INTO agendamentos (
+        empresa_id,
+        cliente,
+        telefone,
+        veiculo,
+        placa,
+        servico_id,
+        data,
+        hora,
+        valor,
+        observacoes
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING *`,
       [
         empresaId,
         cliente,
@@ -168,30 +159,40 @@ router.post('/', async (req, res) => {
       ]
     );
 
-    res.status(201).json(rows[0]);
+    const agendamento = rows[0];
 
+    // Cria a notificação sem comprometer a resposta principal.
+    await criarNotificacao({
+      empresaId,
+      tipo: 'agendamento',
+      titulo: 'Novo agendamento',
+      mensagem:
+        `Novo agendamento de ${agendamento.cliente}, ` +
+        `para ${agendamento.data} às ${agendamento.hora}.`,
+      link: '/'
+    });
+
+    return res.status(201).json(agendamento);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao criar agendamento:', err);
 
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível criar o agendamento.'
     });
   }
 });
 
-
 // ============================================================
 // PATCH /api/agendamentos/:id
+// Atualiza um agendamento.
 // ============================================================
 
 router.patch('/:id', async (req, res) => {
-
   const { id } = req.params;
   const empresaId = req.usuario.empresa_id;
 
   try {
-
-    // Verifica se o agendamento pertence à empresa
+    // Confirma que o agendamento pertence à empresa.
     const existente = await pool.query(
       `SELECT *
        FROM agendamentos
@@ -206,26 +207,24 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    // Verifica alteração de forma de pagamento
+    // Impede trocar a forma de pagamento enquanto estiver pago.
     if (
       req.body.forma_pagamento !== undefined &&
       req.body.status_pagamento === undefined
     ) {
-
       const atual = existente.rows[0];
 
       if (atual.status_pagamento === 'pago') {
         return res.status(400).json({
-          erro: 'Pagamento já confirmado — desfaça a confirmação antes de trocar a forma de pagamento.'
+          erro:
+            'Pagamento já confirmado — desfaça a confirmação ' +
+            'antes de trocar a forma de pagamento.'
         });
       }
     }
 
-
-    // Se estiver alterando o serviço,
-    // garante que pertence à mesma empresa
+    // Se alterar o serviço, confirma que ele pertence à empresa.
     if (req.body.servico_id !== undefined) {
-
       const servico = await pool.query(
         `SELECT id
          FROM servicos
@@ -241,7 +240,6 @@ router.patch('/:id', async (req, res) => {
         });
       }
     }
-
 
     const campos = [
       'cliente',
@@ -264,13 +262,9 @@ router.patch('/:id', async (req, res) => {
     let i = 1;
 
     for (const campo of campos) {
-
       if (req.body[campo] !== undefined) {
-
         sets.push(`${campo} = $${i}`);
-
         valores.push(req.body[campo]);
-
         i++;
       }
     }
@@ -299,30 +293,26 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    res.json(rows[0]);
-
+    return res.json(rows[0]);
   } catch (err) {
+    console.error('Erro ao atualizar agendamento:', err);
 
-    console.error(err);
-
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível atualizar o agendamento.'
     });
   }
 });
 
-
 // ============================================================
 // DELETE /api/agendamentos/:id
+// Exclui um agendamento.
 // ============================================================
 
 router.delete('/:id', async (req, res) => {
-
   const { id } = req.params;
   const empresaId = req.usuario.empresa_id;
 
   try {
-
     const resultado = await pool.query(
       `DELETE FROM agendamentos
        WHERE id = $1
@@ -336,17 +326,14 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    res.status(204).end();
-
+    return res.status(204).end();
   } catch (err) {
+    console.error('Erro ao excluir agendamento:', err);
 
-    console.error(err);
-
-    res.status(500).json({
+    return res.status(500).json({
       erro: 'Não foi possível remover o agendamento.'
     });
   }
 });
-
 
 module.exports = router;

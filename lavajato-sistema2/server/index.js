@@ -74,6 +74,10 @@ const logsRouter = require('./routes/logs');
 
 const relatoriosRouter = require('./routes/relatorios');
 
+const dashboardRouter = require('./routes/dashboard');
+
+const notificacoesRouter =
+  require('./routes/notificacoes');
 
 // ============================================================
 // APP
@@ -308,9 +312,16 @@ app.use(
 
 app.use('/api/relatorios', relatoriosRouter);
 
+app.use('/api/dashboard', dashboardRouter);
+
 app.use(
   '/api/planos',
   planosRouter
+);
+
+app.use(
+  '/api/notificacoes',
+  notificacoesRouter
 );
 
 
