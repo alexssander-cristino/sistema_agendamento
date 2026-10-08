@@ -6288,27 +6288,29 @@
   }
 
 
-  async function carregarLogs() {
+async function carregarLogs() {
   console.log('>>> CARREGAR LOGS FOI CHAMADO');
 
-  const tbody = $('logs-tbody');
+  const lista = $('logs-list');
 
-  if (!tbody) {
-    console.error('>>> ERRO: #logs-tbody não encontrado');
+  if (!lista) {
+    console.error('>>> ERRO: #logs-list não encontrado');
     return;
   }
 
-  console.log('>>> tbody encontrado');
+  console.log('>>> logs-list encontrado');
+
+  if (logsCarregando) {
+    return;
+  }
 
   try {
     logsCarregando = true;
 
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty-state">
-          Carregando logs...
-        </td>
-      </tr>
+    lista.innerHTML = `
+      <div class="empty">
+        <strong>Carregando logs...</strong>
+      </div>
     `;
 
     const params = new URLSearchParams();
@@ -6327,8 +6329,10 @@
       params.set('acao', acao);
     }
 
-    console.log('>>> PARAMS:', params.toString());
-    console.log('>>> CHAMANDO API:', `/logs?${params.toString()}`);
+    console.log(
+      '>>> CHAMANDO API:',
+      `/logs?${params.toString()}`
+    );
 
     const resposta = await api(
       `/logs?${params.toString()}`
@@ -6343,41 +6347,98 @@
     console.log('>>> LOGS RECEBIDOS:', logs);
 
     if (!logs.length) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" class="empty-state">
-            Nenhum registro de auditoria encontrado.
-          </td>
-        </tr>
+      lista.innerHTML = `
+        <div class="empty">
+          <strong>Nenhum registro encontrado</strong>
+          Não existem registros de auditoria para os filtros selecionados.
+        </div>
       `;
 
+      atualizarPaginacaoLogs(resposta);
       return;
     }
 
-    tbody.innerHTML = logs.map(log => `
-      <tr>
-        <td>${escaparHtmlLogs(formatarDataLog(log.criado_em))}</td>
-        <td>${escaparHtmlLogs(obterNomeUsuarioLog(log))}</td>
-        <td>${escaparHtmlLogs(formatarAcaoLog(log.acao))}</td>
-        <td>${escaparHtmlLogs(formatarEntidadeLog(log.entidade))}</td>
-        <td>${escaparHtmlLogs(log.entidade_id ?? '-')}</td>
-        <td>${escaparHtmlLogs(formatarDetalhesLog(log.detalhes))}</td>
-      </tr>
-    `).join('');
+    lista.innerHTML = logs.map(log => {
+
+      const usuario = escaparHtmlLogs(
+        obterNomeUsuarioLog(log)
+      );
+
+      const acaoFormatada = escaparHtmlLogs(
+        formatarAcaoLog(log.acao)
+      );
+
+      const entidade = escaparHtmlLogs(
+        formatarEntidadeLog(log.entidade)
+      );
+
+      const data = escaparHtmlLogs(
+        formatarDataLog(log.criado_em)
+      );
+
+      const detalhes = escaparHtmlLogs(
+        formatarDetalhesLog(log.detalhes)
+      );
+
+      const entidadeId = log.entidade_id != null
+        ? escaparHtmlLogs(log.entidade_id)
+        : '-';
+
+      return `
+        <div class="ticket-item log-item">
+
+          <div class="ticket-main">
+
+            <div class="ticket-title">
+              ${acaoFormatada}
+            </div>
+
+            <div class="ticket-meta">
+              ${usuario}
+              · ${entidade}
+              · ID ${entidadeId}
+            </div>
+
+            ${
+              detalhes
+                ? `
+                  <div class="ticket-meta">
+                    ${detalhes}
+                  </div>
+                `
+                : ''
+            }
+
+          </div>
+
+          <div class="ticket-side">
+            ${data}
+          </div>
+
+        </div>
+      `;
+    }).join('');
+
+    atualizarPaginacaoLogs(resposta);
 
   } catch (erro) {
-    console.error('>>> ERRO AO CARREGAR LOGS:', erro);
 
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty-state">
-          Não foi possível carregar os logs.
-        </td>
-      </tr>
+    console.error(
+      '>>> ERRO AO CARREGAR LOGS:',
+      erro
+    );
+
+    lista.innerHTML = `
+      <div class="empty">
+        <strong>Não foi possível carregar os logs</strong>
+        Verifique sua conexão e tente novamente.
+      </div>
     `;
 
   } finally {
+
     logsCarregando = false;
+
   }
 }
 
