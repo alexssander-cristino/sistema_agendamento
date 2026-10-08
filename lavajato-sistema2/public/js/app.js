@@ -3685,43 +3685,29 @@
   }
 
 
-  // ============================================================
-  // ATUALIZA EMPRESA LOCAL
-  // ============================================================
+function atualizarEmpresaLocal(resultado){
 
-  function atualizarEmpresaLocal(resultado) {
+  const empresa =
+    resultado?.empresa ||
+    resultado;
 
-    if (
-      resultado &&
-      resultado.empresa &&
-      typeof empresaLogada === 'object'
-    ) {
-
-      empresaLogada = {
-        ...empresaLogada,
-        ...resultado.empresa
-      };
-
-      atualizarSidebarUsuario();
-
-      return;
-    }
-
-
-    if (
-      resultado &&
-      resultado.configuracoes &&
-      typeof empresaLogada === 'object'
-    ) {
-
-      empresaLogada = {
-        ...empresaLogada,
-        ...resultado.configuracoes
-      };
-
-      atualizarSidebarUsuario();
-    }
+  if(!empresa){
+    return;
   }
+
+  empresaLogada = {
+    ...(empresaLogada || {}),
+    ...empresa
+  };
+
+  // Mantém o nicho atual sincronizado imediatamente
+  if(empresa.nicho){
+    window.nichoAtual = empresa.nicho;
+  }
+
+  // Atualiza sidebar, textos, modal e campos extras
+  atualizarSidebarUsuario();
+}
 
 
   // ============================================================
@@ -4930,9 +4916,5 @@ if (btnSalvarAgenda) {
 
     salvarPreferenciasRegionais
   };
-
-
-
-
 
 })();
