@@ -1396,59 +1396,74 @@ router.put(
         });
       }
 
-      // ========================================================
-      // AUDITORIA
-      // ========================================================
+// ========================================================
+// AUDITORIA
+// ========================================================
 
-      try {
-        await client.query(
-          `
-            INSERT INTO logs_auditoria (
-              empresa_id,
-              usuario_id,
-              acao,
-              entidade,
-              entidade_id,
-              detalhes,
-              criado_em
-            )
-            VALUES (
-              $1,
-              $2,
-              $3,
-              $4,
-              $5,
-              $6,
-              CURRENT_TIMESTAMP
-            )
-          `,
-          [
-            req.usuario.empresa_id,
-            req.usuario.id,
-            'atualizacao',
-            'empresa',
-            req.usuario.empresa_id,
-            JSON.stringify({
-              origem:
-                'configuracoes',
-              campos:
-                Object.keys(body)
-            })
-          ]
-        );
+try {
+  await client.query(
+    'SAVEPOINT configuracoes_auditoria'
+  );
 
-      } catch (auditError) {
-        if (
-          auditError.code !==
-          '42P01'
-        ) {
-          throw auditError;
-        }
+  await client.query(
+    `
+      INSERT INTO logs_auditoria (
+        empresa_id,
+        usuario_id,
+        acao,
+        entidade,
+        entidade_id,
+        detalhes,
+        criado_em
+      )
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        CURRENT_TIMESTAMP
+      )
+    `,
+    [
+      req.usuario.empresa_id,
+      req.usuario.id,
+      'atualizacao',
+      'empresa',
+      req.usuario.empresa_id,
+      JSON.stringify({
+        origem: 'configuracoes',
+        campos: Object.keys(body)
+      })
+    ]
+  );
 
-        console.warn(
-          'Tabela logs_auditoria ainda não configurada.'
-        );
-      }
+  await client.query(
+    'RELEASE SAVEPOINT configuracoes_auditoria'
+  );
+
+} catch (auditError) {
+
+  try {
+    await client.query(
+      'ROLLBACK TO SAVEPOINT configuracoes_auditoria'
+    );
+  } catch (rollbackAuditError) {
+    console.error(
+      'Erro ao reverter auditoria:',
+      rollbackAuditError
+    );
+  }
+
+  if (auditError.code === '42P01') {
+    console.warn(
+      'Tabela logs_auditoria ainda não configurada. Auditoria ignorada.'
+    );
+  } else {
+    throw auditError;
+  }
+}
 
       // ========================================================
       // COMMIT
@@ -1457,6 +1472,8 @@ router.put(
       await client.query(
         'COMMIT'
       );
+
+      
 
       // ========================================================
       // RESPOSTA
