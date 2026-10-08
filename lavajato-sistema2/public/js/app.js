@@ -4579,104 +4579,341 @@
   }
 
 
-  // ============================================================
-  // AGENDA
-  // ============================================================
+// ============================================================
+// AGENDA
+// ============================================================
 
-  if (btnSalvarAgenda) {
+if (btnSalvarAgenda) {
 
-    btnSalvarAgenda.addEventListener(
-      'click',
-      async () => {
+  btnSalvarAgenda.addEventListener(
+    'click',
+    async () => {
 
-        try {
+      try {
 
-          alterarEstadoBotao(
-            btnSalvarAgenda,
-            true,
-            'Salvar agenda'
+        alterarEstadoBotao(
+          btnSalvarAgenda,
+          true,
+          'Salvando...'
+        );
+
+        // --------------------------------------------------------
+        // HORÁRIO INICIAL
+        // --------------------------------------------------------
+
+        const campoInicio =
+          document.getElementById(
+            'config-agenda-inicio'
+          );
+
+        const campoFim =
+          document.getElementById(
+            'config-agenda-fim'
+          );
+
+        const campoIntervalo =
+          document.getElementById(
+            'config-agenda-intervalo'
           );
 
 
-          const inicio =
-            obterValor(
-              'config-agenda-inicio'
+        if (!campoInicio) {
+          throw new Error(
+            'Campo de horário inicial da agenda não encontrado.'
+          );
+        }
+
+        if (!campoFim) {
+          throw new Error(
+            'Campo de horário final da agenda não encontrado.'
+          );
+        }
+
+        if (!campoIntervalo) {
+          throw new Error(
+            'Campo de intervalo da agenda não encontrado.'
+          );
+        }
+
+
+        // --------------------------------------------------------
+        // NORMALIZA HORÁRIO
+        // --------------------------------------------------------
+        //
+        // Aceita:
+        // 09:00
+        // 09:00:00
+        //
+        // E sempre envia:
+        // 09:00
+        //
+        // --------------------------------------------------------
+
+        function normalizarHorario(valor) {
+
+          if (
+            valor === null ||
+            valor === undefined
+          ) {
+            return null;
+          }
+
+          let horario =
+            String(valor).trim();
+
+
+          if (!horario) {
+            return null;
+          }
+
+
+          // Caso venha como HH:MM:SS
+          const match =
+            horario.match(
+              /^(\d{2}):(\d{2})(?::\d{2})?$/
             );
 
-          const fim =
-            obterValor(
-              'config-agenda-fim'
+
+          if (!match) {
+
+            throw new Error(
+              `Horário inválido: "${horario}". Use o formato HH:MM.`
             );
+          }
 
-          const intervalo =
-            obterNumero(
-              'config-agenda-intervalo'
+
+          const horas =
+            Number(match[1]);
+
+          const minutos =
+            Number(match[2]);
+
+
+          if (
+            horas < 0 ||
+            horas > 23 ||
+            minutos < 0 ||
+            minutos > 59
+          ) {
+
+            throw new Error(
+              `Horário inválido: "${horario}".`
             );
+          }
 
 
-          const dados = {
-
-            agenda_horario_inicio:
-              inicio,
-
-            agenda_horario_fim:
-              fim,
-
-            agenda_intervalo:
-              intervalo
-          };
+          return (
+            String(horas).padStart(2, '0') +
+            ':' +
+            String(minutos).padStart(2, '0')
+          );
+        }
 
 
-          console.log(
-            '[Orvix] Agenda:',
+        const inicio =
+          normalizarHorario(
+            campoInicio.value
+          );
+
+
+        const fim =
+          normalizarHorario(
+            campoFim.value
+          );
+
+
+        // --------------------------------------------------------
+        // INTERVALO
+        // --------------------------------------------------------
+
+        let intervaloTexto =
+          String(
+            campoIntervalo.value ?? ''
+          ).trim();
+
+
+        /*
+         * Permite tanto:
+         *
+         * 15
+         * 30
+         * 45
+         * 60
+         *
+         * quanto valores como:
+         *
+         * "15 minutos"
+         */
+
+        const intervaloMatch =
+          intervaloTexto.match(/\d+/);
+
+
+        if (!intervaloMatch) {
+
+          throw new Error(
+            'Intervalo da agenda inválido.'
+          );
+        }
+
+
+        const intervalo =
+          Number(
+            intervaloMatch[0]
+          );
+
+
+        const intervalosValidos = [
+          15,
+          30,
+          45,
+          60,
+          90,
+          120
+        ];
+
+
+        if (
+          !intervalosValidos.includes(
+            intervalo
+          )
+        ) {
+
+          throw new Error(
+            'Intervalo inválido. Escolha 15, 30, 45, 60, 90 ou 120 minutos.'
+          );
+        }
+
+
+        // --------------------------------------------------------
+        // VALIDAÇÃO DOS HORÁRIOS
+        // --------------------------------------------------------
+
+        if (!inicio) {
+
+          throw new Error(
+            'Informe o horário inicial da agenda.'
+          );
+        }
+
+
+        if (!fim) {
+
+          throw new Error(
+            'Informe o horário final da agenda.'
+          );
+        }
+
+
+        // --------------------------------------------------------
+        // VALIDAÇÃO DA ORDEM DOS HORÁRIOS
+        // --------------------------------------------------------
+
+        const inicioMinutos =
+          (
+            Number(inicio.substring(0, 2)) * 60
+          ) +
+          Number(inicio.substring(3, 5));
+
+
+        const fimMinutos =
+          (
+            Number(fim.substring(0, 2)) * 60
+          ) +
+          Number(fim.substring(3, 5));
+
+
+        if (
+          fimMinutos <= inicioMinutos
+        ) {
+
+          throw new Error(
+            'O horário final deve ser maior que o horário inicial.'
+          );
+        }
+
+
+        // --------------------------------------------------------
+        // PAYLOAD
+        // --------------------------------------------------------
+
+        const dados = {
+
+          agenda_horario_inicio:
+            inicio,
+
+          agenda_horario_fim:
+            fim,
+
+          agenda_intervalo:
+            intervalo
+        };
+
+
+        console.log(
+          '[Orvix] Agenda:',
+          dados
+        );
+
+
+        // --------------------------------------------------------
+        // SALVA
+        // --------------------------------------------------------
+
+        const resultado =
+          await salvarConfiguracoes(
             dados
           );
 
 
-          const resultado =
-            await salvarConfiguracoes(
-              dados
-            );
+        // --------------------------------------------------------
+        // ATUALIZA ESTADO LOCAL
+        // --------------------------------------------------------
+
+        atualizarEmpresaLocal(
+          resultado
+        );
 
 
-          atualizarEmpresaLocal(
-            resultado
-          );
+        // --------------------------------------------------------
+        // MENSAGEM
+        // --------------------------------------------------------
+
+        mostrarMensagem(
+          'configuracoes-message',
+          'Configurações da agenda salvas com sucesso.',
+          true
+        );
 
 
-          mostrarMensagem(
-            'configuracoes-message',
-            'Configurações da agenda salvas com sucesso.',
-            true
-          );
+      } catch (erro) {
+
+        console.error(
+          '[Orvix] Erro ao salvar agenda:',
+          erro
+        );
 
 
-        } catch (erro) {
-
-          console.error(
-            'Erro ao salvar agenda:',
-            erro
-          );
-
-
-          mostrarMensagem(
-            'configuracoes-message',
-            erro.message ||
-            'Não foi possível salvar a agenda.'
-          );
+        mostrarMensagem(
+          'configuracoes-message',
+          erro.message ||
+          'Não foi possível salvar a agenda.'
+        );
 
 
-        } finally {
+      } finally {
 
-          alterarEstadoBotao(
-            btnSalvarAgenda,
-            false,
-            'Salvar agenda'
-          );
-        }
+        alterarEstadoBotao(
+          btnSalvarAgenda,
+          false,
+          'Salvar agenda'
+        );
+
       }
-    );
-  }
+
+    }
+  );
+}
 
 
   // ============================================================
