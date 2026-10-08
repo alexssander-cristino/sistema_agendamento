@@ -3685,29 +3685,43 @@
   }
 
 
-function atualizarEmpresaLocal(resultado){
+  // ============================================================
+  // ATUALIZA EMPRESA LOCAL
+  // ============================================================
 
-  const empresa =
-    resultado?.empresa ||
-    resultado;
+  function atualizarEmpresaLocal(resultado) {
 
-  if(!empresa){
-    return;
+    if (
+      resultado &&
+      resultado.empresa &&
+      typeof empresaLogada === 'object'
+    ) {
+
+      empresaLogada = {
+        ...empresaLogada,
+        ...resultado.empresa
+      };
+
+      atualizarSidebarUsuario();
+
+      return;
+    }
+
+
+    if (
+      resultado &&
+      resultado.configuracoes &&
+      typeof empresaLogada === 'object'
+    ) {
+
+      empresaLogada = {
+        ...empresaLogada,
+        ...resultado.configuracoes
+      };
+
+      atualizarSidebarUsuario();
+    }
   }
-
-  empresaLogada = {
-    ...(empresaLogada || {}),
-    ...empresa
-  };
-
-  // Mantém o nicho atual sincronizado imediatamente
-  if(empresa.nicho){
-    window.nichoAtual = empresa.nicho;
-  }
-
-  // Atualiza sidebar, textos, modal e campos extras
-  atualizarSidebarUsuario();
-}
 
 
   // ============================================================
