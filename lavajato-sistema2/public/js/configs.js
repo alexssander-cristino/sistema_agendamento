@@ -1,1995 +1,1794 @@
-'use strict';
-
 /* ============================================================
    ORVIX — CONFIGURAÇÕES
-   Arquivo: public/js/configs.js
    ============================================================ */
 
-const CONFIGS_TOKEN_KEY = 'lavajato_auth_token';
+(() => {
+  'use strict';
 
-const CONFIGS_CORES_PADRAO = {
-  primaria: '#0E3A4C',
-  destaque: '#06B6D4',
-  fundo: '#F5F7FA'
-};
+  // ==========================================================
+  // CONSTANTES
+  // ==========================================================
 
-const CONFIGS_EMAIL_REGEX =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const AUTH_TOKEN_KEY = 'lavajato_auth_token';
 
-const CONFIGS_NICHOS_VALIDOS = [
-  'lavajato',
-  'barbearia',
-  'clinica',
-  'pet',
-  'oficina',
-  'personal',
-  'generico'
-];
-
-const CONFIGS_INTERVALOS_AGENDA = [
-  15,
-  30,
-  45,
-  60,
-  90,
-  120
-];
-
-let empresaConfiguracoes = null;
-let usuarioConfiguracoes = null;
-let carregandoConfiguracoes = false;
-let salvandoConfiguracoes = false;
-
-
-/* ============================================================
-   HELPERS
-   ============================================================ */
-
-function elemento(id) {
-  return document.getElementById(id);
-}
-
-function obterValor(id, fallback = '') {
-  const campo = elemento(id);
-
-  if (!campo) {
-    return fallback;
-  }
-
-  if (typeof campo.value === 'string') {
-    const valor = campo.value.trim();
-
-    return valor || fallback;
-  }
-
-  return campo.value ?? fallback;
-}
-
-function obterNumero(id, fallback = 0) {
-  const campo = elemento(id);
-
-  if (!campo) {
-    return fallback;
-  }
-
-  const valor = Number(campo.value);
-
-  return Number.isFinite(valor)
-    ? valor
-    : fallback;
-}
-
-function obterBoolean(id, fallback = false) {
-  const campo = elemento(id);
-
-  if (!campo) {
-    return fallback;
-  }
-
-  if (campo.type === 'checkbox') {
-    return Boolean(campo.checked);
-  }
-
-  const valor = String(
-    campo.value || ''
-  )
-    .trim()
-    .toLowerCase();
-
-  if (valor === 'true') {
-    return true;
-  }
-
-  if (valor === 'false') {
-    return false;
-  }
-
-  return fallback;
-}
-
-function preencherCampo(id, valor) {
-  const campo = elemento(id);
-
-  if (!campo) {
-    return;
-  }
-
-  campo.value =
-    valor === null ||
-    valor === undefined
-      ? ''
-      : String(valor);
-}
-
-function preencherBoolean(id, valor) {
-  const campo = elemento(id);
-
-  if (!campo) {
-    return;
-  }
-
-  const booleano = Boolean(valor);
-
-  if (campo.type === 'checkbox') {
-    campo.checked = booleano;
-  } else {
-    campo.value = booleano
-      ? 'true'
-      : 'false';
-  }
-}
-
-function escapeHtml(valor) {
-  return String(valor ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-
-/* ============================================================
-   TOKEN / AUTENTICAÇÃO
-   ============================================================ */
-
-function obterTokenConfiguracoes() {
-  try {
-    return localStorage.getItem(
-      CONFIGS_TOKEN_KEY
-    );
-  } catch (erro) {
-    console.warn(
-      'Não foi possível acessar o token:',
-      erro
-    );
-
-    return null;
-  }
-}
-
-function headersConfiguracoes() {
-  const headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'
+  const CORES_PADRAO = {
+    primaria: '#2563eb',
+    destaque: '#10b981',
+    fundo: '#f8fafc'
   };
 
-  const token =
-    obterTokenConfiguracoes();
+  const NICHOS_VALIDOS = [
+    'lavajato',
+    'barbearia',
+    'clinica',
+    'pet',
+    'oficina',
+    'personal',
+    'generico'
+  ];
 
-  if (token) {
-    headers.Authorization =
-      `Bearer ${token}`;
+  const INTERVALOS_AGENDA_VALIDOS = [
+    15,
+    30,
+    45,
+    60,
+    90,
+    120
+  ];
+
+  const EMAIL_REGEX =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // ==========================================================
+  // FUNÇÕES AUXILIARES
+  // ==========================================================
+
+  function obterToken() {
+    try {
+      return localStorage.getItem(AUTH_TOKEN_KEY) || '';
+    } catch (error) {
+      return '';
+    }
   }
 
-  return headers;
-}
 
-
-/* ============================================================
-   REQUISIÇÃO
-   ============================================================ */
-
-async function requisicaoConfiguracoes(
-  url,
-  opcoes = {}
-) {
-  const headers = {
-    ...headersConfiguracoes(),
-    ...(opcoes.headers || {})
-  };
-
-  return fetch(url, {
-    ...opcoes,
-    credentials: 'include',
-    cache: 'no-store',
-    headers
-  });
-}
-
-async function lerJsonSeguro(resposta) {
-  try {
-    return await resposta.json();
-  } catch {
-    return {};
-  }
-}
-
-
-/* ============================================================
-   MENSAGENS
-   ============================================================ */
-
-function mostrarMensagem(
-  id,
-  mensagem,
-  tipo = 'sucesso'
-) {
-  const campo = elemento(id);
-
-  if (!campo) {
-    return;
+  function escaparHtml(valor) {
+    return String(valor ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
-  campo.textContent =
-    mensagem || '';
 
-  campo.classList.remove(
-    'sucesso',
-    'erro',
-    'success',
-    'error'
-  );
+  function obterValor(id, fallback = '') {
+    const elemento = document.getElementById(id);
 
-  campo.classList.add(
-    tipo === 'erro'
-      ? 'erro'
-      : 'sucesso'
-  );
+    if (!elemento) {
+      return fallback;
+    }
 
-  campo.style.display =
-    mensagem ? '' : 'none';
-}
+    if (
+      elemento.type === 'checkbox' ||
+      elemento.type === 'radio'
+    ) {
+      return elemento.checked;
+    }
 
-function limparMensagens() {
-  [
-    'configuracoes-message',
-    'config-aparencia-message'
-  ].forEach(id => {
-    const campo = elemento(id);
+    return elemento.value ?? fallback;
+  }
 
-    if (!campo) {
+
+  function definirValor(id, valor) {
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
       return;
     }
 
-    campo.textContent = '';
-    campo.style.display = 'none';
+    if (
+      elemento.type === 'checkbox' ||
+      elemento.type === 'radio'
+    ) {
+      elemento.checked = Boolean(valor);
+      return;
+    }
 
-    campo.classList.remove(
-      'sucesso',
-      'erro',
+    elemento.value = valor ?? '';
+  }
+
+
+  function definirTexto(id, texto) {
+    const elemento = document.getElementById(id);
+
+    if (elemento) {
+      elemento.textContent = texto ?? '';
+    }
+  }
+
+
+  function mostrarMensagem(id, mensagem, tipo = 'success') {
+    const elemento = document.getElementById(id);
+
+    if (!elemento) {
+      return;
+    }
+
+    elemento.textContent = mensagem || '';
+
+    elemento.classList.remove(
       'success',
-      'error'
+      'error',
+      'warning',
+      'info'
     );
-  });
-}
+
+    if (mensagem) {
+      elemento.classList.add(tipo);
+    }
+
+    elemento.style.display = mensagem ? '' : 'none';
+  }
 
 
-/* ============================================================
-   EMPRESA
-   ============================================================ */
+  function limparMensagem(id) {
+    mostrarMensagem(id, '');
+  }
 
-function obterEmpresaAtual() {
-  try {
+
+  function requisicaoConfiguracoes(url, opcoes = {}) {
+    const token = obterToken();
+
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(opcoes.headers || {})
+    };
+
+    /*
+     * Mantemos o Bearer como compatibilidade.
+     * O backend também trabalha com cookie HttpOnly.
+     */
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return fetch(url, {
+      ...opcoes,
+      headers,
+      credentials: 'include'
+    }).then(async resposta => {
+
+      let dados = null;
+
+      try {
+        dados = await resposta.json();
+      } catch (error) {
+        dados = null;
+      }
+
+      if (!resposta.ok) {
+        const erro = new Error(
+          dados?.erro ||
+          dados?.mensagem ||
+          `Erro HTTP ${resposta.status}`
+        );
+
+        erro.status = resposta.status;
+        erro.statusCode = resposta.status;
+        erro.response = {
+          status: resposta.status
+        };
+
+        if (dados?.codigo) {
+          erro.codigo = dados.codigo;
+        }
+
+        throw erro;
+      }
+
+      return dados;
+    });
+  }
+
+
+  // ==========================================================
+  // EMPRESA ATUAL
+  // ==========================================================
+
+  function obterEmpresaAtual() {
+
     if (
       typeof empresaLogada !== 'undefined' &&
       empresaLogada
     ) {
       return empresaLogada;
     }
-  } catch {
-    // Ignorado.
-  }
 
-  if (
-    typeof window !== 'undefined' &&
-    window.empresaLogada
-  ) {
-    return window.empresaLogada;
-  }
-
-  if (
-    typeof window !== 'undefined' &&
-    window.orvixEmpresa
-  ) {
-    return window.orvixEmpresa;
-  }
-
-  return empresaConfiguracoes;
-}
-
-function guardarEmpresa(empresa) {
-  if (!empresa) {
-    return;
-  }
-
-  empresaConfiguracoes = {
-    ...empresa
-  };
-
-  window.empresaLogada =
-    empresaConfiguracoes;
-
-  window.orvixEmpresa =
-    empresaConfiguracoes;
-
-  /*
-   * Compatibilidade com código antigo.
-   * Não é usado como fonte principal.
-   */
-  window.lavajatoEmpresa =
-    empresaConfiguracoes;
-
-  try {
     if (
-      typeof empresaLogada !==
-      'undefined'
+      typeof window !== 'undefined' &&
+      window.empresaLogada
     ) {
-      empresaLogada =
-        empresaConfiguracoes;
+      return window.empresaLogada;
     }
-  } catch {
-    // Ignorado.
+
+    return null;
   }
 
-  /*
-   * Atualiza o nicho usando a função
-   * ORIGINAL do app.js.
-   */
-  if (
-    empresa.nicho &&
-    typeof aplicarNicho === 'function'
-  ) {
-    try {
-      aplicarNicho(
-        normalizarNicho(
-          empresa.nicho
-        )
-      );
-    } catch (erro) {
-      console.warn(
-        'Erro ao aplicar nicho:',
-        erro
-      );
-    }
-  }
 
-  /*
-   * NÃO sobrescrevemos
-   * window.atualizarSidebarUsuario.
-   *
-   * O app.js continua sendo o dono
-   * dessa função.
-   */
-  try {
-    if (
-      typeof atualizarSidebarUsuario ===
-      'function'
-    ) {
-      atualizarSidebarUsuario();
-    }
-  } catch (erro) {
-    console.warn(
-      'Erro ao atualizar sidebar:',
-      erro
-    );
-  }
-}
+  function atualizarEmpresaLocal(empresa) {
 
-
-/* ============================================================
-   NICHO
-   ============================================================ */
-
-function normalizarNicho(valor) {
-  const nicho = String(
-    valor || ''
-  )
-    .trim()
-    .toLowerCase();
-
-  return CONFIGS_NICHOS_VALIDOS.includes(
-    nicho
-  )
-    ? nicho
-    : 'generico';
-}
-
-function aplicarNichoNaInterface(nicho) {
-  const chave =
-    normalizarNicho(nicho);
-
-  window.nichoAtual =
-    chave;
-
-  try {
-    /*
-     * Usa a função existente no app.js.
-     */
-    if (
-      typeof aplicarNicho ===
-      'function'
-    ) {
-      aplicarNicho(chave);
-    }
-  } catch (erro) {
-    console.warn(
-      'Erro ao aplicar nicho:',
-      erro
-    );
-  }
-}
-
-function configurarTrocaDeNicho() {
-  const seletor =
-    elemento(
-      'config-empresa-nicho'
-    );
-
-  if (!seletor) {
-    return;
-  }
-
-  if (
-    seletor.dataset
-      .configsNichoListener ===
-    'true'
-  ) {
-    return;
-  }
-
-  seletor.dataset
-    .configsNichoListener =
-    'true';
-
-  seletor.addEventListener(
-    'change',
-    () => {
-      const nicho =
-        normalizarNicho(
-          seletor.value
-        );
-
-      aplicarNichoNaInterface(
-        nicho
-      );
-    }
-  );
-}
-
-
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
-
-function atualizarSidebarConfiguracoes() {
-  const empresa =
-    obterEmpresaAtual();
-
-  const empresaElemento =
-    elemento(
-      'sidebar-company'
-    );
-
-  if (
-    empresaElemento &&
-    empresa
-  ) {
-    empresaElemento.textContent =
-      empresa.nome_exibicao ||
-      empresa.nome ||
-      'Minha empresa';
-  }
-
-  /*
-   * Chama a função ORIGINAL do app.js,
-   * sem sobrescrevê-la.
-   */
-  try {
-    if (
-      typeof atualizarSidebarUsuario ===
-      'function'
-    ) {
-      atualizarSidebarUsuario();
-    }
-  } catch (erro) {
-    console.warn(
-      'Erro ao atualizar sidebar:',
-      erro
-    );
-  }
-}
-
-
-/* ============================================================
-   PREENCHER EMPRESA
-   ============================================================ */
-
-function preencherDadosEmpresa(
-  empresa
-) {
-  if (!empresa) {
-    return;
-  }
-
-  preencherCampo(
-    'config-empresa-nome',
-    empresa.nome
-  );
-
-  preencherCampo(
-    'config-empresa-nome-exibicao',
-    empresa.nome_exibicao ||
-      empresa.nome ||
-      ''
-  );
-
-  preencherCampo(
-    'config-empresa-email',
-    empresa.email
-  );
-
-  preencherCampo(
-    'config-empresa-telefone',
-    empresa.telefone
-  );
-
-  preencherCampo(
-    'config-empresa-nicho',
-    normalizarNicho(
-      empresa.nicho
-    )
-  );
-
-  preencherCampo(
-    'config-logo-url',
-    empresa.logo_url
-  );
-
-  preencherCampo(
-    'config-moeda',
-    empresa.moeda
-  );
-
-  preencherCampo(
-    'config-idioma',
-    empresa.idioma
-  );
-
-  preencherCampo(
-    'config-formato-data',
-    empresa.formato_data
-  );
-
-  preencherCampo(
-    'config-formato-hora',
-    empresa.formato_hora
-  );
-
-  preencherCampo(
-    'config-fuso-horario',
-    empresa.fuso_horario
-  );
-
-  preencherBoolean(
-    'config-notificacoes-ativas',
-    empresa.notificacoes_ativas
-  );
-
-  preencherBoolean(
-    'config-mostrar-valores',
-    empresa.mostrar_valores
-  );
-
-  preencherBoolean(
-    'config-dashboard-inicial',
-    empresa.dashboard_inicial
-  );
-
-  preencherBoolean(
-    'config-modo-compacto',
-    empresa.modo_compacto
-  );
-
-  preencherCampo(
-    'config-rodape-documentos',
-    empresa.rodape_documentos
-  );
-
-  preencherBoolean(
-    'config-telefone-documentos',
-    empresa.telefone_documentos
-  );
-
-  preencherCampo(
-    'config-agenda-inicio',
-    empresa.agenda_horario_inicio
-  );
-
-  preencherCampo(
-    'config-agenda-fim',
-    empresa.agenda_horario_fim
-  );
-
-  preencherCampo(
-    'config-agenda-intervalo',
-    empresa.agenda_intervalo
-  );
-
-  preencherCampo(
-    'config-cor-principal',
-    empresa.cor_primaria ||
-      CONFIGS_CORES_PADRAO.primaria
-  );
-
-  preencherCampo(
-    'config-cor-principal-text',
-    empresa.cor_primaria ||
-      CONFIGS_CORES_PADRAO.primaria
-  );
-
-  preencherCampo(
-    'config-cor-destaque',
-    empresa.cor_destaque ||
-      CONFIGS_CORES_PADRAO.destaque
-  );
-
-  preencherCampo(
-    'config-cor-destaque-text',
-    empresa.cor_destaque ||
-      CONFIGS_CORES_PADRAO.destaque
-  );
-
-  preencherCampo(
-    'config-cor-fundo',
-    empresa.cor_fundo ||
-      CONFIGS_CORES_PADRAO.fundo
-  );
-
-  preencherCampo(
-    'config-cor-fundo-text',
-    empresa.cor_fundo ||
-      CONFIGS_CORES_PADRAO.fundo
-  );
-
-  preencherCampo(
-    'config-info-empresa',
-    empresa.nome_exibicao ||
-      empresa.nome ||
-      ''
-  );
-
-  aplicarNichoNaInterface(
-    empresa.nicho
-  );
-
-  aplicarCoresEmpresa(
-    empresa
-  );
-
-  atualizarSidebarConfiguracoes();
-}
-
-
-/* ============================================================
-   USUÁRIO
-   ============================================================ */
-
-function preencherDadosUsuario(
-  usuario
-) {
-  if (!usuario) {
-    return;
-  }
-
-  usuarioConfiguracoes =
-    usuario;
-
-  preencherCampo(
-    'config-usuario-nome',
-    usuario.nome
-  );
-
-  preencherCampo(
-    'config-usuario-email',
-    usuario.email
-  );
-
-  const perfil =
-    elemento(
-      'config-usuario-perfil'
-    );
-
-  if (perfil) {
-    perfil.value =
-      usuario.perfil ===
-      'administrador'
-        ? 'Administrador'
-        : usuario.perfil === 'dev'
-          ? 'Desenvolvedor'
-          : 'Funcionário';
-  }
-}
-
-
-/* ============================================================
-   CARREGAR
-   ============================================================ */
-
-async function carregarUsuarioConfiguracoes() {
-  try {
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/auth/me',
-        {
-          method: 'GET'
-        }
-      );
-
-    const dados =
-      await lerJsonSeguro(
-        resposta
-      );
-
-    if (!resposta.ok) {
-      console.warn(
-        'Não foi possível carregar usuário:',
-        dados
-      );
-
+    if (!empresa || typeof empresa !== 'object') {
       return;
     }
 
-    preencherDadosUsuario(
-      dados.usuario ||
-      dados.user
-    );
-
-    if (dados.empresa) {
-      guardarEmpresa(
-        dados.empresa
-      );
-
-      preencherDadosEmpresa(
-        dados.empresa
-      );
-    }
-  } catch (erro) {
-    console.error(
-      'Erro ao carregar usuário:',
-      erro
-    );
-  }
-}
-
-async function carregarConfiguracoes() {
-  if (carregandoConfiguracoes) {
-    return;
-  }
-
-  carregandoConfiguracoes =
-    true;
-
-  try {
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/configuracoes',
-        {
-          method: 'GET'
-        }
-      );
-
-    const dados =
-      await lerJsonSeguro(
-        resposta
-      );
-
     if (
-      resposta.status === 401
+      typeof empresaLogada !== 'undefined'
     ) {
-      throw new Error(
-        'Sua sessão expirou. Faça login novamente.'
-      );
+      empresaLogada = {
+        ...(empresaLogada || {}),
+        ...empresa
+      };
     }
 
-    if (
-      resposta.status === 403
-    ) {
-      throw new Error(
-        dados.erro ||
-        'Você não possui permissão para acessar estas configurações.'
-      );
+    /*
+     * Mantém também a referência global, caso o app use.
+     * Não sobrescrevemos nenhuma função do app.js.
+     */
+    window.empresaLogada = {
+      ...(window.empresaLogada || {}),
+      ...empresa
+    };
+  }
+
+
+  // ==========================================================
+  // NICHOS
+  // ==========================================================
+
+  function obterNichoAtual() {
+
+    const empresa = obterEmpresaAtual();
+
+    return (
+      empresa?.nicho ||
+      window.nichoAtual ||
+      'generico'
+    );
+  }
+
+
+  function sincronizarNichoLocal(nicho) {
+
+    if (!nicho || !NICHOS_VALIDOS.includes(nicho)) {
+      return;
     }
 
-    if (!resposta.ok) {
-      throw new Error(
-        dados.erro ||
-        dados.mensagem ||
-        'Não foi possível carregar as configurações.'
-      );
+    window.nichoAtual = nicho;
+
+    atualizarEmpresaLocal({
+      nicho
+    });
+  }
+
+
+  function atualizarCamposVisuaisNicho(nicho) {
+
+    if (!nicho) {
+      return;
     }
 
-    const empresa =
-      dados.empresa ||
-      dados;
-
-    guardarEmpresa(
-      empresa
-    );
-
-    preencherDadosEmpresa(
-      empresa
-    );
-  } catch (erro) {
-    console.error(
-      'Erro ao carregar configurações:',
-      erro
-    );
-
-    mostrarMensagem(
-      'configuracoes-message',
-      erro.message ||
-      'Não foi possível carregar as configurações.',
-      'erro'
-    );
-  } finally {
-    carregandoConfiguracoes =
-      false;
-  }
-}
-
-
-/* ============================================================
-   CORES
-   ============================================================ */
-
-function corValida(cor) {
-  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(
-    String(cor || '').trim()
-  );
-}
-
-function normalizarTextoCor(valor) {
-  let cor = String(
-    valor || ''
-  )
-    .trim()
-    .toUpperCase();
-
-  if (
-    !cor.startsWith('#') &&
-    /^[0-9A-F]{3}$/.test(cor)
-  ) {
-    cor = `#${cor}`;
-  }
-
-  if (
-    !cor.startsWith('#') &&
-    /^[0-9A-F]{6}$/.test(cor)
-  ) {
-    cor = `#${cor}`;
-  }
-
-  return cor;
-}
-
-function aplicarCoresEmpresa(
-  empresa
-) {
-  if (!empresa) {
-    return;
-  }
-
-  const primaria =
-    empresa.cor_primaria ||
-    CONFIGS_CORES_PADRAO.primaria;
-
-  const destaque =
-    empresa.cor_destaque ||
-    CONFIGS_CORES_PADRAO.destaque;
-
-  const fundo =
-    empresa.cor_fundo ||
-    CONFIGS_CORES_PADRAO.fundo;
-
-  const root =
-    document.documentElement;
-
-  root.style.setProperty(
-    '--primary',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--primary-color',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--cor-primaria',
-    primaria
-  );
-
-  root.style.setProperty(
-    '--accent',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--accent-color',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--cor-destaque',
-    destaque
-  );
-
-  root.style.setProperty(
-    '--bg',
-    fundo
-  );
-
-  root.style.setProperty(
-    '--background',
-    fundo
-  );
-
-  root.style.setProperty(
-    '--background-color',
-    fundo
-  );
-
-  root.style.setProperty(
-    '--cor-fundo',
-    fundo
-  );
-}
-
-function atualizarPreviewTema() {
-  const primaria =
-    normalizarTextoCor(
-      obterValor(
-        'config-cor-principal',
-        CONFIGS_CORES_PADRAO.primaria
-      )
-    ) ||
-    CONFIGS_CORES_PADRAO.primaria;
-
-  const destaque =
-    normalizarTextoCor(
-      obterValor(
-        'config-cor-destaque',
-        CONFIGS_CORES_PADRAO.destaque
-      )
-    ) ||
-    CONFIGS_CORES_PADRAO.destaque;
-
-  const fundo =
-    normalizarTextoCor(
-      obterValor(
-        'config-cor-fundo',
-        CONFIGS_CORES_PADRAO.fundo
-      )
-    ) ||
-    CONFIGS_CORES_PADRAO.fundo;
-
-  const preview =
-    elemento(
-      'config-tema-preview'
-    );
-
-  const titulo =
-    elemento(
-      'config-tema-preview-title'
-    );
-
-  const badge =
-    elemento(
-      'config-tema-preview-badge'
-    );
-
-  const botao =
-    elemento(
-      'config-tema-preview-button'
-    );
-
-  if (preview) {
-    preview.style.background =
-      fundo;
-  }
-
-  if (titulo) {
-    titulo.style.color =
-      primaria;
-  }
-
-  if (badge) {
-    badge.style.background =
-      destaque;
-  }
-
-  if (botao) {
-    botao.style.background =
-      primaria;
-  }
-}
-
-function configurarCores() {
-  const pares = [
-    [
-      'config-cor-principal',
-      'config-cor-principal-text'
-    ],
-    [
-      'config-cor-destaque',
-      'config-cor-destaque-text'
-    ],
-    [
-      'config-cor-fundo',
-      'config-cor-fundo-text'
-    ]
-  ];
-
-  pares.forEach(
-    ([colorId, textId]) => {
-      const color =
-        elemento(colorId);
-
-      const text =
-        elemento(textId);
-
-      if (!color || !text) {
-        return;
-      }
-
-      if (
-        color.dataset
-          .configsListener ===
-        'true'
-      ) {
-        return;
-      }
-
-      color.dataset
-        .configsListener =
-        'true';
-
-      color.addEventListener(
-        'input',
-        () => {
-          const valor =
-            normalizarTextoCor(
-              color.value
-            );
-
-          text.value =
-            valor;
-
-          atualizarPreviewTema();
-        }
-      );
-
-      text.addEventListener(
-        'input',
-        () => {
-          const valor =
-            normalizarTextoCor(
-              text.value
-            );
-
-          if (corValida(valor)) {
-            color.value =
-              valor;
-
-            text.value =
-              valor;
-          }
-
-          atualizarPreviewTema();
-        }
-      );
-
-      text.addEventListener(
-        'blur',
-        () => {
-          const valor =
-            normalizarTextoCor(
-              text.value
-            );
-
-          if (corValida(valor)) {
-            color.value =
-              valor;
-
-            text.value =
-              valor;
-          }
-        }
-      );
-    }
-  );
-}
-
-
-/* ============================================================
-   PRESETS DE TEMA
-   ============================================================ */
-
-function configurarPresetsTema() {
-  const presets =
-    document.querySelectorAll(
-      '.theme-preset'
-    );
-
-  presets.forEach(
-    preset => {
-      if (
-        preset.dataset
-          .configsPresetListener ===
-        'true'
-      ) {
-        return;
-      }
-
-      preset.dataset
-        .configsPresetListener =
-        'true';
-
-      preset.addEventListener(
-        'click',
-        () => {
-          const primaria =
-            normalizarTextoCor(
-              preset.dataset.primary ||
-              CONFIGS_CORES_PADRAO.primaria
-            );
-
-          const destaque =
-            normalizarTextoCor(
-              preset.dataset.accent ||
-              CONFIGS_CORES_PADRAO.destaque
-            );
-
-          const fundo =
-            normalizarTextoCor(
-              preset.dataset.background ||
-              CONFIGS_CORES_PADRAO.fundo
-            );
-
-          if (
-            corValida(primaria)
-          ) {
-            preencherCampo(
-              'config-cor-principal',
-              primaria
-            );
-
-            preencherCampo(
-              'config-cor-principal-text',
-              primaria
-            );
-          }
-
-          if (
-            corValida(destaque)
-          ) {
-            preencherCampo(
-              'config-cor-destaque',
-              destaque
-            );
-
-            preencherCampo(
-              'config-cor-destaque-text',
-              destaque
-            );
-          }
-
-          if (
-            corValida(fundo)
-          ) {
-            preencherCampo(
-              'config-cor-fundo',
-              fundo
-            );
-
-            preencherCampo(
-              'config-cor-fundo-text',
-              fundo
-            );
-          }
-
-          aplicarCoresEmpresa({
-            cor_primaria: primaria,
-            cor_destaque: destaque,
-            cor_fundo: fundo
-          });
-
-          atualizarPreviewTema();
-        }
-      );
-    }
-  );
-}
-
-
-/* ============================================================
-   PAYLOADS
-   ============================================================ */
-
-function montarPayloadEmpresa() {
-  const nome =
-    obterValor(
-      'config-empresa-nome'
-    );
-
-  return {
-    nome,
-
-    nome_exibicao:
-      obterValor(
-        'config-empresa-nome-exibicao'
-      ) || nome,
-
-    email:
-      obterValor(
-        'config-empresa-email'
-      ),
-
-    telefone:
-      obterValor(
-        'config-empresa-telefone'
-      ),
-
-    nicho:
-      normalizarNicho(
-        obterValor(
-          'config-empresa-nicho'
-        )
-      ),
-
-    logo_url:
-      obterValor(
-        'config-logo-url'
-      )
-  };
-}
-
-function montarPayloadPreferencias() {
-  return {
-    moeda:
-      obterValor(
-        'config-moeda'
-      ),
-
-    idioma:
-      obterValor(
-        'config-idioma'
-      ),
-
-    formato_data:
-      obterValor(
-        'config-formato-data'
-      ),
-
-    formato_hora:
-      obterValor(
-        'config-formato-hora'
-      ),
-
-    fuso_horario:
-      obterValor(
-        'config-fuso-horario'
-      ),
-
-    notificacoes_ativas:
-      obterBoolean(
-        'config-notificacoes-ativas'
-      ),
-
-    mostrar_valores:
-      obterBoolean(
-        'config-mostrar-valores'
-      ),
-
-    dashboard_inicial:
-      obterBoolean(
-        'config-dashboard-inicial'
-      ),
-
-    modo_compacto:
-      obterBoolean(
-        'config-modo-compacto'
-      )
-  };
-}
-
-function montarPayloadAparencia() {
-  return {
-    cor_primaria:
-      normalizarTextoCor(
-        obterValor(
-          'config-cor-principal'
-        )
-      ),
-
-    cor_destaque:
-      normalizarTextoCor(
-        obterValor(
-          'config-cor-destaque'
-        )
-      ),
-
-    cor_fundo:
-      normalizarTextoCor(
-        obterValor(
-          'config-cor-fundo'
-        )
-      )
-  };
-}
-
-function montarPayloadDocumentos() {
-  return {
-    rodape_documentos:
-      obterValor(
-        'config-rodape-documentos'
-      ),
-
-    telefone_documentos:
-      obterBoolean(
-        'config-telefone-documentos'
-      )
-  };
-}
-
-function montarPayloadAgenda() {
-  return {
-    agenda_horario_inicio:
-      normalizarHorario(
-        obterValor(
-          'config-agenda-inicio'
-        )
-      ),
-
-    agenda_horario_fim:
-      normalizarHorario(
-        obterValor(
-          'config-agenda-fim'
-        )
-      ),
-
-    agenda_intervalo:
-      obterNumero(
-        'config-agenda-intervalo'
-      )
-  };
-}
-
-function normalizarHorario(valor) {
-  if (!valor) {
-    return '';
-  }
-
-  const texto =
-    String(valor).trim();
-
-  const match =
-    texto.match(
-      /^(\d{2}):(\d{2})(?::\d{2})?$/
-    );
-
-  if (!match) {
-    return '';
-  }
-
-  const horas =
-    Number(match[1]);
-
-  const minutos =
-    Number(match[2]);
-
-  if (
-    horas < 0 ||
-    horas > 23 ||
-    minutos < 0 ||
-    minutos > 59
-  ) {
-    return '';
-  }
-
-  return (
-    String(horas).padStart(2, '0') +
-    ':' +
-    String(minutos).padStart(2, '0')
-  );
-}
-
-
-/* ============================================================
-   SALVAR — ÚNICA FUNÇÃO
-   ============================================================ */
-
-async function salvarConfiguracoes(
-  payload,
-  mensagemId =
-    'configuracoes-message'
-) {
-  if (salvandoConfiguracoes) {
-    return false;
-  }
-
-  salvandoConfiguracoes =
-    true;
-
-  try {
-    console.log(
-      '[Orvix] PUT /api/configuracoes:',
-      payload
-    );
-
-    const resposta =
-      await requisicaoConfiguracoes(
-        '/api/configuracoes',
-        {
-          method: 'PUT',
-          body: JSON.stringify(
-            payload
-          )
-        }
-      );
-
-    const dados =
-      await lerJsonSeguro(
-        resposta
-      );
-
-    if (
-      resposta.status === 401
-    ) {
+    /*
+     * Não recriamos a lógica de nichos do app.js.
+     *
+     * Se o app.js expôs aplicarNicho globalmente,
+     * utilizamos a função original.
+     */
+    if (typeof window.aplicarNicho === 'function') {
       try {
-        localStorage.removeItem(
-          CONFIGS_TOKEN_KEY
+        window.aplicarNicho(nicho);
+        return;
+      } catch (error) {
+        console.warn(
+          'Não foi possível aplicar o nicho pelo app.js:',
+          error
         );
-      } catch {
-        // Ignorado.
+      }
+    }
+
+    /*
+     * Fallback mínimo para o campo da própria configuração.
+     */
+    definirValor(
+      'config-empresa-nicho',
+      nicho
+    );
+  }
+
+
+  // ==========================================================
+  // PREENCHER EMPRESA
+  // ==========================================================
+
+  function preencherDadosEmpresa(empresa) {
+
+    if (!empresa) {
+      return;
+    }
+
+    definirValor(
+      'config-empresa-nome',
+      empresa.nome
+    );
+
+    definirValor(
+      'config-empresa-nome-exibicao',
+      empresa.nome_exibicao || empresa.nome || ''
+    );
+
+    definirValor(
+      'config-empresa-email',
+      empresa.email
+    );
+
+    definirValor(
+      'config-empresa-telefone',
+      empresa.telefone
+    );
+
+    definirValor(
+      'config-empresa-nicho',
+      empresa.nicho || 'generico'
+    );
+
+    definirValor(
+      'config-logo-url',
+      empresa.logo_url
+    );
+
+    definirValor(
+      'config-moeda',
+      empresa.moeda || 'BRL'
+    );
+
+    definirValor(
+      'config-idioma',
+      empresa.idioma || 'pt-BR'
+    );
+
+    definirValor(
+      'config-formato-data',
+      empresa.formato_data || 'DD/MM/YYYY'
+    );
+
+    definirValor(
+      'config-formato-hora',
+      empresa.formato_hora || '24h'
+    );
+
+    definirValor(
+      'config-fuso-horario',
+      empresa.fuso_horario || 'America/Sao_Paulo'
+    );
+
+    definirValor(
+      'config-notificacoes-ativas',
+      empresa.notificacoes_ativas !== false
+    );
+
+    definirValor(
+      'config-mostrar-valores',
+      empresa.mostrar_valores !== false
+    );
+
+    definirValor(
+      'config-dashboard-inicial',
+      empresa.dashboard_inicial || 'agenda'
+    );
+
+    definirValor(
+      'config-modo-compacto',
+      Boolean(empresa.modo_compacto)
+    );
+
+    definirValor(
+      'config-rodape-documentos',
+      empresa.rodape_documentos || ''
+    );
+
+    definirValor(
+      'config-telefone-documentos',
+      empresa.telefone_documentos || ''
+    );
+
+    definirValor(
+      'config-agenda-inicio',
+      empresa.agenda_horario_inicio || '08:00'
+    );
+
+    definirValor(
+      'config-agenda-fim',
+      empresa.agenda_horario_fim || '18:00'
+    );
+
+    definirValor(
+      'config-agenda-intervalo',
+      empresa.agenda_intervalo || 30
+    );
+
+    definirCor(
+      'config-cor-principal',
+      'config-cor-principal-text',
+      empresa.cor_primaria || CORES_PADRAO.primaria
+    );
+
+    definirCor(
+      'config-cor-destaque',
+      'config-cor-destaque-text',
+      empresa.cor_destaque || CORES_PADRAO.destaque
+    );
+
+    definirCor(
+      'config-cor-fundo',
+      'config-cor-fundo-text',
+      empresa.cor_fundo || CORES_PADRAO.fundo
+    );
+
+    sincronizarNichoLocal(
+      empresa.nicho || 'generico'
+    );
+
+    atualizarCamposVisuaisNicho(
+      empresa.nicho || 'generico'
+    );
+
+    atualizarPreviewTema();
+  }
+
+
+  // ==========================================================
+  // PREENCHER USUÁRIO
+  // ==========================================================
+
+  function preencherDadosUsuario(usuario) {
+
+    if (!usuario) {
+      return;
+    }
+
+    definirValor(
+      'config-usuario-nome',
+      usuario.nome
+    );
+
+    definirValor(
+      'config-usuario-email',
+      usuario.email
+    );
+
+    definirValor(
+      'config-usuario-perfil',
+      usuario.perfil === 'administrador'
+        ? 'Administrador'
+        : 'Funcionário'
+    );
+  }
+
+
+  // ==========================================================
+  // CARREGAR CONFIGURAÇÕES
+  // ==========================================================
+
+  async function carregarConfiguracoes() {
+
+    limparMensagem('configuracoes-message');
+
+    try {
+
+      const resposta =
+        await requisicaoConfiguracoes(
+          '/api/configuracoes',
+          {
+            method: 'GET'
+          }
+        );
+
+      const empresa = resposta?.empresa || null;
+
+      if (!empresa) {
+        throw new Error(
+          'Os dados da empresa não foram encontrados.'
+        );
       }
 
-      throw new Error(
-        'Sua sessão expirou. Faça login novamente.'
+      atualizarEmpresaLocal(empresa);
+      preencherDadosEmpresa(empresa);
+
+      return empresa;
+
+    } catch (error) {
+
+      console.error(
+        'Erro ao carregar configurações:',
+        error
       );
+
+      mostrarMensagem(
+        'configuracoes-message',
+        error.message ||
+          'Não foi possível carregar as configurações.',
+        'error'
+      );
+
+      throw error;
     }
+  }
 
-    if (
-      resposta.status === 403
-    ) {
-      throw new Error(
-        dados.erro ||
-        'Você não possui permissão para alterar estas configurações.'
+
+  async function carregarUsuarioAtual() {
+
+    try {
+
+      const resposta =
+        await requisicaoConfiguracoes(
+          '/api/auth/me',
+          {
+            method: 'GET'
+          }
+        );
+
+      const usuario =
+        resposta?.usuario || null;
+
+      if (usuario) {
+        preencherDadosUsuario(usuario);
+      }
+
+      if (resposta?.empresa) {
+        atualizarEmpresaLocal(
+          resposta.empresa
+        );
+      }
+
+      return resposta;
+
+    } catch (error) {
+
+      console.warn(
+        'Não foi possível carregar o usuário atual:',
+        error
       );
+
+      return null;
     }
+  }
 
-    if (
-      resposta.status === 429
-    ) {
-      window.location.replace(
-        '/429.html'
-      );
 
+  // ==========================================================
+  // CORES
+  // ==========================================================
+
+  function corValida(cor) {
+
+    if (typeof cor !== 'string') {
       return false;
     }
 
-    if (!resposta.ok) {
+    return /^#[0-9A-Fa-f]{6}$/.test(
+      cor.trim()
+    );
+  }
+
+
+  function normalizarCor(cor, fallback) {
+
+    const valor =
+      String(cor || '').trim();
+
+    return corValida(valor)
+      ? valor.toLowerCase()
+      : fallback;
+  }
+
+
+  function definirCor(
+    colorId,
+    textId,
+    valor
+  ) {
+
+    const cor =
+      normalizarCor(
+        valor,
+        CORES_PADRAO.primaria
+      );
+
+    const colorInput =
+      document.getElementById(colorId);
+
+    const textInput =
+      document.getElementById(textId);
+
+    if (colorInput) {
+      colorInput.value = cor;
+    }
+
+    if (textInput) {
+      textInput.value = cor;
+    }
+  }
+
+
+  function lerCor(colorId, textId, fallback) {
+
+    const colorInput =
+      document.getElementById(colorId);
+
+    const textInput =
+      document.getElementById(textId);
+
+    const valorColor =
+      colorInput?.value?.trim() || '';
+
+    const valorTexto =
+      textInput?.value?.trim() || '';
+
+    if (corValida(valorTexto)) {
+      return valorTexto;
+    }
+
+    if (corValida(valorColor)) {
+      return valorColor;
+    }
+
+    return fallback;
+  }
+
+
+  function aplicarCoresTema(
+    primaria,
+    destaque,
+    fundo
+  ) {
+
+    const root =
+      document.documentElement;
+
+    root.style.setProperty(
+      '--primary',
+      primaria
+    );
+
+    root.style.setProperty(
+      '--primary-color',
+      primaria
+    );
+
+    root.style.setProperty(
+      '--accent',
+      destaque
+    );
+
+    root.style.setProperty(
+      '--accent-color',
+      destaque
+    );
+
+    root.style.setProperty(
+      '--bg',
+      fundo
+    );
+
+    root.style.setProperty(
+      '--background',
+      fundo
+    );
+  }
+
+
+  function atualizarPreviewTema() {
+
+    const primaria = lerCor(
+      'config-cor-principal',
+      'config-cor-principal-text',
+      CORES_PADRAO.primaria
+    );
+
+    const destaque = lerCor(
+      'config-cor-destaque',
+      'config-cor-destaque-text',
+      CORES_PADRAO.destaque
+    );
+
+    const fundo = lerCor(
+      'config-cor-fundo',
+      'config-cor-fundo-text',
+      CORES_PADRAO.fundo
+    );
+
+    aplicarCoresTema(
+      primaria,
+      destaque,
+      fundo
+    );
+
+    const preview =
+      document.getElementById(
+        'config-tema-preview'
+      );
+
+    const previewTitle =
+      document.getElementById(
+        'config-tema-preview-title'
+      );
+
+    const previewBadge =
+      document.getElementById(
+        'config-tema-preview-badge'
+      );
+
+    const previewButton =
+      document.getElementById(
+        'config-tema-preview-button'
+      );
+
+    if (preview) {
+      preview.style.background = fundo;
+      preview.style.setProperty(
+        '--preview-primary',
+        primaria
+      );
+      preview.style.setProperty(
+        '--preview-accent',
+        destaque
+      );
+    }
+
+    if (previewTitle) {
+      previewTitle.style.color = primaria;
+    }
+
+    if (previewBadge) {
+      previewBadge.style.background = destaque;
+    }
+
+    if (previewButton) {
+      previewButton.style.background = primaria;
+    }
+  }
+
+
+  function configurarInputsDeCor() {
+
+    const pares = [
+      [
+        'config-cor-principal',
+        'config-cor-principal-text'
+      ],
+      [
+        'config-cor-destaque',
+        'config-cor-destaque-text'
+      ],
+      [
+        'config-cor-fundo',
+        'config-cor-fundo-text'
+      ]
+    ];
+
+    pares.forEach(
+      ([colorId, textId]) => {
+
+        const colorInput =
+          document.getElementById(colorId);
+
+        const textInput =
+          document.getElementById(textId);
+
+        if (!colorInput || !textInput) {
+          return;
+        }
+
+        colorInput.addEventListener(
+          'input',
+          () => {
+
+            const valor =
+              colorInput.value;
+
+            if (corValida(valor)) {
+              textInput.value =
+                valor;
+
+              atualizarPreviewTema();
+            }
+          }
+        );
+
+        textInput.addEventListener(
+          'input',
+          () => {
+
+            const valor =
+              textInput.value.trim();
+
+            if (corValida(valor)) {
+
+              colorInput.value =
+                valor;
+
+              atualizarPreviewTema();
+            }
+          }
+        );
+
+        textInput.addEventListener(
+          'blur',
+          () => {
+
+            const valor =
+              textInput.value.trim();
+
+            if (!corValida(valor)) {
+
+              textInput.value =
+                colorInput.value ||
+                CORES_PADRAO.primaria;
+
+              atualizarPreviewTema();
+            }
+          }
+        );
+      }
+    );
+  }
+
+
+  // ==========================================================
+  // PRESETS
+  // ==========================================================
+
+  function configurarPresetsTema() {
+
+    document
+      .querySelectorAll('.theme-preset')
+      .forEach(preset => {
+
+        preset.addEventListener(
+          'click',
+          () => {
+
+            const primaria =
+              preset.dataset.primary ||
+              CORES_PADRAO.primaria;
+
+            const destaque =
+              preset.dataset.accent ||
+              CORES_PADRAO.destaque;
+
+            const fundo =
+              preset.dataset.background ||
+              CORES_PADRAO.fundo;
+
+            definirCor(
+              'config-cor-principal',
+              'config-cor-principal-text',
+              primaria
+            );
+
+            definirCor(
+              'config-cor-destaque',
+              'config-cor-destaque-text',
+              destaque
+            );
+
+            definirCor(
+              'config-cor-fundo',
+              'config-cor-fundo-text',
+              fundo
+            );
+
+            atualizarPreviewTema();
+          }
+        );
+      });
+  }
+
+
+  // ==========================================================
+  // PAYLOAD — EMPRESA
+  // ==========================================================
+
+  function montarPayloadEmpresa() {
+
+    const nome =
+      String(
+        obterValor(
+          'config-empresa-nome'
+        )
+      ).trim();
+
+    const email =
+      String(
+        obterValor(
+          'config-empresa-email'
+        )
+      ).trim();
+
+    const telefone =
+      String(
+        obterValor(
+          'config-empresa-telefone'
+        )
+      ).trim();
+
+    const nomeExibicao =
+      String(
+        obterValor(
+          'config-empresa-nome-exibicao'
+        )
+      ).trim();
+
+    const nicho =
+      String(
+        obterValor(
+          'config-empresa-nicho',
+          'generico'
+        )
+      ).trim().toLowerCase();
+
+    const logoUrl =
+      String(
+        obterValor(
+          'config-logo-url'
+        )
+      ).trim();
+
+    if (!nome) {
       throw new Error(
-        dados.erro ||
-        dados.mensagem ||
-        'Não foi possível salvar as configurações.'
+        'Informe o nome da empresa.'
       );
     }
 
-    if (dados.empresa) {
-      guardarEmpresa(
-        dados.empresa
-      );
-
-      preencherDadosEmpresa(
-        dados.empresa
+    if (
+      email &&
+      !EMAIL_REGEX.test(email)
+    ) {
+      throw new Error(
+        'Informe um e-mail válido.'
       );
     }
 
-    mostrarMensagem(
-      mensagemId,
-      dados.mensagem ||
-      'Configurações salvas com sucesso.',
-      'sucesso'
-    );
+    if (
+      !NICHOS_VALIDOS.includes(nicho)
+    ) {
+      throw new Error(
+        'O nicho selecionado é inválido.'
+      );
+    }
 
-    return dados;
-  } catch (erro) {
-    console.error(
-      '[Orvix] Erro ao salvar configurações:',
-      erro
-    );
-
-    mostrarMensagem(
-      mensagemId,
-      erro.message ||
-      'Não foi possível salvar as configurações.',
-      'erro'
-    );
-
-    return false;
-  } finally {
-    salvandoConfiguracoes =
-      false;
-  }
-}
-
-
-/* ============================================================
-   SALVAR EMPRESA
-   ============================================================ */
-
-async function salvarDadosEmpresa() {
-  const payload =
-    montarPayloadEmpresa();
-
-  if (!payload.nome) {
-    mostrarMensagem(
-      'configuracoes-message',
-      'Informe o nome da empresa.',
-      'erro'
-    );
-
-    return false;
+    return {
+      nome,
+      email,
+      telefone,
+      nome_exibicao:
+        nomeExibicao || nome,
+      nicho,
+      logo_url: logoUrl
+    };
   }
 
-  if (
-    !CONFIGS_EMAIL_REGEX.test(
-      payload.email
-    )
-  ) {
-    mostrarMensagem(
-      'configuracoes-message',
-      'Informe um e-mail válido.',
-      'erro'
-    );
 
-    return false;
+  // ==========================================================
+  // PAYLOAD — PREFERÊNCIAS
+  // ==========================================================
+
+  function montarPayloadPreferencias() {
+
+    return {
+      moeda:
+        obterValor(
+          'config-moeda',
+          'BRL'
+        ),
+
+      idioma:
+        obterValor(
+          'config-idioma',
+          'pt-BR'
+        ),
+
+      formato_data:
+        obterValor(
+          'config-formato-data',
+          'DD/MM/YYYY'
+        ),
+
+      formato_hora:
+        obterValor(
+          'config-formato-hora',
+          '24h'
+        ),
+
+      fuso_horario:
+        obterValor(
+          'config-fuso-horario',
+          'America/Sao_Paulo'
+        ),
+
+      notificacoes_ativas:
+        Boolean(
+          obterValor(
+            'config-notificacoes-ativas',
+            true
+          )
+        ),
+
+      mostrar_valores:
+        Boolean(
+          obterValor(
+            'config-mostrar-valores',
+            true
+          )
+        ),
+
+      dashboard_inicial:
+        obterValor(
+          'config-dashboard-inicial',
+          'agenda'
+        ),
+
+      modo_compacto:
+        Boolean(
+          obterValor(
+            'config-modo-compacto',
+            false
+          )
+        )
+    };
   }
 
-  return salvarConfiguracoes(
+
+  // ==========================================================
+  // PAYLOAD — APARÊNCIA
+  // ==========================================================
+
+  function montarPayloadAparencia() {
+
+    const corPrimaria = lerCor(
+      'config-cor-principal',
+      'config-cor-principal-text',
+      CORES_PADRAO.primaria
+    );
+
+    const corDestaque = lerCor(
+      'config-cor-destaque',
+      'config-cor-destaque-text',
+      CORES_PADRAO.destaque
+    );
+
+    const corFundo = lerCor(
+      'config-cor-fundo',
+      'config-cor-fundo-text',
+      CORES_PADRAO.fundo
+    );
+
+    if (!corValida(corPrimaria)) {
+      throw new Error(
+        'A cor principal informada é inválida.'
+      );
+    }
+
+    if (!corValida(corDestaque)) {
+      throw new Error(
+        'A cor de destaque informada é inválida.'
+      );
+    }
+
+    if (!corValida(corFundo)) {
+      throw new Error(
+        'A cor de fundo informada é inválida.'
+      );
+    }
+
+    return {
+      cor_primaria: corPrimaria,
+      cor_destaque: corDestaque,
+      cor_fundo: corFundo
+    };
+  }
+
+
+  // ==========================================================
+  // PAYLOAD — DOCUMENTOS
+  // ==========================================================
+
+  function montarPayloadDocumentos() {
+
+    return {
+      rodape_documentos:
+        String(
+          obterValor(
+            'config-rodape-documentos'
+          )
+        ).trim(),
+
+      telefone_documentos:
+        String(
+          obterValor(
+            'config-telefone-documentos'
+          )
+        ).trim()
+    };
+  }
+
+
+  // ==========================================================
+  // PAYLOAD — AGENDA
+  // ==========================================================
+
+  function montarPayloadAgenda() {
+
+    const inicio =
+      String(
+        obterValor(
+          'config-agenda-inicio',
+          '08:00'
+        )
+      ).trim();
+
+    const fim =
+      String(
+        obterValor(
+          'config-agenda-fim',
+          '18:00'
+        )
+      ).trim();
+
+    const intervalo =
+      Number(
+        obterValor(
+          'config-agenda-intervalo',
+          30
+        )
+      );
+
+    const horarioRegex =
+      /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+
+    if (!horarioRegex.test(inicio)) {
+      throw new Error(
+        'Horário inicial da agenda inválido.'
+      );
+    }
+
+    if (!horarioRegex.test(fim)) {
+      throw new Error(
+        'Horário final da agenda inválido.'
+      );
+    }
+
+    if (
+      !INTERVALOS_AGENDA_VALIDOS.includes(
+        intervalo
+      )
+    ) {
+      throw new Error(
+        'Intervalo da agenda inválido.'
+      );
+    }
+
+    return {
+      agenda_horario_inicio: inicio,
+      agenda_horario_fim: fim,
+      agenda_intervalo: intervalo
+    };
+  }
+
+
+  // ==========================================================
+  // SALVAR CONFIGURAÇÕES
+  // ==========================================================
+
+  async function salvarConfiguracoes(
     payload,
-    'configuracoes-message'
-  );
-}
-
-
-/* ============================================================
-   SALVAR PREFERÊNCIAS
-   ============================================================ */
-
-async function salvarPreferencias() {
-  return salvarConfiguracoes(
-    montarPayloadPreferencias(),
-    'configuracoes-message'
-  );
-}
-
-
-/* ============================================================
-   SALVAR APARÊNCIA
-   ============================================================ */
-
-async function salvarAparencia() {
-  const payload =
-    montarPayloadAparencia();
-
-  if (
-    !corValida(
-      payload.cor_primaria
-    ) ||
-    !corValida(
-      payload.cor_destaque
-    ) ||
-    !corValida(
-      payload.cor_fundo
-    )
+    mensagemId = 'configuracoes-message',
+    mensagemSucesso =
+      'Configurações salvas com sucesso.'
   ) {
-    mostrarMensagem(
-      'config-aparencia-message',
-      'Uma ou mais cores informadas são inválidas.',
-      'erro'
-    );
 
-    return false;
+    try {
+
+      const resposta =
+        await requisicaoConfiguracoes(
+          '/api/configuracoes',
+          {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          }
+        );
+
+      const empresa =
+        resposta?.empresa || null;
+
+      if (empresa) {
+        atualizarEmpresaLocal(
+          empresa
+        );
+      }
+
+      mostrarMensagem(
+        mensagemId,
+        mensagemSucesso,
+        'success'
+      );
+
+      return resposta;
+
+    } catch (error) {
+
+      console.error(
+        'Erro ao salvar configurações:',
+        error
+      );
+
+      mostrarMensagem(
+        mensagemId,
+        error.message ||
+          'Não foi possível salvar as configurações.',
+        'error'
+      );
+
+      throw error;
+    }
   }
 
-  const resultado =
-    await salvarConfiguracoes(
-      payload,
+
+  // ==========================================================
+  // SALVAR EMPRESA
+  // ==========================================================
+
+  async function salvarEmpresa() {
+
+    limparMensagem(
+      'configuracoes-message'
+    );
+
+    try {
+
+      const payload =
+        montarPayloadEmpresa();
+
+      const resposta =
+        await salvarConfiguracoes(
+          payload,
+          'configuracoes-message',
+          'Dados da empresa salvos com sucesso.'
+        );
+
+      const empresa =
+        resposta?.empresa;
+
+      if (empresa) {
+
+        atualizarEmpresaLocal(
+          empresa
+        );
+
+        sincronizarNichoLocal(
+          empresa.nicho
+        );
+
+        preencherDadosEmpresa(
+          empresa
+        );
+
+        /*
+         * O app.js continua sendo responsável pela
+         * atualizarSidebarUsuario().
+         *
+         * Não chamamos essa função aqui porque ela está
+         * no escopo do app.js.
+         */
+        atualizarCamposVisuaisNicho(
+          empresa.nicho
+        );
+      }
+
+      return resposta;
+
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  // ==========================================================
+  // SALVAR PREFERÊNCIAS
+  // ==========================================================
+
+  async function salvarPreferencias() {
+
+    try {
+
+      const payload =
+        montarPayloadPreferencias();
+
+      const resposta =
+        await salvarConfiguracoes(
+          payload,
+          'configuracoes-message',
+          'Preferências salvas com sucesso.'
+        );
+
+      if (resposta?.empresa) {
+
+        atualizarEmpresaLocal(
+          resposta.empresa
+        );
+
+        preencherDadosEmpresa(
+          resposta.empresa
+        );
+      }
+
+      return resposta;
+
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  // ==========================================================
+  // SALVAR APARÊNCIA
+  // ==========================================================
+
+  async function salvarAparencia() {
+
+    limparMensagem(
       'config-aparencia-message'
     );
 
-  if (resultado) {
-    const empresa =
-      resultado.empresa ||
-      {
-        ...obterEmpresaAtual(),
-        ...payload
-      };
+    try {
 
-    aplicarCoresEmpresa(
-      empresa
-    );
+      const payload =
+        montarPayloadAparencia();
 
-    atualizarPreviewTema();
-  }
-
-  return resultado;
-}
-
-
-/* ============================================================
-   SALVAR DOCUMENTOS
-   ============================================================ */
-
-async function salvarDocumentos() {
-  return salvarConfiguracoes(
-    montarPayloadDocumentos(),
-    'configuracoes-message'
-  );
-}
-
-
-/* ============================================================
-   SALVAR AGENDA
-   ============================================================ */
-
-async function salvarAgenda() {
-  const payload =
-    montarPayloadAgenda();
-
-  if (
-    !payload.agenda_horario_inicio
-  ) {
-    mostrarMensagem(
-      'configuracoes-message',
-      'Informe o horário inicial da agenda.',
-      'erro'
-    );
-
-    return false;
-  }
-
-  if (
-    !payload.agenda_horario_fim
-  ) {
-    mostrarMensagem(
-      'configuracoes-message',
-      'Informe o horário final da agenda.',
-      'erro'
-    );
-
-    return false;
-  }
-
-  const inicio =
-    Number(
-      payload.agenda_horario_inicio
-        .slice(0, 2)
-    ) * 60 +
-    Number(
-      payload.agenda_horario_inicio
-        .slice(3, 5)
-    );
-
-  const fim =
-    Number(
-      payload.agenda_horario_fim
-        .slice(0, 2)
-    ) * 60 +
-    Number(
-      payload.agenda_horario_fim
-        .slice(3, 5)
-    );
-
-  if (fim <= inicio) {
-    mostrarMensagem(
-      'configuracoes-message',
-      'O horário final deve ser maior que o horário inicial.',
-      'erro'
-    );
-
-    return false;
-  }
-
-  if (
-    !CONFIGS_INTERVALOS_AGENDA.includes(
-      payload.agenda_intervalo
-    )
-  ) {
-    mostrarMensagem(
-      'configuracoes-message',
-      'Selecione um intervalo de agenda válido.',
-      'erro'
-    );
-
-    return false;
-  }
-
-  return salvarConfiguracoes(
-    payload,
-    'configuracoes-message'
-  );
-}
-
-
-/* ============================================================
-   BOTÕES
-   ============================================================ */
-
-function alterarEstadoBotao(
-  botao,
-  carregando,
-  textoNormal
-) {
-  if (!botao) {
-    return;
-  }
-
-  if (carregando) {
-    botao.disabled = true;
-
-    if (
-      !botao.dataset
-        .textoOriginal
-    ) {
-      botao.dataset
-        .textoOriginal =
-        botao.textContent;
-    }
-
-    botao.textContent =
-      'Salvando...';
-  } else {
-    botao.disabled = false;
-
-    botao.textContent =
-      botao.dataset
-        .textoOriginal ||
-      textoNormal ||
-      'Salvar';
-  }
-}
-
-function configurarBotao(
-  id,
-  funcao
-) {
-  const botao =
-    elemento(id);
-
-  if (!botao) {
-    return;
-  }
-
-  if (
-    botao.dataset
-      .configsListener ===
-    'true'
-  ) {
-    return;
-  }
-
-  botao.dataset
-    .configsListener =
-    'true';
-
-  botao.addEventListener(
-    'click',
-    async evento => {
-      evento.preventDefault();
-
-      const textoOriginal =
-        botao.textContent;
-
-      alterarEstadoBotao(
-        botao,
-        true,
-        textoOriginal
+      aplicarCoresTema(
+        payload.cor_primaria,
+        payload.cor_destaque,
+        payload.cor_fundo
       );
 
-      try {
-        await funcao();
-      } finally {
-        alterarEstadoBotao(
-          botao,
-          false,
-          textoOriginal
+      const resposta =
+        await salvarConfiguracoes(
+          payload,
+          'config-aparencia-message',
+          'Aparência salva com sucesso.'
         );
-      }
-    }
-  );
-}
 
+      if (resposta?.empresa) {
 
-/* ============================================================
-   FORMULÁRIO
-   ============================================================ */
+        atualizarEmpresaLocal(
+          resposta.empresa
+        );
 
-function configurarFormulario() {
-  const form =
-    elemento(
-      'form-configuracoes'
-    );
-
-  if (!form) {
-    return;
-  }
-
-  if (
-    form.dataset
-      .configsListener ===
-    'true'
-  ) {
-    return;
-  }
-
-  form.dataset
-    .configsListener =
-    'true';
-
-  form.addEventListener(
-    'submit',
-    async evento => {
-      evento.preventDefault();
-
-      await salvarDadosEmpresa();
-    }
-  );
-}
-
-
-/* ============================================================
-   EXPOSIÇÃO GLOBAL
-   ============================================================ */
-
-window.carregarConfiguracoes =
-  carregarConfiguracoes;
-
-window.carregarUsuarioConfiguracoes =
-  carregarUsuarioConfiguracoes;
-
-window.salvarConfiguracoes =
-  salvarConfiguracoes;
-
-window.salvarDadosEmpresa =
-  salvarDadosEmpresa;
-
-window.salvarPreferencias =
-  salvarPreferencias;
-
-window.salvarAparencia =
-  salvarAparencia;
-
-window.salvarDocumentos =
-  salvarDocumentos;
-
-window.salvarAgenda =
-  salvarAgenda;
-
-window.aplicarCoresEmpresa =
-  aplicarCoresEmpresa;
-
-window.aplicarNichoNaInterface =
-  aplicarNichoNaInterface;
-
-window.normalizarNicho =
-  normalizarNicho;
-
-
-/* ============================================================
-   INICIALIZAÇÃO
-   ============================================================ */
-
-document.addEventListener(
-  'DOMContentLoaded',
-  async () => {
-    configurarCores();
-
-    configurarPresetsTema();
-
-    configurarTrocaDeNicho();
-
-    configurarFormulario();
-
-    configurarBotao(
-      'btn-salvar-preferencias',
-      salvarPreferencias
-    );
-
-    configurarBotao(
-      'btn-salvar-tema',
-      salvarAparencia
-    );
-
-    configurarBotao(
-      'btn-restaurar-tema',
-      () => {
-        preencherCampo(
+        definirCor(
           'config-cor-principal',
-          CONFIGS_CORES_PADRAO.primaria
-        );
-
-        preencherCampo(
           'config-cor-principal-text',
-          CONFIGS_CORES_PADRAO.primaria
+          resposta.empresa.cor_primaria ||
+            payload.cor_primaria
         );
 
-        preencherCampo(
+        definirCor(
           'config-cor-destaque',
-          CONFIGS_CORES_PADRAO.destaque
-        );
-
-        preencherCampo(
           'config-cor-destaque-text',
-          CONFIGS_CORES_PADRAO.destaque
+          resposta.empresa.cor_destaque ||
+            payload.cor_destaque
         );
 
-        preencherCampo(
+        definirCor(
           'config-cor-fundo',
-          CONFIGS_CORES_PADRAO.fundo
-        );
-
-        preencherCampo(
           'config-cor-fundo-text',
-          CONFIGS_CORES_PADRAO.fundo
+          resposta.empresa.cor_fundo ||
+            payload.cor_fundo
         );
-
-        aplicarCoresEmpresa({
-          cor_primaria:
-            CONFIGS_CORES_PADRAO.primaria,
-
-          cor_destaque:
-            CONFIGS_CORES_PADRAO.destaque,
-
-          cor_fundo:
-            CONFIGS_CORES_PADRAO.fundo
-        });
-
-        atualizarPreviewTema();
       }
+
+      atualizarPreviewTema();
+
+      return resposta;
+
+    } catch (error) {
+
+      return null;
+    }
+  }
+
+
+  // ==========================================================
+  // RESTAURAR TEMA
+  // ==========================================================
+
+  function restaurarTema() {
+
+    definirCor(
+      'config-cor-principal',
+      'config-cor-principal-text',
+      CORES_PADRAO.primaria
     );
 
-    configurarBotao(
-      'btn-salvar-documentos',
-      salvarDocumentos
+    definirCor(
+      'config-cor-destaque',
+      'config-cor-destaque-text',
+      CORES_PADRAO.destaque
     );
 
-    configurarBotao(
-      'btn-salvar-agenda',
-      salvarAgenda
+    definirCor(
+      'config-cor-fundo',
+      'config-cor-fundo-text',
+      CORES_PADRAO.fundo
     );
-
-    limparMensagens();
-
-    await carregarUsuarioConfiguracoes();
-
-    await carregarConfiguracoes();
-
-    configurarCores();
 
     atualizarPreviewTema();
+
+    mostrarMensagem(
+      'config-aparencia-message',
+      'Tema restaurado. Clique em "Salvar tema" para aplicar definitivamente.',
+      'info'
+    );
   }
-);
+
+
+  // ==========================================================
+  // SALVAR DOCUMENTOS
+  // ==========================================================
+
+  async function salvarDocumentos() {
+
+    try {
+
+      const payload =
+        montarPayloadDocumentos();
+
+      const resposta =
+        await salvarConfiguracoes(
+          payload,
+          'configuracoes-message',
+          'Configurações dos documentos salvas com sucesso.'
+        );
+
+      if (resposta?.empresa) {
+
+        atualizarEmpresaLocal(
+          resposta.empresa
+        );
+
+        preencherDadosEmpresa(
+          resposta.empresa
+        );
+      }
+
+      return resposta;
+
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  // ==========================================================
+  // SALVAR AGENDA
+  // ==========================================================
+
+  async function salvarAgenda() {
+
+    try {
+
+      const payload =
+        montarPayloadAgenda();
+
+      const resposta =
+        await salvarConfiguracoes(
+          payload,
+          'configuracoes-message',
+          'Configurações da agenda salvas com sucesso.'
+        );
+
+      if (resposta?.empresa) {
+
+        atualizarEmpresaLocal(
+          resposta.empresa
+        );
+
+        definirValor(
+          'config-agenda-inicio',
+          resposta.empresa.agenda_horario_inicio
+        );
+
+        definirValor(
+          'config-agenda-fim',
+          resposta.empresa.agenda_horario_fim
+        );
+
+        definirValor(
+          'config-agenda-intervalo',
+          resposta.empresa.agenda_intervalo
+        );
+      }
+
+      return resposta;
+
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  // ==========================================================
+  // EVENTOS DOS FORMULÁRIOS
+  // ==========================================================
+
+  function configurarFormularioPrincipal() {
+
+    const form =
+      document.getElementById(
+        'form-configuracoes'
+      );
+
+    if (!form) {
+      return;
+    }
+
+    form.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+        await salvarEmpresa();
+      }
+    );
+  }
+
+
+  // ==========================================================
+  // BOTÕES
+  // ==========================================================
+
+  function configurarBotoes() {
+
+    document
+      .getElementById(
+        'btn-salvar-configuracoes'
+      )
+      ?.addEventListener(
+        'click',
+        async event => {
+
+          event.preventDefault();
+
+          await salvarEmpresa();
+        }
+      );
+
+
+    document
+      .getElementById(
+        'btn-salvar-preferencias'
+      )
+      ?.addEventListener(
+        'click',
+        async event => {
+
+          event.preventDefault();
+
+          await salvarPreferencias();
+        }
+      );
+
+
+    document
+      .getElementById(
+        'btn-salvar-tema'
+      )
+      ?.addEventListener(
+        'click',
+        async event => {
+
+          event.preventDefault();
+
+          await salvarAparencia();
+        }
+      );
+
+
+    document
+      .getElementById(
+        'btn-restaurar-tema'
+      )
+      ?.addEventListener(
+        'click',
+        event => {
+
+          event.preventDefault();
+
+          restaurarTema();
+        }
+      );
+
+
+    document
+      .getElementById(
+        'btn-salvar-documentos'
+      )
+      ?.addEventListener(
+        'click',
+        async event => {
+
+          event.preventDefault();
+
+          await salvarDocumentos();
+        }
+      );
+
+
+    document
+      .getElementById(
+        'btn-salvar-agenda'
+      )
+      ?.addEventListener(
+        'click',
+        async event => {
+
+          event.preventDefault();
+
+          await salvarAgenda();
+        }
+      );
+  }
+
+
+  // ==========================================================
+  // ALTERAÇÃO DE NICHO
+  // ==========================================================
+
+  function configurarNicho() {
+
+    const select =
+      document.getElementById(
+        'config-empresa-nicho'
+      );
+
+    if (!select) {
+      return;
+    }
+
+    select.addEventListener(
+      'change',
+      () => {
+
+        const nicho =
+          String(
+            select.value || ''
+          ).trim().toLowerCase();
+
+        if (
+          !NICHOS_VALIDOS.includes(nicho)
+        ) {
+          return;
+        }
+
+        sincronizarNichoLocal(
+          nicho
+        );
+
+        atualizarCamposVisuaisNicho(
+          nicho
+        );
+      }
+    );
+  }
+
+
+  // ==========================================================
+  // INFORMAÇÕES DO SISTEMA
+  // ==========================================================
+
+  function preencherInformacoesSistema() {
+
+    const empresa =
+      obterEmpresaAtual();
+
+    if (!empresa) {
+      return;
+    }
+
+    definirTexto(
+      'config-info-status',
+      'Ativo'
+    );
+
+    definirTexto(
+      'config-info-empresa',
+      empresa.nome ||
+        'Minha empresa'
+    );
+  }
+
+
+  // ==========================================================
+  // INICIALIZAÇÃO
+  // ==========================================================
+
+  async function inicializarConfiguracoes() {
+
+    configurarInputsDeCor();
+    configurarPresetsTema();
+    configurarFormularioPrincipal();
+    configurarBotoes();
+    configurarNicho();
+
+    atualizarPreviewTema();
+
+    const empresaInicial =
+      obterEmpresaAtual();
+
+    if (empresaInicial) {
+      preencherDadosEmpresa(
+        empresaInicial
+      );
+    }
+
+    try {
+      await carregarUsuarioAtual();
+    } catch (error) {}
+
+    try {
+      await carregarConfiguracoes();
+    } catch (error) {}
+
+    preencherInformacoesSistema();
+    atualizarPreviewTema();
+  }
+
+
+  // ==========================================================
+  // API PÚBLICA
+  // ==========================================================
+
+  window.OrvixConfiguracoes = {
+    carregarConfiguracoes,
+    carregarUsuarioAtual,
+    salvarEmpresa,
+    salvarPreferencias,
+    salvarAparencia,
+    salvarDocumentos,
+    salvarAgenda,
+    restaurarTema,
+    atualizarPreviewTema
+  };
+
+
+  // ==========================================================
+  // DOM READY
+  // ==========================================================
+
+  if (
+    document.readyState === 'loading'
+  ) {
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      inicializarConfiguracoes,
+      {
+        once: true
+      }
+    );
+
+  } else {
+
+    inicializarConfiguracoes();
+  }
+
+})();
