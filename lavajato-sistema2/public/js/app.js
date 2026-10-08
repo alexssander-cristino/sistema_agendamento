@@ -3302,6 +3302,432 @@
     }
   }
 
+  // ============================================================
+// LOGS / AUDITORIA
+// ============================================================
+
+let logsPaginaAtual = 1;
+const LOGS_POR_PAGINA = 30;
+let logsCarregando = false;
+
+function escaparHtmlLogs(valor) {
+  if (valor === null || valor === undefined) {
+    return '';
+  }
+
+  return String(valor)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatarDataLog(data) {
+  if (!data) {
+    return '-';
+  }
+
+  const d = new Date(data);
+
+  if (Number.isNaN(d.getTime())) {
+    return String(data);
+  }
+
+  return d.toLocaleString('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
+}
+
+function formatarAcaoLog(acao) {
+  if (!acao) {
+    return '-';
+  }
+
+  const mapa = {
+    criacao: 'Criação',
+    criação: 'Criação',
+    atualizacao: 'Atualização',
+    atualização: 'Atualização',
+    exclusao: 'Exclusão',
+    exclusão: 'Exclusão',
+    login: 'Login',
+    logout: 'Logout'
+  };
+
+  return mapa[String(acao).toLowerCase()] || String(acao);
+}
+
+function formatarEntidadeLog(entidade) {
+  if (!entidade) {
+    return '-';
+  }
+
+  const mapa = {
+    empresa: 'Empresa',
+    usuario: 'Usuário',
+    usuarios: 'Usuários',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    agendamento: 'Agendamento',
+    agendamentos: 'Agendamentos',
+    despesa: 'Despesa',
+    despesas: 'Despesas',
+    cliente: 'Cliente',
+    clientes: 'Clientes',
+    configuracoes: 'Configurações'
+  };
+
+  return mapa[String(entidade).toLowerCase()] || String(entidade);
+}
+
+function formatarDetalhesLog(detalhes) {
+  if (!detalhes) {
+    return '-';
+  }
+
+  try {
+    const objeto =
+      typeof detalhes === 'string'
+        ? JSON.parse(detalhes)
+        : detalhes;
+
+    return escaparHtmlLogs(
+      JSON.stringify(objeto, null, 2)
+    );
+  } catch (_) {
+    return escaparHtmlLogs(detalhes);
+  }
+}
+
+function obterNomeUsuarioLog(log) {
+  if (log.usuario_nome) {
+    return log.usuario_nome;
+  }
+
+  if (log.usuario_email) {
+    return log.usuario_email;
+  }
+
+  if (log.usuario_id) {
+    return `Usuário #${log.usuario_id}`;
+  }
+
+  return 'Sistema';
+}
+
+async function carregarLogs() {
+
+  if (logsCarregando) {
+    return;
+  }
+
+  const tbody = document.getElementById('logs-tbody');
+
+  if (!tbody) {
+    return;
+  }
+
+  logsCarregando = true;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" class="empty-state">
+        Carregando logs...
+      </td>
+    </tr>
+  `;
+
+  const busca =
+    document.getElementById('logs-busca')?.value?.trim() || '';
+
+  const acao =
+    document.getElementById('logs-acao')?.value || '';
+
+  try {
+
+    const params = new URLSearchParams();
+
+    params.set('pagina', String(logsPaginaAtual));
+    params.set('limite', String(LOGS_POR_PAGINA));
+
+    if (busca) {
+      params.set('busca', busca);
+    }
+
+    if (acao) {
+      params.set('acao', acao);
+    }
+
+    const resposta = await api(
+      `/api/logs?${params.toString()}`
+    );
+
+    const logs = Array.isArray(resposta)
+      ? resposta
+      : (
+          Array.isArray(resposta.logs)
+            ? resposta.logs
+            : []
+        );
+
+    renderizarLogs(logs);
+
+    const total =
+      Number(resposta.total || logs.length);
+
+    const totalPaginas =
+      Math.max(
+        1,
+        Math.ceil(total / LOGS_POR_PAGINA)
+      );
+
+    atualizarPaginacaoLogs(
+      totalPaginas
+    );
+
+  } catch (erro) {
+
+    console.error(
+      'Erro ao carregar logs:',
+      erro
+    );
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty-state">
+          Não foi possível carregar os logs.
+        </td>
+      </tr>
+    `;
+
+    const mensagem =
+      document.getElementById('logs-message');
+
+    if (mensagem) {
+      mensagem.textContent =
+        erro?.message ||
+        'Não foi possível carregar os logs.';
+    }
+
+  } finally {
+
+    logsCarregando = false;
+
+  }
+}
+
+function renderizarLogs(logs) {
+
+  const tbody =
+    document.getElementById('logs-tbody');
+
+  if (!tbody) {
+    return;
+  }
+
+  if (!logs.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty-state">
+          Nenhum registro encontrado.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML = logs.map(log => {
+
+    const detalhes =
+      formatarDetalhesLog(log.detalhes);
+
+    return `
+      <tr>
+
+        <td>
+          ${escaparHtmlLogs(
+            formatarDataLog(log.criado_em)
+          )}
+        </td>
+
+        <td>
+          ${escaparHtmlLogs(
+            obterNomeUsuarioLog(log)
+          )}
+        </td>
+
+        <td>
+          <span class="log-action">
+            ${escaparHtmlLogs(
+              formatarAcaoLog(log.acao)
+            )}
+          </span>
+        </td>
+
+        <td>
+          ${escaparHtmlLogs(
+            formatarEntidadeLog(log.entidade)
+          )}
+        </td>
+
+        <td>
+          ${log.entidade_id
+            ? `#${escaparHtmlLogs(log.entidade_id)}`
+            : '-'}
+        </td>
+
+        <td>
+          <details class="log-details">
+            <summary>Ver detalhes</summary>
+            <pre>${detalhes}</pre>
+          </details>
+        </td>
+
+      </tr>
+    `;
+
+  }).join('');
+}
+
+function atualizarPaginacaoLogs(totalPaginas) {
+
+  const elementoPagina =
+    document.getElementById('logs-pagina');
+
+  const btnAnterior =
+    document.getElementById('logs-anterior');
+
+  const btnProximo =
+    document.getElementById('logs-proximo');
+
+  if (elementoPagina) {
+    elementoPagina.textContent =
+      `Página ${logsPaginaAtual} de ${totalPaginas}`;
+  }
+
+  if (btnAnterior) {
+    btnAnterior.disabled =
+      logsPaginaAtual <= 1;
+  }
+
+  if (btnProximo) {
+    btnProximo.disabled =
+      logsPaginaAtual >= totalPaginas;
+  }
+}
+
+function inicializarLogs() {
+
+  const btnAtualizar =
+    document.getElementById('btn-atualizar-logs');
+
+  const btnAnterior =
+    document.getElementById('logs-anterior');
+
+  const btnProximo =
+    document.getElementById('logs-proximo');
+
+  const busca =
+    document.getElementById('logs-busca');
+
+  const acao =
+    document.getElementById('logs-acao');
+
+  if (btnAtualizar) {
+    btnAtualizar.addEventListener(
+      'click',
+      () => {
+        carregarLogs();
+      }
+    );
+  }
+
+  if (btnAnterior) {
+    btnAnterior.addEventListener(
+      'click',
+      () => {
+
+        if (logsPaginaAtual <= 1) {
+          return;
+        }
+
+        logsPaginaAtual--;
+
+        carregarLogs();
+
+      }
+    );
+  }
+
+  if (btnProximo) {
+    btnProximo.addEventListener(
+      'click',
+      () => {
+
+        logsPaginaAtual++;
+
+        carregarLogs();
+
+      }
+    );
+  }
+
+  if (acao) {
+    acao.addEventListener(
+      'change',
+      () => {
+
+        logsPaginaAtual = 1;
+
+        carregarLogs();
+
+      }
+    );
+  }
+
+  if (busca) {
+
+    let timeout;
+
+    busca.addEventListener(
+      'input',
+      () => {
+
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+
+          logsPaginaAtual = 1;
+
+          carregarLogs();
+
+        }, 350);
+
+      }
+    );
+
+  }
+}
+
+if (
+  document.readyState === 'loading'
+) {
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    inicializarLogs
+  );
+
+} else {
+
+  inicializarLogs();
+
+}
+
 
   // ============================================================
   // INICIALIZAÇÃO COM AUTENTICAÇÃO
