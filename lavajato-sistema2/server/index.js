@@ -10,6 +10,9 @@ const pool = require('./db');
 const registrarLogs =
   require('./middleware/logger');
 
+const auditoriaAutomatica =
+  require('./middleware/auditoriaAutomatica');  
+
 const {
   apiRateLimit,
   authRateLimit,
@@ -209,6 +212,9 @@ app.use(
   registrarLogs
 );
 
+app.use(
+  auditoriaAutomatica
+);
 
 // ============================================================
 // RATE LIMIT — API
