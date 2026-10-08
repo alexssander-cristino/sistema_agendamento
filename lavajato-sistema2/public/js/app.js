@@ -292,44 +292,6 @@
 
 
   // ============================================================
-  // SIDEBAR - USUÁRIO E EMPRESA
-  // ============================================================
-
-  function atualizarSidebarUsuario(){
-
-    const empresaElement = document.getElementById('sidebar-company');
-    const nomeElement = document.getElementById('sidebar-user-name');
-    const perfilElement = document.getElementById('sidebar-user-profile');
-    const avatarElement = document.getElementById('sidebar-user-avatar');
-
-    if(empresaElement && empresaLogada){
-      empresaElement.textContent = empresaLogada.nome || 'Minha empresa';
-    }
-
-    if(nomeElement && usuarioLogado){
-      nomeElement.textContent = usuarioLogado.nome || 'Usuário';
-    }
-
-    if(perfilElement && usuarioLogado){
-      perfilElement.textContent =
-        usuarioLogado.perfil === 'administrador'
-          ? 'Administrador'
-          : 'Funcionário';
-    }
-
-    if(avatarElement && usuarioLogado){
-      const nome = usuarioLogado.nome || 'U';
-      avatarElement.textContent = nome.charAt(0).toUpperCase();
-    }
-
-    // Aplica rótulos e campos do nicho da empresa
-    aplicarNicho(empresaLogada && empresaLogada.nicho);
-
-    atualizarAcessoUsuarios();
-  }
-
-
-  // ============================================================
   // ACESSO À ÁREA DE USUÁRIOS
   // ============================================================
 

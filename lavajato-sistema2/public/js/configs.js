@@ -20,195 +20,431 @@ let usuarioConfiguracoes = null;
 let carregandoConfiguracoes = false;
 let salvandoConfiguracoes = false;
 
-  // ============================================================
-  // NICHOS DE EMPRESA
-  // ------------------------------------------------------------
-  // Os campos extras reaproveitam as colunas já existentes:
-  //   extra1 -> "placa"   (campo ap-plate)
-  //   extra2 -> "veiculo" (campo ap-vehicle)
-  // Assim o backend continua funcionando sem mudanças.
-  // Use extra = null para esconder o campo naquele nicho.
-  // ============================================================
+/* ============================================================
+   NICHOS DE EMPRESA
+   ============================================================ */
 
-  const NICHO_PADRAO = 'lavajato';
+const NICHO_PADRAO = 'lavajato';
 
-  const NICHOS = {
-    lavajato: {
-      nome: 'Lava-jato / Estética automotiva',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: { label: 'Placa', placeholder: 'ABC1D23', upper: true },
-      extra2: { label: 'Veículo', placeholder: 'Modelo / cor' }
+const NICHOS = {
+  lavajato: {
+    nome: 'Lava-jato / Estética automotiva',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Placa',
+      placeholder: 'ABC1D23',
+      upper: true
     },
-    barbearia: {
-      nome: 'Barbearia / Salão de beleza',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: { label: 'Profissional', placeholder: 'Quem vai atender' },
-      extra2: null
-    },
-    clinica: {
-      nome: 'Clínica / Consultório',
-      cliente: 'Paciente',
-      servico: 'Procedimento',
-      servicos: 'Procedimentos',
-      novoServico: 'Novo procedimento',
-      extra1: { label: 'Convênio', placeholder: 'Particular, Unimed...' },
-      extra2: { label: 'Profissional', placeholder: 'Médico / dentista' }
-    },
-    pet: {
-      nome: 'Pet shop / Veterinária',
-      cliente: 'Tutor',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: { label: 'Nome do pet', placeholder: 'Ex: Thor' },
-      extra2: { label: 'Raça / porte', placeholder: 'Ex: Golden, grande' }
-    },
-    oficina: {
-      nome: 'Oficina mecânica',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: { label: 'Placa', placeholder: 'ABC1D23', upper: true },
-      extra2: { label: 'Veículo', placeholder: 'Modelo / ano' }
-    },
-    personal: {
-      nome: 'Personal / Aulas / Consultoria',
-      cliente: 'Aluno / Cliente',
-      servico: 'Aula / Sessão',
-      servicos: 'Aulas e sessões',
-      novoServico: 'Nova aula / sessão',
-      extra1: null,
-      extra2: null
-    },
-    generico: {
-      nome: 'Outro',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: null,
-      extra2: null
+    extra2: {
+      label: 'Veículo',
+      placeholder: 'Modelo / cor'
     }
-  };
+  },
 
+  barbearia: {
+    nome: 'Barbearia / Salão de beleza',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Profissional',
+      placeholder: 'Quem vai atender'
+    },
+    extra2: null
+  },
 
-  function getNicho(){
-    const chave = empresaLogada && empresaLogada.nicho;
-    return NICHOS[chave] || NICHOS[NICHO_PADRAO];
+  clinica: {
+    nome: 'Clínica / Consultório',
+    cliente: 'Paciente',
+    servico: 'Procedimento',
+    servicos: 'Procedimentos',
+    novoServico: 'Novo procedimento',
+    extra1: {
+      label: 'Convênio',
+      placeholder: 'Particular, Unimed...'
+    },
+    extra2: {
+      label: 'Profissional',
+      placeholder: 'Médico / dentista'
+    }
+  },
+
+  pet: {
+    nome: 'Pet shop / Veterinária',
+    cliente: 'Tutor',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Nome do pet',
+      placeholder: 'Ex: Thor'
+    },
+    extra2: {
+      label: 'Raça / porte',
+      placeholder: 'Ex: Golden, grande'
+    }
+  },
+
+  oficina: {
+    nome: 'Oficina mecânica',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Placa',
+      placeholder: 'ABC1D23',
+      upper: true
+    },
+    extra2: {
+      label: 'Veículo',
+      placeholder: 'Modelo / ano'
+    }
+  },
+
+  personal: {
+    nome: 'Personal / Aulas / Consultoria',
+    cliente: 'Aluno / Cliente',
+    servico: 'Aula / Sessão',
+    servicos: 'Aulas e sessões',
+    novoServico: 'Nova aula / sessão',
+    extra1: null,
+    extra2: null
+  },
+
+  generico: {
+    nome: 'Outro',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: null,
+    extra2: null
+  }
+};
+
+/* ============================================================
+   HELPERS DE NÚCLEO
+   ============================================================ */
+
+function obterEmpresaAtual() {
+  try {
+    if (
+      typeof empresaLogada !== 'undefined' &&
+      empresaLogada
+    ) {
+      return empresaLogada;
+    }
+  } catch {
+    // Ignorado.
   }
 
+  if (window.empresaLogada) {
+    return window.empresaLogada;
+  }
 
-  function aplicarNicho(chave){
+  if (window.orvixEmpresa) {
+    return window.orvixEmpresa;
+  }
 
-    // Sem nicho informado (ex.: resposta que ainda não traz o campo),
-    // mantém o último nicho aplicado em vez de voltar para o padrão.
-    if(!chave){
-      chave =
-        window.nichoAtual ||
-        (empresaLogada && empresaLogada.nicho) ||
-        NICHO_PADRAO;
+  if (empresaConfiguracoes) {
+    return empresaConfiguracoes;
+  }
+
+  return null;
+}
+
+function normalizarNicho(valor) {
+  const chave = String(valor || '')
+    .trim()
+    .toLowerCase();
+
+  return NICHOS[chave]
+    ? chave
+    : NICHO_PADRAO;
+}
+
+function getNicho() {
+  const empresa = obterEmpresaAtual();
+
+  const chave =
+    empresa?.nicho ||
+    window.nichoAtual ||
+    NICHO_PADRAO;
+
+  return NICHOS[normalizarNicho(chave)] ||
+    NICHOS[NICHO_PADRAO];
+}
+
+function escapeHtml(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/* ============================================================
+   APLICAÇÃO DO NICHO
+   ============================================================ */
+
+function aplicarNicho(chave) {
+  if (!chave) {
+    const empresa = obterEmpresaAtual();
+
+    chave =
+      window.nichoAtual ||
+      empresa?.nicho ||
+      NICHO_PADRAO;
+  }
+
+  const chaveValida = NICHOS[chave]
+    ? chave
+    : NICHO_PADRAO;
+
+  const n = NICHOS[chaveValida];
+
+  window.nichoAtual = chaveValida;
+
+  const empresa = obterEmpresaAtual();
+
+  if (empresa) {
+    empresa.nicho = chaveValida;
+  }
+
+  /* ----------------------------------------------------------
+     Modal de agendamento
+     ---------------------------------------------------------- */
+
+  const lblServico =
+    document.getElementById('ap-service-label');
+
+  if (lblServico) {
+    lblServico.textContent = n.servico;
+  }
+
+  const lblCliente =
+    document.getElementById('ap-client-label');
+
+  if (lblCliente) {
+    lblCliente.textContent = n.cliente;
+  }
+
+  [
+    ['extra1', 'ap-plate'],
+    ['extra2', 'ap-vehicle']
+  ].forEach(([chaveExtra, inputId]) => {
+    const cfg = n[chaveExtra];
+
+    const campo =
+      document.getElementById(
+        `ap-${chaveExtra}-field`
+      );
+
+    const input =
+      document.getElementById(inputId);
+
+    const label =
+      document.getElementById(
+        `ap-${chaveExtra}-label`
+      );
+
+    if (!campo || !input) {
+      return;
     }
 
-    const chaveValida = NICHOS[chave] ? chave : NICHO_PADRAO;
-    const n = NICHOS[chaveValida];
+    if (cfg) {
+      campo.style.display = '';
 
-    window.nichoAtual = chaveValida;
-
-    // Garante que getNicho() reflita a escolha mesmo antes do /auth/me
-    if(empresaLogada){
-      empresaLogada.nicho = chaveValida;
-    }
-
-    // Modal de agendamento
-    const lblServico = document.getElementById('ap-service-label');
-    if(lblServico){ lblServico.textContent = n.servico; }
-
-    const lblCliente = document.getElementById('ap-client-label');
-    if(lblCliente){ lblCliente.textContent = n.cliente; }
-
-    [
-      ['extra1', 'ap-plate'],
-      ['extra2', 'ap-vehicle']
-    ].forEach(([chaveExtra, inputId]) => {
-
-      const cfg = n[chaveExtra];
-      const campo = document.getElementById('ap-' + chaveExtra + '-field');
-      const input = document.getElementById(inputId);
-      const label = document.getElementById('ap-' + chaveExtra + '-label');
-
-      if(!campo || !input){ return; }
-
-      if(cfg){
-        campo.style.display = '';
-        if(label){ label.textContent = cfg.label; }
-        input.placeholder = cfg.placeholder;
-      }else{
-        campo.style.display = 'none';
-        input.value = '';
+      if (label) {
+        label.textContent = cfg.label;
       }
-    });
 
-    // Menu e títulos de Serviços
-    const navServicos = document.querySelector('[data-tab="servicos"] .nav-text');
-    if(navServicos){ navServicos.textContent = n.servicos; }
+      input.placeholder = cfg.placeholder;
+    } else {
+      campo.style.display = 'none';
+      input.value = '';
+    }
+  });
 
-    const h1Servicos = document.querySelector('#panel-servicos h1');
-    if(h1Servicos){ h1Servicos.textContent = n.servicos; }
+  /* ----------------------------------------------------------
+     Menu e títulos de Serviços
+     ---------------------------------------------------------- */
 
-    const btnNovoServico = document.getElementById('btn-new-service');
-    if(btnNovoServico){ btnNovoServico.textContent = n.novoServico; }
+  const navServicos =
+    document.querySelector(
+      '[data-tab="servicos"] .nav-text'
+    );
 
-    // Busca de clientes
-    const buscaCli = document.getElementById('cli-search-input');
-    if(buscaCli){
-      buscaCli.placeholder =
+  if (navServicos) {
+    navServicos.textContent = n.servicos;
+  }
+
+  const h1Servicos =
+    document.querySelector(
+      '#panel-servicos h1'
+    );
+
+  if (h1Servicos) {
+    h1Servicos.textContent = n.servicos;
+  }
+
+  const btnNovoServico =
+    document.getElementById(
+      'btn-new-service'
+    );
+
+  if (btnNovoServico) {
+    btnNovoServico.textContent =
+      n.novoServico;
+  }
+
+  /* ----------------------------------------------------------
+     Busca de clientes
+     ---------------------------------------------------------- */
+
+  const buscaCli =
+    document.getElementById(
+      'cli-search-input'
+    );
+
+  if (buscaCli) {
+    buscaCli.placeholder = n.extra1
+      ? 'Nome, telefone ou ' +
+        n.extra1.label.toLowerCase() +
+        '...'
+      : 'Nome ou telefone...';
+  }
+
+  /* ----------------------------------------------------------
+     Seletor de nicho
+     ---------------------------------------------------------- */
+
+  const selConfig =
+    document.getElementById(
+      'config-empresa-nicho'
+    );
+
+  if (selConfig) {
+    selConfig.value = chaveValida;
+  }
+}
+
+function aplicarNichoNaInterface(chave) {
+  aplicarNicho(chave);
+}
+
+function configurarTrocaDeNicho() {
+  const seletor =
+    document.getElementById(
+      'config-empresa-nicho'
+    );
+
+  if (!seletor) {
+    return;
+  }
+
+  if (seletor.dataset.configsNichoListener === 'true') {
+    return;
+  }
+
+  seletor.dataset.configsNichoListener = 'true';
+
+  seletor.addEventListener(
+    'change',
+    () => {
+      const nicho =
+        normalizarNicho(seletor.value);
+
+      window.nichoAtual = nicho;
+
+      aplicarNicho(nicho);
+
+      if (empresaConfiguracoes) {
+        empresaConfiguracoes.nicho = nicho;
+      }
+
+      try {
+        if (
+          typeof empresaLogada !== 'undefined' &&
+          empresaLogada
+        ) {
+          empresaLogada.nicho = nicho;
+        }
+      } catch {
+        // Ignorado.
+      }
+    }
+  );
+}
+
+/* ============================================================
+   VALOR DO CAMPO EXTRA
+   ============================================================ */
+
+function formatExtra(valor, cfg) {
+  const v = String(valor || '');
+
+  return cfg && cfg.upper
+    ? v.toUpperCase()
+    : v;
+}
+
+/* ============================================================
+   DETALHES DAS LISTAGENS
+   ============================================================ */
+
+function detalhesHtml(ap) {
+  const n = getNicho();
+
+  let html = '';
+
+  if (ap?.veiculo) {
+    html +=
+      '<span title="' +
+      escapeHtml(
+        n.extra2
+          ? n.extra2.label
+          : 'Detalhe'
+      ) +
+      '">' +
+      escapeHtml(ap.veiculo) +
+      '</span>';
+  }
+
+  if (ap?.placa) {
+    html +=
+      '<span title="' +
+      escapeHtml(
         n.extra1
-          ? 'Nome, telefone ou ' + n.extra1.label.toLowerCase() + '...'
-          : 'Nome ou telefone...';
-    }
-
-    // Seletor de nicho nas configurações
-    const selConfig = document.getElementById('config-empresa-nicho');
-    if(selConfig){ selConfig.value = chaveValida; }
+          ? n.extra1.label
+          : 'Detalhe'
+      ) +
+      '">' +
+      escapeHtml(
+        formatExtra(
+          ap.placa,
+          n.extra1
+        )
+      ) +
+      '</span>';
   }
 
-
-  // Valor do campo extra (respeita maiúsculas quando necessário)
-  function formatExtra(valor, cfg){
-    const v = String(valor || '');
-    return cfg && cfg.upper ? v.toUpperCase() : v;
+  if (ap?.observacoes) {
+    html +=
+      '<span title="Observações">' +
+      escapeHtml(ap.observacoes) +
+      '</span>';
   }
 
+  return html;
+}
 
-  // Spans de detalhes (extra2, extra1 e observações) para listagens
-  function detalhesHtml(ap){
-
-    const n = getNicho();
-    let html = '';
-
-    if(ap.veiculo){
-      html += '<span title="' + escapeHtml(n.extra2 ? n.extra2.label : 'Detalhe') + '">' +
-        escapeHtml(ap.veiculo) + '</span>';
-    }
-
-    if(ap.placa){
-      html += '<span title="' + escapeHtml(n.extra1 ? n.extra1.label : 'Detalhe') + '">' +
-        escapeHtml(formatExtra(ap.placa, n.extra1)) + '</span>';
-    }
-
-    if(ap.observacoes){
-      html += '<span title="Observações">' + escapeHtml(ap.observacoes) + '</span>';
-    }
-
-    return html;
-  }
 /* ============================================================
    ELEMENTOS
    ============================================================ */
@@ -223,7 +459,9 @@ function elemento(id) {
 
 function obterToken() {
   try {
-    return localStorage.getItem(CONFIGS_TOKEN_KEY);
+    return localStorage.getItem(
+      CONFIGS_TOKEN_KEY
+    );
   } catch (erro) {
     console.warn(
       'Não foi possível acessar o localStorage:',
@@ -247,7 +485,8 @@ function headersAutenticacao() {
   const token = obterToken();
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.Authorization =
+      `Bearer ${token}`;
   }
 
   return headers;
@@ -257,7 +496,10 @@ function headersAutenticacao() {
    FETCH PADRÃO
    ============================================================ */
 
-async function requisicaoConfiguracoes(url, opcoes = {}) {
+async function requisicaoConfiguracoes(
+  url,
+  opcoes = {}
+) {
   const headers = {
     ...headersAutenticacao(),
     ...(opcoes.headers || {})
@@ -397,7 +639,7 @@ function preencherCampo(id, valor) {
 }
 
 /* ============================================================
-   PREENCHER SELECT/BOOLEAN
+   PREENCHER SELECT / BOOLEAN
    ============================================================ */
 
 function preencherBoolean(id, valor) {
@@ -417,143 +659,6 @@ function preencherBoolean(id, valor) {
   campo.value = booleano
     ? 'true'
     : 'false';
-}
-
-/* ============================================================
-   NICHOS — FUNÇÕES
-   ============================================================ */
-
-function normalizarNicho(valor) {
-  const chave = String(valor || '')
-    .trim()
-    .toLowerCase();
-
-  return NICHOS_CONFIG[chave]
-    ? chave
-    : 'generico';
-}
-
-function definirTexto(id, texto) {
-  const campo = elemento(id);
-
-  if (campo && texto) {
-    campo.textContent = texto;
-  }
-}
-
-function configurarCampoExtra(
-  idCampo,
-  idLabel,
-  idInput,
-  extra
-) {
-  const campo = elemento(idCampo);
-
-  if (!campo) {
-    return;
-  }
-
-  if (!extra) {
-    campo.style.display = 'none';
-
-    const input = elemento(idInput);
-
-    if (input) {
-      input.value = '';
-    }
-
-    return;
-  }
-
-  campo.style.display = '';
-
-  definirTexto(
-    idLabel,
-    extra.label
-  );
-
-  const input = elemento(idInput);
-
-  if (input) {
-    input.placeholder =
-      extra.placeholder || '';
-  }
-}
-
-function aplicarNichoNaInterface(valor) {
-  const chave = normalizarNicho(valor);
-  const cfg = NICHOS_CONFIG[chave];
-  const t = cfg.termos;
-
-  document.body.dataset.nicho = chave;
-
-  window.orvixNicho = {
-    chave,
-    nome: cfg.nome,
-    termos: t,
-    extra1: cfg.extra1,
-    extra2: cfg.extra2
-  };
-
-  /* Qualquer elemento com data-nicho-termo="cliente" etc. */
-  document
-    .querySelectorAll('[data-nicho-termo]')
-    .forEach(el => {
-      const termo =
-        t[el.dataset.nichoTermo];
-
-      if (termo) {
-        el.textContent = termo;
-      }
-    });
-
-  /* Modal de agendamento */
-  definirTexto(
-    'ap-client-label',
-    t.cliente
-  );
-
-  definirTexto(
-    'ap-service-label',
-    t.servico
-  );
-
-  configurarCampoExtra(
-    'ap-extra1-field',
-    'ap-extra1-label',
-    'ap-plate',
-    cfg.extra1
-  );
-
-  configurarCampoExtra(
-    'ap-extra2-field',
-    'ap-extra2-label',
-    'ap-vehicle',
-    cfg.extra2
-  );
-
-  document.dispatchEvent(
-    new CustomEvent(
-      'orvix:nicho-alterado',
-      {
-        detail: window.orvixNicho
-      }
-    )
-  );
-}
-
-function configurarTrocaDeNicho() {
-  const select =
-    elemento('config-empresa-nicho');
-
-  select?.addEventListener(
-    'change',
-    () => {
-      aplicarNichoNaInterface(
-        select.value
-      );
-    }
-  );
 }
 
 /* ============================================================
@@ -786,16 +891,13 @@ function preencherDadosUsuario(usuario) {
       usuario.perfil ===
       'administrador'
     ) {
-      perfil.value =
-        'Administrador';
+      perfil.value = 'Administrador';
     } else if (
       usuario.perfil === 'dev'
     ) {
-      perfil.value =
-        'Desenvolvedor';
+      perfil.value = 'Desenvolvedor';
     } else {
-      perfil.value =
-        'Funcionário';
+      perfil.value = 'Funcionário';
     }
   }
 
@@ -823,89 +925,64 @@ function preencherDadosUsuario(usuario) {
    ============================================================ */
 
 function guardarEmpresa(empresa) {
-  empresaConfiguracoes =
-    empresa;
-
-  window.lavajatoEmpresa =
-    empresa;
-
-  window.orvixEmpresa =
-    empresa;
-
-  /*
-   * Mantém compatibilidade com o app.js,
-   * caso ele use empresaLogada.
-   */
-  if (
-    typeof window.empresaLogada !==
-    'undefined'
-  ) {
-    try {
-      window.empresaLogada =
-        empresa;
-    } catch (erro) {
-      console.warn(
-        'Não foi possível atualizar empresaLogada:',
-        erro
-      );
-    }
+  if (!empresa) {
+    return;
   }
 
-  /*
-   * Se a variável existir globalmente no app.js,
-   * sincroniza também.
-   */
+  empresaConfiguracoes = empresa;
+
+  window.lavajatoEmpresa = empresa;
+  window.orvixEmpresa = empresa;
+  window.empresaLogada = empresa;
+
+  /* ----------------------------------------------------------
+     Compatibilidade com app.js
+     ---------------------------------------------------------- */
+
   try {
     if (
       typeof empresaLogada !==
       'undefined'
     ) {
-      empresaLogada =
-        empresa;
+      empresaLogada = empresa;
     }
   } catch {
-    /*
-     * Ignorado.
-     */
+    // Ignorado.
   }
 
-  /*
-   * Mantém o nicho atualizado para o restante
-   * da aplicação.
-   */
-  if (empresa?.nicho) {
-    window.nichoAtual =
+  /* ----------------------------------------------------------
+     Atualiza nicho
+     ---------------------------------------------------------- */
+
+  if (empresa.nicho) {
+    const nicho =
       normalizarNicho(
         empresa.nicho
       );
+
+    window.nichoAtual = nicho;
+
+    aplicarNicho(nicho);
   }
 
-  /*
-   * Atualiza a interface de nicho imediatamente.
-   */
-  if (
-    empresa?.nicho &&
-    typeof window.aplicarNicho ===
+  /* ----------------------------------------------------------
+     Atualiza sidebar
+     ---------------------------------------------------------- */
+
+  try {
+    if (
+      typeof atualizarSidebarUsuario ===
       'function'
-  ) {
-    try {
-      window.aplicarNicho(
-        normalizarNicho(
-          empresa.nicho
-        )
-      );
-    } catch (erro) {
-      console.warn(
-        'Não foi possível aplicar o nicho pelo app.js:',
-        erro
-      );
+    ) {
+      atualizarSidebarUsuario();
     }
+  } catch (erro) {
+    console.warn(
+      'Não foi possível atualizar a sidebar:',
+      erro
+    );
   }
 
-  /*
-   * Atualiza a sidebar caso o app.js disponibilize
-   * a função.
-   */
   if (
     typeof window.atualizarSidebarUsuario ===
     'function'
@@ -986,8 +1063,7 @@ async function carregarConfiguracoes() {
     return;
   }
 
-  carregandoConfiguracoes =
-    true;
+  carregandoConfiguracoes = true;
 
   try {
     const resposta =
@@ -1020,9 +1096,7 @@ async function carregarConfiguracoes() {
       );
     }
 
-    guardarEmpresa(
-      empresa
-    );
+    guardarEmpresa(empresa);
 
     preencherDadosEmpresa(
       empresa
@@ -1045,8 +1119,7 @@ async function carregarConfiguracoes() {
       'erro'
     );
   } finally {
-    carregandoConfiguracoes =
-      false;
+    carregandoConfiguracoes = false;
   }
 }
 
@@ -1074,9 +1147,6 @@ function aplicarCoresEmpresa(empresa) {
   const root =
     document.documentElement;
 
-  /*
-   * Variáveis mais comuns.
-   */
   root.style.setProperty(
     '--primary',
     primaria
@@ -1129,6 +1199,102 @@ function aplicarCoresEmpresa(empresa) {
 }
 
 /* ============================================================
+   SIDEBAR — USUÁRIO E EMPRESA
+   ============================================================ */
+
+function atualizarSidebarUsuario() {
+  const empresa =
+    obterEmpresaAtual();
+
+  const usuario =
+    typeof usuarioLogado !==
+      'undefined'
+      ? usuarioLogado
+      : usuarioConfiguracoes;
+
+  const empresaElement =
+    document.getElementById(
+      'sidebar-company'
+    );
+
+  const nomeElement =
+    document.getElementById(
+      'sidebar-user-name'
+    );
+
+  const perfilElement =
+    document.getElementById(
+      'sidebar-user-profile'
+    );
+
+  const avatarElement =
+    document.getElementById(
+      'sidebar-user-avatar'
+    );
+
+  if (
+    empresaElement &&
+    empresa
+  ) {
+    empresaElement.textContent =
+      empresa.nome_exibicao ||
+      empresa.nome ||
+      'Minha empresa';
+  }
+
+  if (
+    nomeElement &&
+    usuario
+  ) {
+    nomeElement.textContent =
+      usuario.nome ||
+      'Usuário';
+  }
+
+  if (
+    perfilElement &&
+    usuario
+  ) {
+    perfilElement.textContent =
+      usuario.perfil ===
+      'administrador'
+        ? 'Administrador'
+        : usuario.perfil === 'dev'
+          ? 'Desenvolvedor'
+          : 'Funcionário';
+  }
+
+  if (
+    avatarElement &&
+    usuario
+  ) {
+    const nome =
+      usuario.nome ||
+      'U';
+
+    avatarElement.textContent =
+      nome
+        .charAt(0)
+        .toUpperCase();
+  }
+
+  aplicarNicho(
+    empresa?.nicho
+  );
+
+  try {
+    if (
+      typeof atualizarAcessoUsuarios ===
+      'function'
+    ) {
+      atualizarAcessoUsuarios();
+    }
+  } catch {
+    // Ignorado.
+  }
+}
+
+/* ============================================================
    VALIDA COR
    ============================================================ */
 
@@ -1172,53 +1338,63 @@ function sincronizarCampoCor(
     return;
   }
 
-  input.addEventListener(
-    'input',
-    () => {
-      texto.value =
-        input.value.toUpperCase();
+  if (
+    input.dataset.configsCorListener !==
+    'true'
+  ) {
+    input.dataset.configsCorListener =
+      'true';
 
-      atualizarPreviewTema();
-    }
-  );
-
-  texto.addEventListener(
-    'input',
-    () => {
-      const valor =
-        normalizarTextoCor(
-          texto.value
-        );
-
-      if (corValida(valor)) {
-        input.value =
-          valor;
-
+    input.addEventListener(
+      'input',
+      () => {
         texto.value =
-          valor;
+          input.value.toUpperCase();
+
+        atualizarPreviewTema();
       }
+    );
+  }
 
-      atualizarPreviewTema();
-    }
-  );
+  if (
+    texto.dataset.configsCorListener !==
+    'true'
+  ) {
+    texto.dataset.configsCorListener =
+      'true';
 
-  texto.addEventListener(
-    'blur',
-    () => {
-      const valor =
-        normalizarTextoCor(
-          texto.value
-        );
+    texto.addEventListener(
+      'input',
+      () => {
+        const valor =
+          normalizarTextoCor(
+            texto.value
+          );
 
-      if (corValida(valor)) {
-        input.value =
-          valor;
+        if (corValida(valor)) {
+          input.value = valor;
+          texto.value = valor;
+        }
 
-        texto.value =
-          valor;
+        atualizarPreviewTema();
       }
-    }
-  );
+    );
+
+    texto.addEventListener(
+      'blur',
+      () => {
+        const valor =
+          normalizarTextoCor(
+            texto.value
+          );
+
+        if (corValida(valor)) {
+          input.value = valor;
+          texto.value = valor;
+        }
+      }
+    );
+  }
 }
 
 /* ============================================================
@@ -1246,61 +1422,69 @@ function configurarSelecaoDeCores() {
       '.theme-preset'
     );
 
-  presets.forEach(
-    preset => {
-      preset.addEventListener(
-        'click',
-        () => {
-          const primaria =
-            preset.dataset.primary;
-
-          const destaque =
-            preset.dataset.accent;
-
-          const fundo =
-            preset.dataset.background;
-
-          if (corValida(primaria)) {
-            preencherCampo(
-              'config-cor-principal',
-              primaria
-            );
-
-            preencherCampo(
-              'config-cor-principal-text',
-              primaria
-            );
-          }
-
-          if (corValida(destaque)) {
-            preencherCampo(
-              'config-cor-destaque',
-              destaque
-            );
-
-            preencherCampo(
-              'config-cor-destaque-text',
-              destaque
-            );
-          }
-
-          if (corValida(fundo)) {
-            preencherCampo(
-              'config-cor-fundo',
-              fundo
-            );
-
-            preencherCampo(
-              'config-cor-fundo-text',
-              fundo
-            );
-          }
-
-          atualizarPreviewTema();
-        }
-      );
+  presets.forEach(preset => {
+    if (
+      preset.dataset.configsThemeListener ===
+      'true'
+    ) {
+      return;
     }
-  );
+
+    preset.dataset.configsThemeListener =
+      'true';
+
+    preset.addEventListener(
+      'click',
+      () => {
+        const primaria =
+          preset.dataset.primary;
+
+        const destaque =
+          preset.dataset.accent;
+
+        const fundo =
+          preset.dataset.background;
+
+        if (corValida(primaria)) {
+          preencherCampo(
+            'config-cor-principal',
+            primaria
+          );
+
+          preencherCampo(
+            'config-cor-principal-text',
+            primaria
+          );
+        }
+
+        if (corValida(destaque)) {
+          preencherCampo(
+            'config-cor-destaque',
+            destaque
+          );
+
+          preencherCampo(
+            'config-cor-destaque-text',
+            destaque
+          );
+        }
+
+        if (corValida(fundo)) {
+          preencherCampo(
+            'config-cor-fundo',
+            fundo
+          );
+
+          preencherCampo(
+            'config-cor-fundo-text',
+            fundo
+          );
+        }
+
+        atualizarPreviewTema();
+      }
+    );
+  });
 }
 
 /* ============================================================
@@ -1378,8 +1562,10 @@ function montarPayloadEmpresa() {
     );
 
   /*
-   * Nome de exibição é opcional na interface.
-   * Caso esteja vazio, usamos o nome da empresa.
+   * Nome de exibição continua opcional
+   * para o usuário.
+   *
+   * Se estiver vazio, usa o nome da empresa.
    */
   const nomeExibicao =
     obterValor(
@@ -1403,8 +1589,10 @@ function montarPayloadEmpresa() {
       ),
 
     nicho:
-      obterValor(
-        'config-empresa-nicho'
+      normalizarNicho(
+        obterValor(
+          'config-empresa-nicho'
+        )
       ),
 
     logo_url:
@@ -1474,19 +1662,25 @@ function montarPayloadPreferencias() {
 function montarPayloadAparencia() {
   return {
     cor_primaria:
-      obterValor(
-        'config-cor-principal'
-      ).toUpperCase(),
+      normalizarTextoCor(
+        obterValor(
+          'config-cor-principal'
+        )
+      ),
 
     cor_destaque:
-      obterValor(
-        'config-cor-destaque'
-      ).toUpperCase(),
+      normalizarTextoCor(
+        obterValor(
+          'config-cor-destaque'
+        )
+      ),
 
     cor_fundo:
-      obterValor(
-        'config-cor-fundo'
-      ).toUpperCase()
+      normalizarTextoCor(
+        obterValor(
+          'config-cor-fundo'
+        )
+      )
   };
 }
 
@@ -1586,7 +1780,7 @@ function validarPayloadEmpresa(
 
   if (
     payload.nicho &&
-    payload.nicho.length > 30
+    !NICHOS[payload.nicho]
   ) {
     return 'O tipo de negócio informado é inválido.';
   }
@@ -1684,14 +1878,13 @@ function validarPayloadAgenda(
 
 async function salvarConfiguracoes(
   payload,
-  mensagemId
+  mensagemId = 'configuracoes-message'
 ) {
   if (salvandoConfiguracoes) {
     return false;
   }
 
-  salvandoConfiguracoes =
-    true;
+  salvandoConfiguracoes = true;
 
   try {
     console.log(
@@ -1718,6 +1911,7 @@ async function salvarConfiguracoes(
     if (!resposta.ok) {
       throw new Error(
         dados.erro ||
+        dados.mensagem ||
         'Não foi possível salvar as configurações.'
       );
     }
@@ -1727,10 +1921,7 @@ async function salvarConfiguracoes(
       null;
 
     if (empresa) {
-      guardarEmpresa(
-        empresa
-      );
-
+      guardarEmpresa(empresa);
       preencherDadosEmpresa(
         empresa
       );
@@ -1759,8 +1950,7 @@ async function salvarConfiguracoes(
 
     return false;
   } finally {
-    salvandoConfiguracoes =
-      false;
+    salvandoConfiguracoes = false;
   }
 }
 
@@ -1900,17 +2090,6 @@ async function salvarAgenda() {
     return;
   }
 
-  /*
-   * IMPORTANTE:
-   * agenda_intervalo é enviado como NUMBER.
-   *
-   * Exemplo:
-   * 30
-   *
-   * e não:
-   * "30"
-   */
-
   console.log(
     'Salvando configuração da agenda:',
     payload
@@ -1958,9 +2137,7 @@ async function atualizarDadosDepoisDeSalvar() {
       return;
     }
 
-    guardarEmpresa(
-      empresa
-    );
+    guardarEmpresa(empresa);
 
     preencherDadosEmpresa(
       empresa
@@ -2046,6 +2223,16 @@ function configurarFormularioEmpresa() {
     return;
   }
 
+  if (
+    form.dataset.configsSubmitListener ===
+    'true'
+  ) {
+    return;
+  }
+
+  form.dataset.configsSubmitListener =
+    'true';
+
   form.addEventListener(
     'submit',
     async evento => {
@@ -2070,6 +2257,16 @@ function configurarBotao(
   if (!botao) {
     return;
   }
+
+  if (
+    botao.dataset.configsClickListener ===
+    'true'
+  ) {
+    return;
+  }
+
+  botao.dataset.configsClickListener =
+    'true';
 
   botao.addEventListener(
     'click',
@@ -2136,7 +2333,14 @@ function configurarCamposAgenda() {
       'config-agenda-intervalo'
     );
 
-  if (inicio) {
+  if (
+    inicio &&
+    inicio.dataset.configsAgendaListener !==
+      'true'
+  ) {
+    inicio.dataset.configsAgendaListener =
+      'true';
+
     inicio.addEventListener(
       'change',
       () => {
@@ -2148,7 +2352,14 @@ function configurarCamposAgenda() {
     );
   }
 
-  if (fim) {
+  if (
+    fim &&
+    fim.dataset.configsAgendaListener !==
+      'true'
+  ) {
+    fim.dataset.configsAgendaListener =
+      'true';
+
     fim.addEventListener(
       'change',
       () => {
@@ -2160,7 +2371,14 @@ function configurarCamposAgenda() {
     );
   }
 
-  if (intervalo) {
+  if (
+    intervalo &&
+    intervalo.dataset.configsAgendaListener !==
+      'true'
+  ) {
+    intervalo.dataset.configsAgendaListener =
+      'true';
+
     intervalo.addEventListener(
       'change',
       () => {
@@ -2209,11 +2427,17 @@ window.restaurarTema =
 window.aplicarCoresEmpresa =
   aplicarCoresEmpresa;
 
+window.aplicarNicho =
+  aplicarNicho;
+
 window.aplicarNichoNaInterface =
   aplicarNichoNaInterface;
 
 window.normalizarNicho =
   normalizarNicho;
+
+window.atualizarSidebarUsuario =
+  atualizarSidebarUsuario;
 
 /* ============================================================
    INICIALIZAÇÃO
@@ -2246,16 +2470,15 @@ document.addEventListener(
 
     limparMensagens();
 
-    /*
-     * Carrega primeiro o usuário.
-     */
+    /* --------------------------------------------------------
+       Carrega primeiro o usuário.
+       -------------------------------------------------------- */
 
     await carregarUsuarioConfiguracoes();
 
-    /*
-     * Depois busca diretamente as configurações
-     * no endpoint específico.
-     */
+    /* --------------------------------------------------------
+       Depois busca diretamente as configurações.
+       -------------------------------------------------------- */
 
     await carregarConfiguracoes();
 
