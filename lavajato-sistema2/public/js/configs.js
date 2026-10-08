@@ -1842,3 +1842,132 @@ document.addEventListener(
     );
   }
 );
+
+/* ----------------------------------------------------------
+   Normaliza o valor vindo do banco
+   ---------------------------------------------------------- */
+
+function normalizarNicho(valor) {
+  const limpo = String(valor || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  if (NICHOS_CONFIG[limpo]) {
+    return limpo;
+  }
+
+  if (NICHOS_ALIASES[limpo]) {
+    return NICHOS_ALIASES[limpo];
+  }
+
+  return limpo ? 'outros' : 'lavajato';
+}
+
+function obterConfigNicho(valor) {
+  return NICHOS_CONFIG[normalizarNicho(valor)];
+}
+
+/* ----------------------------------------------------------
+   Popula o <select> de nicho (se estiver vazio)
+   ---------------------------------------------------------- */
+
+function popularSelectNichos() {
+  const select = elemento('config-empresa-nicho');
+
+  if (!select || select.tagName !== 'SELECT') {
+    return;
+  }
+
+  if (select.options.length > 1) {
+    return;
+  }
+
+  select.innerHTML = '';
+
+  Object.entries(NICHOS_CONFIG).forEach(([chave, cfg]) => {
+    const opcao = document.createElement('option');
+
+    opcao.value = chave;
+    opcao.textContent = cfg.nome;
+
+    select.appendChild(opcao);
+  });
+}
+
+/* ----------------------------------------------------------
+   Aplica o nicho na interface
+   ---------------------------------------------------------- */
+
+function aplicarNichoNaInterface(valor) {
+  const chave = normalizarNicho(valor);
+  const cfg = NICHOS_CONFIG[chave];
+
+  nichoAtual = chave;
+
+  document.body.dataset.nicho = chave;
+
+  /* Disponível para outras páginas (agenda, clientes...) */
+  window.orvixNicho = {
+    chave,
+    nome: cfg.nome,
+    termos: cfg.termos
+  };
+
+  /* Textos: <span data-nicho-termo="cliente"></span> */
+  document.querySelectorAll('[data-nicho-termo]').forEach(el => {
+    const termo = cfg.termos[el.dataset.nichoTermo];
+
+    if (termo !== undefined && termo !== '') {
+      el.textContent = termo;
+    }
+  });
+
+  /* Placeholders: <input data-nicho-placeholder="itemPlaca"> */
+  document.querySelectorAll('[data-nicho-placeholder]').forEach(el => {
+    const termo = cfg.termos[el.dataset.nichoPlaceholder];
+
+    if (termo) {
+      el.placeholder = termo;
+    }
+  });
+
+  /* Mostrar/esconder: <div data-nicho-mostrar="lavajato,oficina"> */
+  document.querySelectorAll('[data-nicho-mostrar]').forEach(el => {
+    const permitidos = el.dataset.nichoMostrar
+      .split(',')
+      .map(n => n.trim());
+
+    el.hidden = !permitidos.includes(chave);
+  });
+
+  /* Esconder em nichos específicos: data-nicho-ocultar="clinica" */
+  document.querySelectorAll('[data-nicho-ocultar]').forEach(el => {
+    const ocultos = el.dataset.nichoOcultar
+      .split(',')
+      .map(n => n.trim());
+
+    el.hidden = ocultos.includes(chave);
+  });
+
+  document.dispatchEvent(
+    new CustomEvent('orvix:nicho-alterado', {
+      detail: window.orvixNicho
+    })
+  );
+}
+
+/* ----------------------------------------------------------
+   Preview ao trocar o select (antes de salvar)
+   ---------------------------------------------------------- */
+
+function configurarTrocaDeNicho() {
+  popularSelectNichos();
+
+  const select = elemento('config-empresa-nicho');
+
+  select?.addEventListener('change', () => {
+    aplicarNichoNaInterface(select.value);
+  });
+}
