@@ -1270,6 +1270,133 @@ tbody tr:hover { background: var(--card-hover); }
   }
 }
 
+/* ============================================================
+   TAG DA AÇÃO
+   ============================================================ */
+
+.log-action-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 4px 8px;
+
+  border-radius: 7px;
+
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.log-action-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 15px;
+  height: 15px;
+
+  border-radius: 50%;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* ============================================================
+   CRIAÇÃO
+   ============================================================ */
+
+.log-action-badge.criacao {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.log-action-badge.criacao .log-action-dot {
+  background: #10b981;
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   ATUALIZAÇÃO
+   ============================================================ */
+
+.log-action-badge.atualizacao {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.log-action-badge.atualizacao .log-action-dot {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   EXCLUSÃO
+   ============================================================ */
+
+.log-action-badge.exclusao {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.log-action-badge.exclusao .log-action-dot {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+.log-action-badge.login {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.log-action-badge.login .log-action-dot {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+
+.log-action-badge.logout {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.log-action-badge.logout .log-action-dot {
+  background: #f97316;
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 430px) {
+
+  .log-action-badge {
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+
+  .log-action-dot {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
+}
+
 @media print {
   html, body { background: #fff; color: #111; }
   body * { visibility: hidden; }
