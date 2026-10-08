@@ -5975,4 +5975,10 @@
 
   atualizarPreviewTema();
 
+  console.log(
+    '[Orvix] atualizarSidebarUsuario:',
+    typeof atualizarSidebarUsuario,
+    typeof window.atualizarSidebarUsuario
+);
+
 })();
