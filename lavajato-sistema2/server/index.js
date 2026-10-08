@@ -3,15 +3,19 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+
 const pool = require('./db');
 
-const registrarLogs = require('./middleware/logger');
+const registrarLogs =
+  require('./middleware/logger');
 
 const {
   apiRateLimit,
   authRateLimit,
   passwordResetRateLimit
-} = require('./middleware/rateLimit');
+} =
+  require('./middleware/rateLimit');
 
 
 // ============================================================
@@ -63,59 +67,12 @@ const adminTratamentosRouter =
 const adminIncidentesRouter =
   require('./routes/adminIncidentes');
 
-const cookieParser = require('cookie-parser');  
-
 
 // ============================================================
 // APP
 // ============================================================
 
 const app = express();
-
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://sistemaagendamento-lavajato-sistema.vercel.app'
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Permite requisições sem Origin
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error('Origem não permitida pelo CORS'));
-  },
-
-  methods: [
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS'
-  ],
-
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization'
-  ],
-
-  credentials: true,
-
-  optionsSuccessStatus: 204
-}));
-
-app.use(cookieParser());
-
-const PORT =
-  process.env.PORT || 3000;
 
 
 // ============================================================
@@ -140,27 +97,110 @@ app.set(
 // CORS
 // ============================================================
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://sistemaagendamento-lavajato-sistema.vercel.app'
+].filter(Boolean);
+
+
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+
+      // Requisições sem Origin.
+      //
+      // Exemplos:
+      // - algumas chamadas internas
+      // - ferramentas de servidor
+      // - health checks
+      //
+      if (!origin) {
+        return callback(
+          null,
+          true
+        );
+      }
+
+
+      if (
+        allowedOrigins.includes(origin)
+      ) {
+        return callback(
+          null,
+          true
+        );
+      }
+
+
+      return callback(
+        new Error(
+          'Origem não permitida pelo CORS.'
+        )
+      );
+    },
+
+    methods: [
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'DELETE',
+      'OPTIONS'
+    ],
+
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization'
+    ],
+
     credentials: true,
+
+    optionsSuccessStatus: 204
   })
 );
 
 
 // ============================================================
-// MIDDLEWARE
+// COOKIES
+// ============================================================
+//
+// Necessário para ler:
+// req.cookies.token
+//
+// O JWT de autenticação pode ficar em cookie HttpOnly,
+// impedindo que o JavaScript leia diretamente o token.
+// ============================================================
+
+app.use(
+  cookieParser()
+);
+
+
+// ============================================================
+// JSON
 // ============================================================
 
 app.use(
   express.json()
 );
 
+
+// ============================================================
+// FORM URLENCODED
+// ============================================================
+
 app.use(
   express.urlencoded({
     extended: true
   })
 );
+
+
+// ============================================================
+// LOGGER
+// ============================================================
 
 app.use(
   registrarLogs
@@ -171,15 +211,31 @@ app.use(
 // RATE LIMIT — API
 // ============================================================
 //
-// Protege todas as rotas abaixo de /api.
+// Protege as rotas da API.
 //
-// Limite configurado no:
+// O limite geral está configurado em:
 // server/middleware/rateLimit.js
 //
 // Atualmente:
 // 120 requisições por minuto por IP.
 //
-// Arquivos estáticos do /public não passam por esse limite.
+// ============================================================
+
+app.use(
+  '/api',
+  apiRateLimit
+);
+
+
+// ============================================================
+// AUTENTICAÇÃO
+// ============================================================
+//
+// As rotas /api/auth recebem um limite específico.
+//
+// Atualmente:
+// 10 requisições por 15 minutos por IP.
+//
 // ============================================================
 
 app.use(
@@ -191,6 +247,7 @@ app.use(
       req.path === '/esqueci-senha' &&
       req.method === 'POST'
     ) {
+
       return passwordResetRateLimit(
         req,
         res,
@@ -198,35 +255,9 @@ app.use(
       );
     }
 
+
     next();
   },
-  authRouter
-);
-
-
-// ============================================================
-// AUTENTICAÇÃO
-// ============================================================
-//
-// O authRateLimit é aplicado especificamente às rotas
-// de autenticação.
-//
-// Além do limite geral da API, as rotas /api/auth recebem
-// um limite mais restritivo.
-//
-// Atualmente:
-// 10 requisições por 15 minutos por IP.
-//
-// Isso ajuda a proteger principalmente:
-// - login
-// - cadastro
-// - recuperação de acesso
-// - outras rotas sensíveis de autenticação
-// ============================================================
-
-app.use(
-  '/api/auth',
-  authRateLimit,
   authRouter
 );
 
@@ -240,25 +271,30 @@ app.use(
   servicosRouter
 );
 
+
 app.use(
   '/api/agendamentos',
   agendamentosRouter
 );
+
 
 app.use(
   '/api/despesas',
   despesasRouter
 );
 
+
 app.use(
   '/api/usuarios',
   usuariosRouter
 );
 
+
 app.use(
   '/api/configuracoes',
   configuracoesRouter
 );
+
 
 app.use(
   '/api/planos',
@@ -270,15 +306,17 @@ app.use(
 // PRIVACIDADE — ADMINISTRADOR
 // ============================================================
 //
-// Essas rotas precisam ficar ANTES de /api/admin.
+// Essas rotas precisam ficar antes de /api/admin.
 //
 // Caso contrário, o router DEV:
 // /api/admin
 //
 // poderia interceptar:
+//
 // /api/admin/privacidade
 // /api/admin/tratamentos
 // /api/admin/incidentes
+//
 // ============================================================
 
 app.use(
@@ -286,10 +324,12 @@ app.use(
   adminPrivacidadeRouter
 );
 
+
 app.use(
   '/api/admin/tratamentos',
   adminTratamentosRouter
 );
+
 
 app.use(
   '/api/admin/incidentes',
@@ -302,6 +342,7 @@ app.use(
 // ============================================================
 //
 // Router exclusivo do desenvolvedor.
+//
 // O próprio router possui o middleware somenteDev.
 // ============================================================
 
@@ -319,6 +360,7 @@ app.use(
   '/api/mercado-pago',
   mercadoPagoRouter
 );
+
 
 app.use(
   '/api/mercado-pago/webhook',
@@ -361,14 +403,18 @@ app.get(
       );
 
 
-      res.status(200).json({
+      return res.status(200).json({
+
         ok: true,
-        banco: 'conectado',
+
+        banco:
+          'conectado',
+
         ambiente:
           process.env.NODE_ENV ||
           'development'
-      });
 
+      });
 
     } catch (err) {
 
@@ -378,18 +424,23 @@ app.get(
       );
 
 
-      res.status(500).json({
+      return res.status(500).json({
+
         ok: false,
-        banco: 'erro',
+
+        banco:
+          'erro',
+
         detalhe:
           process.env.NODE_ENV ===
           'production'
+
             ? 'Erro ao conectar ao banco de dados.'
+
             : err.message
+
       });
-
     }
-
   }
 );
 
@@ -429,23 +480,23 @@ app.get(
     ) {
 
       return res.status(404).json({
+
         erro:
           'Rota da API não encontrada.'
-      });
 
+      });
     }
 
 
     // Para páginas inexistentes,
     // entrega o 404.html.
 
-    res.status(404).sendFile(
+    return res.status(404).sendFile(
       path.join(
         publicPath,
         '404.html'
       )
     );
-
   }
 );
 
@@ -463,14 +514,17 @@ app.use(
     );
 
 
-    res.status(500).json({
+    return res.status(500).json({
+
       erro:
         process.env.NODE_ENV ===
         'production'
-          ? 'Erro interno do servidor.'
-          : err.message
-    });
 
+          ? 'Erro interno do servidor.'
+
+          : err.message
+
+    });
   }
 );
 
@@ -500,7 +554,6 @@ if (
 
     }
   );
-
 }
 
 
