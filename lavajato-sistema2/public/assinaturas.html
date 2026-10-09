@@ -1533,6 +1533,234 @@ content="width=device-width, initial-scale=1.0"
   color: #dc2626;
 }
 
+.modal-planos.hidden {
+display: none !important;
+}
+
+.modal-planos {
+position: fixed;
+inset: 0;
+z-index: 9999;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+
+.modal-planos-overlay {
+position: absolute;
+inset: 0;
+background: rgba(10, 15, 30, 0.72);
+backdrop-filter: blur(5px);
+}
+
+.modal-planos-conteudo {
+position: relative;
+z-index: 1;
+width: min(760px, 100%);
+max-height: min(85vh, 800px);
+overflow-y: auto;
+padding: 26px;
+border: 1px solid var(--border, #e5e7eb);
+border-radius: 20px;
+background: var(--card-bg, #ffffff);
+color: var(--text, #172033);
+box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.modal-planos-header {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 16px;
+margin-bottom: 24px;
+}
+
+.modal-planos-header h2 {
+margin: 0 0 8px;
+font-size: 1.45rem;
+}
+
+.modal-planos-header p {
+margin: 0;
+color: var(--muted, #64748b);
+line-height: 1.5;
+}
+
+.modal-planos-fechar {
+display: grid;
+place-items: center;
+flex-shrink: 0;
+width: 38px;
+height: 38px;
+border: 1px solid var(--border, #e5e7eb);
+border-radius: 10px;
+background: transparent;
+color: inherit;
+font-size: 1.7rem;
+cursor: pointer;
+}
+
+.lista-planos-troca {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+gap: 14px;
+}
+
+.card-plano-troca {
+position: relative;
+display: flex;
+flex-direction: column;
+gap: 12px;
+padding: 20px;
+border: 1px solid var(--border, #e5e7eb);
+border-radius: 16px;
+background: var(--card-bg, #ffffff);
+cursor: pointer;
+transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.card-plano-troca:hover {
+transform: translateY(-2px);
+border-color: var(--primary, #635bff);
+}
+
+.card-plano-troca.selecionado {
+border: 2px solid var(--primary, #635bff);
+padding: 19px;
+box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.10);
+}
+
+.card-plano-troca.atual {
+opacity: 0.7;
+cursor: default;
+}
+
+.card-plano-troca input[type="radio"] {
+position: absolute;
+top: 20px;
+right: 20px;
+accent-color: var(--primary, #635bff);
+width: 18px;
+height: 18px;
+}
+
+.card-plano-troca-nome {
+padding-right: 26px;
+font-size: 1.1rem;
+font-weight: 700;
+}
+
+.card-plano-troca-descricao {
+min-height: 40px;
+color: var(--muted, #64748b);
+font-size: 0.9rem;
+line-height: 1.5;
+}
+
+.card-plano-troca-preco {
+font-size: 1.55rem;
+font-weight: 800;
+letter-spacing: -0.04em;
+}
+
+.card-plano-troca-periodo {
+margin-top: -8px;
+color: var(--muted, #64748b);
+font-size: 0.85rem;
+}
+
+.card-plano-troca-selo {
+align-self: flex-start;
+padding: 5px 9px;
+border-radius: 20px;
+background: var(--badge-bg, #f1f5f9);
+color: var(--muted, #475569);
+font-size: 0.75rem;
+font-weight: 700;
+}
+
+.mensagem-modal-planos {
+margin-top: 16px;
+font-size: 0.9rem;
+line-height: 1.5;
+}
+
+.mensagem-modal-planos:empty {
+display: none;
+}
+
+.mensagem-modal-planos.erro {
+color: #dc2626;
+}
+
+.mensagem-modal-planos.sucesso {
+color: #16a34a;
+}
+
+.modal-planos-footer {
+display: flex;
+justify-content: flex-end;
+gap: 12px;
+margin-top: 24px;
+padding-top: 18px;
+border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.btn-modal-secundario,
+.btn-modal-principal {
+min-height: 44px;
+padding: 11px 18px;
+border-radius: 10px;
+font-weight: 700;
+cursor: pointer;
+transition: opacity 0.2s;
+}
+
+.btn-modal-secundario {
+border: 1px solid var(--border, #e5e7eb);
+background: transparent;
+color: inherit;
+}
+
+.btn-modal-principal {
+border: 0;
+background: var(--primary, #635bff);
+color: #ffffff;
+}
+
+.btn-modal-principal:disabled,
+.btn-modal-secundario:disabled {
+opacity: 0.45;
+cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+.modal-planos {
+padding: 10px;
+}
+
+.modal-planos-conteudo {
+padding: 18px;
+max-height: 92vh;
+border-radius: 16px;
+}
+
+.lista-planos-troca {
+grid-template-columns: 1fr;
+}
+
+.modal-planos-footer {
+flex-direction: column-reverse;
+}
+
+.btn-modal-secundario,
+.btn-modal-principal {
+width: 100%;
+}
+}
+
+
   </style>
 
 </head>
@@ -2097,2133 +2325,1479 @@ Cancelar assinatura
 
 </div>
 
+<!-- MODAL DE TROCA DE PLANO -->
+
+<div id="modal-trocar-plano" class="modal-planos hidden" aria-hidden="true">
+  <div class="modal-planos-overlay" data-fechar-modal></div>
+
+  <section class="modal-planos-conteudo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-planos">
+    <header class="modal-planos-header">
+      <div>
+        <h2 id="titulo-modal-planos">Trocar de plano</h2>
+        <p>Escolha o plano mais adequado para sua empresa.</p>
+      </div>
+
+  <button type="button" id="fechar-modal-planos" class="modal-planos-fechar" aria-label="Fechar">×</button>
+</header>
+
+<div id="lista-planos-troca" class="lista-planos-troca"></div>
+
+<div id="mensagem-modal-planos" class="mensagem-modal-planos" role="status"></div>
+
+<footer class="modal-planos-footer">
+  <button type="button" id="cancelar-modal-planos" class="btn-modal-secundario">
+    Voltar
+  </button>
+
+  <button type="button" id="confirmar-troca-plano" class="btn-modal-principal" disabled>
+    Confirmar troca
+  </button>
+</footer>
+
+  </section>
+</div>
+
 
   </main>
 
   <script>
-
-    (() => {
-
-      'use strict';
-
-      // ============================================================
-      // CONFIGURAÇÃO
-      // ============================================================
-
-      const API = '/api';
-
-      const AUTH_TOKEN_KEY =
-        'lavajato_auth_token';
-
-      // ============================================================
-      // ELEMENTOS
-      // ============================================================
-
-      const loading =
-        document.getElementById('loading');
-
-      const content =
-        document.getElementById('content');
-
-      const plans =
-        document.getElementById('plans');
-
-      const plansSection =
-        document.getElementById('plans-section');
-
-      const paymentSection =
-        document.getElementById('payment-section');
-
-      const successSection =
-        document.getElementById('success-section');
-
-      const selectedPlan =
-        document.getElementById('selected-plan');
-
-      const companyName =
-        document.getElementById('company-name');
-
-      const alertError =
-        document.getElementById('alert-error');
-
-      const alertSuccess =
-        document.getElementById('alert-success');
-
-      const alertErrorText =
-        document.getElementById('alert-error-text');
-
-      const alertSuccessText =
-        document.getElementById('alert-success-text');
-
-      const form =
-        document.getElementById('card-form');
-
-      const email =
-        document.getElementById('email');
-
-      const cardholderName =
-        document.getElementById('cardholder-name');
-
-      const identificationNumber =
-        document.getElementById(
-          'identification-number'
-        );
-
-      const btnAssinar =
-        document.getElementById('btn-assinar');
-
-      const btnVoltarPlanos =
-        document.getElementById(
-          'btn-voltar-planos'
-        );
-
-      const btnDashboardAssinatura =
-        document.getElementById(
-          'btn-dashboard-assinatura'
-        );
-
-      const mpLoading =
-        document.getElementById('mp-loading');
-
-      const subscriptionSection =
-        document.getElementById(
-          'subscription-section'
-        );
-
-      const subscriptionDetails =
-        document.getElementById(
-          'subscription-details'
-        );
-
-      const subscriptionDescription =
-        document.getElementById(
-          'subscription-description'
-        );
-
-      const successPlan =
-        document.getElementById(
-          'success-plan'
-        );
-
-      // ============================================================
-      // ESTADO
-      // ============================================================
-
-      let usuario = null;
-
-      let planos = [];
-
-      let planoSelecionado = null;
-
-      let assinaturaAtual = null;
-
-      let mp = null;
-
-      let cardForm = null;
-
-      let inicializandoCardForm = false;
-
-
-      // ============================================================
-      // ALERTAS
-      // ============================================================
-
-      function mostrarErro(message) {
-
-        alertSuccess.classList.remove('show');
-
-        alertErrorText.textContent =
-          message ||
-          'Ocorreu um erro.';
-
-        alertError.classList.add('show');
-
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-
-      }
-
-      function mostrarSucesso(message) {
-
-        alertError.classList.remove('show');
-
-        alertSuccessText.textContent =
-          message ||
-          'Operação realizada com sucesso.';
-
-        alertSuccess.classList.add('show');
-
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-
-      }
-
-      function limparAlertas() {
-
-        alertError.classList.remove('show');
-
-        alertSuccess.classList.remove('show');
-
-        alertErrorText.textContent = '';
-
-        alertSuccessText.textContent = '';
-
-      }
-
-      // ============================================================
-      // UTILITÁRIOS
-      // ============================================================
-
-      function formatarMoeda(value) {
-
-        return Number(value || 0)
-          .toLocaleString(
-            'pt-BR',
-            {
-              style: 'currency',
-              currency: 'BRL'
-            }
-          );
-
-      }
-
-      function escapeHtml(value) {
-
-        return String(
-          value ?? ''
-        ).replace(
-          /[&<>"']/g,
-          character => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-          })[character]
-        );
-
-      }
-
-      function limparCpf(value) {
-
-        return String(value || '')
-          .replace(/\D/g, '');
-
-      }
-
-      function cpfValidoBasico(value) {
-
-        const cpf =
-          limparCpf(value);
-
-        return cpf.length === 11;
-
-      }
-
-      function formatarData(value) {
-
-        if (!value) {
-          return 'Não informado';
-        }
-
-        const data =
-          new Date(value);
-
-        if (
-          Number.isNaN(
-            data.getTime()
-          )
-        ) {
-          return 'Não informado';
-        }
-
-        return data.toLocaleDateString(
-          'pt-BR'
-        );
-
-      }
-
-      function textoStatus(status) {
-
-        const mapa = {
-          pendente: 'Pendente',
-          ativa: 'Ativa',
-          pausada: 'Pausada',
-          inadimplente: 'Inadimplente',
-          cancelada: 'Cancelada'
-        };
-
-        return mapa[
-          String(status || '').toLowerCase()
-        ] || (
-          status ||
-          'Não informado'
-        );
-
-      }
-
-      function obterMensagemMercadoPago(error) {
-
-        const data =
-          error?.data;
-
-        if (
-          data?.detalhes?.message
-        ) {
-          return data.detalhes.message;
-        }
-
-        if (
-          data?.detalhes?.cause &&
-          Array.isArray(
-            data.detalhes.cause
-          ) &&
-          data.detalhes.cause.length > 0
-        ) {
-
-          const cause =
-            data.detalhes.cause[0];
-
-          if (cause?.description) {
-            return cause.description;
-          }
-
-          if (cause?.code) {
-            return `Mercado Pago: ${cause.code}`;
-          }
-
-        }
-
-        if (
-          data?.cause &&
-          Array.isArray(
-            data.cause
-          ) &&
-          data.cause.length > 0
-        ) {
-
-          const cause =
-            data.cause[0];
-
-          if (cause?.description) {
-            return cause.description;
-          }
-
-          if (cause?.code) {
-            return `Mercado Pago: ${cause.code}`;
-          }
-
-        }
-
-        if (
-          error?.status === 409
-        ) {
-
-          return (
-            data?.erro ||
-            'Sua empresa já possui uma assinatura em andamento.'
-          );
-
-        }
-
-        return (
-          error?.message ||
-          'Não foi possível criar a assinatura.'
-        );
-
-      }
-
-      // ============================================================
-      // API
-      // ============================================================
-
-      async function api(
-        path,
-        options = {}
-      ) {
-
-        const token =
-          localStorage.getItem(
-            AUTH_TOKEN_KEY
-          );
-
-        const headers = {
-          ...(options.body
-            ? {
-                'Content-Type':
-                  'application/json'
-              }
-            : {}),
-          ...(options.headers || {})
-        };
-
-        if (token) {
-
-          headers.Authorization =
-            `Bearer ${token}`;
-
-        }
-
-        const response =
-          await fetch(
-            API + path,
-            {
-              ...options,
-              headers
-            }
-          );
-
-        let data = null;
-
-        try {
-
-          data =
-            await response.json();
-
-        } catch (_) {
-
-          data = null;
-
-        }
-
-        if (
-          response.status === 401
-        ) {
-
-          localStorage.removeItem(
-            AUTH_TOKEN_KEY
-          );
-
-          window.location.href = '/';
-
-          throw new Error(
-            'Sessão expirada.'
-          );
-
-        }
-
-        if (!response.ok) {
-
-          const error =
-            new Error(
-              data?.erro ||
-              data?.message ||
-              'Erro na requisição.'
-            );
-
-          error.status =
-            response.status;
-
-          error.data =
-            data;
-
-          throw error;
-
-        }
-
-        return data;
-
-      }
-
-      // ============================================================
-      // USUÁRIO
-      // ============================================================
-
-      async function verificarUsuario() {
-
-        const token =
-          localStorage.getItem(
-            AUTH_TOKEN_KEY
-          );
-
-        if (!token) {
-
-          window.location.href = '/';
-
-          return null;
-
-        }
-
-        const data =
-          await api('/auth/me');
-
-        if (!data?.usuario) {
-
-          throw new Error(
-            'Não foi possível identificar o usuário.'
-          );
-
-        }
-
-        usuario =
-          data.usuario;
-
-        if (
-          usuario.perfil === 'dev'
-        ) {
-
-          throw new Error(
-            'A tela de assinatura deve ser acessada por uma empresa.'
-          );
-
-        }
-
-        if (!usuario.empresa_id) {
-
-          throw new Error(
-            'Seu usuário não está vinculado a uma empresa.'
-          );
-
-        }
-
-        return data;
-
-      }
-
-      // ============================================================
-      // EMPRESA
-      // ============================================================
-
-      function carregarEmpresa(data) {
-
-        if (data?.empresa?.nome) {
-
-          companyName.textContent =
-            data.empresa.nome;
-
-          return;
-
-        }
-
-        companyName.textContent =
-          'Sua empresa';
-
-      }
-
-      // ============================================================
-      // ASSINATURA ATUAL
-      // ============================================================
-
-      async function carregarAssinaturaAtual() {
-
-        const data =
-          await api(
-            '/mercado-pago/minha-assinatura'
-          );
-
-        if (
-          !data ||
-          data.possui_assinatura !== true ||
-          !data.assinatura
-        ) {
-
-          assinaturaAtual = null;
-
-          return false;
-
-        }
-
-        assinaturaAtual =
-          data.assinatura;
-
-        return true;
-
-      }
-
-      function mostrarAssinaturaAtual() {
-
-        if (!assinaturaAtual) {
-          return;
-        }
-
-        plansSection.classList.add(
-          'hidden'
-        );
-
-        paymentSection.classList.add(
-          'hidden'
-        );
-
-        successSection.classList.add(
-          'hidden'
-        );
-
-        subscriptionSection.classList.remove(
-          'hidden'
-        );
-
-        const assinatura =
-          assinaturaAtual;
-
-        const plano =
-          assinatura.plano || {};
-
-        const status =
-          String(
-            assinatura.status || ''
-          ).toLowerCase();
-
-        const statusTexto =
-          textoStatus(
-            assinatura.status
-          );
-
-        subscriptionDescription.textContent =
-          status === 'ativa'
-            ? 'Sua assinatura está ativa e vinculada à sua empresa.'
-            : `Sua assinatura está com status "${statusTexto}".`;
-
-        subscriptionDetails.innerHTML = `
-
-          <div class="subscription-detail">
-
-            <div class="subscription-detail-label">
-              Plano
-            </div>
-
-            <div class="subscription-detail-value">
-              ${escapeHtml(
-                plano.nome ||
-                assinatura.plano_nome ||
-                'Plano'
-              )}
-            </div>
-
+(() => {
+  'use strict';
+
+  // ============================================================
+  // CONFIGURAÇÃO
+  // ============================================================
+
+  const API = '/api';
+  const AUTH_TOKEN_KEY = 'lavajato_auth_token';
+
+  // ============================================================
+  // ELEMENTOS
+  // ============================================================
+
+  const $ = id => document.getElementById(id);
+
+  const loading = $('loading');
+  const content = $('content');
+  const plans = $('plans');
+  const plansSection = $('plans-section');
+  const paymentSection = $('payment-section');
+  const successSection = $('success-section');
+  const selectedPlan = $('selected-plan');
+  const companyName = $('company-name');
+
+  const alertError = $('alert-error');
+  const alertSuccess = $('alert-success');
+  const alertErrorText = $('alert-error-text');
+  const alertSuccessText = $('alert-success-text');
+
+  const form = $('card-form');
+  const email = $('email');
+  const cardholderName = $('cardholder-name');
+  const identificationNumber = $('identification-number');
+
+  const btnAssinar = $('btn-assinar');
+  const btnVoltarPlanos = $('btn-voltar-planos');
+  const btnDashboardAssinatura = $('btn-dashboard-assinatura');
+
+  const mpLoading = $('mp-loading');
+  const subscriptionSection = $('subscription-section');
+  const subscriptionDetails = $('subscription-details');
+  const subscriptionDescription = $('subscription-description');
+  const successPlan = $('success-plan');
+
+  const btnTrocarPlano = $('btn-trocar-plano');
+  const btnCancelarAssinatura = $('btn-cancelar-assinatura');
+  const subscriptionActionMessage = $('subscription-action-message');
+
+  // ============================================================
+  // ESTADO
+  // ============================================================
+
+  let usuario = null;
+  let empresa = null;
+  let planos = [];
+  let planoSelecionado = null;
+  let assinaturaAtual = null;
+
+  let mp = null;
+  let cardForm = null;
+  let inicializandoCardForm = false;
+  let processandoAssinatura = false;
+  let processandoAcaoAssinatura = false;
+
+  // ============================================================
+  // ALERTAS
+  // ============================================================
+
+  function mostrarErro(mensagem) {
+    if (alertSuccess) alertSuccess.classList.remove('show');
+
+    if (alertErrorText) {
+      alertErrorText.textContent =
+        mensagem || 'Ocorreu um erro.';
+    }
+
+    if (alertError) alertError.classList.add('show');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function mostrarSucesso(mensagem) {
+    if (alertError) alertError.classList.remove('show');
+
+    if (alertSuccessText) {
+      alertSuccessText.textContent =
+        mensagem || 'Operação realizada com sucesso.';
+    }
+
+    if (alertSuccess) alertSuccess.classList.add('show');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function limparAlertas() {
+    if (alertError) alertError.classList.remove('show');
+    if (alertSuccess) alertSuccess.classList.remove('show');
+
+    if (alertErrorText) alertErrorText.textContent = '';
+    if (alertSuccessText) alertSuccessText.textContent = '';
+  }
+
+  function mostrarMensagemAssinatura(mensagem, tipo = '') {
+    if (!subscriptionActionMessage) return;
+
+    subscriptionActionMessage.textContent = mensagem;
+    subscriptionActionMessage.className = tipo;
+  }
+
+  // ============================================================
+  // UTILITÁRIOS
+  // ============================================================
+
+  function formatarMoeda(valor) {
+    return Number(valor || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+
+  function escapeHtml(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    })[caractere]);
+  }
+
+  function limparCpf(valor) {
+    return String(valor || '').replace(/\D/g, '');
+  }
+
+  function formatarData(valor) {
+    if (!valor) return 'Não informado';
+
+    const data = new Date(valor);
+
+    if (Number.isNaN(data.getTime())) {
+      return 'Não informado';
+    }
+
+    return data.toLocaleDateString('pt-BR');
+  }
+
+  function textoStatus(status) {
+    const mapa = {
+      pendente: 'Pendente',
+      ativa: 'Ativa',
+      pausada: 'Pausada',
+      inadimplente: 'Inadimplente',
+      cancelada: 'Cancelada',
+      canceled: 'Cancelada',
+      authorized: 'Ativa',
+      paused: 'Pausada'
+    };
+
+    const chave = String(status || '').toLowerCase();
+
+    return mapa[chave] || status || 'Não informado';
+  }
+
+  function periodoPlano(plano) {
+    const periodo = String(
+      plano?.periodo || plano?.plano_periodo || ''
+    ).toLowerCase();
+
+    if (periodo === 'anual') return 'anual';
+    if (periodo === 'trimestral') return 'trimestral';
+    if (periodo === 'semestral') return 'semestral';
+
+    return 'mensal';
+  }
+
+  function nomePeriodo(periodo) {
+    const mapa = {
+      mensal: 'mês',
+      trimestral: 'trimestre',
+      semestral: 'semestre',
+      anual: 'ano'
+    };
+
+    return mapa[periodo] || 'mês';
+  }
+
+  function obterMensagemMercadoPago(error) {
+    const data = error?.data;
+
+    if (data?.detalhes?.message) {
+      return data.detalhes.message;
+    }
+
+    const causas = data?.detalhes?.cause || data?.cause;
+
+    if (Array.isArray(causas) && causas.length > 0) {
+      const causa = causas[0];
+
+      if (causa?.description) return causa.description;
+      if (causa?.code) return `Mercado Pago: ${causa.code}`;
+    }
+
+    if (error?.status === 409) {
+      return data?.erro ||
+        'Sua empresa já possui uma assinatura em andamento.';
+    }
+
+    return error?.message ||
+      'Não foi possível concluir a operação.';
+  }
+
+  // ============================================================
+  // REQUISIÇÕES À API
+  // ============================================================
+
+  async function api(caminho, opcoes = {}) {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+
+    const headers = {
+      ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(opcoes.headers || {})
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const resposta = await fetch(API + caminho, {
+      ...opcoes,
+      headers,
+      credentials: 'same-origin'
+    });
+
+    let dados = null;
+
+    try {
+      dados = await resposta.json();
+    } catch (_) {
+      dados = null;
+    }
+
+    if (resposta.status === 401) {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      window.location.href = '/';
+
+      throw new Error('Sessão expirada. Entre novamente.');
+    }
+
+    if (!resposta.ok) {
+      const erro = new Error(
+        dados?.erro ||
+        dados?.mensagem ||
+        dados?.message ||
+        'Erro na requisição.'
+      );
+
+      erro.status = resposta.status;
+      erro.data = dados;
+
+      throw erro;
+    }
+
+    return dados;
+  }
+
+  // ============================================================
+  // USUÁRIO E EMPRESA
+  // ============================================================
+
+  async function verificarUsuario() {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+
+    if (!token) {
+      window.location.href = '/';
+      return null;
+    }
+
+    const dados = await api('/auth/me');
+
+    if (!dados?.usuario) {
+      throw new Error(
+        'Não foi possível identificar o usuário.'
+      );
+    }
+
+    usuario = dados.usuario;
+    empresa = dados.empresa || null;
+
+    if (usuario.perfil === 'dev') {
+      throw new Error(
+        'A tela de assinatura deve ser acessada por uma empresa.'
+      );
+    }
+
+    /*
+     * IMPORTANTE:
+     * /auth/me retorna o identificador da empresa em
+     * dados.empresa.id, não em dados.usuario.empresa_id.
+     */
+    const empresaId = empresa?.id ?? usuario.empresa_id ?? null;
+
+    if (!empresaId) {
+      throw new Error(
+        'Seu usuário não está vinculado a uma empresa.'
+      );
+    }
+
+    usuario.empresa_id = empresaId;
+
+    return dados;
+  }
+
+  function carregarEmpresa(dados) {
+    if (companyName) {
+      companyName.textContent =
+        dados?.empresa?.nome || 'Sua empresa';
+    }
+  }
+
+  // ============================================================
+  // PLANOS
+  // ============================================================
+
+  async function carregarPlanos() {
+    if (plans) {
+      plans.innerHTML = `
+        <div class="loading">Carregando planos...</div>
+      `;
+    }
+
+    const dados = await api('/planos/disponiveis');
+
+    if (!Array.isArray(dados)) {
+      throw new Error(
+        'Resposta inválida ao carregar os planos.'
+      );
+    }
+
+    planos = dados;
+    renderizarPlanos();
+  }
+
+  function renderizarPlanos() {
+    if (!plans) return;
+
+    if (planos.length === 0) {
+      plans.innerHTML = `
+        <div class="empty">
+          Nenhum plano está disponível no momento.
+        </div>
+      `;
+      return;
+    }
+
+    plans.innerHTML = planos.map(plano => {
+      const periodo = periodoPlano(plano);
+      const periodoCurto = `/${nomePeriodo(periodo)}`;
+
+      return `
+        <article class="plan">
+          <div class="plan-top">
+            <span class="plan-badge">Plano disponível</span>
           </div>
 
-          <div class="subscription-detail">
-
-            <div class="subscription-detail-label">
-              Valor
-            </div>
-
-            <div class="subscription-detail-value">
-              ${formatarMoeda(
-                plano.valor ||
-                assinatura.plano_valor
-              )}
-            </div>
-
+          <div class="plan-name">
+            ${escapeHtml(plano.nome)}
           </div>
 
-          <div class="subscription-detail">
-
-            <div class="subscription-detail-label">
-              Status
-            </div>
-
-            <div class="subscription-detail-value">
-
-              <span class="subscription-status">
-                ${escapeHtml(statusTexto)}
-              </span>
-
-            </div>
-
+          <div class="plan-description">
+            ${escapeHtml(
+              plano.descricao ||
+              'Plano para utilização do sistema.'
+            )}
           </div>
 
-          <div class="subscription-detail">
+          <div class="plan-divider"></div>
 
-            <div class="subscription-detail-label">
-              Início
-            </div>
+          <div class="plan-price-label">Investimento</div>
 
-            <div class="subscription-detail-value">
-              ${formatarData(
-                assinatura.inicio_em
-              )}
-            </div>
-
-          </div>
-
-          <div class="subscription-detail">
-
-            <div class="subscription-detail-label">
-              Próxima cobrança
-            </div>
-
-            <div class="subscription-detail-value">
-              ${formatarData(
-                assinatura.proxima_cobranca_em
-              )}
-            </div>
-
-          </div>
-
-          <div class="subscription-detail">
-
-            <div class="subscription-detail-label">
-              Período
-            </div>
-
-            <div class="subscription-detail-value">
-              ${
-                plano.periodo === 'anual' ||
-                assinatura.plano_periodo === 'anual'
-                  ? 'Anual'
-                  : 'Mensal'
-              }
-            </div>
-
-          </div>
-
-        `;
-
-      }
-
-      // ============================================================
-      // PLANOS
-      // ============================================================
-
-      async function carregarPlanos() {
-
-        plans.innerHTML = `
-
-          <div class="loading">
-            Carregando planos...
-          </div>
-
-        `;
-
-        const data =
-          await api(
-            '/planos/disponiveis'
-          );
-
-        if (!Array.isArray(data)) {
-
-          throw new Error(
-            'Resposta inválida ao carregar os planos.'
-          );
-
-        }
-
-        planos = data;
-
-        renderizarPlanos();
-
-      }
-
-      function renderizarPlanos() {
-
-        if (planos.length === 0) {
-
-          plans.innerHTML = `
-
-            <div class="empty">
-              Nenhum plano está disponível no momento.
-            </div>
-
-          `;
-
-          return;
-
-        }
-
-        plans.innerHTML =
-          planos.map(plano => {
-
-            const periodo =
-              plano.periodo === 'anual'
-                ? 'Cobrança anual'
-                : 'Cobrança mensal';
-
-            const periodoCurto =
-              plano.periodo === 'anual'
-                ? '/ ano'
-                : '/ mês';
-
-            return `
-
-              <article class="plan">
-
-                <div class="plan-top">
-
-                  <span class="plan-badge">
-                    Plano disponível
-                  </span>
-
-                </div>
-
-                <div class="plan-name">
-                  ${escapeHtml(plano.nome)}
-                </div>
-
-                <div class="plan-description">
-                  ${
-                    escapeHtml(
-                      plano.descricao ||
-                      'Plano para utilização completa do sistema.'
-                    )
-                  }
-                </div>
-
-                <div class="plan-divider"></div>
-
-                <div class="plan-price-label">
-                  Investimento
-                </div>
-
-                <div class="plan-price">
-                  ${formatarMoeda(plano.valor)}
-                  <small>${periodoCurto}</small>
-                </div>
-
-                <div class="plan-period">
-                  ${periodo}
-                </div>
-
-                <button
-                  type="button"
-                  class="plan-button"
-                  data-plano-id="${Number(plano.id)}"
-                >
-                  Escolher este plano
-                </button>
-
-              </article>
-
-            `;
-
-          }).join('');
-
-        document
-          .querySelectorAll(
-            '[data-plano-id]'
-          )
-          .forEach(button => {
-
-            button.addEventListener(
-              'click',
-              () => {
-
-                const planoId =
-                  Number(
-                    button.dataset.planoId
-                  );
-
-                selecionarPlano(
-                  planoId
-                );
-
-              }
-            );
-
-          });
-
-      }
-
-      // ============================================================
-      // SELECIONAR PLANO
-      // ============================================================
-
-      async function selecionarPlano(planoId) {
-
-        limparAlertas();
-
-        if (assinaturaAtual) {
-
-          mostrarErro(
-            'Sua empresa já possui uma assinatura.'
-          );
-
-          return;
-
-        }
-
-        const plano =
-          planos.find(
-            item =>
-              Number(item.id) ===
-              Number(planoId)
-          );
-
-        if (!plano) {
-
-          mostrarErro(
-            'Plano selecionado não encontrado.'
-          );
-
-          return;
-
-        }
-
-        planoSelecionado =
-          plano;
-
-        const periodo =
-          plano.periodo === 'anual'
-            ? 'Cobrança anual'
-            : 'Cobrança mensal';
-
-        const periodoCurto =
-          plano.periodo === 'anual'
-            ? '/ ano'
-            : '/ mês';
-
-        selectedPlan.innerHTML = `
-
-          <div>
-
-            <div class="selected-label">
-              Plano selecionado
-            </div>
-
-            <div class="selected-name">
-              ${escapeHtml(plano.nome)}
-            </div>
-
-            <div class="selected-period">
-              ${periodo}
-            </div>
-
-          </div>
-
-          <div class="selected-price">
-
+          <div class="plan-price">
             ${formatarMoeda(plano.valor)}
-
-            <small>
-              ${periodoCurto}
-            </small>
-
+            <small>${periodoCurto}</small>
           </div>
 
-        `;
-
-        plansSection.classList.add(
-          'hidden'
-        );
-
-        paymentSection.classList.remove(
-          'hidden'
-        );
-
-        successSection.classList.add(
-          'hidden'
-        );
-
-        subscriptionSection.classList.add(
-          'hidden'
-        );
-
-        email.value =
-          usuario?.email || '';
-
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-
-        /*
-         * O CardForm depende do valor do plano.
-         * Se já existe um CardForm de outro plano,
-         * precisamos permitir uma nova inicialização.
-         */
-
-        if (cardForm) {
-
-          cardForm = null;
-          mp = null;
-
-        }
-
-        try {
-
-          await iniciarMercadoPago();
-
-        } catch (error) {
-
-          console.error(
-            'Erro ao iniciar Mercado Pago:',
-            error
-          );
-
-          mostrarErro(
-            error.message ||
-            'Não foi possível carregar o pagamento.'
-          );
-
-        }
-
-      }
-
-      // ============================================================
-      // MERCADO PAGO
-      // ============================================================
-
-      async function obterPublicKey() {
-
-        const data =
-          await api(
-            '/mercado-pago/public-key'
-          );
-
-        if (
-          !data ||
-          !data.public_key
-        ) {
-
-          throw new Error(
-            'Chave pública do Mercado Pago não configurada.'
-          );
-
-        }
-
-        return data.public_key;
-
-      }
-
-      async function iniciarMercadoPago() {
-
-        if (!planoSelecionado) {
-
-          throw new Error(
-            'Selecione um plano antes de continuar.'
-          );
-
-        }
-
-        if (
-          typeof MercadoPago ===
-          'undefined'
-        ) {
-
-          throw new Error(
-            'Mercado Pago.js não foi carregado.'
-          );
-
-        }
-
-        if (
-          inicializandoCardForm
-        ) {
-
-          return;
-
-        }
-
-        inicializandoCardForm =
-          true;
-
-        mpLoading.textContent =
-          'Carregando formulário seguro do Mercado Pago...';
-
-        try {
-
-          const publicKey =
-            await obterPublicKey();
-
-          mp =
-            new MercadoPago(
-              publicKey,
-              {
-                locale: 'pt-BR'
-              }
-            );
-
-          cardForm =
-            mp.cardForm({
-
-              amount:
-                Number(
-                  planoSelecionado.valor
-                ).toFixed(2),
-
-              iframe: true,
-
-              form: {
-
-                id:
-                  'card-form',
-
-                cardNumber: {
-
-                  id:
-                    'card-number',
-
-                  placeholder:
-                    'Número do cartão'
-
-                },
-
-                expirationDate: {
-
-                  id:
-                    'expiration-date',
-
-                  placeholder:
-                    'MM/AA'
-
-                },
-
-                securityCode: {
-
-                  id:
-                    'security-code',
-
-                  placeholder:
-                    'CVV'
-
-                },
-
-                cardholderName: {
-
-                  id:
-                    'cardholder-name'
-
-                },
-
-                issuer: {
-
-                  id:
-                    'issuer'
-
-                },
-
-                installments: {
-
-                  id:
-                    'installments'
-
-                },
-
-                identificationType: {
-
-                  id:
-                    'identification-type'
-
-                },
-
-                identificationNumber: {
-
-                  id:
-                    'identification-number'
-
-                },
-
-                cardholderEmail: {
-
-                  id:
-                    'email'
-
-                }
-
-              },
-
-              callbacks: {
-
-                onFormMounted:
-                  error => {
-
-                    if (error) {
-
-                      console.error(
-                        'Erro ao montar CardForm:',
-                        error
-                      );
-
-                      mpLoading.textContent =
-                        '';
-
-                      cardForm =
-                        null;
-
-                      mostrarErro(
-                        'Não foi possível carregar os campos do cartão.'
-                      );
-
-                      return;
-
-                    }
-
-                    mpLoading.textContent =
-                      '';
-
-                  },
-
-                onFetching:
-                  resource => {
-
-                    console.log(
-                      'Mercado Pago processando:',
-                      resource
-                    );
-
-                    mpLoading.textContent =
-                      'Validando os dados do pagamento...';
-
-                    return () => {
-
-                      mpLoading.textContent =
-                        '';
-
-                    };
-
-                  }
-
-              }
-
-            });
-
-          email.value =
-            usuario?.email || '';
-
-        } finally {
-
-          inicializandoCardForm =
-            false;
-
-        }
-
-      }
-
-      // ============================================================
-      // REINICIAR FORMULÁRIO
-      // ============================================================
-
-      function prepararNovaTentativa() {
-
-        mpLoading.textContent =
-          '';
-
-        btnAssinar.disabled =
-          false;
-
-        btnVoltarPlanos.disabled =
-          false;
-
-        btnAssinar.textContent =
-          'Tentar novamente';
-
-      }
-
-      // ============================================================
-      // VOLTAR PARA PLANOS
-      // ============================================================
-
-      btnVoltarPlanos.addEventListener(
-        'click',
-        () => {
-
-          limparAlertas();
-
-          plansSection.classList.remove(
-            'hidden'
-          );
-
-          paymentSection.classList.add(
-            'hidden'
-          );
-
-          successSection.classList.add(
-            'hidden'
-          );
-
-          planoSelecionado =
-            null;
-
-          mpLoading.textContent =
-            '';
-
-          btnAssinar.disabled =
-            false;
-
-          btnVoltarPlanos.disabled =
-            false;
-
-          btnAssinar.textContent =
-            'Assinar plano';
-
-        }
+          <div class="plan-period">
+            Cobrança ${periodo}
+          </div>
+
+          <button
+            type="button"
+            class="plan-button"
+            data-plano-id="${Number(plano.id)}"
+          >
+            Escolher este plano
+          </button>
+        </article>
+      `;
+    }).join('');
+
+    plans.querySelectorAll('[data-plano-id]').forEach(botao => {
+      botao.addEventListener('click', () => {
+        selecionarPlano(Number(botao.dataset.planoId));
+      });
+    });
+  }
+
+  // ============================================================
+  // ASSINATURA ATUAL
+  // ============================================================
+
+  async function carregarAssinaturaAtual() {
+    const dados = await api(
+      '/mercado-pago/minha-assinatura'
+    );
+
+    if (
+      !dados ||
+      dados.possui_assinatura !== true ||
+      !dados.assinatura
+    ) {
+      assinaturaAtual = null;
+      return false;
+    }
+
+    assinaturaAtual = dados.assinatura;
+    return true;
+  }
+
+  function mostrarAssinaturaAtual() {
+    if (!assinaturaAtual) return;
+
+    plansSection?.classList.add('hidden');
+    paymentSection?.classList.add('hidden');
+    successSection?.classList.add('hidden');
+    subscriptionSection?.classList.remove('hidden');
+
+    const assinatura = assinaturaAtual;
+    const plano = assinatura.plano || {};
+
+    const status = String(
+      assinatura.status || ''
+    ).toLowerCase();
+
+    const statusTexto = textoStatus(assinatura.status);
+
+    if (subscriptionDescription) {
+      subscriptionDescription.textContent =
+        status === 'ativa' || status === 'authorized'
+          ? 'Sua assinatura está ativa e vinculada à sua empresa.'
+          : `Sua assinatura está com status "${statusTexto}".`;
+    }
+
+    if (subscriptionDetails) {
+      subscriptionDetails.innerHTML = `
+        <div class="subscription-detail">
+          <div class="subscription-detail-label">Plano</div>
+          <div class="subscription-detail-value">
+            ${escapeHtml(
+              plano.nome ||
+              assinatura.plano_nome ||
+              'Plano'
+            )}
+          </div>
+        </div>
+
+        <div class="subscription-detail">
+          <div class="subscription-detail-label">Valor</div>
+          <div class="subscription-detail-value">
+            ${formatarMoeda(
+              plano.valor ?? assinatura.plano_valor
+            )}
+          </div>
+        </div>
+
+        <div class="subscription-detail">
+          <div class="subscription-detail-label">Status</div>
+          <div class="subscription-detail-value">
+            <span class="subscription-status">
+              ${escapeHtml(statusTexto)}
+            </span>
+          </div>
+        </div>
+
+        <div class="subscription-detail">
+          <div class="subscription-detail-label">Início</div>
+          <div class="subscription-detail-value">
+            ${formatarData(assinatura.inicio_em)}
+          </div>
+        </div>
+
+        <div class="subscription-detail">
+          <div class="subscription-detail-label">
+            Próxima cobrança
+          </div>
+          <div class="subscription-detail-value">
+            ${formatarData(assinatura.proxima_cobranca_em)}
+          </div>
+        </div>
+
+        <div class="subscription-detail">
+          <div class="subscription-detail-label">Período</div>
+          <div class="subscription-detail-value">
+            ${escapeHtml(
+              periodoPlano(plano.nome ? plano : assinatura)
+            )}
+          </div>
+        </div>
+      `;
+    }
+
+    if (btnCancelarAssinatura) {
+      const cancelada =
+        status === 'cancelada' || status === 'canceled';
+
+      btnCancelarAssinatura.disabled = cancelada;
+      btnCancelarAssinatura.textContent = cancelada
+        ? 'Assinatura cancelada'
+        : 'Cancelar assinatura';
+    }
+  }
+
+  async function atualizarTelaAssinatura() {
+    const possuiAssinatura = await carregarAssinaturaAtual();
+
+    if (possuiAssinatura) {
+      mostrarAssinaturaAtual();
+      return;
+    }
+
+    subscriptionSection?.classList.add('hidden');
+    paymentSection?.classList.add('hidden');
+    successSection?.classList.add('hidden');
+    plansSection?.classList.remove('hidden');
+
+    await carregarPlanos();
+  }
+
+  // ============================================================
+  // SELECIONAR PLANO
+  // ============================================================
+
+  async function selecionarPlano(planoId) {
+    limparAlertas();
+
+    if (assinaturaAtual) {
+      mostrarErro('Sua empresa já possui uma assinatura.');
+      return;
+    }
+
+    const plano = planos.find(
+      item => Number(item.id) === Number(planoId)
+    );
+
+    if (!plano) {
+      mostrarErro('Plano selecionado não encontrado.');
+      return;
+    }
+
+    planoSelecionado = plano;
+
+    const periodo = periodoPlano(plano);
+
+    if (selectedPlan) {
+      selectedPlan.innerHTML = `
+        <div>
+          <div class="selected-label">Plano selecionado</div>
+          <div class="selected-name">
+            ${escapeHtml(plano.nome)}
+          </div>
+          <div class="selected-period">
+            Cobrança ${escapeHtml(periodo)}
+          </div>
+        </div>
+
+        <div class="selected-price">
+          ${formatarMoeda(plano.valor)}
+          <small>/${nomePeriodo(periodo)}</small>
+        </div>
+      `;
+    }
+
+    plansSection?.classList.add('hidden');
+    paymentSection?.classList.remove('hidden');
+    successSection?.classList.add('hidden');
+    subscriptionSection?.classList.add('hidden');
+
+    if (email) email.value = usuario?.email || '';
+
+    cardForm = null;
+    mp = null;
+
+    try {
+      await iniciarMercadoPago();
+    } catch (erro) {
+      console.error('Erro ao iniciar Mercado Pago:', erro);
+
+      mostrarErro(
+        erro.message ||
+        'Não foi possível carregar o formulário de pagamento.'
       );
+    }
+  }
 
-      // ============================================================
-      // DASHBOARD
-      // ============================================================
+  // ============================================================
+  // MERCADO PAGO
+  // ============================================================
 
-      btnDashboardAssinatura.addEventListener(
-        'click',
-        () => {
+  async function obterPublicKey() {
+    const dados = await api('/mercado-pago/public-key');
 
-          window.location.href =
-            '/dashboard.html';
-
-        }
+    if (!dados?.public_key) {
+      throw new Error(
+        'Chave pública do Mercado Pago não configurada.'
       );
+    }
 
-      // ============================================================
-      // MOSTRAR SUCESSO
-      // ============================================================
+    return dados.public_key;
+  }
 
-      function mostrarSucessoAssinatura(resultado) {
+  async function iniciarMercadoPago() {
+    if (!planoSelecionado) {
+      throw new Error('Selecione um plano antes de continuar.');
+    }
 
-        const plano =
-          planoSelecionado;
+    if (typeof MercadoPago === 'undefined') {
+      throw new Error('Mercado Pago.js não foi carregado.');
+    }
 
-        paymentSection.classList.add(
-          'hidden'
-        );
+    if (inicializandoCardForm) return;
 
-        plansSection.classList.add(
-          'hidden'
-        );
+    inicializandoCardForm = true;
 
-        subscriptionSection.classList.add(
-          'hidden'
-        );
+    if (mpLoading) {
+      mpLoading.textContent =
+        'Carregando formulário seguro do Mercado Pago...';
+    }
 
-        successSection.classList.remove(
-          'hidden'
-        );
+    try {
+      const publicKey = await obterPublicKey();
 
-        if (plano) {
+      mp = new MercadoPago(publicKey, {
+        locale: 'pt-BR'
+      });
 
-          successPlan.textContent =
-            `Plano ${plano.nome} registrado com sucesso`;
+      cardForm = mp.cardForm({
+        amount: Number(planoSelecionado.valor).toFixed(2),
+        iframe: true,
 
-        } else {
+        form: {
+          id: 'card-form',
 
-          successPlan.textContent =
-            'Assinatura registrada com sucesso';
+          cardNumber: {
+            id: 'card-number',
+            placeholder: 'Número do cartão'
+          },
 
-        }
+          expirationDate: {
+            id: 'expiration-date',
+            placeholder: 'MM/AA'
+          },
 
-        btnAssinar.disabled =
-          true;
+          securityCode: {
+            id: 'security-code',
+            placeholder: 'CVV'
+          },
 
-        btnVoltarPlanos.disabled =
-          true;
+          cardholderName: {
+            id: 'cardholder-name'
+          },
 
-        planoSelecionado =
-          null;
+          issuer: {
+            id: 'issuer'
+          },
 
-        mpLoading.textContent =
-          '';
+          installments: {
+            id: 'installments'
+          },
 
-        mostrarSucesso(
-          'Assinatura criada com sucesso. Aguardando confirmação do pagamento.'
-        );
+          identificationType: {
+            id: 'identification-type'
+          },
 
-        console.log(
-          'Assinatura criada:',
-          resultado
-        );
+          identificationNumber: {
+            id: 'identification-number'
+          },
 
-      }
-
-      // ============================================================
-      // ASSINAR
-      // ============================================================
-
-      async function assinar() {
-
-        limparAlertas();
-
-        if (!planoSelecionado) {
-
-          mostrarErro(
-            'Selecione um plano.'
-          );
-
-          return;
-
-        }
-
-        if (assinaturaAtual) {
-
-          mostrarErro(
-            'Sua empresa já possui uma assinatura.'
-          );
-
-          return;
-
-        }
-
-        if (!usuario?.empresa_id) {
-
-          mostrarErro(
-            'A empresa do usuário não foi identificada.'
-          );
-
-          return;
-
-        }
-
-        const emailValue =
-          email.value.trim();
-
-        const nomeValue =
-          cardholderName.value.trim();
-
-        const cpfValue =
-          limparCpf(
-            identificationNumber.value
-          );
-
-        if (!emailValue) {
-
-          mostrarErro(
-            'Informe o e-mail.'
-          );
-
-          email.focus();
-
-          return;
-
-        }
-
-        if (!nomeValue) {
-
-          mostrarErro(
-            'Informe o nome do titular do cartão.'
-          );
-
-          cardholderName.focus();
-
-          return;
-
-        }
-
-        if (!cpfValue) {
-
-          mostrarErro(
-            'Informe o CPF do titular do cartão.'
-          );
-
-          identificationNumber.focus();
-
-          return;
-
-        }
-
-        if (!cpfValidoBasico(cpfValue)) {
-
-          mostrarErro(
-            'Informe um CPF com 11 dígitos.'
-          );
-
-          identificationNumber.focus();
-
-          return;
-
-        }
-
-        if (!cardForm) {
-
-          mostrarErro(
-            'O formulário do cartão ainda não foi carregado.'
-          );
-
-          return;
-
-        }
-
-        let cardFormData;
-
-        try {
-
-          mpLoading.textContent =
-            'Validando os dados do cartão...';
-
-          cardFormData =
-            cardForm.getCardFormData();
-
-        } catch (error) {
-
-          console.error(
-            'Erro ao obter dados do cartão:',
-            error
-          );
-
-          mpLoading.textContent =
-            '';
-
-          mostrarErro(
-            'Não foi possível validar os dados do cartão.'
-          );
-
-          return;
-
-        }
-
-        if (
-          !cardFormData ||
-          !cardFormData.token
-        ) {
-
-          mpLoading.textContent =
-            '';
-
-          mostrarErro(
-            'Não foi possível gerar o token do cartão. Verifique os dados informados.'
-          );
-
-          return;
-
-        }
-
-        /*
-         * Nunca exibimos o token completo no console.
-         */
-
-        console.log(
-          'CardForm preparado:',
-          {
-            token:
-              '[TOKEN GERADO]',
-
-            payment_method_id:
-              cardFormData.paymentMethodId ||
-              cardFormData.payment_method_id ||
-              null,
-
-            issuer_id:
-              cardFormData.issuerId ||
-              cardFormData.issuer_id ||
-              null,
-
-            installments:
-              cardFormData.installments ||
-              null,
-
-            identification_type:
-              cardFormData.identificationType ||
-              cardFormData.identification_type ||
-              null
+          cardholderEmail: {
+            id: 'email'
           }
-        );
+        },
 
-        const paymentMethodId =
-          cardFormData.paymentMethodId ||
-          cardFormData.payment_method_id ||
-          null;
-
-        const issuerId =
-          cardFormData.issuerId ||
-          cardFormData.issuer_id ||
-          null;
-
-        const installmentsValue =
-          cardFormData.installments
-            ? Number(
-                cardFormData.installments
-              )
-            : 1;
-
-        const identificationTypeValue =
-          cardFormData.identificationType ||
-          cardFormData.identification_type ||
-          'CPF';
-
-        const identificationNumberValue =
-          cardFormData.identificationNumber ||
-          cardFormData.identification_number ||
-          cpfValue;
-
-        btnAssinar.disabled =
-          true;
-
-        btnVoltarPlanos.disabled =
-          true;
-
-        btnAssinar.textContent =
-          'Processando...';
-
-        mpLoading.textContent =
-          'Enviando pagamento com segurança...';
-
-        try {
-
-          const resultado =
-            await api(
-              '/mercado-pago/assinaturas',
-              {
-                method: 'POST',
-
-                body:
-                  JSON.stringify({
-
-                    plano_id:
-                      Number(
-                        planoSelecionado.id
-                      ),
-
-                    email:
-                      emailValue,
-
-                    nome:
-                      nomeValue,
-
-                    card_token_id:
-                      cardFormData.token,
-
-                    payment_method_id:
-                      paymentMethodId,
-
-                    issuer_id:
-                      issuerId,
-
-                    installments:
-                      installmentsValue,
-
-                    identification_type:
-                      identificationTypeValue,
-
-                    identification_number:
-                      identificationNumberValue
-
-                  })
-              }
-            );
-
-          /*
-           * A API chegou aqui com sucesso.
-           * O backend retornou 201.
-           *
-           * Agora fechamos imediatamente a área
-           * de pagamento e mostramos a confirmação.
-           */
-
-          mostrarSucessoAssinatura(
-            resultado
-          );
-
-          /*
-           * Após a confirmação visual,
-           * envia para o dashboard.
-           */
-
-          setTimeout(() => {
-
-            window.location.href =
-              '/dashboard.html';
-
-          }, 2500);
-
-        } catch (error) {
-
-          console.error(
-            'Erro ao criar assinatura:',
-            error
-          );
-
-          const mensagem =
-            obterMensagemMercadoPago(
-              error
-            );
-
-          mpLoading.textContent =
-            '';
-
-          /*
-           * Se o backend informou 409,
-           * provavelmente a assinatura já existe.
-           * Reconsultamos para manter a tela sincronizada.
-           */
-
-          if (
-            error.status === 409
-          ) {
-
-            try {
-
-              const possuiAssinatura =
-                await carregarAssinaturaAtual();
-
-              if (possuiAssinatura) {
-
-                mostrarAssinaturaAtual();
-
-                mostrarSucesso(
-                  'Sua empresa já possui uma assinatura registrada.'
-                );
-
-                return;
-
-              }
-
-            } catch (consultaError) {
-
+        callbacks: {
+          onFormMounted: erro => {
+            if (erro) {
               console.error(
-                'Erro ao consultar assinatura após 409:',
-                consultaError
+                'Erro ao montar CardForm:',
+                erro
               );
 
+              if (mpLoading) mpLoading.textContent = '';
+              cardForm = null;
+
+              mostrarErro(
+                'Não foi possível carregar os campos do cartão.'
+              );
+
+              return;
             }
 
+            if (mpLoading) mpLoading.textContent = '';
+          },
+
+          onFetching: () => {
+            if (mpLoading) {
+              mpLoading.textContent =
+                'Validando os dados do pagamento...';
+            }
+
+            return () => {
+              if (mpLoading) mpLoading.textContent = '';
+            };
           }
-
-          mostrarErro(
-            mensagem
-          );
-
-          prepararNovaTentativa();
-
         }
+      });
 
+      if (email) email.value = usuario?.email || '';
+    } finally {
+      inicializandoCardForm = false;
+    }
+  }
+
+  // ============================================================
+  // ESTADO DOS BOTÕES
+  // ============================================================
+
+  function prepararNovaTentativa() {
+    if (mpLoading) mpLoading.textContent = '';
+
+    if (btnAssinar) {
+      btnAssinar.disabled = false;
+      btnAssinar.textContent = 'Tentar novamente';
+    }
+
+    if (btnVoltarPlanos) {
+      btnVoltarPlanos.disabled = false;
+    }
+
+    processandoAssinatura = false;
+  }
+
+  function definirBotoesAssinatura(carregando) {
+    processandoAcaoAssinatura = carregando;
+
+    if (btnTrocarPlano) {
+      btnTrocarPlano.disabled = carregando;
+      btnTrocarPlano.textContent = carregando
+        ? 'Processando...'
+        : 'Trocar de plano';
+    }
+
+    if (btnCancelarAssinatura) {
+      const status = String(
+        assinaturaAtual?.status || ''
+      ).toLowerCase();
+
+      const cancelada =
+        status === 'cancelada' || status === 'canceled';
+
+      btnCancelarAssinatura.disabled =
+        carregando || cancelada;
+
+      btnCancelarAssinatura.textContent = carregando
+        ? 'Processando...'
+        : cancelada
+          ? 'Assinatura cancelada'
+          : 'Cancelar assinatura';
+    }
+  }
+
+  // ============================================================
+  // VOLTAR PARA PLANOS
+  // ============================================================
+
+  btnVoltarPlanos?.addEventListener('click', () => {
+    limparAlertas();
+
+    plansSection?.classList.remove('hidden');
+    paymentSection?.classList.add('hidden');
+    successSection?.classList.add('hidden');
+
+    planoSelecionado = null;
+
+    if (mpLoading) mpLoading.textContent = '';
+
+    if (btnAssinar) {
+      btnAssinar.disabled = false;
+      btnAssinar.textContent = 'Assinar plano';
+    }
+
+    if (btnVoltarPlanos) {
+      btnVoltarPlanos.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // DASHBOARD
+  // ============================================================
+
+  btnDashboardAssinatura?.addEventListener('click', () => {
+    window.location.href = '/dashboard.html';
+  });
+
+  // ============================================================
+  // CONFIRMAÇÃO VISUAL DA ASSINATURA
+  // ============================================================
+
+  function mostrarSucessoAssinatura(resultado) {
+    const plano = planoSelecionado;
+
+    paymentSection?.classList.add('hidden');
+    plansSection?.classList.add('hidden');
+    subscriptionSection?.classList.add('hidden');
+    successSection?.classList.remove('hidden');
+
+    if (successPlan) {
+      successPlan.textContent = plano
+        ? `Plano ${plano.nome} registrado com sucesso`
+        : 'Assinatura registrada com sucesso';
+    }
+
+    if (btnAssinar) btnAssinar.disabled = true;
+    if (btnVoltarPlanos) btnVoltarPlanos.disabled = true;
+
+    planoSelecionado = null;
+
+    if (mpLoading) mpLoading.textContent = '';
+
+    mostrarSucesso(
+      'Assinatura criada com sucesso. Aguardando confirmação do pagamento.'
+    );
+
+    console.log('Assinatura criada:', resultado);
+  }
+
+  // ============================================================
+  // CRIAR ASSINATURA
+  // ============================================================
+
+  async function assinar() {
+    if (processandoAssinatura) return;
+
+    limparAlertas();
+
+    if (!planoSelecionado) {
+      mostrarErro('Selecione um plano.');
+      return;
+    }
+
+    if (assinaturaAtual) {
+      mostrarErro('Sua empresa já possui uma assinatura.');
+      return;
+    }
+
+    if (!usuario?.empresa_id) {
+      mostrarErro('A empresa do usuário não foi identificada.');
+      return;
+    }
+
+    const emailValue = email?.value.trim() || '';
+    const nomeValue = cardholderName?.value.trim() || '';
+    const cpfValue = limparCpf(identificationNumber?.value);
+
+    if (!emailValue) {
+      mostrarErro('Informe o e-mail.');
+      email?.focus();
+      return;
+    }
+
+    if (!nomeValue) {
+      mostrarErro('Informe o nome do titular do cartão.');
+      cardholderName?.focus();
+      return;
+    }
+
+    if (cpfValue.length !== 11) {
+      mostrarErro('Informe um CPF com 11 dígitos.');
+      identificationNumber?.focus();
+      return;
+    }
+
+    if (!cardForm) {
+      mostrarErro(
+        'O formulário do cartão ainda não foi carregado.'
+      );
+      return;
+    }
+
+    let dadosCartao;
+
+    try {
+      if (mpLoading) {
+        mpLoading.textContent =
+          'Validando os dados do cartão...';
       }
 
-      // ============================================================
-      // SUBMIT
-      // ============================================================
+      dadosCartao = cardForm.getCardFormData();
+    } catch (erro) {
+      console.error(
+        'Erro ao obter dados do cartão:',
+        erro
+      );
 
-      form.addEventListener(
-        'submit',
-        event => {
+      if (mpLoading) mpLoading.textContent = '';
 
-          event.preventDefault();
+      mostrarErro(
+        'Não foi possível validar os dados do cartão.'
+      );
 
-          if (
-            btnAssinar.disabled
-          ) {
+      return;
+    }
 
-            return;
+    if (!dadosCartao?.token) {
+      if (mpLoading) mpLoading.textContent = '';
 
-          }
+      mostrarErro(
+        'Não foi possível gerar o token do cartão. Verifique os dados informados.'
+      );
 
-          assinar();
+      return;
+    }
 
+    const paymentMethodId =
+      dadosCartao.paymentMethodId ||
+      dadosCartao.payment_method_id ||
+      null;
+
+    const issuerId =
+      dadosCartao.issuerId ||
+      dadosCartao.issuer_id ||
+      null;
+
+    const installments = dadosCartao.installments
+      ? Number(dadosCartao.installments)
+      : 1;
+
+    const identificationType =
+      dadosCartao.identificationType ||
+      dadosCartao.identification_type ||
+      'CPF';
+
+    const identificationNumberValue =
+      dadosCartao.identificationNumber ||
+      dadosCartao.identification_number ||
+      cpfValue;
+
+    processandoAssinatura = true;
+
+    if (btnAssinar) {
+      btnAssinar.disabled = true;
+      btnAssinar.textContent = 'Processando...';
+    }
+
+    if (btnVoltarPlanos) btnVoltarPlanos.disabled = true;
+
+    if (mpLoading) {
+      mpLoading.textContent =
+        'Enviando pagamento com segurança...';
+    }
+
+    try {
+      const resultado = await api(
+        '/mercado-pago/assinaturas',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            plano_id: Number(planoSelecionado.id),
+            email: emailValue,
+            nome: nomeValue,
+            card_token_id: dadosCartao.token,
+            payment_method_id: paymentMethodId,
+            issuer_id: issuerId,
+            installments,
+            identification_type: identificationType,
+            identification_number: identificationNumberValue
+          })
         }
       );
 
-      // ============================================================
-      // FORMATAÇÃO CPF
-      // ============================================================
+      mostrarSucessoAssinatura(resultado);
 
-      identificationNumber.addEventListener(
-        'input',
-        () => {
+      setTimeout(() => {
+        window.location.href = '/dashboard.html';
+      }, 2500);
+    } catch (erro) {
+      console.error('Erro ao criar assinatura:', erro);
 
-          let value =
-            limparCpf(
-              identificationNumber.value
-            );
+      if (mpLoading) mpLoading.textContent = '';
 
-          if (value.length > 11) {
-
-            value =
-              value.substring(
-                0,
-                11
-              );
-
-          }
-
-          identificationNumber.value =
-            value;
-
-        }
-      );
-
-      // ============================================================
-      // INICIALIZAÇÃO
-      // ============================================================
-
-      async function iniciar() {
-
+      if (erro.status === 409) {
         try {
-
-          const data =
-            await verificarUsuario();
-
-          if (!data) {
-
-            return;
-
-          }
-
-          carregarEmpresa(
-            data
-          );
-
-          /*
-           * Primeiro verificamos se a empresa
-           * já possui uma assinatura.
-           */
-
-          let possuiAssinatura =
-            false;
-
-          try {
-
-            possuiAssinatura =
-              await carregarAssinaturaAtual();
-
-          } catch (error) {
-
-            /*
-             * Se a consulta falhar, não bloqueamos
-             * a página inteira. O usuário ainda pode
-             * visualizar os planos.
-             */
-
-            console.error(
-              'Erro ao consultar assinatura atual:',
-              error
-            );
-
-          }
+          const possuiAssinatura =
+            await carregarAssinaturaAtual();
 
           if (possuiAssinatura) {
-
             mostrarAssinaturaAtual();
 
-          } else {
+            mostrarSucesso(
+              'Sua empresa já possui uma assinatura registrada.'
+            );
 
-            await carregarPlanos();
-
+            return;
           }
-
-          loading.style.display =
-            'none';
-
-          content.classList.remove(
-            'hidden'
-          );
-
-        } catch (error) {
-
+        } catch (erroConsulta) {
           console.error(
-            'Erro ao iniciar assinatura:',
-            error
+            'Erro ao consultar assinatura após conflito:',
+            erroConsulta
           );
-
-          loading.style.display =
-            'none';
-
-          content.classList.remove(
-            'hidden'
-          );
-
-          mostrarErro(
-            error.message ||
-            'Não foi possível carregar a página de assinatura.'
-          );
-
         }
-
       }
 
-      iniciar();
-
-
-      
-    })();
-
-    // ============================================================
-// AÇÕES DA ASSINATURA ORVIX
-// ============================================================
-
-const btnTrocarPlano =
-  document.getElementById('btn-trocar-plano');
-
-const btnCancelarAssinatura =
-  document.getElementById('btn-cancelar-assinatura');
-
-const subscriptionActionMessage =
-  document.getElementById('subscription-action-message');
-
-function mostrarMensagemAssinatura(mensagem, tipo = '') {
-  if (!subscriptionActionMessage) return;
-
-  subscriptionActionMessage.textContent = mensagem;
-  subscriptionActionMessage.className = tipo;
-}
-
-function definirBotoesAssinatura(carregando) {
-  if (btnTrocarPlano) {
-    btnTrocarPlano.disabled = carregando;
-    btnTrocarPlano.textContent = carregando
-      ? 'Processando...'
-      : 'Trocar de plano';
+      mostrarErro(obterMensagemMercadoPago(erro));
+      prepararNovaTentativa();
+    } finally {
+      processandoAssinatura = false;
+    }
   }
 
-  if (btnCancelarAssinatura) {
-    btnCancelarAssinatura.disabled = carregando;
-    btnCancelarAssinatura.textContent = carregando
-      ? 'Processando...'
-      : 'Cancelar assinatura';
-  }
-}
+  // ============================================================
+  // EVENTO DO FORMULÁRIO
+  // ============================================================
 
-// ============================================================
-// OBTER RESPOSTA DA API
-// ============================================================
+  form?.addEventListener('submit', evento => {
+    evento.preventDefault();
 
-async function requisicaoAcaoAssinatura(url, dados = {}) {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (btnAssinar?.disabled || processandoAssinatura) {
+      return;
+    }
 
-  if (!token) {
-    throw new Error(
-      'Sua sessão expirou. Entre novamente na Orvix.'
-    );
-  }
-
-  const resposta = await fetch(`${API}${url}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(dados)
+    assinar();
   });
 
-  let resultado;
+  // ============================================================
+  // FORMATAÇÃO DO CPF
+  // ============================================================
 
-  try {
-    resultado = await resposta.json();
-  } catch {
-    resultado = {};
+  identificationNumber?.addEventListener('input', () => {
+    identificationNumber.value =
+      limparCpf(identificationNumber.value).substring(0, 11);
+  });
+
+  // ============================================================
+  // REQUISIÇÃO PARA AÇÕES DA ASSINATURA
+  // ============================================================
+
+  async function requisicaoAcaoAssinatura(caminho, dados = {}) {
+    return api(caminho, {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
   }
 
-  if (!resposta.ok) {
-    throw new Error(
-      resultado.erro ||
-      resultado.mensagem ||
-      'Não foi possível concluir a operação.'
-    );
-  }
+  // ============================================================
+  // CANCELAR ASSINATURA
+  // ============================================================
 
-  return resultado;
-}
+  async function cancelarMinhaAssinatura() {
+    if (processandoAcaoAssinatura) return;
 
-// ============================================================
-// CANCELAR ASSINATURA
-// ============================================================
-
-async function cancelarMinhaAssinatura() {
-const assinatura = window.assinaturaAtual;
-
-if (!assinatura) {
-    mostrarMensagemAssinatura(
-      'Não foi possível localizar sua assinatura.',
-      'error'
-    );
-    return;
-  }
-
-  const status = String(
-    assinatura.status || ''
-  ).toLowerCase();
-
-  if (status === 'cancelada' || status === 'canceled') {
-    mostrarMensagemAssinatura(
-      'Esta assinatura já está cancelada.',
-      'error'
-    );
-    return;
-  }
-
-  const confirmou = window.confirm(
-    'Deseja realmente cancelar sua assinatura?\n\n' +
-    'A solicitação será enviada ao Mercado Pago. ' +
-    'Essa ação não deve ser repetida se já estiver em processamento.'
-  );
-
-  if (!confirmou) return;
-
-  definirBotoesAssinatura(true);
-  mostrarMensagemAssinatura(
-    'Solicitando cancelamento ao Mercado Pago...'
-  );
-
-  try {
-    const resultado = await requisicaoAcaoAssinatura(
-      '/mercado-pago/minha-assinatura/cancelar'
-    );
-
-    mostrarMensagemAssinatura(
-      resultado.mensagem ||
-      'Assinatura cancelada com sucesso.',
-      'success'
-    );
-
-    // Atualiza os dados e a interface pela função existente.
-    if (typeof carregarAssinaturaAtual === 'function') {
-      await carregarAssinaturaAtual();
+    if (!assinaturaAtual) {
+      mostrarMensagemAssinatura(
+        'Não foi possível localizar sua assinatura.',
+        'error'
+      );
+      return;
     }
 
-    if (typeof carregarPlanos === 'function') {
-      await carregarPlanos();
+    const status = String(
+      assinaturaAtual.status || ''
+    ).toLowerCase();
+
+    if (status === 'cancelada' || status === 'canceled') {
+      mostrarMensagemAssinatura(
+        'Esta assinatura já está cancelada.',
+        'error'
+      );
+      return;
     }
-  } catch (erro) {
-    mostrarMensagemAssinatura(
-      erro.message || 'Erro ao cancelar a assinatura.',
-      'error'
+
+    const confirmou = window.confirm(
+      'Deseja realmente cancelar sua assinatura?\n\n' +
+      'A solicitação será enviada ao Mercado Pago.'
     );
-  } finally {
-    definirBotoesAssinatura(false);
+
+    if (!confirmou) return;
+
+    definirBotoesAssinatura(true);
+
+    mostrarMensagemAssinatura(
+      'Solicitando cancelamento ao Mercado Pago...'
+    );
+
+    try {
+      const resultado = await requisicaoAcaoAssinatura(
+        '/mercado-pago/minha-assinatura/cancelar'
+      );
+
+      mostrarMensagemAssinatura(
+        resultado.mensagem ||
+        'Solicitação de cancelamento concluída.',
+        'success'
+      );
+
+      await atualizarTelaAssinatura();
+    } catch (erro) {
+      console.error('Erro ao cancelar assinatura:', erro);
+
+      mostrarMensagemAssinatura(
+        erro.message || 'Erro ao cancelar a assinatura.',
+        'error'
+      );
+    } finally {
+      definirBotoesAssinatura(false);
+    }
   }
+
+// Estado da seleção no modal
+let planoTrocaSelecionado = null;
+
+const modalTrocarPlano = document.getElementById('modal-trocar-plano');
+const listaPlanosTroca = document.getElementById('lista-planos-troca');
+const mensagemModalPlanos = document.getElementById('mensagem-modal-planos');
+const confirmarTrocaPlano = document.getElementById('confirmar-troca-plano');
+
+function mostrarModalTrocaPlano() {
+if (!modalTrocarPlano) {
+mostrarMensagemAssinatura('O modal de troca de plano não foi encontrado.', 'error');
+return;
 }
 
-// ============================================================
-// TROCAR DE PLANO
-// ============================================================
+planoTrocaSelecionado = null;
+confirmarTrocaPlano.disabled = true;
+mensagemModalPlanos.textContent = '';
+mensagemModalPlanos.className = 'mensagem-modal-planos';
+
+const planoAtualId = Number(
+assinaturaAtual?.plano_id ||
+assinaturaAtual?.plano?.id
+);
+
+const planoAtual = planos.find(
+plano => Number(plano.id) === planoAtualId
+);
+
+const periodoAtual = planoAtual
+? periodoPlano(planoAtual)
+: periodoPlano(assinaturaAtual?.plano || assinaturaAtual);
+
+const disponiveis = planos.filter(plano =>
+plano.ativo !== false &&
+Number(plano.id) !== planoAtualId 
+);
+
+if (disponiveis.length === 0) {
+listaPlanosTroca.innerHTML = `       <p>Não há outros planos disponíveis com a mesma periodicidade.</p>
+    `;
+} else {
+listaPlanosTroca.innerHTML = disponiveis.map(plano => ` <label class="card-plano-troca" data-card-plano="${Number(plano.id)}"> <input
+       type="radio"
+       name="plano-troca"
+       value="${Number(plano.id)}"
+       aria-label="Selecionar ${escapeHtml(plano.nome)}"
+     >
+
+
+    <span class="card-plano-troca-nome">
+      ${escapeHtml(plano.nome)}
+    </span>
+
+    <span class="card-plano-troca-descricao">
+      ${escapeHtml(plano.descricao || 'Plano para sua empresa.')}
+    </span>
+
+    <span class="card-plano-troca-preco">
+      ${formatarMoeda(plano.valor)}
+    </span>
+
+    <span class="card-plano-troca-periodo">
+      por ${escapeHtml(nomePeriodo(periodoPlano(plano)))}
+    </span>
+
+    <span class="card-plano-troca-selo">
+      Selecionar plano
+    </span>
+  </label>
+`).join('');
+
+listaPlanosTroca.querySelectorAll('[data-card-plano]').forEach(card => {
+  card.addEventListener('click', () => {
+    const id = Number(card.dataset.cardPlano);
+
+    planoTrocaSelecionado = disponiveis.find(
+      plano => Number(plano.id) === id
+    );
+
+    listaPlanosTroca.querySelectorAll('.card-plano-troca').forEach(item => {
+      item.classList.remove('selecionado');
+
+      const selo = item.querySelector('.card-plano-troca-selo');
+      if (selo) selo.textContent = 'Selecionar plano';
+    });
+
+    card.classList.add('selecionado');
+
+    const radio = card.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+
+    const selo = card.querySelector('.card-plano-troca-selo');
+    if (selo) selo.textContent = 'Plano selecionado';
+
+    confirmarTrocaPlano.disabled = false;
+    mensagemModalPlanos.textContent = '';
+    mensagemModalPlanos.className = 'mensagem-modal-planos';
+  });
+});
+
+
+}
+
+modalTrocarPlano.classList.remove('hidden');
+modalTrocarPlano.setAttribute('aria-hidden', 'false');
+}
+
+function fecharModalTrocaPlano() {
+if (!modalTrocarPlano || processandoAcaoAssinatura) return;
+
+modalTrocarPlano.classList.add('hidden');
+modalTrocarPlano.setAttribute('aria-hidden', 'true');
+planoTrocaSelecionado = null;
+}
+
+document.getElementById('fechar-modal-planos')?.addEventListener(
+'click',
+fecharModalTrocaPlano
+);
+
+document.getElementById('cancelar-modal-planos')?.addEventListener(
+'click',
+fecharModalTrocaPlano
+);
+
+modalTrocarPlano?.querySelectorAll('[data-fechar-modal]').forEach(elemento => {
+elemento.addEventListener('click', fecharModalTrocaPlano);
+});
+
+document.addEventListener('keydown', evento => {
+if (
+evento.key === 'Escape' &&
+modalTrocarPlano &&
+!modalTrocarPlano.classList.contains('hidden')
+) {
+fecharModalTrocaPlano();
+}
+});
 
 async function trocarMeuPlano() {
-  const assinatura = window.assinaturaAtual;
+if (processandoAcaoAssinatura) return;
 
-  if (!assinatura) {
-    mostrarMensagemAssinatura(
-      'Não foi possível localizar sua assinatura.',
-      'error'
-    );
-    return;
-  }
-
-  if (!Array.isArray(planos) || planos.length === 0) {
-    mostrarMensagemAssinatura(
-      'Não há planos disponíveis para seleção.',
-      'error'
-    );
-    return;
-  }
-
-  const planoAtualId = Number(
-    assinatura.plano_id ||
-    assinatura.plano?.id
-  );
-
-  const planosDisponiveis = planos.filter(plano =>
-    Number(plano.id) !== planoAtualId &&
-    plano.ativo !== false
-  );
-
-  if (planosDisponiveis.length === 0) {
-    mostrarMensagemAssinatura(
-      'Não há outros planos disponíveis para troca.',
-      'error'
-    );
-    return;
-  }
-
-  const opcoes = planosDisponiveis.map((plano, indice) => {
-    const valor = Number(plano.valor || 0).toLocaleString(
-      'pt-BR',
-      {
-        style: 'currency',
-        currency: 'BRL'
-      }
-    );
-
-    return `${indice + 1} - ${plano.nome} (${valor}/${plano.periodo})`;
-  });
-
-  const escolha = window.prompt(
-    'Digite o número do plano desejado:\n\n' +
-    opcoes.join('\n') +
-    '\n\nA troca direta exige a mesma periodicidade.'
-  );
-
-  if (escolha === null) return;
-
-  const indice = Number(escolha) - 1;
-
-  if (
-    !Number.isInteger(indice) ||
-    indice < 0 ||
-    indice >= planosDisponiveis.length
-  ) {
-    mostrarMensagemAssinatura(
-      'Selecione um número de plano válido.',
-      'error'
-    );
-    return;
-  }
-
-  const planoEscolhido = planosDisponiveis[indice];
-
-  const planoAtual = planos.find(
-    plano => Number(plano.id) === planoAtualId
-  );
-
-  if (
-    planoAtual &&
-    planoAtual.periodo !== planoEscolhido.periodo
-  ) {
-    mostrarMensagemAssinatura(
-      'A troca direta exige a mesma periodicidade. ' +
-      'Para mudar de mensal para anual, é necessário um fluxo de nova autorização.',
-      'error'
-    );
-    return;
-  }
-
-  const valorNovo = Number(
-    planoEscolhido.valor || 0
-  ).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  });
-
-  const confirmou = window.confirm(
-    `Trocar para o plano "${planoEscolhido.nome}"?\n\n` +
-    `Novo valor recorrente: ${valorNovo} por ${planoEscolhido.periodo}.\n\n` +
-    'Confirme para enviar a alteração ao Mercado Pago.'
-  );
-
-  if (!confirmou) return;
-
-  definirBotoesAssinatura(true);
-  mostrarMensagemAssinatura(
-    'Atualizando seu plano...'
-  );
-
-  try {
-    const resultado = await requisicaoAcaoAssinatura(
-      '/mercado-pago/minha-assinatura/trocar-plano',
-      {
-        plano_id: Number(planoEscolhido.id)
-      }
-    );
-
-    mostrarMensagemAssinatura(
-      resultado.mensagem ||
-      'Plano atualizado com sucesso.',
-      'success'
-    );
-
-    if (typeof carregarAssinaturaAtual === 'function') {
-      await carregarAssinaturaAtual();
-    }
-
-    if (typeof carregarPlanos === 'function') {
-      await carregarPlanos();
-    }
-  } catch (erro) {
-    mostrarMensagemAssinatura(
-      erro.message || 'Erro ao trocar de plano.',
-      'error'
-    );
-  } finally {
-    definirBotoesAssinatura(false);
-  }
+if (!assinaturaAtual) {
+mostrarMensagemAssinatura(
+'Não foi possível localizar sua assinatura.',
+'error'
+);
+return;
 }
 
-// ============================================================
-// EVENTOS DOS BOTÕES
-// ============================================================
+try {
+if (!Array.isArray(planos) || planos.length === 0) {
+await carregarPlanos();
+}
 
-if (btnCancelarAssinatura) {
-  btnCancelarAssinatura.addEventListener(
+
+mostrarModalTrocaPlano();
+
+
+} catch (erro) {
+console.error('Erro ao carregar planos para troca:', erro);
+
+
+mostrarMensagemAssinatura(
+  'Não foi possível carregar os planos disponíveis.',
+  'error'
+);
+
+
+}
+}
+
+confirmarTrocaPlano?.addEventListener('click', async () => {
+if (processandoAcaoAssinatura || !planoTrocaSelecionado) return;
+
+const plano = planoTrocaSelecionado;
+
+const confirmou = window.confirm(
+`Confirma a troca para o plano "${plano.nome}"?\n\n` +
+`Valor: ${formatarMoeda(plano.valor)} por ${nomePeriodo(periodoPlano(plano))}.`
+);
+
+if (!confirmou) return;
+
+definirBotoesAssinatura(true);
+confirmarTrocaPlano.disabled = true;
+
+mensagemModalPlanos.textContent = 'Atualizando plano...';
+mensagemModalPlanos.className = 'mensagem-modal-planos';
+
+try {
+const resultado = await requisicaoAcaoAssinatura(
+'/mercado-pago/minha-assinatura/trocar-plano',
+{ plano_id: Number(plano.id) }
+);
+
+
+mensagemModalPlanos.textContent =
+  resultado.mensagem || 'Plano atualizado com sucesso.';
+mensagemModalPlanos.className =
+  'mensagem-modal-planos sucesso';
+
+await atualizarTelaAssinatura();
+
+modalTrocarPlano.classList.add('hidden');
+modalTrocarPlano.setAttribute('aria-hidden', 'true');
+
+mostrarMensagemAssinatura(
+  resultado.mensagem || 'Plano atualizado com sucesso.',
+  'success'
+);
+
+
+} catch (erro) {
+console.error('Erro ao trocar plano:', erro);
+
+
+mensagemModalPlanos.textContent =
+  erro.message || 'Não foi possível trocar o plano.';
+mensagemModalPlanos.className =
+  'mensagem-modal-planos erro';
+
+confirmarTrocaPlano.disabled = false;
+
+
+} finally {
+definirBotoesAssinatura(false);
+}
+});
+
+
+  // ============================================================
+  // EVENTOS DAS AÇÕES DA ASSINATURA
+  // ============================================================
+
+  btnCancelarAssinatura?.addEventListener(
     'click',
     cancelarMinhaAssinatura
   );
-}
 
-if (btnTrocarPlano) {
-  btnTrocarPlano.addEventListener(
+  btnTrocarPlano?.addEventListener(
     'click',
     trocarMeuPlano
   );
-}
 
-  </script>
+  // ============================================================
+  // INICIALIZAÇÃO
+  // ============================================================
+
+  async function iniciar() {
+    try {
+      const dados = await verificarUsuario();
+
+      if (!dados) return;
+
+      carregarEmpresa(dados);
+
+      /*
+       * Carregamos os planos mesmo quando já existe assinatura.
+       * Assim, a ação "Trocar de plano" terá acesso à lista.
+       */
+      await carregarPlanos();
+
+      let possuiAssinatura = false;
+
+      try {
+        possuiAssinatura = await carregarAssinaturaAtual();
+      } catch (erro) {
+        console.error(
+          'Erro ao consultar assinatura atual:',
+          erro
+        );
+
+        /*
+         * Não escondemos um erro de autenticação.
+         * Se a API da assinatura falhar, mostramos o erro
+         * e evitamos assumir que a empresa não possui assinatura.
+         */
+        throw erro;
+      }
+
+      if (possuiAssinatura) {
+        mostrarAssinaturaAtual();
+      } else {
+        subscriptionSection?.classList.add('hidden');
+        paymentSection?.classList.add('hidden');
+        successSection?.classList.add('hidden');
+        plansSection?.classList.remove('hidden');
+      }
+
+      if (loading) loading.style.display = 'none';
+      content?.classList.remove('hidden');
+    } catch (erro) {
+      console.error(
+        'Erro ao iniciar página de assinatura:',
+        erro
+      );
+
+      if (loading) loading.style.display = 'none';
+      content?.classList.remove('hidden');
+
+      mostrarErro(
+        erro.message ||
+        'Não foi possível carregar a página de assinatura.'
+      );
+    }
+  }
+
+  iniciar();
+})();
+</script>
 
 </body>
 
