@@ -10,7 +10,7 @@
   appId: "1:454025108283:web:6755e120e86e4c2b7f751e"
   };
 
-  const VAPID_KEY = 'SUA_CHAVE_PUBLICA_VAPID';
+  const VAPID_KEY = 'BN95juUQcL75Pl9GMQuPBAfU9-cGaqocFgfyjaora9KqhHkkuWxKNoyudVHHzll-Y5wUrzZ4ZGJI2ZAmgqfgXOw';
 
   let messaging = null;
 
