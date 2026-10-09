@@ -3,6 +3,7 @@ const pool = require('../db');
 
 const autenticar = require('../middleware/auth');
 const somenteDev = require('../middleware/dev');
+const { atualizarAssinatura } = require('../services/mercadoPago');
 
 const router = express.Router();
 
@@ -551,6 +552,90 @@ router.get('/assinaturas/:id', async (req, res) => {
 // ============================================================
 // PAGAMENTOS
 // ============================================================
+// ------------------------------------------------------------
+// AÇÕES NA ASSINATURA (chamam o Mercado Pago ANTES de gravar)
+// PATCH /api/admin/assinaturas/:id/(cancelar|pausar|reativar)
+// ------------------------------------------------------------
+
+const ACOES_ASSINATURA = {
+  cancelar: {
+    statusMP: 'canceled', // a função converte para 'cancelled'
+    permitidos: ['ativa', 'pausada', 'inadimplente', 'pendente'],
+    sql: `status = 'cancelada', cancelada_em = NOW(), atualizado_em = NOW()`
+  },
+  pausar: {
+    statusMP: 'paused',
+    permitidos: ['ativa'],
+    sql: `status = 'pausada', atualizado_em = NOW()`
+  },
+  reativar: {
+    statusMP: 'authorized',
+    permitidos: ['pausada', 'inadimplente'],
+    sql: `status = 'ativa', atualizado_em = NOW()`
+  }
+};
+
+router.patch('/assinaturas/:id/:acao', async (req, res) => {
+  const id = Number(req.params.id);
+  const config = ACOES_ASSINATURA[req.params.acao];
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ erro: 'ID da assinatura inválido.' });
+  }
+
+  if (!config) {
+    return res.status(400).json({ erro: 'Ação inválida.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT id, status, mercado_pago_id FROM assinaturas WHERE id = $1`,
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ erro: 'Assinatura não encontrada.' });
+    }
+
+    const assinatura = result.rows[0];
+
+    if (!config.permitidos.includes(assinatura.status)) {
+      return res.status(409).json({
+        erro: `Não é possível ${req.params.acao} uma assinatura com status "${assinatura.status}".`
+      });
+    }
+
+    if (!assinatura.mercado_pago_id) {
+      return res.status(409).json({
+        erro: 'A assinatura não possui ID no Mercado Pago.'
+      });
+    }
+
+    // 1) Mercado Pago primeiro. Se falhar, o banco não é alterado.
+    await atualizarAssinatura({
+      mercadoPagoId: assinatura.mercado_pago_id,
+      status: config.statusMP
+    });
+
+    // 2) Só então grava no banco.
+    const atualizada = await pool.query(
+      `UPDATE assinaturas SET ${config.sql} WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    return res.json({ ok: true, assinatura: atualizada.rows[0] });
+  } catch (err) {
+    console.error('Erro na ação da assinatura:', err);
+
+    const status = Number(err?.status);
+
+    return res.status(status >= 400 && status <= 599 ? status : 500).json({
+      erro: err?.data
+        ? `Mercado Pago: ${err.message}`
+        : 'Não foi possível atualizar a assinatura.'
+    });
+  }
+});
 
 // ------------------------------------------------------------
 // LISTAR PAGAMENTOS
