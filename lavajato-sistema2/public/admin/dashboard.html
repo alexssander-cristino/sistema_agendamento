@@ -226,6 +226,25 @@
     <span>Solicitações</span>
   </button>
 
+  <button id="ativar-notificacoes">
+  Ativar notificações
+</button>
+
+<script>
+  document
+    .getElementById('ativar-notificacoes')
+    .addEventListener('click', async () => {
+      try {
+        const resultado =
+          await window.OrvixFirebaseNotific.ativarNotificacoes();
+
+        alert(resultado.mensagem);
+      } catch (erro) {
+        alert(erro.message);
+      }
+    });
+</script>
+
 
         <div class="menu-title">
           Sistema

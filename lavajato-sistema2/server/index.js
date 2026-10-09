@@ -79,6 +79,9 @@ const dashboardRouter = require('./routes/dashboard');
 const notificacoesRouter =
   require('./routes/notificacoes');
 
+  const firebaseNotificRoutes =
+  require('./routes/firebaseNotific');
+
 // ============================================================
 // APP
 // ============================================================
@@ -323,6 +326,8 @@ app.use(
   '/api/notificacoes',
   notificacoesRouter
 );
+
+app.use('/api/firebase-notific', firebaseNotificRoutes);
 
 
 // ============================================================
