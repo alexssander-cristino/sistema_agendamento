@@ -1598,6 +1598,7 @@
       inadimplente: 'Inadimplente',
       cancelada: 'Cancelada',
       canceled: 'Cancelada',
+      cancelled: 'Cancelada',
       authorized: 'Ativa',
       paused: 'Pausada'
     };
@@ -2086,7 +2087,7 @@
 
     if (btnCancelarAssinatura) {
       const cancelada =
-        status === 'cancelada' || status === 'canceled';
+        status === 'cancelada' || status === 'cancelled';
 
       btnCancelarAssinatura.disabled = cancelada;
       btnCancelarAssinatura.textContent = cancelada
@@ -2361,7 +2362,7 @@
       const status = String(assinaturaAtual?.status || '').toLowerCase();
 
       const cancelada =
-        status === 'cancelada' || status === 'canceled';
+        status === 'cancelada' || status === 'cancelled';
 
       btnCancelarAssinatura.disabled = carregando || cancelada;
 
@@ -2720,7 +2721,7 @@
 
     const status = String(assinaturaAtual.status || '').toLowerCase();
 
-    if (status === 'cancelada' || status === 'canceled') {
+    if (status === 'cancelada' || status === 'cancelled') {
       mostrarMensagemAssinatura(
         'Esta assinatura já está cancelada.',
         'error'
