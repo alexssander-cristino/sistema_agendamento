@@ -1,1905 +1,1107 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101114">
 
   <title>Solicitar suporte | Orvix</title>
 
   <style>
-
     :root {
-
       color-scheme: dark;
-
-      --bg: #0a0e1a;
-      --bg-2: #0f1424;
-
-      --card: rgba(255,255,255,.045);
-      --card-hover: rgba(255,255,255,.065);
-
-      --text: #e8ecf5;
-      --muted: #9aa4bd;
-      --faint: #727d98;
-
-      --border: rgba(255,255,255,.09);
-      --border-strong: rgba(255,255,255,.15);
-
-      --primary: #4f8cff;
-      --primary-hover: #6a9dff;
-
-      --violet: #6d5cff;
-      --cyan: #22d3ee;
-
-      --success: #2fd68b;
+      --bg: #101114;
+      --surface: #181a20;
+      --surface-2: #20232b;
+      --border: #30333d;
+      --text: #f2f3f5;
+      --muted: #a0a4b0;
+      --primary: #8b7cff;
+      --primary-hover: #a197ff;
+      --success: #4ade80;
+      --danger: #fb7185;
       --warning: #fbbf24;
-      --danger: #ff5d73;
-
-      --radius: 14px;
-      --radius-lg: 20px;
-
-      --shadow:
-        0 20px 50px -25px rgba(0,0,0,.8);
-
+      --radius: 16px;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html {
-      min-height: 100%;
-      background: var(--bg);
-    }
-
     body {
-
       margin: 0;
       min-height: 100vh;
-
       background:
         radial-gradient(
-          700px 500px at 100% 0,
-          rgba(79,140,255,.14),
-          transparent 70%
-        ),
-        radial-gradient(
-          600px 500px at 0 100%,
-          rgba(109,92,255,.10),
-          transparent 70%
+          circle at top right,
+          rgba(139, 124, 255, .10),
+          transparent 32rem
         ),
         var(--bg);
-
       color: var(--text);
-
-      font-family:
-        Inter,
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
-      font-size: 14px;
-      line-height: 1.6;
-
-      -webkit-font-smoothing: antialiased;
-
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      line-height: 1.5;
     }
 
     button,
     input,
-    textarea,
-    select {
+    select,
+    textarea {
       font: inherit;
     }
 
-    button {
-      cursor: pointer;
-    }
-
+    button,
     a {
-      color: inherit;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* ============================================================
-       HEADER
-    ============================================================ */
-
-    header {
-
-      position: sticky;
-      top: 0;
-      z-index: 10;
-
-      height: 68px;
-
-      display: flex;
-      align-items: center;
-
-      border-bottom: 1px solid var(--border);
-
-      background:
-        rgba(10,14,26,.82);
-
-      backdrop-filter: blur(18px);
-
-    }
-
-    .header-content {
-
-      width: min(1180px, calc(100% - 32px));
-
+    .container {
+      width: min(1180px, calc(100% - 36px));
       margin: 0 auto;
+      padding: 28px 0 48px;
+    }
 
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-
-      gap: 20px;
-
+      gap: 16px;
+      margin-bottom: 34px;
     }
 
-    .logo {
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
 
-      text-decoration: none;
-
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      background: rgba(139, 124, 255, .15);
+      border: 1px solid rgba(139, 124, 255, .3);
+      color: var(--primary-hover);
       font-size: 21px;
       font-weight: 800;
-      letter-spacing: -.5px;
-
-      background:
-        linear-gradient(
-          90deg,
-          var(--primary),
-          var(--cyan)
-        );
-
-      -webkit-background-clip: text;
-      background-clip: text;
-
-      color: transparent;
-
     }
 
-    .back {
+    .brand-name {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 750;
+      letter-spacing: -.4px;
+    }
 
+    .brand-subtitle {
+      margin: 2px 0 0;
       color: var(--muted);
-
-      text-decoration: none;
-
-      transition: .18s ease;
-
+      font-size: 12px;
     }
 
-    .back:hover {
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
       color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .2s;
     }
 
-    /* ============================================================
-       MAIN
-    ============================================================ */
-
-    main {
-
-      width: min(1180px, calc(100% - 32px));
-
-      margin: 0 auto;
-
-      padding: 42px 0 70px;
-
+    .button:hover {
+      border-color: #555967;
+      background: #292c35;
     }
 
-    .page-header {
+    .button:active {
+      transform: scale(.98);
+    }
 
-      margin-bottom: 30px;
+    .button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
 
+    .button-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .button-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .hero {
+      margin-bottom: 28px;
     }
 
     .eyebrow {
-
-      display: inline-flex;
-
-      padding: 5px 10px;
-
-      border-radius: 999px;
-
-      border: 1px solid rgba(79,140,255,.22);
-
-      background: rgba(79,140,255,.08);
-
-      color: #9dbbff;
-
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--primary-hover);
       font-size: 12px;
-      font-weight: 700;
-
-      margin-bottom: 12px;
-
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
     }
 
     h1 {
-
       margin: 0;
-
-      font-size: clamp(28px, 4vw, 38px);
-
+      font-size: clamp(27px, 4vw, 39px);
       line-height: 1.15;
-
-      letter-spacing: -.8px;
-
+      letter-spacing: -1.2px;
     }
 
-    .page-header p {
-
-      max-width: 700px;
-
+    .hero p {
+      max-width: 650px;
       margin: 12px 0 0;
-
       color: var(--muted);
-
       font-size: 15px;
-
     }
 
-    /* ============================================================
-       GRID
-    ============================================================ */
-
-    .grid {
-
+    .layout {
       display: grid;
-
-      grid-template-columns:
-        minmax(0, 1fr)
-        minmax(320px, .8fr);
-
-      gap: 22px;
-
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       align-items: start;
-
+      gap: 22px;
     }
 
-    .card {
-
-      background: var(--card);
-
-      border: 1px solid var(--border);
-
-      border-radius: var(--radius-lg);
-
-      box-shadow: var(--shadow);
-
-      overflow: hidden;
-
-    }
-
-    .card-header {
-
-      padding: 22px 24px;
-
-      border-bottom: 1px solid var(--border);
-
-    }
-
-    .card-header h2 {
-
-      margin: 0;
-
-      font-size: 17px;
-
-    }
-
-    .card-header p {
-
-      margin: 5px 0 0;
-
-      color: var(--muted);
-
-      font-size: 13px;
-
-    }
-
-    .card-body {
+    .panel {
+      min-width: 0;
       padding: 24px;
+      background: rgba(24, 26, 32, .94);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 14px 38px rgba(0, 0, 0, .12);
     }
 
-    /* ============================================================
-       FORM
-    ============================================================ */
-
-    .form-group {
-      margin-bottom: 19px;
+    .panel-header {
+      margin-bottom: 23px;
     }
 
-    .form-group:last-child {
-      margin-bottom: 0;
+    .panel-header h2 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: -.3px;
     }
 
-    label {
+    .panel-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
+    .field {
+      margin-bottom: 17px;
+    }
+
+    .field label {
       display: block;
-
       margin-bottom: 7px;
-
       font-size: 13px;
       font-weight: 650;
-
-      color: var(--text);
-
     }
 
-    input,
-    select,
-    textarea {
+    .optional {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 400;
+    }
 
+    .field input,
+    .field select,
+    .field textarea {
+      display: block;
       width: 100%;
-
-      border: 1px solid var(--border-strong);
-
-      border-radius: 11px;
-
-      background: rgba(255,255,255,.035);
-
+      min-height: 45px;
+      padding: 11px 12px;
       color: var(--text);
-
-      padding: 12px 13px;
-
-      outline: none;
-
-      transition:
-        border-color .18s ease,
-        box-shadow .18s ease,
-        background .18s ease;
-
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: var(--faint);
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-
-      border-color: rgba(79,140,255,.65);
-
-      box-shadow:
-        0 0 0 3px rgba(79,140,255,.12);
-
-      background: rgba(255,255,255,.05);
-
-    }
-
-    textarea {
-
-      min-height: 150px;
-
-      resize: vertical;
-
-    }
-
-    select option {
-      background: #101525;
-      color: white;
-    }
-
-    .form-row {
-
-      display: grid;
-
-      grid-template-columns: 1fr 1fr;
-
-      gap: 14px;
-
-    }
-
-    .hint {
-
-      margin-top: 6px;
-
-      color: var(--faint);
-
-      font-size: 12px;
-
-    }
-
-    /* ============================================================
-       BUTTON
-    ============================================================ */
-
-    .actions {
-
-      display: flex;
-
-      justify-content: flex-end;
-
-      gap: 10px;
-
-      margin-top: 22px;
-
-    }
-
-    .btn {
-
-      border: 0;
-
-      border-radius: 11px;
-
-      padding: 11px 17px;
-
-      font-weight: 700;
-
-      transition:
-        transform .15s ease,
-        opacity .15s ease,
-        box-shadow .15s ease;
-
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .btn:disabled {
-
-      opacity: .55;
-
-      cursor: not-allowed;
-
-      transform: none;
-
-    }
-
-    .btn-primary {
-
-      color: white;
-
-      background:
-        linear-gradient(
-          135deg,
-          var(--primary),
-          var(--violet)
-        );
-
-      box-shadow:
-        0 10px 25px -12px rgba(79,140,255,.8);
-
-    }
-
-    /* ============================================================
-       MESSAGE
-    ============================================================ */
-
-    .message {
-
-      display: none;
-
-      margin-bottom: 18px;
-
-      padding: 12px 14px;
-
-      border-radius: 10px;
-
-      font-size: 13px;
-
-    }
-
-    .message.show {
-      display: block;
-    }
-
-    .message.success {
-
-      color: #b7f7da;
-
-      border: 1px solid rgba(47,214,139,.25);
-
-      background: rgba(47,214,139,.08);
-
-    }
-
-    .message.error {
-
-      color: #ffb7c1;
-
-      border: 1px solid rgba(255,93,115,.25);
-
-      background: rgba(255,93,115,.08);
-
-    }
-
-    /* ============================================================
-       INFO CARD
-    ============================================================ */
-
-    .info-box {
-
-      padding: 17px;
-
-      border-radius: 13px;
-
-      border: 1px solid rgba(79,140,255,.16);
-
-      background: rgba(79,140,255,.055);
-
-      margin-bottom: 22px;
-
-    }
-
-    .info-box strong {
-
-      display: block;
-
-      margin-bottom: 5px;
-
-    }
-
-    .info-box p {
-
-      margin: 0;
-
-      color: var(--muted);
-
-      font-size: 13px;
-
-    }
-
-    /* ============================================================
-       LISTA
-    ============================================================ */
-
-    .lista {
-
-      display: flex;
-
-      flex-direction: column;
-
-      gap: 12px;
-
-    }
-
-    .solicitacao {
-
-      padding: 17px;
-
+      background: #121319;
       border: 1px solid var(--border);
-
-      border-radius: 13px;
-
-      background: rgba(255,255,255,.025);
-
-      transition:
-        background .18s ease,
-        border-color .18s ease;
-
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
     }
 
-    .solicitacao:hover {
-
-      background: var(--card-hover);
-
-      border-color: var(--border-strong);
-
+    .field textarea {
+      min-height: 145px;
+      resize: vertical;
     }
 
-    .solicitacao-topo {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: flex-start;
-
-      gap: 12px;
-
-      margin-bottom: 7px;
-
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(139, 124, 255, .13);
     }
 
-    .solicitacao-titulo {
-
-      font-weight: 700;
-
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: #707482;
     }
 
-    .solicitacao-meta {
-
-      color: var(--faint);
-
-      font-size: 12px;
-
+    .field select {
+      cursor: pointer;
     }
 
-    .solicitacao-descricao {
-
-      margin: 12px 0 0;
-
-      color: var(--muted);
-
-      white-space: pre-wrap;
-
-      word-break: break-word;
-
+    .field option {
+      background: var(--surface);
     }
 
-    .resposta {
-
-      margin-top: 14px;
-
-      padding: 12px;
-
-      border-left: 3px solid var(--primary);
-
-      border-radius: 7px;
-
-      background: rgba(79,140,255,.06);
-
-    }
-
-    .resposta strong {
-
+    .field-hint {
       display: block;
-
-      margin-bottom: 3px;
-
-      font-size: 12px;
-
-    }
-
-    .resposta div {
-
+      margin-top: 6px;
       color: var(--muted);
-
-      white-space: pre-wrap;
-
+      font-size: 11px;
     }
 
-    /* ============================================================
-       STATUS
-    ============================================================ */
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
+    .form-actions .button {
+      min-width: 180px;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.success {
+      color: var(--success);
+      background: rgba(74, 222, 128, .08);
+      border-color: rgba(74, 222, 128, .25);
+    }
+
+    .notice.error {
+      color: #fda4af;
+      background: rgba(251, 113, 133, .08);
+      border-color: rgba(251, 113, 133, .25);
+    }
+
+    .history-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .history-top h2 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .count {
+      display: inline-grid;
+      place-items: center;
+      min-width: 30px;
+      height: 27px;
+      padding: 0 8px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .request-card {
+      padding: 16px;
+      background: #121319;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .request-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .request-heading h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .request-date {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
 
     .status {
-
       display: inline-flex;
-
       align-items: center;
-
-      padding: 4px 9px;
-
-      border-radius: 999px;
-
-      font-size: 11px;
-
-      font-weight: 700;
-
-      white-space: nowrap;
-
-    }
-
-    .status-pendente {
-
-      color: #fcd978;
-
-      background: rgba(251,191,36,.10);
-
-      border: 1px solid rgba(251,191,36,.18);
-
-    }
-
-    .status-em_analise {
-
-      color: #a9c5ff;
-
-      background: rgba(79,140,255,.10);
-
-      border: 1px solid rgba(79,140,255,.18);
-
-    }
-
-    .status-aguardando_informacoes {
-
-      color: #d5c6ff;
-
-      background: rgba(109,92,255,.10);
-
-      border: 1px solid rgba(109,92,255,.18);
-
-    }
-
-    .status-atendida {
-
-      color: #9bf0c8;
-
-      background: rgba(47,214,139,.10);
-
-      border: 1px solid rgba(47,214,139,.18);
-
-    }
-
-    .status-recusada,
-    .status-cancelada {
-
-      color: #ffadb8;
-
-      background: rgba(255,93,115,.10);
-
-      border: 1px solid rgba(255,93,115,.18);
-
-    }
-
-    .empty {
-
-      padding: 30px 15px;
-
-      text-align: center;
-
-      color: var(--faint);
-
-    }
-
-    .loading {
-
-      padding: 25px;
-
-      text-align: center;
-
+      flex-shrink: 0;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface-2);
       color: var(--muted);
-
+      font-size: 10px;
+      font-weight: 750;
     }
 
-    /* ============================================================
-       RESPONSIVO
-    ============================================================ */
+    .status.pendente {
+      color: var(--warning);
+      border-color: rgba(251, 191, 36, .24);
+      background: rgba(251, 191, 36, .07);
+    }
+
+    .status.em_andamento {
+      color: #93c5fd;
+      border-color: rgba(96, 165, 250, .25);
+      background: rgba(96, 165, 250, .08);
+    }
+
+    .status.respondida,
+    .status.atendida,
+    .status.concluida {
+      color: var(--success);
+      border-color: rgba(74, 222, 128, .25);
+      background: rgba(74, 222, 128, .07);
+    }
+
+    .status.cancelada,
+    .status.recusada {
+      color: #fda4af;
+      border-color: rgba(251, 113, 133, .25);
+      background: rgba(251, 113, 133, .07);
+    }
+
+    .request-description {
+      margin: 12px 0 0;
+      color: #c7c9d2;
+      font-size: 13px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .request-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .reply {
+      margin-top: 14px;
+      padding: 12px;
+      background: rgba(139, 124, 255, .07);
+      border: 1px solid rgba(139, 124, 255, .20);
+      border-radius: 9px;
+    }
+
+    .reply strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--primary-hover);
+      font-size: 12px;
+    }
+
+    .reply p {
+      margin: 0;
+      color: #d5d1ff;
+      font-size: 13px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .empty,
+    .loading {
+      padding: 32px 15px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .empty strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .footer {
+      padding-top: 25px;
+      color: #777b87;
+      text-align: center;
+      font-size: 11px;
+    }
 
     @media (max-width: 850px) {
-
-      .grid {
+      .layout {
         grid-template-columns: 1fr;
       }
 
+      .panel {
+        padding: 20px;
+      }
     }
 
-    @media (max-width: 600px) {
-
-      main {
-        width: min(100% - 22px, 1180px);
-        padding-top: 28px;
+    @media (max-width: 520px) {
+      .container {
+        width: min(100% - 24px, 1180px);
+        padding-top: 17px;
       }
 
-      .header-content {
-        width: min(100% - 22px, 1180px);
+      .topbar {
+        margin-bottom: 27px;
       }
 
-      .form-row {
-        grid-template-columns: 1fr;
+      .brand-subtitle {
+        max-width: 170px;
       }
 
-      .card-body,
-      .card-header {
-        padding: 18px;
+      .topbar > .button {
+        padding: 9px 10px;
+        font-size: 12px;
       }
 
-      .actions {
-        justify-content: stretch;
+      .panel {
+        padding: 16px;
       }
 
-      .btn {
-        width: 100%;
-      }
-
-      .solicitacao-topo {
+      .request-heading {
         flex-direction: column;
       }
 
+      .form-actions .button {
+        width: 100%;
+      }
     }
-
   </style>
-
 </head>
 
 <body>
+  <main class="container">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">O</div>
 
-<header>
-
-  <div class="header-content">
-
-    <a
-      href="/"
-      class="logo"
-    >
-      Orvix
-    </a>
-
-    <a
-      href="/"
-      class="back"
-    >
-      Voltar para o sistema
-    </a>
-
-  </div>
-
-</header>
-
-
-<main>
-
-  <div class="page-header">
-
-    <span class="eyebrow">
-      Suporte Orvix
-    </span>
-
-    <h1>
-      Solicitar atendimento
-    </h1>
-
-    <p>
-      Envie uma solicitação diretamente para a equipe
-      responsável pelo Orvix. Utilize esta área quando
-      precisar de ajuda, informar um problema ou solicitar
-      alguma ação que não possa ser realizada pela própria
-      empresa.
-    </p>
-
-  </div>
-
-
-  <div class="grid">
-
-    <!-- ======================================================
-         NOVA SOLICITAÇÃO
-    ======================================================= -->
-
-    <section class="card">
-
-      <div class="card-header">
-
-        <h2>
-          Nova solicitação
-        </h2>
-
-        <p>
-          Explique o que você precisa e nossa equipe poderá
-          analisar a solicitação.
-        </p>
-
+        <div>
+          <p class="brand-name">Orvix</p>
+          <p class="brand-subtitle">Central de suporte e atendimento</p>
+        </div>
       </div>
 
+      <a class="button" href="/" id="btnVoltar">
+        ← Voltar ao painel
+      </a>
+    </header>
 
-      <div class="card-body">
+    <section class="hero">
+      <span class="eyebrow">Atendimento Orvix</span>
+      <h1>Como podemos ajudar?</h1>
+      <p>
+        Envie sua solicitação para a equipe responsável e acompanhe
+        as atualizações diretamente nesta página.
+      </p>
+    </section>
 
-        <div
-          id="message"
-          class="message"
-        ></div>
+    <div id="mensagemGlobal" class="notice" role="status"
+         aria-live="polite"></div>
 
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Nova solicitação</h2>
+          <p>Preencha os campos abaixo para entrar em contato com o suporte.</p>
+        </div>
+
+        <div id="mensagemFormulario" class="notice"
+             role="alert" aria-live="assertive"></div>
 
         <form id="formSolicitacao">
-
-          <div class="form-group">
-
-            <label for="tipo">
-              Tipo da solicitação
-            </label>
-
-            <select
-              id="tipo"
-              required
-            >
-
-              <option value="">
-                Selecione uma opção
-              </option>
-
-              <option value="suporte">
-                Suporte técnico
-              </option>
-
-              <option value="problema">
-                Relatar problema
-              </option>
-
-              <option value="duvida">
-                Dúvida sobre o sistema
-              </option>
-
-              <option value="configuracao">
-                Solicitar configuração
-              </option>
-
-              <option value="lgpd">
-                Solicitação relacionada à LGPD
-              </option>
-
-              <option value="dados">
-                Solicitação relacionada a dados
-              </option>
-
-              <option value="financeiro">
-                Questão financeira
-              </option>
-
-              <option value="assinatura">
-                Assinatura ou plano
-              </option>
-
-              <option value="outro">
-                Outra solicitação
-              </option>
-
+          <div class="field">
+            <label for="tipo">Tipo de solicitação</label>
+            <select id="tipo" name="tipo" required>
+              <option value="">Selecione uma opção</option>
+              <option value="suporte">Suporte técnico</option>
+              <option value="problema">Relatar um problema</option>
+              <option value="duvida">Dúvida</option>
+              <option value="configuracao">Configuração da conta</option>
+              <option value="lgpd">Privacidade e LGPD</option>
+              <option value="dados">Acesso aos meus dados</option>
+              <option value="financeiro">Financeiro</option>
+              <option value="assinatura">Assinatura</option>
+              <option value="outro">Outro assunto</option>
             </select>
-
           </div>
 
-
-          <div class="form-group">
-
-            <label for="assunto">
-              Assunto
-            </label>
-
+          <div class="field">
+            <label for="assunto">Assunto</label>
             <input
-              type="text"
               id="assunto"
+              name="assunto"
+              type="text"
               maxlength="150"
-              placeholder="Ex.: Preciso alterar uma configuração da empresa"
+              placeholder="Resuma o motivo do contato"
               required
             >
-
           </div>
 
-
-          <div class="form-row">
-
-            <div class="form-group">
-
-              <label for="prioridade">
-                Prioridade
-              </label>
-
-              <select id="prioridade">
-
-                <option value="normal">
-                  Normal
-                </option>
-
-                <option value="baixa">
-                  Baixa
-                </option>
-
-                <option value="alta">
-                  Alta
-                </option>
-
-                <option value="urgente">
-                  Urgente
-                </option>
-
-              </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-              <label for="referencia">
-                Referência
-              </label>
-
-              <input
-                type="text"
-                id="referencia"
-                maxlength="100"
-                placeholder="Opcional"
-              >
-
-            </div>
-
+          <div class="field">
+            <label for="prioridade">Prioridade</label>
+            <select id="prioridade" name="prioridade" required>
+              <option value="normal">Normal</option>
+              <option value="baixa">Baixa</option>
+              <option value="alta">Alta</option>
+              <option value="urgente">Urgente</option>
+            </select>
           </div>
 
-
-          <div class="form-group">
-
-            <label for="descricao">
-              Descrição
+          <div class="field">
+            <label for="referencia">
+              Referência
+              <span class="optional">(opcional)</span>
             </label>
+            <input
+              id="referencia"
+              name="referencia"
+              type="text"
+              maxlength="100"
+              placeholder="Ex.: número do registro ou módulo"
+            >
+          </div>
 
+          <div class="field">
+            <label for="descricao">Descrição</label>
             <textarea
               id="descricao"
+              name="descricao"
               maxlength="5000"
-              placeholder="Descreva detalhadamente o que você precisa..."
+              placeholder="Explique o que aconteceu ou como podemos ajudar..."
               required
             ></textarea>
-
-            <div class="hint">
-              Quanto mais detalhes forem informados,
-              mais fácil será analisar sua solicitação.
-            </div>
-
+            <span class="field-hint">
+              Máximo de 5.000 caracteres.
+            </span>
           </div>
 
-
-          <div class="actions">
-
-            <button
-              type="submit"
-              class="btn btn-primary"
-              id="btnEnviar"
-            >
+          <div class="form-actions">
+            <button class="button button-primary"
+                    type="submit" id="btnEnviar">
               Enviar solicitação
             </button>
-
           </div>
-
         </form>
-
       </div>
 
-    </section>
+      <div class="panel">
+        <div class="history-top">
+          <h2>Minhas solicitações</h2>
+          <span class="count" id="totalSolicitacoes">0</span>
+        </div>
 
-
-    <!-- ======================================================
-         HISTÓRICO
-    ======================================================= -->
-
-    <section class="card">
-
-      <div class="card-header">
-
-        <h2>
-          Minhas solicitações
-        </h2>
-
-        <p>
-          Acompanhe solicitações enviadas pela empresa.
+        <p style="margin:-8px 0 17px;color:var(--muted);font-size:13px">
+          Consulte o andamento e as respostas do suporte.
         </p>
 
-      </div>
-
-
-      <div class="card-body">
-
-        <div class="info-box">
-
-          <strong>
-            Atendimento pelo Orvix
-          </strong>
-
-          <p>
-            As solicitações são analisadas pela equipe
-            responsável pela plataforma. Caso sejam
-            necessárias mais informações, você poderá
-            receber uma solicitação de esclarecimento.
-          </p>
-
+        <div id="historico" class="history-list">
+          <div class="loading">Carregando solicitações...</div>
         </div>
 
-
-        <div
-          id="listaSolicitacoes"
-          class="lista"
-        >
-
-          <div class="loading">
-            Carregando solicitações...
-          </div>
-
+        <div style="display:flex;justify-content:flex-end;margin-top:16px">
+          <button class="button" id="btnAtualizar" type="button">
+            Atualizar histórico
+          </button>
         </div>
-
       </div>
-
     </section>
 
-  </div>
+    <footer class="footer">
+      Orvix · Central de suporte
+    </footer>
+  </main>
 
-</main>
+  <script>
+    'use strict';
 
+    // =========================================================
+    // CONFIGURAÇÃO
+    // =========================================================
 
-<script>
+    const API = '/api';
+    const TOKEN_KEY = 'lavajato_auth_token';
 
-  const API = '/api';
+    const token = localStorage.getItem(TOKEN_KEY);
 
-  const TOKEN_KEY =
-    'lavajato_auth_token';
+    const form = document.getElementById('formSolicitacao');
+    const btnEnviar = document.getElementById('btnEnviar');
+    const btnAtualizar = document.getElementById('btnAtualizar');
+    const historico = document.getElementById('historico');
+    const totalSolicitacoes = document.getElementById('totalSolicitacoes');
+    const mensagemFormulario = document.getElementById('mensagemFormulario');
+    const mensagemGlobal = document.getElementById('mensagemGlobal');
 
-  const token =
-    localStorage.getItem(
-      TOKEN_KEY
-    );
+    let enviando = false;
+    let carregando = false;
 
+    // =========================================================
+    // MENSAGENS
+    // =========================================================
 
-  const form =
-    document.getElementById(
-      'formSolicitacao'
-    );
-
-  const lista =
-    document.getElementById(
-      'listaSolicitacoes'
-    );
-
-  const message =
-    document.getElementById(
-      'message'
-    );
-
-  const btnEnviar =
-    document.getElementById(
-      'btnEnviar'
-    );
-
-
-  /* ==========================================================
-     MENSAGEM
-  ========================================================== */
-
-  function mostrarMensagem(
-    texto,
-    tipo
-  ){
-
-    message.textContent =
-      texto;
-
-    message.className =
-      `message show ${tipo}`;
-
-  }
-
-
-  function limparMensagem(){
-
-    message.textContent =
-      '';
-
-    message.className =
-      'message';
-
-  }
-
-
-  /* ==========================================================
-     ESCAPAR HTML
-  ========================================================== */
-
-  function escapeHtml(
-    valor
-  ){
-
-    if(
-      valor === null ||
-      valor === undefined
-    ){
-
-      return '';
-
+    function mostrarMensagem(elemento, mensagem, tipo) {
+      elemento.textContent = mensagem;
+      elemento.className = 'notice show ' + tipo;
     }
 
-    return String(valor)
-
-      .replace(
-        /&/g,
-        '&amp;'
-      )
-
-      .replace(
-        /</g,
-        '&lt;'
-      )
-
-      .replace(
-        />/g,
-        '&gt;'
-      )
-
-      .replace(
-        /"/g,
-        '&quot;'
-      )
-
-      .replace(
-        /'/g,
-        '&#039;'
-      );
-
-  }
-
-
-  /* ==========================================================
-     NOMES
-  ========================================================== */
-
-  function nomeTipo(
-    tipo
-  ){
-
-    const tipos = {
-
-      suporte:
-        'Suporte técnico',
-
-      problema:
-        'Relatar problema',
-
-      duvida:
-        'Dúvida sobre o sistema',
-
-      configuracao:
-        'Solicitar configuração',
-
-      lgpd:
-        'Solicitação relacionada à LGPD',
-
-      dados:
-        'Solicitação relacionada a dados',
-
-      financeiro:
-        'Questão financeira',
-
-      assinatura:
-        'Assinatura ou plano',
-
-      outro:
-        'Outra solicitação'
-
-    };
-
-    return (
-      tipos[tipo] ||
-      tipo ||
-      'Solicitação'
-    );
-
-  }
-
-
-  function nomePrioridade(
-    prioridade
-  ){
-
-    const prioridades = {
-
-      baixa:
-        'Baixa',
-
-      normal:
-        'Normal',
-
-      alta:
-        'Alta',
-
-      urgente:
-        'Urgente'
-
-    };
-
-    return (
-      prioridades[prioridade] ||
-      prioridade ||
-      'Normal'
-    );
-
-  }
-
-
-  function nomeStatus(
-    status
-  ){
-
-    const statuses = {
-
-      pendente:
-        'Pendente',
-
-      em_analise:
-        'Em análise',
-
-      aguardando_informacoes:
-        'Aguardando informações',
-
-      atendida:
-        'Atendida',
-
-      recusada:
-        'Recusada',
-
-      cancelada:
-        'Cancelada'
-
-    };
-
-    return (
-      statuses[status] ||
-      status ||
-      'Pendente'
-    );
-
-  }
-
-
-  function formatarData(
-    data
-  ){
-
-    if(!data){
-      return '-';
+    function limparMensagem(elemento) {
+      elemento.textContent = '';
+      elemento.className = 'notice';
     }
 
-    const valor =
-      new Date(data);
+    // =========================================================
+    // REQUISIÇÕES HTTP
+    // =========================================================
 
-    if(
-      Number.isNaN(
-        valor.getTime()
-      )
-    ){
+    async function requisicao(url, opcoes = {}) {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        ...(opcoes.headers || {})
+      };
 
-      return data;
+      const resposta = await fetch(url, {
+        ...opcoes,
+        headers
+      });
 
-    }
+      const texto = await resposta.text();
 
-    return valor.toLocaleString(
-      'pt-BR',
-      {
-        dateStyle:
-          'short',
+      let dados = {};
 
-        timeStyle:
-          'short'
-      }
-    );
-
-  }
-
-
-  /* ==========================================================
-     VERIFICAR ACESSO
-  ========================================================== */
-
-  async function verificarAcesso(){
-
-    if(!token){
-
-      window.location.href =
-        '/login.html';
-
-      return false;
-
-    }
-
-    try{
-
-      const resposta =
-        await fetch(
-          `${API}/auth/me`,
-          {
-            headers:{
-              Authorization:
-                `Bearer ${token}`
-            }
-          }
-        );
-
-
-      if(
-        resposta.status === 401
-      ){
-
-        localStorage.removeItem(
-          TOKEN_KEY
-        );
-
-        window.location.href =
-          '/login.html';
-
-        return false;
-
+      if (texto) {
+        try {
+          dados = JSON.parse(texto);
+        } catch {
+          dados = { erro: texto };
+        }
       }
 
+      if (resposta.status === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        window.location.replace('/login.html');
+        throw new Error('Sua sessão expirou. Entre novamente.');
+      }
 
-      const dados =
-        await resposta.json();
-
-
-      if(
-        !resposta.ok
-      ){
-
+      if (!resposta.ok) {
         throw new Error(
           dados.erro ||
-          'Não foi possível verificar o usuário.'
+          dados.mensagem ||
+          `Falha na requisição (HTTP ${resposta.status}).`
         );
-
       }
 
-
-      if(
-        dados.usuario?.perfil !==
-        'administrador'
-      ){
-
-        alert(
-          'Esta área é exclusiva para administradores da empresa.'
-        );
-
-        window.location.href =
-          '/';
-
-        return false;
-
-      }
-
-
-      return true;
-
-    }catch(err){
-
-      console.error(
-        'Erro ao verificar acesso:',
-        err
-      );
-
-      window.location.href =
-        '/';
-
-      return false;
-
+      return dados;
     }
 
-  }
+    // =========================================================
+    // AUTENTICAÇÃO E PERMISSÕES
+    // =========================================================
 
-
-  /* ==========================================================
-     CARREGAR SOLICITAÇÕES
-  ========================================================== */
-
-  async function carregarSolicitacoes(){
-
-    lista.innerHTML = `
-      <div class="loading">
-        Carregando solicitações...
-      </div>
-    `;
-
-
-    try{
-
-      /*
-       * Endpoint reservado para solicitações
-       * do administrador da empresa para o DEV.
-       *
-       * GET /api/privacidade/dev
-       */
-
-      const resposta =
-        await fetch(
-          `${API}/privacidade/dev`,
-          {
-            headers:{
-              Authorization:
-                `Bearer ${token}`
-            }
-          }
-        );
-
-
-      if(
-        resposta.status === 401
-      ){
-
-        localStorage.removeItem(
-          TOKEN_KEY
-        );
-
-        window.location.href =
-          '/login.html';
-
-        return;
-
+    async function verificarAutenticacao() {
+      if (!token) {
+        window.location.replace('/login.html');
+        return false;
       }
 
+      try {
+        const dados = await requisicao(`${API}/auth/me`);
 
-      const dados =
-        await resposta.json()
-          .catch(
-            () => []
+        const usuario = dados.usuario || dados;
+
+        if (usuario.perfil !== 'administrador') {
+          mostrarMensagem(
+            mensagemGlobal,
+            'Somente o administrador da empresa pode abrir esta página.',
+            'error'
           );
 
+          form.querySelectorAll('input, select, textarea, button')
+            .forEach(elemento => elemento.disabled = true);
 
-      if(
-        !resposta.ok
-      ){
+          btnAtualizar.disabled = true;
+          return false;
+        }
 
-        throw new Error(
-          dados.erro ||
-          'Não foi possível carregar as solicitações.'
-        );
+        return true;
+      } catch (erro) {
+        console.error('Erro ao validar sessão:', erro);
 
+        if (erro.message.includes('HTTP 403')) {
+          mostrarMensagem(
+            mensagemGlobal,
+            'Você não tem permissão para acessar esta página.',
+            'error'
+          );
+        } else if (erro.message.includes('HTTP 401')) {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.replace('/login.html');
+        } else {
+          mostrarMensagem(
+            mensagemGlobal,
+            erro.message || 'Não foi possível validar sua sessão.',
+            'error'
+          );
+        }
+
+        return false;
+      }
+    }
+
+    // =========================================================
+    // FORMATAÇÃO E SEGURANÇA DE EXIBIÇÃO
+    // =========================================================
+
+    function escaparHTML(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, caractere => {
+        const entidades = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        };
+
+        return entidades[caractere];
+      });
+    }
+
+    function formatarData(valor) {
+      if (!valor) return 'Data não informada';
+
+      const data = new Date(valor);
+
+      if (Number.isNaN(data.getTime())) {
+        return 'Data não informada';
       }
 
+      return data.toLocaleString('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      });
+    }
 
-      renderizarSolicitacoes(
-        Array.isArray(dados)
+    function formatarStatus(status) {
+      const nomes = {
+        pendente: 'Pendente',
+        em_andamento: 'Em andamento',
+        aguardando_informacoes: 'Aguardando informações',
+        respondida: 'Respondida',
+        atendida: 'Atendida',
+        concluida: 'Concluída',
+        recusada: 'Recusada',
+        cancelada: 'Cancelada'
+      };
+
+      return nomes[status] || status || 'Não informado';
+    }
+
+    function formatarTipo(tipo) {
+      const nomes = {
+        acesso: 'Acesso',
+        correcao: 'Correção',
+        exclusao: 'Exclusão',
+        informacoes: 'Informações',
+        revogacao: 'Revogação',
+        outro: 'Outro',
+        suporte: 'Suporte técnico',
+        problema: 'Problema',
+        duvida: 'Dúvida',
+        configuracao: 'Configuração',
+        lgpd: 'Privacidade e LGPD',
+        dados: 'Acesso aos dados',
+        financeiro: 'Financeiro',
+        assinatura: 'Assinatura'
+      };
+
+      return nomes[tipo] || tipo || 'Não informado';
+    }
+
+    function formatarPrioridade(prioridade) {
+      const nomes = {
+        baixa: 'Prioridade baixa',
+        normal: 'Prioridade normal',
+        alta: 'Prioridade alta',
+        urgente: 'Urgente'
+      };
+
+      return nomes[prioridade] || prioridade || 'Prioridade normal';
+    }
+
+    // =========================================================
+    // HISTÓRICO
+    // IMPORTANTE: GET /api/privacidade É A ROTA DA EMPRESA.
+    // NÃO usar GET /api/privacidade/dev, que é exclusivo do DEV.
+    // =========================================================
+
+    async function carregarSolicitacoes() {
+      if (carregando) return;
+
+      carregando = true;
+      btnAtualizar.disabled = true;
+      historico.innerHTML =
+        '<div class="loading">Carregando solicitações...</div>';
+
+      try {
+        const dados = await requisicao(`${API}/privacidade`);
+
+        const solicitacoes = Array.isArray(dados)
           ? dados
-          : []
-      );
+          : Array.isArray(dados.solicitacoes)
+            ? dados.solicitacoes
+            : [];
 
+        totalSolicitacoes.textContent = solicitacoes.length;
 
-    }catch(err){
+        if (solicitacoes.length === 0) {
+          historico.innerHTML = `
+            <div class="empty">
+              <strong>Nenhuma solicitação ainda</strong>
+              Suas solicitações enviadas aparecerão aqui.
+            </div>
+          `;
+          return;
+        }
 
-      console.error(
-        'Erro ao carregar solicitações:',
-        err
-      );
+        historico.innerHTML = solicitacoes.map(solicitacao => {
+          const status = String(solicitacao.status || 'pendente')
+            .toLowerCase();
 
-      lista.innerHTML = `
-        <div class="empty">
-          Não foi possível carregar suas solicitações.
-        </div>
-      `;
+          const assunto = escaparHTML(
+            solicitacao.assunto || 'Solicitação de suporte'
+          );
 
-    }
+          const descricao = escaparHTML(
+            solicitacao.descricao || 'Sem descrição.'
+          );
 
-  }
+          const tipo = escaparHTML(
+            formatarTipo(solicitacao.tipo)
+          );
 
+          const prioridade = escaparHTML(
+            formatarPrioridade(solicitacao.prioridade)
+          );
 
-  /* ==========================================================
-     RENDERIZAR
-  ========================================================== */
+          const data = escaparHTML(
+            formatarData(solicitacao.criado_em)
+          );
 
-  function renderizarSolicitacoes(
-    solicitacoes
-  ){
+          const referencia = solicitacao.referencia
+            ? `<span class="tag">Referência: ${
+                escaparHTML(solicitacao.referencia)
+              }</span>`
+            : '';
 
-    if(
-      !solicitacoes.length
-    ){
+          const resposta = solicitacao.resposta
+            ? `
+              <div class="reply">
+                <strong>Resposta do suporte</strong>
+                <p>${escaparHTML(solicitacao.resposta)}</p>
+              </div>
+            `
+            : '';
 
-      lista.innerHTML = `
-        <div class="empty">
-          Nenhuma solicitação enviada pela empresa.
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    lista.innerHTML =
-      solicitacoes
-        .map(
-          solicitacao => {
-
-            const status =
-              solicitacao.status ||
-              'pendente';
-
-
-            return `
-
-              <article
-                class="solicitacao"
-              >
-
-                <div
-                  class="solicitacao-topo"
-                >
-
-                  <div>
-
-                    <div
-                      class="solicitacao-titulo"
-                    >
-                      ${escapeHtml(
-                        solicitacao.assunto ||
-                        nomeTipo(
-                          solicitacao.tipo
-                        )
-                      )}
-                    </div>
-
-                    <div
-                      class="solicitacao-meta"
-                    >
-                      #${escapeHtml(
-                        solicitacao.id
-                      )}
-
-                      ·
-
-                      ${escapeHtml(
-                        formatarData(
-                          solicitacao.criado_em
-                        )
-                      )}
-
-                      ·
-
-                      Prioridade:
-                      ${escapeHtml(
-                        nomePrioridade(
-                          solicitacao.prioridade
-                        )
-                      )}
-
-                    </div>
-
-                  </div>
-
-
-                  <span
-                    class="status status-${escapeHtml(
-                      status
-                    )}"
-                  >
-                    ${escapeHtml(
-                      nomeStatus(
-                        status
-                      )
-                    )}
+          return `
+            <article class="request-card">
+              <div class="request-heading">
+                <div>
+                  <h3>${assunto}</h3>
+                  <span class="request-date">
+                    Enviada em ${data}
                   </span>
-
                 </div>
 
+                <span class="status ${escaparHTML(status)}">
+                  ${escaparHTML(formatarStatus(status))}
+                </span>
+              </div>
 
-                <div
-                  class="solicitacao-meta"
-                >
-                  ${escapeHtml(
-                    nomeTipo(
-                      solicitacao.tipo
-                    )
-                  )}
-                </div>
+              <p class="request-description">${descricao}</p>
 
+              <div class="request-meta">
+                <span class="tag">${tipo}</span>
+                <span class="tag">${prioridade}</span>
+                ${referencia}
+              </div>
 
-                ${
-                  solicitacao.descricao
-                    ? `
-                      <div
-                        class="solicitacao-descricao"
-                      >
-                        ${escapeHtml(
-                          solicitacao.descricao
-                        )}
-                      </div>
-                    `
-                    : ''
-                }
+              ${resposta}
+            </article>
+          `;
+        }).join('');
+      } catch (erro) {
+        console.error('Erro ao carregar histórico:', erro);
 
+        historico.innerHTML = `
+          <div class="empty">
+            <strong>Não foi possível carregar o histórico</strong>
+            ${escaparHTML(erro.message)}
+          </div>
+        `;
+      } finally {
+        carregando = false;
+        btnAtualizar.disabled = false;
+      }
+    }
 
-                ${
-                  solicitacao.resposta
-                    ? `
-                      <div class="resposta">
+    // =========================================================
+    // ENVIAR SOLICITAÇÃO AO DEV
+    // POST /api/privacidade/dev
+    // =========================================================
 
-                        <strong>
-                          Resposta do Orvix
-                        </strong>
+    form.addEventListener('submit', async evento => {
+      evento.preventDefault();
 
-                        <div>
-                          ${escapeHtml(
-                            solicitacao.resposta
-                          )}
-                        </div>
+      if (enviando) return;
 
-                      </div>
-                    `
-                    : ''
-                }
+      limparMensagem(mensagemFormulario);
+      limparMensagem(mensagemGlobal);
 
-              </article>
+      const tipo = document.getElementById('tipo').value;
+      const assunto = document.getElementById('assunto').value.trim();
+      const prioridade = document.getElementById('prioridade').value;
+      const referencia = document.getElementById('referencia').value.trim();
+      const descricao = document.getElementById('descricao').value.trim();
 
-            `;
-
-          }
-        )
-        .join('');
-
-  }
-
-
-  /* ==========================================================
-     ENVIAR
-  ========================================================== */
-
-  form.addEventListener(
-    'submit',
-    async event => {
-
-      event.preventDefault();
-
-      limparMensagem();
-
-
-      const tipo =
-        document.getElementById(
-          'tipo'
-        ).value;
-
-      const assunto =
-        document.getElementById(
-          'assunto'
-        ).value.trim();
-
-      const prioridade =
-        document.getElementById(
-          'prioridade'
-        ).value;
-
-      const referencia =
-        document.getElementById(
-          'referencia'
-        ).value.trim();
-
-      const descricao =
-        document.getElementById(
-          'descricao'
-        ).value.trim();
-
-
-      if(
-        !tipo ||
-        !assunto ||
-        !descricao
-      ){
-
+      if (!tipo || !assunto || !descricao) {
         mostrarMensagem(
-          'Preencha os campos obrigatórios.',
+          mensagemFormulario,
+          'Preencha o tipo, o assunto e a descrição.',
           'error'
         );
-
         return;
-
       }
 
+      if (assunto.length > 150 || descricao.length > 5000 ||
+          referencia.length > 100) {
+        mostrarMensagem(
+          mensagemFormulario,
+          'Um ou mais campos ultrapassaram o limite permitido.',
+          'error'
+        );
+        return;
+      }
 
-      btnEnviar.disabled =
-        true;
+      const payload = {
+        tipo,
+        assunto,
+        prioridade,
+        referencia,
+        descricao
+      };
 
-      btnEnviar.textContent =
-        'Enviando...';
+      enviando = true;
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Enviando...';
 
-
-      try{
-
-        const resposta =
-          await fetch(
-            `${API}/privacidade/dev`,
-            {
-              method:
-                'POST',
-
-              headers:{
-                'Content-Type':
-                  'application/json',
-
-                Authorization:
-                  `Bearer ${token}`
-              },
-
-              body:
-                JSON.stringify({
-
-                  tipo,
-
-                  assunto,
-
-                  prioridade,
-
-                  referencia,
-
-                  descricao
-
-                })
-
-            }
-          );
-
-
-        if(
-          resposta.status === 401
-        ){
-
-          localStorage.removeItem(
-            TOKEN_KEY
-          );
-
-          window.location.href =
-            '/login.html';
-
-          return;
-
-        }
-
-
-        const dados =
-          await resposta.json()
-            .catch(
-              () => ({})
-            );
-
-
-        if(
-          !resposta.ok
-        ){
-
-          throw new Error(
-            dados.erro ||
-            'Não foi possível enviar a solicitação.'
-          );
-
-        }
-
+      try {
+        const dados = await requisicao(`${API}/privacidade/dev`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
 
         mostrarMensagem(
-          'Solicitação enviada para a equipe do Orvix.',
+          mensagemFormulario,
+          dados.mensagem || 'Solicitação enviada com sucesso!',
           'success'
         );
 
-
         form.reset();
 
+        // Mantém a prioridade normal após limpar o formulário.
+        document.getElementById('prioridade').value = 'normal';
 
         await carregarSolicitacoes();
-
-
-      }catch(err){
-
-        console.error(
-          'Erro ao enviar solicitação:',
-          err
-        );
+      } catch (erro) {
+        console.error('Erro ao enviar solicitação:', erro);
 
         mostrarMensagem(
-          err.message ||
-          'Erro ao enviar solicitação.',
+          mensagemFormulario,
+          erro.message || 'Não foi possível enviar sua solicitação.',
           'error'
         );
-
-
-      }finally{
-
-        btnEnviar.disabled =
-          false;
-
-        btnEnviar.textContent =
-          'Enviar solicitação';
-
+      } finally {
+        enviando = false;
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = 'Enviar solicitação';
       }
+    });
 
+    // =========================================================
+    // AÇÕES DA PÁGINA
+    // =========================================================
+
+    btnAtualizar.addEventListener('click', () => {
+      carregarSolicitacoes();
+    });
+
+    // =========================================================
+    // INICIALIZAÇÃO
+    // =========================================================
+
+    async function iniciarPagina() {
+      const autenticado = await verificarAutenticacao();
+
+      if (!autenticado) return;
+
+      await carregarSolicitacoes();
     }
-  );
 
-
-  /* ==========================================================
-     INICIALIZAÇÃO
-  ========================================================== */
-
-  (async function(){
-
-    const acesso =
-      await verificarAcesso();
-
-    if(!acesso){
-      return;
-    }
-
-    await carregarSolicitacoes();
-
-  })();
-
-</script>
-
+    iniciarPagina();
+  </script>
 </body>
-
 </html>

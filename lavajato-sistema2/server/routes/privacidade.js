@@ -618,6 +618,200 @@ router.patch(
   }
 );
 
+
+/**
+ * EMPRESA — CRIAR SOLICITAÇÃO PELO FORMULÁRIO DE SUPORTE
+ * POST /api/privacidade/dev
+ *
+ * Compatível com o formulário HTML atual do Orvix.
+ */
+
+router.post('/dev', async (req, res) => {
+  console.log('DEBUG SOLICITAÇÃO DEV:', {
+    usuario: req.usuario ? {
+      id: req.usuario.id,
+      perfil: req.usuario.perfil,
+      empresa_id: req.usuario.empresa_id
+    } : null
+  });
+
+  if (!verificarEmpresa(req, res)) {
+    return;
+  }
+
+  // Mantenha o restante da rota aqui.
+
+  try {
+    const body = req.body || {};
+
+    const tiposFormulario = [
+      'suporte',
+      'problema',
+      'duvida',
+      'configuracao',
+      'lgpd',
+      'dados',
+      'financeiro',
+      'assinatura',
+      'outro'
+    ];
+
+    const prioridadesPermitidas = [
+      'baixa',
+      'normal',
+      'alta',
+      'urgente'
+    ];
+
+    const {
+      tipo,
+      assunto,
+      prioridade,
+      referencia,
+      descricao
+    } = body;
+
+    // Validar tipo
+    if (
+      typeof tipo !== 'string' ||
+      !tiposFormulario.includes(tipo)
+    ) {
+      return res.status(400).json({
+        erro: 'Selecione um tipo de solicitação válido.'
+      });
+    }
+
+    // Validar assunto
+    const assuntoFinal =
+      typeof assunto === 'string' ? assunto.trim() : '';
+
+    if (!assuntoFinal) {
+      return res.status(400).json({
+        erro: 'Informe o assunto da solicitação.'
+      });
+    }
+
+    if (assuntoFinal.length > 150) {
+      return res.status(400).json({
+        erro: 'O assunto não pode ultrapassar 150 caracteres.'
+      });
+    }
+
+    // Validar descrição
+    const descricaoFinal =
+      typeof descricao === 'string' ? descricao.trim() : '';
+
+    if (!descricaoFinal) {
+      return res.status(400).json({
+        erro: 'Descreva sua solicitação.'
+      });
+    }
+
+    if (descricaoFinal.length > 5000) {
+      return res.status(400).json({
+        erro: 'A descrição não pode ultrapassar 5000 caracteres.'
+      });
+    }
+
+    // Validar prioridade
+    const prioridadeFinal = prioridade || 'normal';
+
+    if (!prioridadesPermitidas.includes(prioridadeFinal)) {
+      return res.status(400).json({
+        erro: 'Selecione uma prioridade válida.'
+      });
+    }
+
+    // Validar referência opcional
+    const referenciaFinal =
+      typeof referencia === 'string'
+        ? referencia.trim()
+        : '';
+
+    if (referenciaFinal.length > 100) {
+      return res.status(400).json({
+        erro: 'A referência não pode ultrapassar 100 caracteres.'
+      });
+    }
+
+    /*
+     * O banco atual utiliza os tipos de solicitação de privacidade.
+     * Traduzimos os tipos do formulário para os valores existentes,
+     * evitando inserir valores incompatíveis com a restrição do banco.
+     */
+    const tiposBanco = {
+      suporte: 'outro',
+      problema: 'correcao',
+      duvida: 'informacoes',
+      configuracao: 'acesso',
+      lgpd: 'informacoes',
+      dados: 'acesso',
+      financeiro: 'outro',
+      assinatura: 'outro',
+      outro: 'outro'
+    };
+
+    const { rows } = await pool.query(
+      `
+      INSERT INTO solicitacoes_privacidade (
+        empresa_id,
+        usuario_id,
+        tipo,
+        assunto,
+        prioridade,
+        referencia,
+        descricao,
+        status
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendente')
+      RETURNING
+        id,
+        empresa_id,
+        usuario_id,
+        tipo,
+        assunto,
+        prioridade,
+        referencia,
+        descricao,
+        status,
+        resposta,
+        criado_em,
+        atualizado_em
+      `,
+      [
+        req.usuario.empresa_id,
+        req.usuario.id,
+        tiposBanco[tipo],
+        assuntoFinal,
+        prioridadeFinal,
+        referenciaFinal || null,
+        descricaoFinal
+      ]
+    );
+
+    return res.status(201).json({
+      mensagem: 'Solicitação enviada com sucesso ao DEV.',
+      solicitacao: {
+        ...rows[0],
+        tipo_formulario: tipo
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao enviar solicitação ao DEV:', {
+      message: err.message,
+      code: err.code,
+      detail: err.detail,
+      constraint: err.constraint,
+      table: err.table,
+      column: err.column
+    });
+
+    return res.status(500).json({
+      erro: 'Não foi possível enviar a solicitação. Tente novamente.'
+    });
+  }
+});
+
 // ============================================================
 // EXPORT
 // ============================================================
