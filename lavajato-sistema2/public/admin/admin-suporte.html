@@ -1,0 +1,1175 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0e14">
+  <title>Central de suporte | Orvix</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/css/dev.css">
+
+  <style>
+    body {
+      margin: 0;
+      min-width: 320px;
+    }
+
+    body > .app {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      align-items: stretch;
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: clip;
+    }
+
+    body > .app > aside.sidebar {
+      position: sticky;
+      top: 0;
+      width: 250px;
+      height: 100vh;
+      min-height: 100vh;
+      margin: 0;
+      box-sizing: border-box;
+      align-self: start;
+      z-index: 10;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    body > .app > main {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      min-height: 100vh;
+      margin: 0;
+      padding: 30px;
+      box-sizing: border-box;
+      overflow-x: clip;
+    }
+
+    .mobile-brand {
+      display: none;
+    }
+
+    .mobile-menu-button {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      border: 1px solid var(--border, #273044);
+      border-radius: 10px;
+      background: var(--panel, #111722);
+      color: var(--text, #edf2fa);
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    body > .app > main > .topbar {
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    body > .app > main > .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 20px;
+      width: 100%;
+    }
+
+    body > .app > main .panel {
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .sidebar-connection {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      color: var(--muted, #8e9aaf);
+      font-size: 12px;
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 8px;
+      border-radius: 50%;
+      background: #eab308;
+    }
+
+    .mobile-overlay {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      body > .app {
+        grid-template-columns: 220px minmax(0, 1fr);
+      }
+
+      body > .app > aside.sidebar {
+        width: 220px;
+      }
+
+      body > .app > main {
+        padding: 22px;
+      }
+
+      body > .app > main > .content-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      body > .app {
+        display: block;
+        min-height: 100vh;
+      }
+
+      body > .app > aside.sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: auto;
+        width: min(280px, 85vw);
+        height: 100dvh;
+        min-height: 0;
+        transform: translateX(-105%);
+        transition: transform 0.25s ease;
+        z-index: 1001;
+        box-shadow: none;
+      }
+
+      body > .app > aside.sidebar.open {
+        transform: translateX(0);
+        box-shadow: 12px 0 36px rgb(0 0 0 / 20%);
+      }
+
+      .mobile-overlay.show {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgb(0 0 0 / 55%);
+      }
+
+      body > .app > main {
+        width: 100%;
+        min-height: 100vh;
+        padding: 18px;
+      }
+
+      body > .app > main > .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .mobile-menu-button {
+        display: inline-flex;
+      }
+
+      body > .app > main > .topbar {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+      }
+
+      body > .app > main .top-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      body > .app > main .top-actions .button {
+        flex: 1 1 auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">
+        <h1 class="brand-title">Orvix</h1>
+        <p class="brand-subtitle">Administração do SaaS</p>
+        <span class="dev-badge">DEV</span>
+      </div>
+
+      <nav class="menu">
+        <div class="menu-title">Geral</div>
+
+        <button class="menu-btn" data-page="dashboard" type="button">
+          <span class="menu-icon">▦</span>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="menu-btn" data-page="planos" type="button">
+          <span class="menu-icon">$</span>
+          <span>Planos</span>
+        </button>
+
+        <div class="menu-title">SaaS</div>
+
+        <button class="menu-btn" data-page="empresas" type="button">
+          <span class="menu-icon">◉</span>
+          <span>Empresas</span>
+        </button>
+
+        <button class="menu-btn" data-page="assinaturas" type="button">
+          <span class="menu-icon">↻</span>
+          <span>Assinaturas</span>
+        </button>
+
+        <button class="menu-btn" data-page="pagamentos" type="button">
+          <span class="menu-icon">$</span>
+          <span>Pagamentos</span>
+        </button>
+
+        <button class="menu-btn" data-page="usuarios" type="button">
+          <span class="menu-icon">◇</span>
+          <span>Usuários</span>
+        </button>
+
+        <button class="menu-btn" data-page="logs" type="button">
+          <span class="menu-icon">≡</span>
+          <span>Logs</span>
+        </button>
+
+        <button class="menu-btn" data-page="tratamentos" type="button">
+          <span class="menu-icon">▣</span>
+          <span>Tratamentos</span>
+        </button>
+
+        <button class="menu-btn" data-page="incidentes" type="button">
+          <span class="menu-icon">⚠</span>
+          <span>Incidentes</span>
+        </button>
+
+        <div class="menu-title">Atendimento</div>
+
+        <button
+          class="menu-btn active"
+          data-page="suporte"
+          type="button"
+          onclick="window.location.href='/admin-suporte.html'"
+        >
+          <span class="menu-icon">▤</span>
+          <span>Solicitações</span>
+        </button>
+
+        <div class="menu-title">Sistema</div>
+
+        <button
+          class="menu-btn"
+          data-page="sistema"
+          type="button"
+          onclick="window.location.href='/admin.html'"
+        >
+          <span class="menu-icon">↗</span>
+          <span>Abrir sistema</span>
+        </button>
+
+        <button class="menu-btn" data-page="status" type="button">
+          <span class="menu-icon">●</span>
+          <span>Status da API</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button type="button" id="sidebarLogoutButton" class="logout-btn">
+          Sair do painel DEV
+        </button>
+      </div>
+
+      <div class="sidebar-connection">
+        <span class="connection-dot"></span>
+        <span id="connectionText">Verificando conexão</span>
+      </div>
+    </aside>
+
+    <div id="mobileOverlay" class="mobile-overlay"></div>
+
+    <main>
+      <div class="mobile-brand">
+        <button
+          type="button"
+          id="mobileMenuButton"
+          class="mobile-menu-button"
+          aria-label="Abrir menu"
+          aria-controls="sidebar"
+          aria-expanded="false"
+        >☰</button>
+
+        <div class="brand-mark">O</div>
+        <span>
+          Orvix
+          <span style="color:var(--muted);font-size:12px;font-weight:500">
+            / Suporte
+          </span>
+        </span>
+      </div>
+
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Central de atendimento</div>
+          <h1>Solicitações</h1>
+          <p class="subtitle">
+            Gerencie os pedidos de suporte enviados pelas empresas.
+          </p>
+        </div>
+
+        <div class="top-actions">
+          <button class="button" id="refreshButton" type="button">
+            ↻ Atualizar
+          </button>
+
+        </div>
+      </header>
+
+      <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+      <section class="stats">
+        <article class="stat">
+          <div class="stat-top">
+            Total de solicitações
+            <span class="stat-icon">▤</span>
+          </div>
+          <div class="stat-value" id="totalCount">—</div>
+          <div class="stat-foot">Todos os registros carregados</div>
+        </article>
+
+        <article class="stat">
+          <div class="stat-top">
+            Pendentes
+            <span class="stat-icon">◷</span>
+          </div>
+          <div class="stat-value" id="pendingCount">—</div>
+          <div class="stat-foot">Aguardando atendimento</div>
+        </article>
+
+        <article class="stat">
+          <div class="stat-top">
+            Em andamento
+            <span class="stat-icon">⌕</span>
+          </div>
+          <div class="stat-value" id="analysisCount">—</div>
+          <div class="stat-foot">Em atendimento</div>
+        </article>
+
+        <article class="stat">
+          <div class="stat-top">
+            Respondidas ou concluídas
+            <span class="stat-icon">✓</span>
+          </div>
+          <div class="stat-value" id="doneCount">—</div>
+          <div class="stat-foot">Solicitações respondidas ou finalizadas</div>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title-row">
+              <div>
+                <h2>Fila de atendimento</h2>
+                <div class="panel-description">
+                  Selecione uma solicitação para visualizar e responder.
+                </div>
+              </div>
+              <span class="count" id="visibleCount">0</span>
+            </div>
+
+            <div class="filters">
+              <div class="field">
+                <label for="searchInput">Pesquisar</label>
+                <input
+                  id="searchInput"
+                  type="search"
+                  placeholder="Assunto, empresa ou número..."
+                  autocomplete="off"
+                >
+              </div>
+
+              <div class="field">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                  <option value="">Todos os status</option>
+                  <option value="pendente">Pendente</option>
+                  <option value="em_andamento">Em andamento</option>
+                  <option value="respondida">Respondida</option>
+                  <option value="concluida">Concluída</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="ticket-list" id="ticketList">
+            <div class="loading">Carregando solicitações...</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Detalhes da solicitação</h2>
+            <div class="panel-description">
+              Informações e resposta ao solicitante.
+            </div>
+          </div>
+
+          <div id="ticketDetail" class="detail">
+            <div class="empty">
+              <span class="empty-symbol">▤</span>
+              Selecione uma solicitação na lista para visualizar seus detalhes.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    'use strict';
+
+    const API = '/api';
+    const TOKEN_KEY = 'lavajato_auth_token';
+
+    // Estes são os status aceitos pela API.
+    const STATUS_LABELS = {
+      pendente: 'Pendente',
+      em_andamento: 'Em andamento',
+      respondida: 'Respondida',
+      concluida: 'Concluída',
+      cancelada: 'Cancelada'
+    };
+
+    /*
+     * Compatibilidade com registros ou versões antigas da interface.
+     * Todos os status enviados para o backend serão normalizados.
+     */
+    const LEGACY_STATUS_MAP = {
+      em_analise: 'em_andamento',
+      aguardando_informacoes: 'em_andamento',
+      atendida: 'respondida',
+      recusada: 'cancelada'
+    };
+
+    const PRIORITY_LABELS = {
+      baixa: 'Baixa',
+      normal: 'Normal',
+      alta: 'Alta',
+      urgente: 'Urgente'
+    };
+
+    const TYPE_LABELS = {
+      suporte: 'Suporte',
+      problema: 'Problema',
+      duvida: 'Dúvida',
+      configuracao: 'Configuração',
+      lgpd: 'Privacidade / LGPD',
+      dados: 'Dados',
+      financeiro: 'Financeiro',
+      assinatura: 'Assinatura',
+      outro: 'Outro'
+    };
+
+    const state = {
+      tickets: [],
+      selectedId: null,
+      loading: false,
+      saving: false
+    };
+
+    const $ = selector => document.querySelector(selector);
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    function normalizeStatus(status) {
+      const value = String(status ?? '').trim().toLowerCase();
+
+      if (Object.hasOwn(STATUS_LABELS, value)) {
+        return value;
+      }
+
+      return LEGACY_STATUS_MAP[value] || value;
+    }
+
+    function normalizeTicket(ticket) {
+      return {
+        ...ticket,
+        status: normalizeStatus(ticket.status)
+      };
+    }
+
+    function labelFor(map, value) {
+      return map[value] || value || 'Não informado';
+    }
+
+    function dateLabel(value) {
+      if (!value) return 'Data não informada';
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function showNotice(message, type = 'success') {
+      const notice = $('#notice');
+
+      notice.textContent = message;
+      notice.className = `notice show ${type}`;
+
+      if (type === 'success') {
+        window.setTimeout(() => {
+          notice.classList.remove('show');
+        }, 4500);
+      }
+    }
+
+    function clearNotice() {
+      $('#notice').className = 'notice';
+      $('#notice').textContent = '';
+    }
+
+    async function apiRequest(path, options = {}) {
+      const token = localStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        window.location.href = '/';
+        throw new Error('Sessão não encontrada. Faça login novamente.');
+      }
+
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...options.headers
+      };
+
+      const response = await fetch(`${API}${path}`, {
+        ...options,
+        headers
+      });
+
+      const raw = await response.text();
+      let data = {};
+
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = { erro: raw };
+        }
+      }
+
+      if (response.status === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        window.location.href = '/';
+        throw new Error('Sessão expirada. Entre novamente.');
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.erro ||
+          data.mensagem ||
+          `Não foi possível concluir a operação (${response.status}).`
+        );
+      }
+
+      return data;
+    }
+
+    async function verifyDeveloper() {
+      const data = await apiRequest('/auth/me');
+      const usuario = data.usuario || data;
+
+      if (usuario.perfil !== 'dev') {
+        document.body.innerHTML = `
+          <div style="
+            min-height:100vh;display:grid;place-items:center;
+            padding:24px;background:#0b0e14;color:#edf2fa;
+            font-family:Arial,sans-serif;text-align:center
+          ">
+            <div>
+              <h1>Acesso não autorizado</h1>
+              <p style="color:#8e9aaf">
+                Esta página está disponível somente para o desenvolvedor.
+              </p>
+              <button id="unauthorizedBackButton"
+                style="padding:12px 18px;border:0;border-radius:8px;
+                background:#7c83ff;color:white;cursor:pointer">
+                Voltar
+              </button>
+            </div>
+          </div>
+        `;
+
+        $('#unauthorizedBackButton').addEventListener('click', () => {
+          window.location.href = '/';
+        });
+
+        throw new Error('Acesso restrito ao desenvolvedor.');
+      }
+
+      $('#connectionText').textContent = 'Sessão autenticada';
+    }
+
+    function normalizeTickets(data) {
+      let tickets = [];
+
+      if (Array.isArray(data)) {
+        tickets = data;
+      } else if (Array.isArray(data.solicitacoes)) {
+        tickets = data.solicitacoes;
+      } else if (Array.isArray(data.chamados)) {
+        tickets = data.chamados;
+      } else if (Array.isArray(data.rows)) {
+        tickets = data.rows;
+      }
+
+      return tickets.map(normalizeTicket);
+    }
+
+    async function loadTickets(options = {}) {
+      if (state.loading) return;
+
+      state.loading = true;
+      $('#refreshButton').disabled = true;
+
+      if (!options.quiet) {
+        $('#ticketList').innerHTML =
+          '<div class="loading">Carregando solicitações...</div>';
+      }
+
+      try {
+        const data = await apiRequest('/privacidade/dev');
+        state.tickets = normalizeTickets(data);
+
+        updateStats();
+        renderTicketList();
+
+        if (state.selectedId !== null) {
+          const selected = state.tickets.find(
+            item => String(item.id) === String(state.selectedId)
+          );
+
+          if (selected) {
+            renderDetail(selected);
+          } else {
+            state.selectedId = null;
+            renderEmptyDetail();
+          }
+        }
+
+        $('#connectionText').textContent = 'Conectado';
+      } catch (error) {
+        if (error.message !== 'Acesso restrito ao desenvolvedor.') {
+          showNotice(error.message, 'error');
+
+          if (!options.quiet) {
+            $('#ticketList').innerHTML = `
+              <div class="empty">
+                <span class="empty-symbol">!</span>
+                Não foi possível carregar as solicitações.
+                <br>Verifique o endpoint /api/privacidade/dev.
+              </div>
+            `;
+          }
+
+          $('#connectionText').textContent = 'Falha na consulta';
+        }
+      } finally {
+        state.loading = false;
+        $('#refreshButton').disabled = false;
+      }
+    }
+
+    function updateStats() {
+      const tickets = state.tickets;
+
+      $('#totalCount').textContent = tickets.length;
+
+      $('#pendingCount').textContent = tickets.filter(
+        ticket => ticket.status === 'pendente'
+      ).length;
+
+      $('#analysisCount').textContent = tickets.filter(
+        ticket => ticket.status === 'em_andamento'
+      ).length;
+
+      $('#doneCount').textContent = tickets.filter(
+        ticket => ['respondida', 'concluida'].includes(ticket.status)
+      ).length;
+    }
+
+    function getFilteredTickets() {
+      const query = $('#searchInput').value
+        .trim()
+        .toLocaleLowerCase('pt-BR');
+
+      const status = $('#statusFilter').value;
+
+      return state.tickets.filter(ticket => {
+        const company = ticket.empresa_nome ||
+          ticket.nome_empresa ||
+          (typeof ticket.empresa === 'string' ? ticket.empresa : '') ||
+          '';
+
+        const searchable = [
+          ticket.id,
+          ticket.assunto,
+          ticket.descricao,
+          ticket.referencia,
+          company,
+          ticket.tipo
+        ].join(' ').toLocaleLowerCase('pt-BR');
+
+        return (!query || searchable.includes(query)) &&
+          (!status || normalizeStatus(ticket.status) === status);
+      });
+    }
+
+    function renderTicketList() {
+      const list = $('#ticketList');
+      const tickets = getFilteredTickets();
+
+      $('#visibleCount').textContent = tickets.length;
+
+      if (!tickets.length) {
+        list.innerHTML = `
+          <div class="empty">
+            <span class="empty-symbol">⌕</span>
+            Nenhuma solicitação encontrada.
+            <br>Experimente alterar os filtros.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = tickets.map(ticket => {
+        const company = ticket.empresa_nome ||
+          ticket.nome_empresa ||
+          (typeof ticket.empresa === 'string' ? ticket.empresa : '') ||
+          'Empresa não identificada';
+
+        const status = normalizeStatus(ticket.status);
+        const priority = PRIORITY_LABELS[ticket.prioridade] ||
+          ticket.prioridade ||
+          'Normal';
+
+        return `
+          <button
+            type="button"
+            class="ticket ${
+              String(ticket.id) === String(state.selectedId) ? 'selected' : ''
+            }"
+            data-ticket-id="${escapeHTML(ticket.id)}"
+          >
+            <div class="ticket-top">
+              <span class="ticket-subject">
+                ${escapeHTML(
+                  ticket.assunto || ticket.tipo || 'Solicitação sem assunto'
+                )}
+              </span>
+              <span class="ticket-id">#${escapeHTML(ticket.id)}</span>
+            </div>
+
+            <div class="ticket-company">${escapeHTML(company)}</div>
+
+            <div class="ticket-bottom">
+              <div class="badges">
+                <span class="badge status-${escapeHTML(status || 'pendente')}">
+                  ${escapeHTML(labelFor(STATUS_LABELS, status))}
+                </span>
+                <span class="badge priority-${escapeHTML(
+                  ticket.prioridade || 'normal'
+                )}">
+                  ${escapeHTML(priority)}
+                </span>
+              </div>
+
+              <span class="ticket-date">
+                ${escapeHTML(dateLabel(ticket.criado_em))}
+              </span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      list.querySelectorAll('[data-ticket-id]').forEach(button => {
+        button.addEventListener('click', () => {
+          selectTicket(button.dataset.ticketId);
+        });
+      });
+    }
+
+    function renderEmptyDetail() {
+      $('#ticketDetail').innerHTML = `
+        <div class="empty">
+          <span class="empty-symbol">▤</span>
+          Selecione uma solicitação na lista para visualizar seus detalhes.
+        </div>
+      `;
+    }
+
+    function selectTicket(id) {
+      state.selectedId = id;
+
+      const ticket = state.tickets.find(
+        item => String(item.id) === String(id)
+      );
+
+      renderTicketList();
+
+      if (ticket) {
+        renderDetail(ticket);
+      }
+    }
+
+    function renderDetail(ticket) {
+      const company = ticket.empresa_nome ||
+        ticket.nome_empresa ||
+        (typeof ticket.empresa === 'string' ? ticket.empresa : '') ||
+        'Empresa não identificada';
+
+      const statusAtual = normalizeStatus(ticket.status);
+
+      const statusOptions = Object.entries(STATUS_LABELS).map(
+        ([value, label]) => `
+          <option value="${escapeHTML(value)}"
+            ${statusAtual === value ? 'selected' : ''}>
+            ${escapeHTML(label)}
+          </option>
+        `
+      ).join('');
+
+      $('#ticketDetail').innerHTML = `
+        <div class="detail-header">
+          <div class="ticket-top">
+            <span class="badge status-${escapeHTML(statusAtual || 'pendente')}">
+              ${escapeHTML(labelFor(STATUS_LABELS, statusAtual))}
+            </span>
+            <span class="ticket-id">
+              Solicitação #${escapeHTML(ticket.id)}
+            </span>
+          </div>
+
+          <div class="detail-title">
+            ${escapeHTML(
+              ticket.assunto || ticket.tipo || 'Solicitação sem assunto'
+            )}
+          </div>
+
+          <div class="detail-meta">
+            <span class="badge priority-${escapeHTML(
+              ticket.prioridade || 'normal'
+            )}">
+              Prioridade:
+              ${escapeHTML(labelFor(PRIORITY_LABELS, ticket.prioridade))}
+            </span>
+            <span class="badge" style="background:#20283a;color:#b7c4d8">
+              ${escapeHTML(labelFor(TYPE_LABELS, ticket.tipo))}
+            </span>
+          </div>
+
+          <div class="detail-company">
+            <div class="meta-box">
+              <div class="meta-label">Empresa</div>
+              <div class="meta-value">${escapeHTML(company)}</div>
+            </div>
+
+            <div class="meta-box">
+              <div class="meta-label">Data de abertura</div>
+              <div class="meta-value">
+                ${escapeHTML(dateLabel(ticket.criado_em))}
+              </div>
+            </div>
+
+            <div class="meta-box">
+              <div class="meta-label">Solicitante</div>
+              <div class="meta-value">
+                ${escapeHTML(
+                  ticket.usuario_nome ||
+                  ticket.nome_usuario ||
+                  ticket.usuario_id ||
+                  'Não informado'
+                )}
+              </div>
+            </div>
+
+            <div class="meta-box">
+              <div class="meta-label">Referência</div>
+              <div class="meta-value">
+                ${escapeHTML(ticket.referencia || 'Não informada')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-label">Descrição da solicitação</div>
+          <div class="detail-text">
+            ${escapeHTML(ticket.descricao || 'Nenhuma descrição informada.')}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-label">Resposta atual</div>
+          <div class="detail-text">
+            ${escapeHTML(ticket.resposta || 'Ainda não há resposta registrada.')}
+          </div>
+        </div>
+
+        <form class="reply-form" id="replyForm">
+          <h3>Atender solicitação</h3>
+
+          <div class="field">
+            <label for="replyStatus">Status do atendimento</label>
+            <select id="replyStatus" name="status" required>
+              ${statusOptions}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="replyText">Resposta para a empresa</label>
+            <textarea
+              id="replyText"
+              name="resposta"
+              maxlength="5000"
+              placeholder="Escreva uma resposta clara para o solicitante..."
+            >${escapeHTML(ticket.resposta || '')}</textarea>
+          </div>
+
+          <div class="form-actions">
+            <button class="button" type="button" id="reloadDetailButton">
+              Descartar alterações
+            </button>
+            <button class="button button-primary" type="submit" id="saveReplyButton">
+              Salvar atendimento
+            </button>
+          </div>
+        </form>
+      `;
+
+      $('#replyForm').addEventListener('submit', event => {
+        saveTicket(event, ticket.id);
+      });
+
+      $('#reloadDetailButton').addEventListener('click', () => {
+        const current = state.tickets.find(
+          item => String(item.id) === String(ticket.id)
+        );
+
+        if (current) {
+          renderDetail(current);
+        }
+      });
+    }
+
+    async function saveTicket(event, id) {
+      event.preventDefault();
+
+      if (state.saving) return;
+
+      clearNotice();
+
+      const status = normalizeStatus($('#replyStatus').value);
+      const resposta = $('#replyText').value.trim();
+      const button = $('#saveReplyButton');
+
+      if (!Object.hasOwn(STATUS_LABELS, status)) {
+        showNotice('Selecione um status válido.', 'error');
+        return;
+      }
+
+      if (resposta.length > 5000) {
+        showNotice(
+          'A resposta não pode ultrapassar 5000 caracteres.',
+          'error'
+        );
+        return;
+      }
+
+      state.saving = true;
+      button.disabled = true;
+      button.textContent = 'Salvando...';
+
+      try {
+        const data = await apiRequest(
+          `/privacidade/dev/${encodeURIComponent(id)}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({
+              status,
+              resposta
+            })
+          }
+        );
+
+        const updated = data.solicitacao || data.chamado || data;
+
+        state.tickets = state.tickets.map(ticket => {
+          if (String(ticket.id) !== String(id)) {
+            return ticket;
+          }
+
+          return normalizeTicket({
+            ...ticket,
+            ...(updated && typeof updated === 'object' ? updated : {}),
+            status: status,
+            resposta
+          });
+        });
+
+        updateStats();
+        renderTicketList();
+
+        const selected = state.tickets.find(
+          ticket => String(ticket.id) === String(id)
+        );
+
+        if (selected) {
+          renderDetail(selected);
+        }
+
+        showNotice(
+          data.mensagem || 'Atendimento atualizado com sucesso.',
+          'success'
+        );
+      } catch (error) {
+        showNotice(error.message, 'error');
+      } finally {
+        state.saving = false;
+
+        const buttonAfter = $('#saveReplyButton');
+
+        if (buttonAfter) {
+          buttonAfter.disabled = false;
+          buttonAfter.textContent = 'Salvar atendimento';
+        }
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = '/';
+    }
+
+    function setMobileMenu(open) {
+      const sidebar = $('#sidebar');
+      const menuButton = $('#mobileMenuButton');
+      const overlay = $('#mobileOverlay');
+
+      sidebar.classList.toggle('open', open);
+      overlay.classList.toggle('show', open);
+      menuButton.setAttribute('aria-expanded', String(open));
+      menuButton.setAttribute(
+        'aria-label',
+        open ? 'Fechar menu' : 'Abrir menu'
+      );
+
+      document.body.style.overflow =
+        open && window.innerWidth <= 760 ? 'hidden' : '';
+    }
+
+    $('#searchInput').addEventListener('input', renderTicketList);
+    $('#statusFilter').addEventListener('change', renderTicketList);
+
+    $('#refreshButton').addEventListener('click', () => {
+      clearNotice();
+      loadTickets();
+    });
+
+    $('#logoutButton').addEventListener('click', logout);
+    $('#sidebarLogoutButton').addEventListener('click', logout);
+
+    $('#mobileMenuButton').addEventListener('click', () => {
+      setMobileMenu(!$('#sidebar').classList.contains('open'));
+    });
+
+    $('#mobileOverlay').addEventListener('click', () => {
+      setMobileMenu(false);
+    });
+
+    $('#sidebar').querySelectorAll('.menu-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        if (window.innerWidth <= 760) {
+          setMobileMenu(false);
+        }
+      });
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        setMobileMenu(false);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 760) {
+        setMobileMenu(false);
+      }
+    });
+
+    async function init() {
+      try {
+        await verifyDeveloper();
+        await loadTickets();
+      } catch (error) {
+        if (error.message !== 'Acesso restrito ao desenvolvedor.') {
+          showNotice(error.message, 'error');
+        }
+      }
+    }
+
+    init();
+  </script>
+
+  <script src="/js/dev-sidebar.js"></script>
+</body>
+</html>
