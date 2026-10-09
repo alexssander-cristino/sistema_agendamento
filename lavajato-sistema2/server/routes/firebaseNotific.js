@@ -1,4 +1,6 @@
 
+'use strict';
+
 const express = require('express');
 const router = express.Router();
 
@@ -9,11 +11,18 @@ const {
   enviarParaDesenvolvedores
 } = require('../services/firebaseNotific');
 
+// ============================================================
+// AUTENTICAÇÃO
+// ============================================================
+
 router.use(autenticar);
 
+// Somente a conta de desenvolvedor pode gerenciar
+// os dispositivos e testar os alertas.
 router.use((req, res, next) => {
   if (!req.usuario || req.usuario.perfil !== 'dev') {
     return res.status(403).json({
+      sucesso: false,
       erro: 'Acesso permitido somente ao desenvolvedor.'
     });
   }
@@ -21,24 +30,35 @@ router.use((req, res, next) => {
   next();
 });
 
-// Registrar dispositivo para receber notificações.
+// ============================================================
+// REGISTRAR DISPOSITIVO
+// POST /api/firebase-notific/token
+// ============================================================
+
 router.post('/token', async (req, res) => {
   try {
     const token = req.body?.token;
 
     if (
       typeof token !== 'string' ||
-      token.length < 20 ||
+      token.trim().length < 20 ||
       token.length > 4096
     ) {
       return res.status(400).json({
+        sucesso: false,
         erro: 'Token de notificação inválido.'
       });
     }
 
     await pool.query(
       `INSERT INTO notificacoes_tokens
-        (usuario_id, token, dispositivo, ativo, atualizado_em)
+        (
+          usuario_id,
+          token,
+          dispositivo,
+          ativo,
+          atualizado_em
+        )
        VALUES ($1, $2, $3, TRUE, NOW())
        ON CONFLICT (token)
        DO UPDATE SET
@@ -46,60 +66,89 @@ router.post('/token', async (req, res) => {
          dispositivo = EXCLUDED.dispositivo,
          ativo = TRUE,
          atualizado_em = NOW()`,
-      [req.usuario.id, token, 'Android']
+      [
+        req.usuario.id,
+        token.trim(),
+        'Android'
+      ]
     );
 
     return res.status(201).json({
       sucesso: true,
-      mensagem: 'Dispositivo registrado.'
+      mensagem: 'Dispositivo registrado para notificações.'
     });
   } catch (erro) {
     console.error(
       '[Orvix Push] Erro ao registrar dispositivo:',
-      erro.message
+      {
+        code: erro.code || null,
+        message: erro.message
+      }
     );
 
     return res.status(500).json({
+      sucesso: false,
       erro: 'Não foi possível registrar o dispositivo.'
     });
   }
 });
 
-// Desativar notificações para este dispositivo.
+// ============================================================
+// DESATIVAR DISPOSITIVO
+// DELETE /api/firebase-notific/token
+// ============================================================
+
 router.delete('/token', async (req, res) => {
   try {
     const token = req.body?.token;
 
-    if (typeof token !== 'string' || !token) {
+    if (
+      typeof token !== 'string' ||
+      !token.trim()
+    ) {
       return res.status(400).json({
+        sucesso: false,
         erro: 'Informe o token do dispositivo.'
       });
     }
 
-    await pool.query(
+    const resultado = await pool.query(
       `UPDATE notificacoes_tokens
-       SET ativo = FALSE, atualizado_em = NOW()
-       WHERE usuario_id = $1 AND token = $2`,
-      [req.usuario.id, token]
+          SET ativo = FALSE,
+              atualizado_em = NOW()
+        WHERE usuario_id = $1
+          AND token = $2`,
+      [
+        req.usuario.id,
+        token.trim()
+      ]
     );
 
     return res.json({
       sucesso: true,
+      desativados: resultado.rowCount,
       mensagem: 'Dispositivo desativado.'
     });
   } catch (erro) {
     console.error(
       '[Orvix Push] Erro ao desativar dispositivo:',
-      erro.message
+      {
+        code: erro.code || null,
+        message: erro.message
+      }
     );
 
     return res.status(500).json({
+      sucesso: false,
       erro: 'Não foi possível desativar o dispositivo.'
     });
   }
 });
 
-// Enviar notificação de teste.
+// ============================================================
+// TESTAR NOTIFICAÇÃO
+// POST /api/firebase-notific/teste
+// ============================================================
 
 router.post('/teste', async (req, res) => {
   try {
@@ -113,23 +162,29 @@ router.post('/teste', async (req, res) => {
     if (resultado.enviados === 0) {
       return res.status(200).json({
         sucesso: false,
-        ...resultado,
+        enviados: resultado.enviados,
+        falhas: resultado.falhas,
         mensagem: resultado.falhas > 0
-          ? 'Não foi possível enviar a notificação. Verifique a configuração do Firebase.'
+          ? 'O Firebase não conseguiu enviar a notificação. Consulte os logs do servidor.'
           : 'Nenhum dispositivo ativo está registrado para este desenvolvedor.'
       });
     }
 
-    return res.json({
+    return res.status(200).json({
       sucesso: true,
-      ...resultado,
-      mensagem: 'Notificação enviada.'
+      enviados: resultado.enviados,
+      falhas: resultado.falhas,
+      mensagem: resultado.falhas > 0
+        ? 'Notificação enviada, mas houve falha em um ou mais dispositivos.'
+        : 'Notificação enviada com sucesso.'
     });
   } catch (erro) {
-    console.error(
-      '[Orvix Push] Erro no teste:',
-      erro.message
-    );
+    // Detalhes ficam nos logs privados do servidor.
+    console.error('[Orvix Push] Erro no teste:', {
+      code: erro.code || null,
+      message: erro.message,
+      stack: erro.stack
+    });
 
     return res.status(500).json({
       sucesso: false,
