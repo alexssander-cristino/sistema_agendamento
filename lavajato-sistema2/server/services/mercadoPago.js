@@ -577,6 +577,53 @@ async function testarConexao() {
 }
 
 // ============================================================
+// CRIAR NOVA ASSINATURA COM AUTORIZAÇÃO PELO CHECKOUT
+// Usada quando a empresa muda a periodicidade do plano.
+// Não cancela a assinatura anterior.
+// ============================================================
+
+async function criarAssinaturaPendente({
+  planoMercadoPagoId,
+  email,
+  nome,
+  backUrl,
+  externalReference
+}) {
+  if (!planoMercadoPagoId) {
+    throw new Error(
+      'ID do plano Mercado Pago é obrigatório.'
+    );
+  }
+
+  if (!email) {
+    throw new Error(
+      'E-mail do assinante é obrigatório.'
+    );
+  }
+
+  if (!backUrl) {
+    throw new Error(
+      'APP_URL precisa estar configurada para autorizar a assinatura.'
+    );
+  }
+
+  const body = {
+    preapproval_plan_id: String(planoMercadoPagoId),
+    payer_email: String(email).trim(),
+    reason: nome || 'Assinatura Orvix',
+    external_reference: String(externalReference),
+    back_url: backUrl,
+    status: 'pending'
+  };
+
+  return mercadoPagoRequest('/preapproval', {
+    method: 'POST',
+    body: JSON.stringify(body)
+  });
+}
+
+
+// ============================================================
 // EXPORTS
 // ============================================================
 
@@ -591,6 +638,7 @@ module.exports = {
   atualizarPlano,
 
   criarAssinatura,
+  criarAssinaturaPendente,
   buscarAssinatura,
   atualizarAssinatura,
   atualizarValorAssinatura,

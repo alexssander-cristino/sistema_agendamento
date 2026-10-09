@@ -1,3 +1,4 @@
+
 const express = require('express');
 const crypto = require('crypto');
 
@@ -14,13 +15,53 @@ const WEBHOOK_SECRET =
   process.env.MERCADO_PAGO_WEBHOOK_SECRET;
 
 // ============================================================
+// CONFIGURAÇÕES
+// ============================================================
+
+const STATUS_ASSINATURA_VALIDOS = new Set([
+  'ativa',
+  'pendente',
+  'pausada',
+  'cancelada',
+  'inadimplente'
+]);
+
+const MAX_ERRO = 2000;
+
+// ============================================================
+// RESPOSTAS E NORMALIZAÇÃO
+// ============================================================
+
+function normalizarTexto(valor) {
+  if (valor === null || valor === undefined) {
+    return '';
+  }
+
+  return String(valor).trim();
+}
+
+function respostaErro(res, status, mensagem) {
+  return res.status(status).json({
+    ok: false,
+    erro: mensagem
+  });
+}
+
+function extrairDataId(req) {
+  return (
+    req.query?.['data.id'] ||
+    req.query?.data_id ||
+    req.body?.data?.id ||
+    null
+  );
+}
+
+// ============================================================
 // VALIDAR ASSINATURA DO WEBHOOK
 // ============================================================
 
 function validarAssinaturaWebhook(req) {
-
   if (!WEBHOOK_SECRET) {
-
     console.error(
       'MERCADO_PAGO_WEBHOOK_SECRET não configurado.'
     );
@@ -34,20 +75,15 @@ function validarAssinaturaWebhook(req) {
   const xRequestId =
     req.headers['x-request-id'];
 
-  const dataId =
-    req.query['data.id'] ||
-    req.query.data_id ||
-    req.body?.data?.id ||
-    '';
+  const dataId = extrairDataId(req);
 
   if (
     !xSignature ||
     !xRequestId ||
     !dataId
   ) {
-
     console.error(
-      'Webhook Mercado Pago sem informações suficientes para validação.'
+      'Webhook sem os cabeçalhos ou identificadores necessários.'
     );
 
     return false;
@@ -56,67 +92,43 @@ function validarAssinaturaWebhook(req) {
   let timestamp = null;
   let assinaturaRecebida = null;
 
-  const partes =
-    String(xSignature)
-      .split(',');
+  for (const parte of String(xSignature).split(',')) {
+    const separador = parte.indexOf('=');
 
-  for (
-    const parte of partes
-  ) {
-
-    const [
-      chave,
-      ...resto
-    ] =
-      parte.split('=');
-
-    if (
-      !chave ||
-      resto.length === 0
-    ) {
+    if (separador === -1) {
       continue;
     }
 
+    const chave =
+      parte.slice(0, separador).trim();
+
     const valor =
-      resto
-        .join('=')
-        .trim();
+      parte.slice(separador + 1).trim();
 
-    if (
-      chave.trim() === 'ts'
-    ) {
-
-      timestamp =
-        valor;
-
+    if (chave === 'ts') {
+      timestamp = valor;
     }
 
-    if (
-      chave.trim() === 'v1'
-    ) {
-
-      assinaturaRecebida =
-        valor;
-
+    if (chave === 'v1') {
+      assinaturaRecebida = valor;
     }
   }
 
   if (
     !timestamp ||
-    !assinaturaRecebida
+    !assinaturaRecebida ||
+    !/^[a-f0-9]{64}$/i.test(assinaturaRecebida)
   ) {
-
-    console.error(
-      'x-signature do Mercado Pago inválido.'
-    );
-
     return false;
   }
 
+  /*
+   * Manifesto de assinatura do Mercado Pago.
+   * O data.id deve ser normalizado para minúsculas.
+   */
+
   const dataIdNormalizado =
-    String(
-      dataId
-    ).toLowerCase();
+    String(dataId).toLowerCase();
 
   const manifest =
     `id:${dataIdNormalizado};` +
@@ -125,53 +137,28 @@ function validarAssinaturaWebhook(req) {
 
   const assinaturaCalculada =
     crypto
-      .createHmac(
-        'sha256',
-        WEBHOOK_SECRET
-      )
+      .createHmac('sha256', WEBHOOK_SECRET)
       .update(manifest)
-      .digest('hex');
+      .digest();
 
-  try {
+  const assinaturaRecebidaBuffer =
+    Buffer.from(assinaturaRecebida, 'hex');
 
-    const recebido =
-      Buffer.from(
-        assinaturaRecebida,
-        'utf8'
-      );
-
-    const calculado =
-      Buffer.from(
-        assinaturaCalculada,
-        'utf8'
-      );
-
-    if (
-      recebido.length !==
-      calculado.length
-    ) {
-
-      return false;
-    }
-
-    return crypto.timingSafeEqual(
-      recebido,
-      calculado
-    );
-
-  } catch (err) {
-
-    console.error(
-      'Erro ao comparar assinatura do webhook:',
-      err.message
-    );
-
+  if (
+    assinaturaRecebidaBuffer.length !==
+    assinaturaCalculada.length
+  ) {
     return false;
   }
+
+  return crypto.timingSafeEqual(
+    assinaturaRecebidaBuffer,
+    assinaturaCalculada
+  );
 }
 
 // ============================================================
-// REGISTRAR EVENTO
+// REGISTRAR EVENTO E EVITAR REPROCESSAMENTO COMUM
 // ============================================================
 
 async function registrarEventoWebhook({
@@ -180,95 +167,69 @@ async function registrarEventoWebhook({
   action,
   dataId
 }) {
-
   /*
-   * Caso o Mercado Pago envie uma notificação
-   * sem ID de evento, não conseguimos garantir
-   * idempotência por evento.
-   *
-   * Nesse caso o evento continua podendo ser
-   * processado normalmente.
+   * Sem um identificador de evento, não é possível
+   * garantir idempotência por evento.
    */
 
   if (!eventoId) {
-
     return {
       novo: true,
       registro: null
     };
   }
 
-  const resultado =
-    await pool.query(
-      `
-      INSERT INTO mercado_pago_webhook_eventos (
-        evento_id,
-        tipo,
-        acao,
-        data_id
-      )
-      VALUES ($1, $2, $3, $4)
+  const resultado = await pool.query(
+    `
+    INSERT INTO mercado_pago_webhook_eventos (
+      evento_id,
+      tipo,
+      acao,
+      data_id,
+      processado,
+      erro
+    )
+    VALUES ($1, $2, $3, $4, FALSE, NULL)
+    ON CONFLICT (evento_id)
+    DO NOTHING
+    RETURNING
+      id,
+      evento_id,
+      processado,
+      erro
+    `,
+    [
+      String(eventoId),
+      tipo || null,
+      action || null,
+      dataId ? String(dataId) : null
+    ]
+  );
 
-      ON CONFLICT (evento_id)
-      DO NOTHING
-
-      RETURNING
-        id,
-        evento_id,
-        processado,
-        erro
-      `,
-      [
-        String(eventoId),
-        tipo || null,
-        action || null,
-        dataId
-          ? String(dataId)
-          : null
-      ]
-    );
-
-  /*
-   * Evento novo.
-   */
-
-  if (
-    resultado.rows.length > 0
-  ) {
-
+  if (resultado.rows.length > 0) {
     return {
       novo: true,
-      registro:
-        resultado.rows[0]
+      registro: resultado.rows[0]
     };
   }
 
-  /*
-   * Evento já existente.
-   */
-
-  const existente =
-    await pool.query(
-      `
-      SELECT
-        id,
-        evento_id,
-        processado,
-        erro
-      FROM mercado_pago_webhook_eventos
-      WHERE evento_id = $1
-      LIMIT 1
-      `,
-      [
-        String(eventoId)
-      ]
-    );
+  const existente = await pool.query(
+    `
+    SELECT
+      id,
+      evento_id,
+      processado,
+      erro
+    FROM mercado_pago_webhook_eventos
+    WHERE evento_id = $1
+    LIMIT 1
+    `,
+    [String(eventoId)]
+  );
 
   return {
     novo: false,
-    registro:
-      existente.rows[0] ||
-      null
+    registro: existente.rows[0] || null
   };
 }
 
@@ -276,10 +237,7 @@ async function registrarEventoWebhook({
 // MARCAR EVENTO COMO PROCESSADO
 // ============================================================
 
-async function marcarEventoProcessado(
-  eventoId
-) {
-
+async function marcarEventoProcessado(eventoId) {
   if (!eventoId) {
     return;
   }
@@ -293,24 +251,24 @@ async function marcarEventoProcessado(
       erro = NULL
     WHERE evento_id = $1
     `,
-    [
-      String(eventoId)
-    ]
+    [String(eventoId)]
   );
 }
 
 // ============================================================
-// REGISTRAR ERRO DO EVENTO
+// REGISTRAR FALHA PARA PERMITIR NOVA TENTATIVA
 // ============================================================
 
-async function registrarErroEvento(
-  eventoId,
-  erro
-) {
-
+async function registrarErroEvento(eventoId, erro) {
   if (!eventoId) {
     return;
   }
+
+  const mensagem = String(
+    erro?.message ||
+    erro ||
+    'Erro desconhecido ao processar webhook.'
+  ).slice(0, MAX_ERRO);
 
   await pool.query(
     `
@@ -322,158 +280,40 @@ async function registrarErroEvento(
     `,
     [
       String(eventoId),
-      String(
-        erro?.message ||
-        erro ||
-        'Erro desconhecido.'
-      ).slice(
-        0,
-        2000
-      )
+      mensagem
     ]
   );
 }
 
 // ============================================================
-// ATUALIZAR ASSINATURA NO BANCO
+// CONVERTER STATUS DO MERCADO PAGO
 // ============================================================
 
-async function atualizarAssinatura(
-  mercadoPagoId,
-  dados
-) {
-
-  if (!mercadoPagoId) {
-    return null;
-  }
-
-  const resultado =
-    await pool.query(
-      `
-      UPDATE assinaturas
-      SET
-        status = $1,
-
-        inicio_em =
-          COALESCE(
-            $2,
-            inicio_em
-          ),
-
-        proxima_cobranca_em =
-          CASE
-            WHEN $3 IS NOT NULL
-              THEN $3
-            WHEN $1 IN (
-              'cancelada',
-              'inadimplente'
-            )
-              THEN NULL
-            ELSE proxima_cobranca_em
-          END,
-
-        cancelada_em =
-          CASE
-            WHEN $4 = TRUE
-              THEN COALESCE(
-                cancelada_em,
-                NOW()
-              )
-
-            ELSE NULL
-          END,
-
-        atualizado_em = NOW()
-
-      WHERE mercado_pago_id = $5
-
-      RETURNING
-        id,
-        empresa_id,
-        plano_id,
-        status,
-        mercado_pago_id,
-        inicio_em,
-        proxima_cobranca_em,
-        cancelada_em
-      `,
-      [
-        dados.status,
-        dados.inicio_em || null,
-        dados.proxima_cobranca_em || null,
-        dados.cancelada === true,
-        String(mercadoPagoId)
-      ]
-    );
-
-  if (
-    resultado.rows.length === 0
-  ) {
-
-    return null;
-  }
-
-  return resultado.rows[0];
-}
-
-// ============================================================
-// CONVERTER STATUS DA ASSINATURA
-// ============================================================
-
-function converterStatus(
-  statusMercadoPago
-) {
-
+function converterStatus(statusMercadoPago) {
   switch (
-    String(
-      statusMercadoPago || ''
-    ).toLowerCase()
+    normalizarTexto(statusMercadoPago).toLowerCase()
   ) {
-
-    /*
-     * Assinatura autorizada/ativa.
-     */
-
     case 'authorized':
-      return 'ativa';
-
     case 'active':
       return 'ativa';
-
-    /*
-     * Assinatura aguardando alguma
-     * etapa de autorização/processamento.
-     */
 
     case 'pending':
       return 'pendente';
 
-    /*
-     * Assinatura pausada.
-     */
-
     case 'paused':
       return 'pausada';
 
-    /*
-     * Assinatura cancelada.
-     */
-
     case 'cancelled':
-      return 'cancelada';
-
     case 'canceled':
       return 'cancelada';
 
     /*
-     * Estados finais problemáticos.
+     * Não convertemos estados desconhecidos
+     * automaticamente para inadimplente.
+     *
+     * Isso evita bloquear uma assinatura
+     * por causa de um status inesperado.
      */
-
-    case 'rejected':
-      return 'inadimplente';
-
-    case 'expired':
-      return 'inadimplente';
 
     default:
       return null;
@@ -481,46 +321,196 @@ function converterStatus(
 }
 
 // ============================================================
-// IDENTIFICAR STATUS DA COBRANÇA
+// ATUALIZAR ASSINATURA LOCAL
 // ============================================================
 
-function obterStatusCobranca(
-  pagamento
+async function atualizarAssinatura(
+  mercadoPagoId,
+  dados
 ) {
+  if (!mercadoPagoId || !dados?.status) {
+    return null;
+  }
 
-  const statusFatura =
-    String(
-      pagamento?.status ||
-      ''
-    ).toLowerCase();
+  if (
+    !STATUS_ASSINATURA_VALIDOS.has(dados.status)
+  ) {
+    throw new Error(
+      `Status local de assinatura inválido: ${dados.status}`
+    );
+  }
 
-  const statusResumido =
-    String(
-      pagamento?.summarized ||
-      ''
-    ).toLowerCase();
+  const resultado = await pool.query(
+    `
+    UPDATE assinaturas
+    SET
+      status = $1,
 
-  const statusPagamento =
-    String(
-      pagamento?.payment?.status ||
-      ''
-    ).toLowerCase();
+      inicio_em = COALESCE(
+        $2,
+        inicio_em
+      ),
+
+      proxima_cobranca_em = CASE
+        WHEN $3 IS NOT NULL
+          THEN $3
+        WHEN $1 IN (
+          'cancelada',
+          'inadimplente'
+        )
+          THEN NULL
+        ELSE proxima_cobranca_em
+      END,
+
+      cancelada_em = CASE
+        WHEN $4 = TRUE
+          THEN COALESCE(
+            cancelada_em,
+            NOW()
+          )
+        WHEN $1 <> 'cancelada'
+          THEN NULL
+        ELSE cancelada_em
+      END,
+
+      atualizado_em = NOW()
+
+    WHERE mercado_pago_id = $5
+
+    RETURNING
+      id,
+      empresa_id,
+      plano_id,
+      status,
+      mercado_pago_id,
+      inicio_em,
+      proxima_cobranca_em,
+      cancelada_em
+    `,
+    [
+      dados.status,
+      dados.inicio_em || null,
+      dados.proxima_cobranca_em || null,
+      dados.cancelada === true,
+      String(mercadoPagoId)
+    ]
+  );
+
+  return resultado.rows[0] || null;
+}
+
+// ============================================================
+// SINCRONIZAR ASSINATURA COM O MERCADO PAGO
+// ============================================================
+
+async function sincronizarAssinaturaMercadoPago(
+  mercadoPagoId
+) {
+  if (!mercadoPagoId) {
+    return null;
+  }
+
+  /*
+   * Erros na API do Mercado Pago devem propagar
+   * para que o evento não seja marcado como concluído.
+   */
+
+  const assinaturaMP =
+    await buscarAssinatura(mercadoPagoId);
+
+  if (!assinaturaMP) {
+    throw new Error(
+      'A API do Mercado Pago não retornou a assinatura solicitada.'
+    );
+  }
+
+  const status = converterStatus(
+    assinaturaMP.status
+  );
+
+  /*
+   * Um estado desconhecido não deve sobrescrever
+   * o estado que já está armazenado no banco.
+   */
+
+  if (!status) {
+    console.warn(
+      'Status de assinatura não mapeado:',
+      assinaturaMP.status
+    );
+
+    return {
+      mercadoPago: assinaturaMP,
+      banco: null,
+      status: null,
+      ignorada: true
+    };
+  }
+
+  /*
+   * date_created é a data de criação do recurso,
+   * não necessariamente o início de um ciclo pago.
+   * Por isso não a usamos automaticamente como
+   * início efetivo da assinatura local.
+   */
+
+  const proximaCobrancaEm =
+    assinaturaMP.next_payment_date || null;
+
+  const banco = await atualizarAssinatura(
+    mercadoPagoId,
+    {
+      status,
+      inicio_em: null,
+      proxima_cobranca_em: proximaCobrancaEm,
+      cancelada: status === 'cancelada'
+    }
+  );
 
   return {
-    statusFatura,
-    statusResumido,
-    statusPagamento
+    mercadoPago: assinaturaMP,
+    banco,
+    status
   };
 }
 
 // ============================================================
-// OBTER ID DA ASSINATURA A PARTIR DA COBRANÇA
+// PROCESSAR EVENTO DE ASSINATURA
 // ============================================================
 
-function obterIdAssinaturaPagamento(
-  pagamento
-) {
+async function processarEventoAssinatura(dataId) {
+  const sincronizacao =
+    await sincronizarAssinaturaMercadoPago(dataId);
 
+  if (!sincronizacao) {
+    return {
+      encontrada: false,
+      atualizada: null,
+      status: null
+    };
+  }
+
+  if (sincronizacao.ignorada) {
+    return {
+      encontrada: Boolean(sincronizacao.banco),
+      atualizada: sincronizacao.banco,
+      status: null,
+      ignorada: true
+    };
+  }
+
+  return {
+    encontrada: Boolean(sincronizacao.banco),
+    atualizada: sincronizacao.banco,
+    status: sincronizacao.status
+  };
+}
+
+// ============================================================
+// EXTRAIR ID DA ASSINATURA DE UMA COBRANÇA
+// ============================================================
+
+function obterIdAssinaturaPagamento(pagamento) {
   return (
     pagamento?.preapproval_id ||
     pagamento?.preapproval?.id ||
@@ -530,129 +520,22 @@ function obterIdAssinaturaPagamento(
 }
 
 // ============================================================
-// SINCRONIZAR ASSINATURA COM MERCADO PAGO
+// EXTRAIR STATUS DA COBRANÇA
 // ============================================================
 
-async function sincronizarAssinaturaMercadoPago(
-  mercadoPagoId
-) {
-
-  if (!mercadoPagoId) {
-    return null;
-  }
-
-  const assinaturaMercadoPago =
-    await buscarAssinatura(
-      mercadoPagoId
-    );
-
-  if (
-    !assinaturaMercadoPago
-  ) {
-
-    return null;
-  }
-
-  const statusMercadoPago =
-    assinaturaMercadoPago.status;
-
-  const novoStatus =
-    converterStatus(
-      statusMercadoPago
-    );
-
-  /*
-   * Se o Mercado Pago enviar um status
-   * que ainda não conhecemos, não alteramos
-   * o banco local.
-   */
-
-  if (!novoStatus) {
-
-    console.warn(
-      'Status de assinatura Mercado Pago não mapeado:',
-      statusMercadoPago
-    );
-
-    return null;
-  }
-
-  const inicioEm =
-    assinaturaMercadoPago
-      ?.date_created ||
-    null;
-
-  const proximaCobrancaEm =
-    assinaturaMercadoPago
-      ?.next_payment_date ||
-    null;
-
-  const cancelada =
-    novoStatus ===
-    'cancelada';
-
-  const assinaturaAtualizada =
-    await atualizarAssinatura(
-      mercadoPagoId,
-      {
-        status:
-          novoStatus,
-
-        inicio_em:
-          inicioEm,
-
-        proxima_cobranca_em:
-          proximaCobrancaEm,
-
-        cancelada
-      }
-    );
-
+function obterStatusCobranca(pagamento) {
   return {
-    mercadoPago:
-      assinaturaMercadoPago,
+    statusFatura: normalizarTexto(
+      pagamento?.status
+    ).toLowerCase(),
 
-    banco:
-      assinaturaAtualizada,
+    statusResumido: normalizarTexto(
+      pagamento?.summarized
+    ).toLowerCase(),
 
-    status:
-      novoStatus
-  };
-}
-
-// ============================================================
-// PROCESSAR EVENTO DE ASSINATURA
-// ============================================================
-
-async function processarEventoAssinatura(
-  dataId
-) {
-
-  const sincronizacao =
-    await sincronizarAssinaturaMercadoPago(
-      dataId
-    );
-
-  if (!sincronizacao) {
-
-    return {
-      encontrada: false,
-      atualizada: null,
-      status: null
-    };
-  }
-
-  return {
-    encontrada:
-      Boolean(
-        sincronizacao.banco
-      ),
-
-    atualizada:
-      sincronizacao.banco,
-
-    status:
-      sincronizacao.status
+    statusPagamento: normalizarTexto(
+      pagamento?.payment?.status
+    ).toLowerCase()
   };
 }
 
@@ -663,32 +546,31 @@ async function processarEventoAssinatura(
 async function processarCobrancaRecorrente(
   pagamentoId
 ) {
-
   const pagamento =
-    await buscarPagamentoAutorizado(
-      pagamentoId
-    );
+    await buscarPagamentoAutorizado(pagamentoId);
 
   if (!pagamento) {
-
     throw new Error(
-      'Pagamento autorizado não encontrado no Mercado Pago.'
+      'Pagamento recorrente não encontrado no Mercado Pago.'
     );
   }
 
-  const mercadoPagoSubscriptionId =
-    obterIdAssinaturaPagamento(
-      pagamento
-    );
+  const assinaturaMPId =
+    obterIdAssinaturaPagamento(pagamento);
 
-  if (
-    !mercadoPagoSubscriptionId
-  ) {
+  if (!assinaturaMPId) {
+    /*
+     * Não ativamos nem alteramos assinaturas
+     * quando não conseguimos identificar a relação.
+     */
+    console.warn(
+      'Não foi possível identificar a assinatura da cobrança:',
+      pagamentoId
+    );
 
     return {
       processado: false,
-      motivo:
-        'Assinatura da cobrança não identificada.',
+      status: 'assinatura_nao_identificada',
       pagamento,
       assinatura: null
     };
@@ -698,681 +580,471 @@ async function processarCobrancaRecorrente(
     statusFatura,
     statusResumido,
     statusPagamento
-  } =
-    obterStatusCobranca(
-      pagamento
-    );
+  } = obterStatusCobranca(pagamento);
 
   console.log(
-    'Status da cobrança Mercado Pago:',
+    'Status da cobrança recorrente:',
     {
-      pagamento:
-        pagamentoId,
-
-      assinatura:
-        mercadoPagoSubscriptionId,
-
-      fatura:
-        statusFatura,
-
-      resumido:
-        statusResumido,
-
-      pagamento_status:
-        statusPagamento
+      pagamento: pagamentoId,
+      assinatura: assinaturaMPId,
+      fatura: statusFatura,
+      resumido: statusResumido,
+      pagamento_status: statusPagamento
     }
   );
 
-  // ==========================================================
+  // ----------------------------------------------------------
   // PAGAMENTO APROVADO
-  // ==========================================================
+  // ----------------------------------------------------------
 
   if (
-    statusPagamento ===
-      'approved' ||
-    statusPagamento ===
-      'authorized'
+    statusPagamento === 'approved' ||
+    statusPagamento === 'authorized'
   ) {
-
     /*
-     * Não confiamos somente no status da cobrança.
+     * Uma cobrança aprovada não é prova suficiente
+     * de que a assinatura continua autorizada.
      *
-     * Buscamos novamente a assinatura no Mercado Pago
-     * e usamos o estado real dela para atualizar o banco.
+     * Consultamos a assinatura no Mercado Pago.
+     * Se a consulta falhar, lançamos erro e permitimos
+     * que o webhook seja tentado novamente.
      */
 
     const sincronizacao =
       await sincronizarAssinaturaMercadoPago(
-        mercadoPagoSubscriptionId
+        assinaturaMPId
       );
 
-    /*
-     * Caso a consulta da assinatura não consiga
-     * atualizar o banco, ainda tentamos marcar
-     * como ativa somente se a assinatura local existir.
-     */
-
-    if (
-      !sincronizacao?.banco
-    ) {
-
-      const assinaturaAtualizada =
-        await atualizarAssinatura(
-          mercadoPagoSubscriptionId,
-          {
-            status:
-              'ativa',
-
-            inicio_em:
-              null,
-
-            proxima_cobranca_em:
-              pagamento?.debit_date ||
-              null,
-
-            cancelada:
-              false
-          }
-        );
+    if (!sincronizacao?.banco) {
+      console.warn(
+        'Pagamento aprovado, mas a assinatura não foi sincronizada localmente.',
+        {
+          pagamento: pagamentoId,
+          assinatura: assinaturaMPId
+        }
+      );
 
       return {
-        processado: true,
-
-        status:
-          'ativa',
-
+        processado: false,
+        status: 'assinatura_nao_sincronizada',
         pagamento,
-
-        assinatura:
-          assinaturaAtualizada
+        assinatura: null
       };
     }
 
     return {
       processado: true,
-
-      status:
-        sincronizacao.status,
-
+      status: sincronizacao.status,
       pagamento,
-
-      assinatura:
-        sincronizacao.banco
+      assinatura: sincronizacao.banco
     };
   }
 
-  // ==========================================================
-  // COBRANÇA PENDENTE
-  // ==========================================================
+  // ----------------------------------------------------------
+  // PAGAMENTO PENDENTE
+  // ----------------------------------------------------------
 
   if (
-    statusFatura ===
-      'scheduled' ||
-    statusFatura ===
-      'waiting_for_gateway' ||
-    statusResumido ===
-      'pending' ||
-    statusPagamento ===
-      'pending' ||
-    statusPagamento ===
-      'in_process'
+    statusFatura === 'scheduled' ||
+    statusFatura === 'waiting_for_gateway' ||
+    statusResumido === 'pending' ||
+    statusPagamento === 'pending' ||
+    statusPagamento === 'in_process'
   ) {
-
     /*
-     * Não derrubamos a assinatura.
-     *
-     * A cobrança ainda está sendo processada.
+     * Não alteramos a assinatura por uma cobrança
+     * que ainda está sendo processada.
      */
 
     return {
       processado: true,
-
-      status:
-        'aguardando_pagamento',
-
+      status: 'aguardando_pagamento',
       pagamento,
-
       assinatura: null
     };
   }
 
-  // ==========================================================
-  // RECYCLING
-  // ==========================================================
+  // ----------------------------------------------------------
+  // NOVAS TENTATIVAS DE COBRANÇA
+  // ----------------------------------------------------------
 
-  if (
-    statusFatura ===
-    'recycling'
-  ) {
-
-    /*
-     * O Mercado Pago está tentando novamente
-     * realizar a cobrança.
-     *
-     * Não marcamos a assinatura como
-     * inadimplente neste momento.
-     */
-
+  if (statusFatura === 'recycling') {
     console.warn(
-      'Cobrança em recycling. Aguardando novas tentativas do Mercado Pago:',
+      'Cobrança em nova tentativa pelo Mercado Pago:',
       {
-        pagamento:
-          pagamentoId,
-
-        assinatura:
-          mercadoPagoSubscriptionId
+        pagamento: pagamentoId,
+        assinatura: assinaturaMPId
       }
     );
 
     return {
       processado: true,
-
-      status:
-        'aguardando_nova_tentativa',
-
+      status: 'aguardando_nova_tentativa',
       pagamento,
-
       assinatura: null
     };
   }
 
-  // ==========================================================
+  // ----------------------------------------------------------
   // COBRANÇA RECUSADA
-  // ==========================================================
+  // ----------------------------------------------------------
 
   if (
-    statusPagamento ===
-      'rejected' ||
-    statusResumido ===
-      'rejected'
+    statusPagamento === 'rejected' ||
+    statusResumido === 'rejected'
   ) {
-
     /*
-     * IMPORTANTE:
+     * Uma cobrança recusada isoladamente não cancela
+     * nem torna a assinatura inadimplente.
      *
-     * Uma cobrança recusada isoladamente não
-     * significa que a assinatura inteira está
-     * inadimplente.
-     *
-     * O Mercado Pago pode realizar novas tentativas.
-     *
-     * Por isso consultamos a assinatura real.
+     * O Mercado Pago pode tentar cobrar novamente.
+     * Sincronizamos o estado real da assinatura.
      */
 
     const sincronizacao =
       await sincronizarAssinaturaMercadoPago(
-        mercadoPagoSubscriptionId
+        assinaturaMPId
       );
-
-    if (
-      sincronizacao?.banco
-    ) {
-
-      console.warn(
-        'Cobrança recusada. Assinatura sincronizada com o Mercado Pago:',
-        {
-          pagamento:
-            pagamentoId,
-
-          assinatura:
-            mercadoPagoSubscriptionId,
-
-          statusAssinatura:
-            sincronizacao.status
-        }
-      );
-
-      return {
-        processado: true,
-
-        status:
-          'cobranca_recusada',
-
-        pagamento,
-
-        assinatura:
-          sincronizacao.banco
-      };
-    }
-
-    /*
-     * Se a assinatura ainda não estiver
-     * no banco, não criamos registro novo.
-     */
 
     return {
       processado: true,
-
-      status:
-        'cobranca_recusada',
-
+      status: 'cobranca_recusada',
       pagamento,
-
-      assinatura: null
+      assinatura: sincronizacao?.banco || null
     };
   }
 
-  // ==========================================================
-  // OUTROS ESTADOS
-  // ==========================================================
+  // ----------------------------------------------------------
+  // ESTADO NÃO RECONHECIDO
+  // ----------------------------------------------------------
 
   console.warn(
     'Status de cobrança não tratado:',
     {
-      pagamento:
-        pagamentoId,
-
-      assinatura:
-        mercadoPagoSubscriptionId,
-
+      pagamento: pagamentoId,
+      assinatura: assinaturaMPId,
       statusFatura,
-
       statusResumido,
-
       statusPagamento
     }
   );
 
-  /*
-   * Mesmo sem alteração, o evento foi
-   * consultado corretamente.
-   */
-
   return {
     processado: false,
-
     status:
       statusFatura ||
       statusResumido ||
       statusPagamento ||
       'desconhecido',
-
     pagamento,
-
     assinatura: null
   };
 }
 
 // ============================================================
-// WEBHOOK
+// ROTA DO WEBHOOK
 // ============================================================
 
 /*
- * IMPORTANTE:
- *
- * O router já é montado no server/index.js assim:
+ * Esta rota é montada no servidor com:
  *
  * app.use(
  *   '/api/mercado-pago/webhook',
  *   mercadoPagoWebhookRouter
  * );
  *
- * Portanto aqui deve ser apenas "/".
- *
  * URL final:
  *
  * POST /api/mercado-pago/webhook
  */
 
-router.post(
-  '/',
-  async (req, res) => {
+router.post('/', async (req, res) => {
+  const eventoId =
+    req.body?.id ||
+    req.body?.event_id ||
+    null;
 
-    const eventoId =
-      req.body?.id ||
-      req.body?.event_id ||
-      null;
+  const tipo =
+    req.body?.type ||
+    null;
 
-    const tipo =
-      req.body?.type ||
-      null;
+  const action =
+    req.body?.action ||
+    null;
 
-    const action =
-      req.body?.action ||
-      null;
+  const dataId = extrairDataId(req);
 
-    const dataId =
-      req.query['data.id'] ||
-      req.query.data_id ||
-      req.body?.data?.id ||
-      null;
+  try {
+    console.log(
+      'Webhook Mercado Pago recebido:',
+      {
+        evento_id: eventoId,
+        tipo,
+        action,
+        data_id: dataId
+      }
+    );
 
-    try {
+    // --------------------------------------------------------
+    // VALIDAR ASSINATURA CRIPTOGRÁFICA
+    // --------------------------------------------------------
 
-      console.log(
-        'Webhook Mercado Pago recebido:',
-        {
-          evento_id:
-            eventoId,
-
-          type:
-            tipo,
-
-          action,
-
-          data_id:
-            dataId
-        }
+    if (!validarAssinaturaWebhook(req)) {
+      console.error(
+        'Webhook rejeitado: assinatura inválida.'
       );
 
-      // ======================================================
-      // VALIDAR ASSINATURA
-      // ======================================================
-
-      const assinaturaValida =
-        validarAssinaturaWebhook(
-          req
-        );
-
-      if (!assinaturaValida) {
-
-        console.error(
-          'Webhook Mercado Pago rejeitado: assinatura inválida.'
-        );
-
-        return res
-          .status(401)
-          .json({
-            ok: false,
-            erro:
-              'Webhook não autorizado.'
-          });
-      }
-
-      // ======================================================
-      // VALIDAR DATA.ID
-      // ======================================================
-
-      if (!dataId) {
-
-        console.error(
-          'Webhook sem data.id.'
-        );
-
-        return res
-          .status(400)
-          .json({
-            ok: false,
-            erro:
-              'ID da notificação não informado.'
-          });
-      }
-
-      // ======================================================
-      // IDEMPOTÊNCIA
-      // ======================================================
-
-      const registro =
-        await registrarEventoWebhook({
-          eventoId,
-          tipo,
-          action,
-          dataId
-        });
-
-      /*
-       * Evento já existe.
-       *
-       * Se ele já foi processado com sucesso,
-       * podemos responder 200 imediatamente.
-       */
-
-      if (
-        !registro.novo &&
-        registro.registro?.processado === true
-      ) {
-
-        console.log(
-          'Webhook duplicado já processado:',
-          eventoId
-        );
-
-        return res
-          .status(200)
-          .json({
-            ok: true,
-            duplicado: true,
-            processado_anteriormente: true
-          });
-      }
-
-      /*
-       * Evento existe, mas processado = FALSE.
-       *
-       * Isso significa que uma tentativa anterior
-       * falhou.
-       *
-       * Portanto devemos processar novamente.
-       */
-
-      if (
-        !registro.novo &&
-        registro.registro?.processado === false
-      ) {
-
-        console.warn(
-          'Webhook anteriormente falhou. Tentando processar novamente:',
-          {
-            evento_id:
-              eventoId,
-
-            erro_anterior:
-              registro.registro?.erro
-          }
-        );
-      }
-
-      // ======================================================
-      // SUBSCRIPTION PREAPPROVAL
-      // ======================================================
-
-      if (
-        tipo ===
-        'subscription_preapproval'
-      ) {
-
-        const resultado =
-          await processarEventoAssinatura(
-            dataId
-          );
-
-        /*
-         * Mesmo que a assinatura não exista
-         * localmente, a consulta ao Mercado Pago
-         * foi feita com sucesso.
-         *
-         * Portanto não precisamos deixar o Mercado Pago
-         * reenviando indefinidamente o mesmo evento.
-         */
-
-        await marcarEventoProcessado(
-          eventoId
-        );
-
-        if (
-          !resultado.encontrada
-        ) {
-
-          console.warn(
-            'Assinatura Mercado Pago não encontrada no banco:',
-            dataId
-          );
-
-          return res
-            .status(200)
-            .json({
-              ok: true,
-              processado: false,
-              motivo:
-                'Assinatura não encontrada no banco.',
-              status:
-                resultado.status
-            });
-        }
-
-        console.log(
-          'Assinatura sincronizada com Mercado Pago:',
-          {
-            id:
-              resultado.atualizada.id,
-
-            mercado_pago_id:
-              dataId,
-
-            status:
-              resultado.atualizada.status
-          }
-        );
-
-        return res
-          .status(200)
-          .json({
-            ok: true,
-            processado: true,
-            tipo,
-            action,
-
-            assinatura:
-              resultado.atualizada
-          });
-      }
-
-      // ======================================================
-      // COBRANÇA RECORRENTE
-      // ======================================================
-
-      if (
-        tipo ===
-        'subscription_authorized_payment'
-      ) {
-
-        const resultado =
-          await processarCobrancaRecorrente(
-            dataId
-          );
-
-        await marcarEventoProcessado(
-          eventoId
-        );
-
-        console.log(
-          'Cobrança recorrente processada:',
-          {
-            pagamento:
-              dataId,
-
-            status:
-              resultado.status,
-
-            processado:
-              resultado.processado
-          }
-        );
-
-        return res
-          .status(200)
-          .json({
-            ok: true,
-
-            processado:
-              resultado.processado,
-
-            status:
-              resultado.status,
-
-            assinatura:
-              resultado.assinatura || null
-          });
-      }
-
-      // ======================================================
-      // PLANO ATUALIZADO
-      // ======================================================
-
-      if (
-        tipo ===
-        'subscription_preapproval_plan'
-      ) {
-
-        console.log(
-          'Evento de plano recebido:',
-          dataId
-        );
-
-        await marcarEventoProcessado(
-          eventoId
-        );
-
-        return res
-          .status(200)
-          .json({
-            ok: true,
-            processado: false,
-            motivo:
-              'Evento de plano recebido.'
-          });
-      }
-
-      // ======================================================
-      // OUTROS EVENTOS
-      // ======================================================
-
-      console.log(
-        'Webhook ignorado. Tipo:',
-        tipo
+      return respostaErro(
+        res,
+        401,
+        'Webhook não autorizado.'
       );
+    }
 
-      await marcarEventoProcessado(
+    // --------------------------------------------------------
+    // VALIDAR IDENTIFICADOR DO RECURSO
+    // --------------------------------------------------------
+
+    if (!dataId) {
+      return respostaErro(
+        res,
+        400,
+        'ID do recurso não informado.'
+      );
+    }
+
+    // --------------------------------------------------------
+    // REGISTRAR EVENTO
+    // --------------------------------------------------------
+
+    const registro = await registrarEventoWebhook({
+      eventoId,
+      tipo,
+      action,
+      dataId
+    });
+
+    /*
+     * Se o evento já foi concluído anteriormente,
+     * não repetimos os efeitos.
+     *
+     * Eventos anteriores que falharam podem ser
+     * tentados novamente.
+     */
+
+    if (
+      !registro.novo &&
+      registro.registro?.processado === true
+    ) {
+      console.log(
+        'Webhook duplicado já processado:',
         eventoId
       );
 
-      return res
-        .status(200)
-        .json({
-          ok: true,
-          ignorado: true,
-          tipo
-        });
+      return res.status(200).json({
+        ok: true,
+        duplicado: true,
+        processado_anteriormente: true
+      });
+    }
 
-    } catch (err) {
-
-      console.error(
-        'Erro ao processar webhook Mercado Pago:',
-        err
+    if (
+      !registro.novo &&
+      !registro.registro
+    ) {
+      throw new Error(
+        'Não foi possível consultar o registro do evento.'
       );
+    }
+
+    if (
+      !registro.novo &&
+      registro.registro?.processado === false
+    ) {
+      console.warn(
+        'Evento anterior não concluído. Nova tentativa:',
+        {
+          evento_id: eventoId,
+          erro_anterior: registro.registro.erro
+        }
+      );
+    }
+
+    // --------------------------------------------------------
+    // EVENTO DE ASSINATURA
+    // --------------------------------------------------------
+
+    if (tipo === 'subscription_preapproval') {
+      const resultado =
+        await processarEventoAssinatura(dataId);
 
       /*
-       * Mantemos processado = FALSE.
-       *
-       * Assim, caso o Mercado Pago envie novamente
-       * o mesmo evento, o sistema poderá tentar
-       * processá-lo novamente.
+       * Uma assinatura ausente localmente não deve
+       * ser criada automaticamente pelo webhook.
        */
 
-      try {
-
-        await registrarErroEvento(
-          eventoId,
-          err
+      if (!resultado.encontrada) {
+        console.warn(
+          'Assinatura não encontrada no banco local:',
+          dataId
         );
 
-      } catch (erroBanco) {
+        /*
+         * Status desconhecido ou recurso ainda não
+         * vinculado localmente: registramos a notificação
+         * para evitar repetições indefinidas.
+         */
+        await marcarEventoProcessado(eventoId);
 
-        console.error(
-          'Erro ao registrar falha do webhook:',
-          erroBanco.message
+        return res.status(200).json({
+          ok: true,
+          processado: false,
+          motivo:
+            'Assinatura não encontrada ou não sincronizada.',
+          status: resultado.status || null
+        });
+      }
+
+      if (resultado.ignorada) {
+        /*
+         * Status desconhecido não modifica a assinatura.
+         * O evento foi recebido e tratado sem alteração.
+         */
+        await marcarEventoProcessado(eventoId);
+
+        return res.status(200).json({
+          ok: true,
+          processado: false,
+          motivo: 'Status de assinatura não mapeado.'
+        });
+      }
+
+      await marcarEventoProcessado(eventoId);
+
+      console.log(
+        'Assinatura sincronizada:',
+        {
+          assinatura_id: resultado.atualizada.id,
+          mercado_pago_id: dataId,
+          status: resultado.atualizada.status
+        }
+      );
+
+      return res.status(200).json({
+        ok: true,
+        processado: true,
+        tipo,
+        action,
+        assinatura: resultado.atualizada
+      });
+    }
+
+    // --------------------------------------------------------
+    // EVENTO DE PAGAMENTO RECORRENTE
+    // --------------------------------------------------------
+
+    if (tipo === 'subscription_authorized_payment') {
+      const resultado =
+        await processarCobrancaRecorrente(dataId);
+
+      /*
+       * Se a assinatura não foi sincronizada ou o
+       * estado não pôde ser tratado, devolvemos erro
+       * para que a notificação possa ser reenviada.
+       */
+
+      if (!resultado.processado) {
+        throw new Error(
+          `Cobrança não concluída: ${resultado.status || 'estado desconhecido'}`
         );
       }
 
-      return res
-        .status(500)
-        .json({
-          ok: false,
-          erro:
-            'Erro ao processar webhook.'
-        });
+      await marcarEventoProcessado(eventoId);
+
+      console.log(
+        'Cobrança recorrente tratada:',
+        {
+          pagamento: dataId,
+          status: resultado.status
+        }
+      );
+
+      return res.status(200).json({
+        ok: true,
+        processado: true,
+        status: resultado.status,
+        assinatura: resultado.assinatura || null
+      });
     }
+
+    // --------------------------------------------------------
+    // EVENTO DE PLANO
+    // --------------------------------------------------------
+
+    if (tipo === 'subscription_preapproval_plan') {
+      console.log(
+        'Evento de plano recebido:',
+        dataId
+      );
+
+      await marcarEventoProcessado(eventoId);
+
+      return res.status(200).json({
+        ok: true,
+        processado: false,
+        motivo: 'Evento de plano recebido.'
+      });
+    }
+
+    // --------------------------------------------------------
+    // EVENTO NÃO UTILIZADO PELO SISTEMA
+    // --------------------------------------------------------
+
+    console.log(
+      'Evento Mercado Pago não utilizado:',
+      {
+        tipo,
+        action,
+        data_id: dataId
+      }
+    );
+
+    await marcarEventoProcessado(eventoId);
+
+    return res.status(200).json({
+      ok: true,
+      ignorado: true,
+      tipo,
+      action
+    });
+  } catch (err) {
+    console.error(
+      'Erro ao processar webhook Mercado Pago:',
+      err
+    );
+
+    /*
+     * Se o evento tem ID, deixamos processado = FALSE
+     * para permitir uma nova tentativa.
+     */
+
+    try {
+      await registrarErroEvento(
+        eventoId,
+        err
+      );
+    } catch (erroBanco) {
+      console.error(
+        'Não foi possível registrar o erro do webhook:',
+        erroBanco.message
+      );
+    }
+
+    return res.status(500).json({
+      ok: false,
+      erro: 'Erro ao processar webhook.'
+    });
   }
-);
+});
 
 module.exports = router;

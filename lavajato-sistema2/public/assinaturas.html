@@ -1,48 +1,18 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
-
 <head>
-
   <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-
->
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minha assinatura | Orvix</title>
 
-  <link
-    rel="apple-touch-icon"
-    sizes="180x180"
-    href="/apple-touch-icon.png"
-  >
-
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="32x32"
-    href="/favicon-32x32.png"
-  >
-
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="16x16"
-    href="/favicon-16x16.png"
-  >
-
-  <link
-    rel="manifest"
-    href="/site.webmanifest"
-  >
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 
   <script src="https://sdk.mercadopago.com/js/v2"></script>
 
   <style>
-
     :root {
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
@@ -60,51 +30,25 @@ content="width=device-width, initial-scale=1.0"
       --success-bg: #ecfdf3;
       --danger: #dc2626;
       --danger-bg: #fef2f2;
-      --shadow-sm:
-        0 4px 14px rgba(15, 23, 42, .05);
-      --shadow:
-        0 18px 50px rgba(15, 23, 42, .08);
-      --shadow-lg:
-        0 30px 80px rgba(15, 23, 42, .13);
+      --shadow-sm: 0 4px 14px rgba(15, 23, 42, .05);
+      --shadow: 0 18px 50px rgba(15, 23, 42, .08);
+      --shadow-lg: 0 30px 80px rgba(15, 23, 42, .13);
       --radius: 22px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family:
-        Inter,
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(
-          circle at 15% 10%,
-          rgba(37, 99, 235, .13),
-          transparent 32%
-        ),
-        radial-gradient(
-          circle at 85% 15%,
-          rgba(96, 165, 250, .10),
-          transparent 28%
-        ),
-        linear-gradient(
-          180deg,
-          #f8fafc 0%,
-          #f1f5f9 100%
-        );
+        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, .13), transparent 32%),
+        radial-gradient(circle at 85% 15%, rgba(96, 165, 250, .10), transparent 28%),
+        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     }
 
     body::before {
@@ -113,59 +57,23 @@ content="width=device-width, initial-scale=1.0"
       inset: 0;
       pointer-events: none;
       background:
-        linear-gradient(
-          rgba(255,255,255,.35) 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          90deg,
-          rgba(255,255,255,.35) 1px,
-          transparent 1px
-        );
+        linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px);
       background-size: 42px 42px;
-      mask-image:
-        linear-gradient(
-          to bottom,
-          rgba(0,0,0,.5),
-          transparent 75%
-        );
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.5), transparent 75%);
       opacity: .35;
       z-index: -1;
     }
 
-    button,
-    input,
-    select {
-      font: inherit;
-    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button, input, select { outline: none; }
 
-    button {
-      cursor: pointer;
-    }
+    .page { min-height: 100vh; padding: 34px 20px 70px; }
 
-    button,
-    input,
-    select {
-      outline: none;
-    }
+    .container { width: 100%; max-width: 1080px; margin: 0 auto; }
 
-    .page {
-      min-height: 100vh;
-      padding:
-        34px
-        20px
-        70px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-
-    /* ============================================================
-       HEADER
-       ============================================================ */
+    /* HEADER */
 
     .topbar {
       display: flex;
@@ -174,11 +82,7 @@ content="width=device-width, initial-scale=1.0"
       margin-bottom: 30px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .brand { display: flex; align-items: center; gap: 12px; }
 
     .brand-icon {
       width: 44px;
@@ -187,15 +91,8 @@ content="width=device-width, initial-scale=1.0"
       place-items: center;
       border-radius: 14px;
       color: #fff;
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #1d4ed8
-        );
-      box-shadow:
-        0 10px 24px
-        rgba(37, 99, 235, .28);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, .28);
       font-size: 20px;
       font-weight: 900;
     }
@@ -219,13 +116,10 @@ content="width=device-width, initial-scale=1.0"
       align-items: center;
       gap: 7px;
       padding: 9px 13px;
-      border:
-        1px solid
-        #dbeafe;
+      border: 1px solid #dbeafe;
       border-radius: 999px;
       color: #1d4ed8;
-      background:
-        rgba(239, 246, 255, .85);
+      background: rgba(239, 246, 255, .85);
       font-size: 12px;
       font-weight: 700;
     }
@@ -235,32 +129,20 @@ content="width=device-width, initial-scale=1.0"
       height: 7px;
       border-radius: 50%;
       background: #22c55e;
-      box-shadow:
-        0 0 0 4px
-        rgba(34, 197, 94, .12);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, .12);
     }
 
-    /* ============================================================
-       HERO
-       ============================================================ */
+    /* HERO */
 
     .hero {
       position: relative;
       overflow: hidden;
       padding: 42px;
       margin-bottom: 22px;
-      border:
-        1px solid
-        rgba(255,255,255,.8);
+      border: 1px solid rgba(255,255,255,.8);
       border-radius: 28px;
       color: #fff;
-      background:
-        linear-gradient(
-          135deg,
-          #0f172a 0%,
-          #172554 48%,
-          #1d4ed8 100%
-        );
+      background: linear-gradient(135deg, #0f172a 0%, #172554 48%, #1d4ed8 100%);
       box-shadow: var(--shadow-lg);
     }
 
@@ -272,8 +154,7 @@ content="width=device-width, initial-scale=1.0"
       top: -150px;
       right: -60px;
       border-radius: 50%;
-      background:
-        rgba(96, 165, 250, .18);
+      background: rgba(96, 165, 250, .18);
       filter: blur(2px);
     }
 
@@ -285,15 +166,10 @@ content="width=device-width, initial-scale=1.0"
       bottom: -100px;
       left: 30%;
       border-radius: 50%;
-      background:
-        rgba(255,255,255,.06);
+      background: rgba(255,255,255,.06);
     }
 
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 760px;
-    }
+    .hero-content { position: relative; z-index: 2; max-width: 760px; }
 
     .eyebrow {
       display: inline-flex;
@@ -301,13 +177,10 @@ content="width=device-width, initial-scale=1.0"
       gap: 8px;
       margin: 0 0 14px;
       padding: 7px 11px;
-      border:
-        1px solid
-        rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.16);
       border-radius: 999px;
       color: #bfdbfe;
-      background:
-        rgba(255,255,255,.07);
+      background: rgba(255,255,255,.07);
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
@@ -320,15 +193,12 @@ content="width=device-width, initial-scale=1.0"
       height: 6px;
       border-radius: 50%;
       background: #60a5fa;
-      box-shadow:
-        0 0 0 5px
-        rgba(96,165,250,.12);
+      box-shadow: 0 0 0 5px rgba(96,165,250,.12);
     }
 
     h1 {
       margin: 0;
-      font-size:
-        clamp(30px, 5vw, 46px);
+      font-size: clamp(30px, 5vw, 46px);
       line-height: 1.05;
       letter-spacing: -.045em;
     }
@@ -341,12 +211,7 @@ content="width=device-width, initial-scale=1.0"
       line-height: 1.7;
     }
 
-    .hero-points {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 24px;
-    }
+    .hero-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 
     .hero-point {
       display: inline-flex;
@@ -355,24 +220,15 @@ content="width=device-width, initial-scale=1.0"
       padding: 8px 11px;
       border-radius: 10px;
       color: #e2e8f0;
-      background:
-        rgba(255,255,255,.07);
-      border:
-        1px solid
-        rgba(255,255,255,.08);
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.08);
       font-size: 12px;
       font-weight: 600;
     }
 
-    .hero-point::before {
-      content: "✓";
-      color: #60a5fa;
-      font-weight: 900;
-    }
+    .hero-point::before { content: "✓"; color: #60a5fa; font-weight: 900; }
 
-    /* ============================================================
-       ALERTAS
-       ============================================================ */
+    /* ALERTAS */
 
     .alert {
       display: none;
@@ -384,18 +240,13 @@ content="width=device-width, initial-scale=1.0"
       font-size: 13px;
       font-weight: 600;
       line-height: 1.5;
-      animation:
-        alertIn .25s ease;
+      animation: alertIn .25s ease;
     }
 
-    .alert.show {
-      display: flex;
-    }
+    .alert.show { display: flex; }
 
     .alert-icon {
-      flex:
-        0 0
-        30px;
+      flex: 0 0 30px;
       width: 30px;
       height: 30px;
       display: grid;
@@ -406,68 +257,35 @@ content="width=device-width, initial-scale=1.0"
 
     .alert-error {
       color: #991b1b;
-      background:
-        linear-gradient(
-          135deg,
-          #fff7f7,
-          #fef2f2
-        );
-      border:
-        1px solid
-        #fecaca;
+      background: linear-gradient(135deg, #fff7f7, #fef2f2);
+      border: 1px solid #fecaca;
     }
 
-    .alert-error .alert-icon {
-      color: #b91c1c;
-      background: #fee2e2;
-    }
+    .alert-error .alert-icon { color: #b91c1c; background: #fee2e2; }
 
     .alert-success {
       color: #166534;
-      background:
-        linear-gradient(
-          135deg,
-          #f4fff8,
-          #ecfdf3
-        );
-      border:
-        1px solid
-        #bbf7d0;
+      background: linear-gradient(135deg, #f4fff8, #ecfdf3);
+      border: 1px solid #bbf7d0;
     }
 
-    .alert-success .alert-icon {
-      color: #15803d;
-      background: #dcfce7;
-    }
+    .alert-success .alert-icon { color: #15803d; background: #dcfce7; }
 
     @keyframes alertIn {
-      from {
-        opacity: 0;
-        transform: translateY(-6px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ============================================================
-       CARD
-       ============================================================ */
+    /* CARD */
 
     .card {
       position: relative;
       overflow: hidden;
-      border:
-        1px solid
-        rgba(226,232,240,.85);
+      border: 1px solid rgba(226,232,240,.85);
       border-radius: 24px;
-      background:
-        rgba(255,255,255,.88);
+      background: rgba(255,255,255,.88);
       box-shadow: var(--shadow);
-      backdrop-filter:
-        blur(16px);
+      backdrop-filter: blur(16px);
     }
 
     .card-header {
@@ -476,18 +294,11 @@ content="width=device-width, initial-scale=1.0"
       justify-content: space-between;
       gap: 20px;
       padding: 25px 28px;
-      border-bottom:
-        1px solid
-        var(--border-light);
-      background:
-        rgba(255,255,255,.72);
+      border-bottom: 1px solid var(--border-light);
+      background: rgba(255,255,255,.72);
     }
 
-    .card-heading {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+    .card-heading { display: flex; align-items: center; gap: 14px; }
 
     .card-icon {
       width: 44px;
@@ -497,26 +308,15 @@ content="width=device-width, initial-scale=1.0"
       flex-shrink: 0;
       border-radius: 13px;
       color: #2563eb;
-      background:
-        #eff6ff;
-      border:
-        1px solid
-        #dbeafe;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
       font-size: 18px;
       font-weight: 900;
     }
 
-    .card-title {
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: -.025em;
-    }
+    .card-title { margin: 0; font-size: 18px; letter-spacing: -.025em; }
 
-    .card-description {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .card-description { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
 
     .card-status {
       display: inline-flex;
@@ -526,9 +326,7 @@ content="width=device-width, initial-scale=1.0"
       border-radius: 999px;
       color: #166534;
       background: #f0fdf4;
-      border:
-        1px solid
-        #dcfce7;
+      border: 1px solid #dcfce7;
       font-size: 11px;
       font-weight: 800;
     }
@@ -541,13 +339,9 @@ content="width=device-width, initial-scale=1.0"
       background: #22c55e;
     }
 
-    .body {
-      padding: 28px;
-    }
+    .body { padding: 28px; }
 
-    /* ============================================================
-       EMPRESA
-       ============================================================ */
+    /* EMPRESA */
 
     .company-info {
       position: relative;
@@ -557,16 +351,9 @@ content="width=device-width, initial-scale=1.0"
       margin-bottom: 30px;
       padding: 17px 18px;
       overflow: hidden;
-      border:
-        1px solid
-        #dbeafe;
+      border: 1px solid #dbeafe;
       border-radius: 16px;
-      background:
-        linear-gradient(
-          135deg,
-          #f8fbff,
-          #eff6ff
-        );
+      background: linear-gradient(135deg, #f8fbff, #eff6ff);
     }
 
     .company-info::after {
@@ -577,8 +364,7 @@ content="width=device-width, initial-scale=1.0"
       right: -45px;
       top: -50px;
       border-radius: 50%;
-      background:
-        rgba(37,99,235,.06);
+      background: rgba(37,99,235,.06);
     }
 
     .company-avatar {
@@ -589,15 +375,8 @@ content="width=device-width, initial-scale=1.0"
       flex-shrink: 0;
       border-radius: 13px;
       color: #fff;
-      background:
-        linear-gradient(
-          135deg,
-          #3b82f6,
-          #1d4ed8
-        );
-      box-shadow:
-        0 8px 18px
-        rgba(37,99,235,.20);
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      box-shadow: 0 8px 18px rgba(37,99,235,.20);
       font-size: 16px;
       font-weight: 900;
     }
@@ -611,16 +390,9 @@ content="width=device-width, initial-scale=1.0"
       letter-spacing: .08em;
     }
 
-    .company-name {
-      position: relative;
-      z-index: 2;
-      font-size: 15px;
-      font-weight: 800;
-    }
+    .company-name { position: relative; z-index: 2; font-size: 15px; font-weight: 800; }
 
-    /* ============================================================
-       TÍTULOS
-       ============================================================ */
+    /* TÍTULOS */
 
     .section-heading {
       display: flex;
@@ -630,28 +402,15 @@ content="width=device-width, initial-scale=1.0"
       margin-bottom: 16px;
     }
 
-    .section-heading h3 {
-      margin: 0;
-      font-size: 17px;
-      letter-spacing: -.02em;
-    }
+    .section-heading h3 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
 
-    .section-heading span {
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .section-heading span { color: var(--muted); font-size: 12px; }
 
-    /* ============================================================
-       PLANOS
-       ============================================================ */
+    /* PLANOS */
 
     .plans {
       display: grid;
-      grid-template-columns:
-        repeat(
-          auto-fit,
-          minmax(250px, 1fr)
-        );
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 18px;
     }
 
@@ -662,20 +421,10 @@ content="width=device-width, initial-scale=1.0"
       min-height: 310px;
       padding: 24px;
       overflow: hidden;
-      border:
-        1px solid
-        var(--border);
+      border: 1px solid var(--border);
       border-radius: 20px;
-      background:
-        linear-gradient(
-          180deg,
-          #ffffff 0%,
-          #fbfdff 100%
-        );
-      transition:
-        transform .25s ease,
-        box-shadow .25s ease,
-        border-color .25s ease;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
     }
 
     .plan::before {
@@ -685,37 +434,20 @@ content="width=device-width, initial-scale=1.0"
       left: 0;
       right: 0;
       height: 3px;
-      background:
-        linear-gradient(
-          90deg,
-          #2563eb,
-          #60a5fa
-        );
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
       opacity: 0;
-      transition:
-        opacity .25s ease;
+      transition: opacity .25s ease;
     }
 
     .plan:hover {
-      transform:
-        translateY(-5px);
-      border-color:
-        #bfdbfe;
-      box-shadow:
-        0 20px 45px
-        rgba(37,99,235,.11);
+      transform: translateY(-5px);
+      border-color: #bfdbfe;
+      box-shadow: 0 20px 45px rgba(37,99,235,.11);
     }
 
-    .plan:hover::before {
-      opacity: 1;
-    }
+    .plan:hover::before { opacity: 1; }
 
-    .plan-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
+    .plan-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
     .plan-badge {
       display: inline-flex;
@@ -729,12 +461,7 @@ content="width=device-width, initial-scale=1.0"
       letter-spacing: .07em;
     }
 
-    .plan-name {
-      margin-top: 16px;
-      font-size: 21px;
-      font-weight: 850;
-      letter-spacing: -.035em;
-    }
+    .plan-name { margin-top: 16px; font-size: 21px; font-weight: 850; letter-spacing: -.035em; }
 
     .plan-description {
       min-height: 48px;
@@ -744,12 +471,7 @@ content="width=device-width, initial-scale=1.0"
       line-height: 1.65;
     }
 
-    .plan-divider {
-      height: 1px;
-      margin: 18px 0;
-      background:
-        var(--border-light);
-    }
+    .plan-divider { height: 1px; margin: 18px 0; background: var(--border-light); }
 
     .plan-price-label {
       color: var(--muted);
@@ -759,25 +481,11 @@ content="width=device-width, initial-scale=1.0"
       letter-spacing: .07em;
     }
 
-    .plan-price {
-      margin-top: 4px;
-      font-size: 31px;
-      font-weight: 900;
-      letter-spacing: -.045em;
-    }
+    .plan-price { margin-top: 4px; font-size: 31px; font-weight: 900; letter-spacing: -.045em; }
 
-    .plan-price small {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0;
-    }
+    .plan-price small { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
 
-    .plan-period {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .plan-period { margin-top: 4px; color: var(--muted); font-size: 12px; }
 
     .plan-button {
       width: 100%;
@@ -787,48 +495,24 @@ content="width=device-width, initial-scale=1.0"
       border: 0;
       border-radius: 12px;
       color: #fff;
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #1d4ed8
-        );
-      box-shadow:
-        0 9px 20px
-        rgba(37,99,235,.18);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 9px 20px rgba(37,99,235,.18);
       font-size: 13px;
       font-weight: 800;
-      transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        filter .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
     }
 
     .plan-button:hover {
-      transform:
-        translateY(-1px);
-      filter:
-        brightness(1.04);
-      box-shadow:
-        0 13px 26px
-        rgba(37,99,235,.25);
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow: 0 13px 26px rgba(37,99,235,.25);
     }
 
-    .plan-button:active {
-      transform:
-        translateY(0);
-    }
+    .plan-button:active { transform: translateY(0); }
 
-    /* ============================================================
-       PAGAMENTO
-       ============================================================ */
+    /* PAGAMENTO */
 
-    .payment-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+    .payment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 
     .payment-header-icon {
       width: 34px;
@@ -842,16 +526,9 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 900;
     }
 
-    .payment-header strong {
-      font-size: 15px;
-    }
+    .payment-header strong { font-size: 15px; }
 
-    .payment-header span {
-      display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 11px;
-    }
+    .payment-header span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
 
     .selected-plan {
       position: relative;
@@ -862,16 +539,9 @@ content="width=device-width, initial-scale=1.0"
       margin-bottom: 24px;
       padding: 20px;
       overflow: hidden;
-      border:
-        1px solid
-        #bfdbfe;
+      border: 1px solid #bfdbfe;
       border-radius: 17px;
-      background:
-        linear-gradient(
-          135deg,
-          #eff6ff,
-          #f8fbff
-        );
+      background: linear-gradient(135deg, #eff6ff, #f8fbff);
     }
 
     .selected-plan::after {
@@ -882,8 +552,7 @@ content="width=device-width, initial-scale=1.0"
       right: -65px;
       top: -65px;
       border-radius: 50%;
-      background:
-        rgba(37,99,235,.07);
+      background: rgba(37,99,235,.07);
     }
 
     .selected-label {
@@ -894,18 +563,9 @@ content="width=device-width, initial-scale=1.0"
       letter-spacing: .08em;
     }
 
-    .selected-name {
-      margin-top: 5px;
-      font-size: 19px;
-      font-weight: 900;
-      letter-spacing: -.025em;
-    }
+    .selected-name { margin-top: 5px; font-size: 19px; font-weight: 900; letter-spacing: -.025em; }
 
-    .selected-period {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .selected-period { margin-top: 4px; color: var(--muted); font-size: 12px; }
 
     .selected-price {
       position: relative;
@@ -928,17 +588,12 @@ content="width=device-width, initial-scale=1.0"
 
     .form-shell {
       padding: 22px;
-      border:
-        1px solid
-        var(--border-light);
+      border: 1px solid var(--border-light);
       border-radius: 18px;
-      background:
-        #fbfdff;
+      background: #fbfdff;
     }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
+    .form-group { margin-bottom: 18px; }
 
     label {
       display: block;
@@ -948,72 +603,43 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 800;
     }
 
-    input,
-    select {
+    input, select {
       width: 100%;
       min-height: 46px;
-      padding:
-        0 13px;
-      border:
-        1px solid
-        #dbe2ea;
+      padding: 0 13px;
+      border: 1px solid #dbe2ea;
       border-radius: 11px;
       color: var(--text);
       background: #fff;
-      transition:
-        border-color .2s ease,
-        box-shadow .2s ease;
+      transition: border-color .2s ease, box-shadow .2s ease;
     }
 
-    input::placeholder {
-      color: #94a3b8;
-    }
+    input::placeholder { color: #94a3b8; }
 
-    input:hover,
-    select:hover {
-      border-color:
-        #cbd5e1;
-    }
+    input:hover, select:hover { border-color: #cbd5e1; }
 
-    input:focus,
-    select:focus {
-      border-color:
-        var(--primary);
-      box-shadow:
-        0 0 0 4px
-        rgba(37,99,235,.09);
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.09);
     }
 
     .mp-field {
       min-height: 46px;
-      padding:
-        0 12px;
+      padding: 0 12px;
       display: flex;
       align-items: center;
-      border:
-        1px solid
-        #dbe2ea;
+      border: 1px solid #dbe2ea;
       border-radius: 11px;
       background: #fff;
-      transition:
-        border-color .2s ease,
-        box-shadow .2s ease;
+      transition: border-color .2s ease, box-shadow .2s ease;
     }
 
     .mp-field:focus-within {
-      border-color:
-        var(--primary);
-      box-shadow:
-        0 0 0 4px
-        rgba(37,99,235,.09);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.09);
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns:
-        1fr 1fr;
-      gap: 15px;
-    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
     .security-box {
       display: flex;
@@ -1021,9 +647,7 @@ content="width=device-width, initial-scale=1.0"
       gap: 11px;
       margin-top: 18px;
       padding: 14px;
-      border:
-        1px solid
-        #e2e8f0;
+      border: 1px solid #e2e8f0;
       border-radius: 13px;
       background: #f8fafc;
     }
@@ -1041,104 +665,49 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 900;
     }
 
-    .security-text {
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.6;
-    }
+    .security-text { color: var(--muted); font-size: 11px; line-height: 1.6; }
 
-    .security-text strong {
-      display: block;
-      margin-bottom: 2px;
-      color: #334155;
-      font-size: 11px;
-    }
+    .security-text strong { display: block; margin-bottom: 2px; color: #334155; font-size: 11px; }
 
-    .actions {
-      display: flex;
-      gap: 11px;
-      margin-top: 23px;
-    }
+    .actions { display: flex; gap: 11px; margin-top: 23px; }
 
     .btn {
       min-height: 47px;
       padding: 0 18px;
-      border:
-        1px solid
-        transparent;
+      border: 1px solid transparent;
       border-radius: 12px;
       font-size: 13px;
       font-weight: 800;
-      transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        background .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
     }
 
     .btn-primary {
       flex: 1;
       color: #fff;
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #1d4ed8
-        );
-      box-shadow:
-        0 10px 22px
-        rgba(37,99,235,.18);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 10px 22px rgba(37,99,235,.18);
     }
 
     .btn-primary:hover {
-      transform:
-        translateY(-1px);
-      box-shadow:
-        0 14px 28px
-        rgba(37,99,235,.24);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(37,99,235,.24);
     }
 
-    .btn-secondary {
-      color: #334155;
-      background: #fff;
-      border-color:
-        #e2e8f0;
-    }
+    .btn-secondary { color: #334155; background: #fff; border-color: #e2e8f0; }
 
-    .btn-secondary:hover {
-      background: #f8fafc;
-      border-color:
-        #cbd5e1;
-    }
+    .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-    .btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-    .mp-loading {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 11px;
-      text-align: center;
-    }
+    .mp-loading { margin-top: 10px; color: var(--muted); font-size: 11px; text-align: center; }
 
-    /* ============================================================
-       ASSINATURA EXISTENTE
-       ============================================================ */
+    /* ASSINATURA EXISTENTE */
 
     .subscription-state {
       padding: 30px;
-      border:
-        1px solid
-        #dcfce7;
+      border: 1px solid #dcfce7;
       border-radius: 20px;
-      background:
-        linear-gradient(
-          135deg,
-          #f7fff9,
-          #ecfdf3
-        );
+      background: linear-gradient(135deg, #f7fff9, #ecfdf3);
     }
 
     .subscription-state-icon {
@@ -1154,11 +723,7 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 900;
     }
 
-    .subscription-state h3 {
-      margin: 0;
-      font-size: 23px;
-      letter-spacing: -.035em;
-    }
+    .subscription-state h3 { margin: 0; font-size: 23px; letter-spacing: -.035em; }
 
     .subscription-state p {
       max-width: 650px;
@@ -1170,17 +735,14 @@ content="width=device-width, initial-scale=1.0"
 
     .subscription-details {
       display: grid;
-      grid-template-columns:
-        repeat(3, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-top: 22px;
     }
 
     .subscription-detail {
       padding: 15px;
-      border:
-        1px solid
-        #dcfce7;
+      border: 1px solid #dcfce7;
       border-radius: 13px;
       background: rgba(255,255,255,.72);
     }
@@ -1193,12 +755,7 @@ content="width=device-width, initial-scale=1.0"
       letter-spacing: .07em;
     }
 
-    .subscription-detail-value {
-      margin-top: 5px;
-      color: #0f172a;
-      font-size: 14px;
-      font-weight: 800;
-    }
+    .subscription-detail-value { margin-top: 5px; color: #0f172a; font-size: 14px; font-weight: 800; }
 
     .subscription-status {
       display: inline-flex;
@@ -1212,20 +769,9 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 800;
     }
 
-    .subscription-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 22px;
-    }
+    /* SUCESSO */
 
-    /* ============================================================
-       SUCESSO
-       ============================================================ */
-
-    .success-state {
-      padding: 42px 25px;
-      text-align: center;
-    }
+    .success-state { padding: 42px 25px; text-align: center; }
 
     .success-icon {
       width: 76px;
@@ -1235,38 +781,19 @@ content="width=device-width, initial-scale=1.0"
       margin: 0 auto 20px;
       border-radius: 24px;
       color: #15803d;
-      background:
-        linear-gradient(
-          135deg,
-          #dcfce7,
-          #bbf7d0
-        );
-      box-shadow:
-        0 16px 35px
-        rgba(22,101,52,.12);
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      box-shadow: 0 16px 35px rgba(22,101,52,.12);
       font-size: 35px;
       font-weight: 900;
-      animation:
-        successPop .4s ease;
+      animation: successPop .4s ease;
     }
 
     @keyframes successPop {
-      from {
-        opacity: 0;
-        transform: scale(.75);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0; transform: scale(.75); }
+      to { opacity: 1; transform: scale(1); }
     }
 
-    .success-state h3 {
-      margin: 0;
-      font-size: 25px;
-      letter-spacing: -.04em;
-    }
+    .success-state h3 { margin: 0; font-size: 25px; letter-spacing: -.04em; }
 
     .success-state p {
       max-width: 570px;
@@ -1282,9 +809,7 @@ content="width=device-width, initial-scale=1.0"
       gap: 7px;
       margin-top: 20px;
       padding: 9px 13px;
-      border:
-        1px solid
-        #bbf7d0;
+      border: 1px solid #bbf7d0;
       border-radius: 999px;
       color: #166534;
       background: #f0fdf4;
@@ -1292,53 +817,32 @@ content="width=device-width, initial-scale=1.0"
       font-weight: 800;
     }
 
-    /* ============================================================
-       LOADING / EMPTY
-       ============================================================ */
+    /* LOADING / EMPTY */
 
-    .loading {
-      padding: 45px 20px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .loading { padding: 45px 20px; text-align: center; color: var(--muted); font-size: 13px; }
 
     .loading::before {
       content: "";
       display: block;
       width: 28px;
       height: 28px;
-      margin:
-        0 auto
-        12px;
-      border:
-        3px solid
-        #dbeafe;
-      border-top-color:
-        var(--primary);
+      margin: 0 auto 12px;
+      border: 3px solid #dbeafe;
+      border-top-color: var(--primary);
       border-radius: 50%;
-      animation:
-        spin .8s linear infinite;
+      animation: spin .8s linear infinite;
     }
 
-    @keyframes spin {
-      to {
-        transform:
-          rotate(360deg);
-      }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .empty {
       grid-column: 1 / -1;
       padding: 42px 20px;
       text-align: center;
       color: var(--muted);
-      border:
-        1px dashed
-        #cbd5e1;
+      border: 1px dashed #cbd5e1;
       border-radius: 16px;
-      background:
-        rgba(248,250,252,.8);
+      background: rgba(248,250,252,.8);
     }
 
     .empty::before {
@@ -1347,1020 +851,574 @@ content="width=device-width, initial-scale=1.0"
       place-items: center;
       width: 42px;
       height: 42px;
-      margin:
-        0 auto
-        12px;
+      margin: 0 auto 12px;
       border-radius: 12px;
       color: #64748b;
       background: #e2e8f0;
       font-weight: 900;
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
-    /* ============================================================
-       RESPONSIVE
-       ============================================================ */
+    /* RESPONSIVE */
 
     @media (max-width: 760px) {
-
-      .page {
-        padding:
-          18px
-          14px
-          45px;
-      }
-
-      .topbar {
-        margin-bottom: 18px;
-      }
-
-      .secure-badge {
-        display: none;
-      }
-
-      .hero {
-        padding: 29px 23px;
-        border-radius: 22px;
-        margin-bottom: 15px;
-      }
-
-      .hero-subtitle {
-        font-size: 13px;
-      }
-
-      .hero-points {
-        display: none;
-      }
-
-      .card {
-        border-radius: 20px;
-      }
-
-      .card-header {
-        padding: 20px;
-      }
-
-      .body {
-        padding: 20px;
-      }
-
-      .card-status {
-        display: none;
-      }
-
-      .company-info {
-        margin-bottom: 23px;
-      }
-
-      .plans {
-        grid-template-columns: 1fr;
-      }
-
-      .plan {
-        min-height: 285px;
-      }
-
-      .selected-plan {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .selected-price {
-        text-align: left;
-      }
-
-      .selected-price small {
-        text-align: left;
-      }
-
-      .form-shell {
-        padding: 16px;
-      }
-
-      .subscription-details {
-        grid-template-columns: 1fr;
-      }
+      .page { padding: 18px 14px 45px; }
+      .topbar { margin-bottom: 18px; }
+      .secure-badge { display: none; }
+      .hero { padding: 29px 23px; border-radius: 22px; margin-bottom: 15px; }
+      .hero-subtitle { font-size: 13px; }
+      .hero-points { display: none; }
+      .card { border-radius: 20px; }
+      .card-header { padding: 20px; }
+      .body { padding: 20px; }
+      .card-status { display: none; }
+      .company-info { margin-bottom: 23px; }
+      .plans { grid-template-columns: 1fr; }
+      .plan { min-height: 285px; }
+      .selected-plan { align-items: flex-start; flex-direction: column; }
+      .selected-price { text-align: left; }
+      .selected-price small { text-align: left; }
+      .form-shell { padding: 16px; }
+      .subscription-details { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 560px) {
-
-      .brand-text span {
-        display: none;
-      }
-
-      .brand-icon {
-        width: 40px;
-        height: 40px;
-      }
-
-      h1 {
-        font-size: 31px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-      }
-
-      .actions {
-        flex-direction: column-reverse;
-      }
-
-      .btn {
-        width: 100%;
-      }
-
-      .subscription-actions {
-        flex-direction: column;
-      }
-
-      .subscription-state {
-        padding: 24px 18px;
-      }
-
-      .success-state {
-        padding: 35px 15px;
-      }
+      .brand-text span { display: none; }
+      .brand-icon { width: 40px; height: 40px; }
+      h1 { font-size: 31px; }
+      .grid { grid-template-columns: 1fr; gap: 0; }
+      .actions { flex-direction: column-reverse; }
+      .btn { width: 100%; }
+      .subscription-state { padding: 24px 18px; }
+      .success-state { padding: 35px 15px; }
     }
 
+    /* AÇÕES DA ASSINATURA */
+
     .subscription-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 20px;
-}
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
 
-.subscription-actions button {
-  min-height: 44px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 10px;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-  transition: opacity 0.2s ease;
-}
+    .subscription-actions button {
+      min-height: 44px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      transition: opacity 0.2s ease;
+    }
 
-.subscription-actions button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
+    .subscription-actions button:disabled { opacity: 0.55; cursor: not-allowed; }
 
-.btn-primary {
-  background: #2563eb;
-  color: #fff;
-}
+    .btn-primary { background: #2563eb; color: #fff; }
 
-.btn-danger {
-  background: #dc2626;
-  color: #fff;
-}
+    .btn-danger { background: #dc2626; color: #fff; }
 
-#subscription-action-message {
-  margin-top: 12px;
-  font-size: 14px;
-  white-space: pre-line;
-}
+    @media (max-width: 560px) {
+      .subscription-actions { flex-direction: column; }
+      .subscription-actions button { width: 100%; }
+    }
 
-#subscription-action-message.success {
-  color: #15803d;
-}
+    #subscription-action-message {
+      margin-top: 12px;
+      font-size: 14px;
+      white-space: pre-line;
+    }
 
-#subscription-action-message.error {
-  color: #dc2626;
-}
+    #subscription-action-message.success { color: #15803d; }
 
-.modal-planos.hidden {
-display: none !important;
-}
+    #subscription-action-message.error { color: #dc2626; }
 
-.modal-planos {
-position: fixed;
-inset: 0;
-z-index: 9999;
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 20px;
-}
+    /* MODAL DE TROCA DE PLANO */
 
-.modal-planos-overlay {
-position: absolute;
-inset: 0;
-background: rgba(10, 15, 30, 0.72);
-backdrop-filter: blur(5px);
-}
+    .modal-planos.hidden { display: none !important; }
 
-.modal-planos-conteudo {
-position: relative;
-z-index: 1;
-width: min(760px, 100%);
-max-height: min(85vh, 800px);
-overflow-y: auto;
-padding: 26px;
-border: 1px solid var(--border, #e5e7eb);
-border-radius: 20px;
-background: var(--card-bg, #ffffff);
-color: var(--text, #172033);
-box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-}
+    .modal-planos {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-.modal-planos-header {
-display: flex;
-align-items: flex-start;
-justify-content: space-between;
-gap: 16px;
-margin-bottom: 24px;
-}
+    .modal-planos-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 15, 30, 0.72);
+      backdrop-filter: blur(5px);
+    }
 
-.modal-planos-header h2 {
-margin: 0 0 8px;
-font-size: 1.45rem;
-}
+    .modal-planos-conteudo {
+      position: relative;
+      z-index: 1;
+      width: min(760px, 100%);
+      max-height: min(85vh, 800px);
+      overflow-y: auto;
+      padding: 26px;
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 20px;
+      background: var(--card-bg, #ffffff);
+      color: var(--text, #172033);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    }
 
-.modal-planos-header p {
-margin: 0;
-color: var(--muted, #64748b);
-line-height: 1.5;
-}
+    .modal-planos-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
-.modal-planos-fechar {
-display: grid;
-place-items: center;
-flex-shrink: 0;
-width: 38px;
-height: 38px;
-border: 1px solid var(--border, #e5e7eb);
-border-radius: 10px;
-background: transparent;
-color: inherit;
-font-size: 1.7rem;
-cursor: pointer;
-}
+    .modal-planos-header h2 { margin: 0 0 8px; font-size: 1.45rem; }
 
-.lista-planos-troca {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-gap: 14px;
-}
+    .modal-planos-header p { margin: 0; color: var(--muted, #64748b); line-height: 1.5; }
 
-.card-plano-troca {
-position: relative;
-display: flex;
-flex-direction: column;
-gap: 12px;
-padding: 20px;
-border: 1px solid var(--border, #e5e7eb);
-border-radius: 16px;
-background: var(--card-bg, #ffffff);
-cursor: pointer;
-transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-}
+    .modal-planos-fechar {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 10px;
+      background: transparent;
+      color: inherit;
+      font-size: 1.7rem;
+      cursor: pointer;
+    }
 
-.card-plano-troca:hover {
-transform: translateY(-2px);
-border-color: var(--primary, #635bff);
-}
+    .lista-planos-troca {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
 
-.card-plano-troca.selecionado {
-border: 2px solid var(--primary, #635bff);
-padding: 19px;
-box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.10);
-}
+    .card-plano-troca {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px;
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 16px;
+      background: var(--card-bg, #ffffff);
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
 
-.card-plano-troca.atual {
-opacity: 0.7;
-cursor: default;
-}
+    .card-plano-troca:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary, #635bff);
+    }
 
-.card-plano-troca input[type="radio"] {
-position: absolute;
-top: 20px;
-right: 20px;
-accent-color: var(--primary, #635bff);
-width: 18px;
-height: 18px;
-}
+    .card-plano-troca.selecionado {
+      border: 2px solid var(--primary, #635bff);
+      padding: 19px;
+      box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.10);
+    }
 
-.card-plano-troca-nome {
-padding-right: 26px;
-font-size: 1.1rem;
-font-weight: 700;
-}
+    .card-plano-troca.atual { opacity: 0.7; cursor: default; }
 
-.card-plano-troca-descricao {
-min-height: 40px;
-color: var(--muted, #64748b);
-font-size: 0.9rem;
-line-height: 1.5;
-}
+    .card-plano-troca input[type="radio"] {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      accent-color: var(--primary, #635bff);
+      width: 18px;
+      height: 18px;
+      min-height: 0;
+      padding: 0;
+    }
 
-.card-plano-troca-preco {
-font-size: 1.55rem;
-font-weight: 800;
-letter-spacing: -0.04em;
-}
+    .card-plano-troca-nome { padding-right: 26px; font-size: 1.1rem; font-weight: 700; }
 
-.card-plano-troca-periodo {
-margin-top: -8px;
-color: var(--muted, #64748b);
-font-size: 0.85rem;
-}
+    .card-plano-troca-descricao {
+      min-height: 40px;
+      color: var(--muted, #64748b);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
 
-.card-plano-troca-selo {
-align-self: flex-start;
-padding: 5px 9px;
-border-radius: 20px;
-background: var(--badge-bg, #f1f5f9);
-color: var(--muted, #475569);
-font-size: 0.75rem;
-font-weight: 700;
-}
+    .card-plano-troca-preco { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.04em; }
 
-.mensagem-modal-planos {
-margin-top: 16px;
-font-size: 0.9rem;
-line-height: 1.5;
-}
+    .card-plano-troca-periodo { margin-top: -8px; color: var(--muted, #64748b); font-size: 0.85rem; }
 
-.mensagem-modal-planos:empty {
-display: none;
-}
+    .card-plano-troca-selo {
+      align-self: flex-start;
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: var(--badge-bg, #f1f5f9);
+      color: var(--muted, #475569);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
 
-.mensagem-modal-planos.erro {
-color: #dc2626;
-}
+    .mensagem-modal-planos { margin-top: 16px; font-size: 0.9rem; line-height: 1.5; }
 
-.mensagem-modal-planos.sucesso {
-color: #16a34a;
-}
+    .mensagem-modal-planos:empty { display: none; }
 
-.modal-planos-footer {
-display: flex;
-justify-content: flex-end;
-gap: 12px;
-margin-top: 24px;
-padding-top: 18px;
-border-top: 1px solid var(--border, #e5e7eb);
-}
+    .mensagem-modal-planos.erro { color: #dc2626; }
 
-.btn-modal-secundario,
-.btn-modal-principal {
-min-height: 44px;
-padding: 11px 18px;
-border-radius: 10px;
-font-weight: 700;
-cursor: pointer;
-transition: opacity 0.2s;
-}
+    .mensagem-modal-planos.sucesso { color: #16a34a; }
 
-.btn-modal-secundario {
-border: 1px solid var(--border, #e5e7eb);
-background: transparent;
-color: inherit;
-}
+    .modal-planos-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border, #e5e7eb);
+    }
 
-.btn-modal-principal {
-border: 0;
-background: var(--primary, #635bff);
-color: #ffffff;
-}
+    .btn-modal-secundario, .btn-modal-principal {
+      min-height: 44px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
 
-.btn-modal-principal:disabled,
-.btn-modal-secundario:disabled {
-opacity: 0.45;
-cursor: not-allowed;
-}
+    .btn-modal-secundario {
+      border: 1px solid var(--border, #e5e7eb);
+      background: transparent;
+      color: inherit;
+    }
 
-@media (max-width: 520px) {
-.modal-planos {
-padding: 10px;
-}
+    .btn-modal-principal {
+      border: 0;
+      background: var(--primary, #635bff);
+      color: #ffffff;
+    }
 
-.modal-planos-conteudo {
-padding: 18px;
-max-height: 92vh;
-border-radius: 16px;
-}
+    .btn-modal-principal:disabled, .btn-modal-secundario:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.lista-planos-troca {
-grid-template-columns: 1fr;
-}
-
-.modal-planos-footer {
-flex-direction: column-reverse;
-}
-
-.btn-modal-secundario,
-.btn-modal-principal {
-width: 100%;
-}
-}
-
-
+    @media (max-width: 520px) {
+      .modal-planos { padding: 10px; }
+      .modal-planos-conteudo { padding: 18px; max-height: 92vh; border-radius: 16px; }
+      .lista-planos-troca { grid-template-columns: 1fr; }
+      .modal-planos-footer { flex-direction: column-reverse; }
+      .btn-modal-secundario, .btn-modal-principal { width: 100%; }
+    }
   </style>
-
 </head>
 
 <body>
 
   <main class="page">
+    <div class="container">
 
-<div class="container">
+      <!-- TOPO -->
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-icon">O</div>
+          <div class="brand-text">
+            <strong>Orvix</strong>
+            <span>Gestão inteligente para seu negócio</span>
+          </div>
+        </div>
 
-  <!-- ========================================================
-       TOPO
-       ======================================================== -->
-
-  <div class="topbar">
-
-    <div class="brand">
-
-      <div class="brand-icon">
-        O
+        <div class="secure-badge">
+          <span class="secure-dot"></span>
+          Ambiente seguro
+        </div>
       </div>
 
-      <div class="brand-text">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-content">
+          <div class="eyebrow">Orvix SaaS</div>
 
-        <strong>
-          Orvix
-        </strong>
+          <h1>
+            Escolha o plano ideal<br>
+            para o seu negócio.
+          </h1>
 
-        <span>
-          Gestão inteligente para seu negócio
-        </span>
-
-      </div>
-
-    </div>
-
-    <div class="secure-badge">
-
-      <span class="secure-dot"></span>
-
-      Ambiente seguro
-
-    </div>
-
-  </div>
-
-  <!-- ========================================================
-       HERO
-       ======================================================== -->
-
-  <section class="hero">
-
-    <div class="hero-content">
-
-      <div class="eyebrow">
-        Orvix SaaS
-      </div>
-
-      <h1>
-        Escolha o plano ideal<br>
-        para o seu negócio.
-      </h1>
-
-      <p class="hero-subtitle">
-        Tenha acesso às ferramentas que ajudam sua empresa
-        a organizar agendamentos, serviços, clientes,
-        faturamento e muito mais.
-      </p>
-
-      <div class="hero-points">
-
-        <div class="hero-point">
-          Gestão completa
-        </div>
-
-        <div class="hero-point">
-          Acesso online
-        </div>
-
-        <div class="hero-point">
-          Pagamento seguro
-        </div>
-
-        <div class="hero-point">
-          Controle simplificado
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- ========================================================
-       ALERTAS
-       ======================================================== -->
-
-  <div
-    id="alert-error"
-    class="alert alert-error"
-  >
-
-    <div class="alert-icon">
-      !
-    </div>
-
-    <div id="alert-error-text"></div>
-
-  </div>
-
-  <div
-    id="alert-success"
-    class="alert alert-success"
-  >
-
-    <div class="alert-icon">
-      ✓
-    </div>
-
-    <div id="alert-success-text"></div>
-
-  </div>
-
-  <!-- ========================================================
-       CARD PRINCIPAL
-       ======================================================== -->
-
-  <section class="card">
-
-    <div class="card-header">
-
-      <div class="card-heading">
-
-        <div class="card-icon">
-          $
-        </div>
-
-        <div>
-
-          <h2 class="card-title">
-            Minha assinatura
-          </h2>
-
-          <p class="card-description">
-            Escolha ou gerencie seu plano.
+          <p class="hero-subtitle">
+            Tenha acesso às ferramentas que ajudam sua empresa
+            a organizar agendamentos, serviços, clientes,
+            faturamento e muito mais.
           </p>
 
+          <div class="hero-points">
+            <div class="hero-point">Gestão completa</div>
+            <div class="hero-point">Acesso online</div>
+            <div class="hero-point">Pagamento seguro</div>
+            <div class="hero-point">Controle simplificado</div>
+          </div>
         </div>
+      </section>
 
+      <!-- ALERTAS -->
+      <div id="alert-error" class="alert alert-error">
+        <div class="alert-icon">!</div>
+        <div id="alert-error-text"></div>
       </div>
 
-      <div class="card-status">
-        Pagamento seguro
+      <div id="alert-success" class="alert alert-success">
+        <div class="alert-icon">✓</div>
+        <div id="alert-success-text"></div>
       </div>
 
-    </div>
+      <!-- CARD PRINCIPAL -->
+      <section class="card">
 
-    <div class="body">
-
-      <div
-        id="loading"
-        class="loading"
-      >
-        Carregando informações...
-      </div>
-
-      <div
-        id="content"
-        class="hidden"
-      >
-
-        <!-- ==================================================
-             EMPRESA
-             ================================================== -->
-
-        <div
-          id="company-info"
-          class="company-info"
-        >
-
-          <div class="company-avatar">
-            O
+        <div class="card-header">
+          <div class="card-heading">
+            <div class="card-icon">$</div>
+            <div>
+              <h2 class="card-title">Minha assinatura</h2>
+              <p class="card-description">Escolha ou gerencie seu plano.</p>
+            </div>
           </div>
 
+          <div class="card-status">Pagamento seguro</div>
+        </div>
+
+        <div class="body">
+
+          <div id="loading" class="loading">
+            Carregando informações...
+          </div>
+
+          <div id="content" class="hidden">
+
+            <!-- EMPRESA -->
+            <div id="company-info" class="company-info">
+              <div class="company-avatar">O</div>
+              <div>
+                <div class="company-label">Empresa</div>
+                <div id="company-name" class="company-name">Carregando...</div>
+              </div>
+            </div>
+
+            <!-- ASSINATURA EXISTENTE -->
+            <div id="subscription-section" class="hidden">
+
+              <div class="subscription-state">
+                <div class="subscription-state-icon">✓</div>
+
+                <h3>Sua empresa já possui uma assinatura</h3>
+
+                <p id="subscription-description">
+                  A assinatura atual da empresa está registrada no Orvix.
+                </p>
+
+                <div id="subscription-details" class="subscription-details"></div>
+
+                <div class="subscription-actions">
+                  <button type="button" class="btn btn-primary" id="btn-dashboard-assinatura">
+                    Ir para o painel
+                  </button>
+                </div>
+              </div>
+
+              <!-- Botões de gerenciamento: ficam dentro da seção da assinatura -->
+              <div class="subscription-actions">
+                <button type="button" id="btn-trocar-plano" class="btn-primary">
+                  Trocar de plano
+                </button>
+
+                <button type="button" id="btn-cancelar-assinatura" class="btn-danger">
+                  Cancelar assinatura
+                </button>
+              </div>
+
+              <div id="subscription-action-message" role="status" aria-live="polite"></div>
+
+            </div>
+
+            <!-- PLANOS -->
+            <div id="plans-section">
+              <div class="section-heading">
+                <div>
+                  <h3>Planos disponíveis</h3>
+                  <span>Selecione a opção que melhor atende sua empresa.</span>
+                </div>
+              </div>
+
+              <div id="plans" class="plans"></div>
+            </div>
+
+            <!-- PAGAMENTO -->
+            <div id="payment-section" class="hidden">
+
+              <div class="payment-header">
+                <div class="payment-header-icon">$</div>
+                <div>
+                  <strong id="payment-title">Finalize sua assinatura</strong>
+                  <span id="payment-subtitle">Preencha os dados para concluir o pagamento.</span>
+                </div>
+              </div>
+
+              <div id="selected-plan" class="selected-plan"></div>
+
+              <div class="form-shell">
+
+                <form id="card-form" autocomplete="off">
+
+                  <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input
+                      type="email"
+                      id="email"
+                      placeholder="cliente@email.com"
+                      autocomplete="email"
+                      required
+                    >
+                  </div>
+
+                  <div class="form-group">
+                    <label for="cardholder-name">Nome no cartão</label>
+                    <input
+                      type="text"
+                      id="cardholder-name"
+                      placeholder="Nome completo"
+                      autocomplete="cc-name"
+                      required
+                    >
+                  </div>
+
+                  <div class="form-group">
+                    <label>Número do cartão</label>
+                    <div id="card-number" class="mp-field"></div>
+                  </div>
+
+                  <div class="grid">
+                    <div class="form-group">
+                      <label>Validade</label>
+                      <div id="expiration-date" class="mp-field"></div>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Código de segurança</label>
+                      <div id="security-code" class="mp-field"></div>
+                    </div>
+                  </div>
+
+                  <div class="grid">
+                    <div class="form-group">
+                      <label for="issuer">Banco emissor</label>
+                      <select id="issuer"></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="installments">Parcelas</label>
+                      <select id="installments"></select>
+                    </div>
+                  </div>
+
+                  <div class="grid">
+                    <div class="form-group">
+                      <label for="identification-type">Tipo de documento</label>
+                      <select id="identification-type"></select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="identification-number">CPF</label>
+                      <input
+                        type="text"
+                        id="identification-number"
+                        placeholder="00000000000"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        required
+                      >
+                    </div>
+                  </div>
+
+                  <div class="actions">
+                    <button type="button" class="btn btn-secondary" id="btn-voltar-planos">
+                      Voltar para planos
+                    </button>
+
+                    <button type="submit" class="btn btn-primary" id="btn-assinar">
+                      Assinar plano
+                    </button>
+                  </div>
+
+                </form>
+
+                <div class="security-box">
+                  <div class="security-icon">✓</div>
+                  <div class="security-text">
+                    <strong>Pagamento protegido</strong>
+                    Os dados do cartão são processados diretamente
+                    pelo Mercado Pago. O número completo do cartão
+                    não é enviado para o servidor da Orvix.
+                  </div>
+                </div>
+
+                <div id="mp-loading" class="mp-loading"></div>
+
+              </div>
+            </div>
+
+            <!-- SUCESSO -->
+            <div id="success-section" class="hidden">
+              <div class="success-state">
+                <div class="success-icon">✓</div>
+
+                <h3>Assinatura criada com sucesso</h3>
+
+                <p>
+                  Sua assinatura foi registrada. O pagamento
+                  está aguardando a confirmação do Mercado Pago.
+                  Você será direcionado para o painel em instantes.
+                </p>
+
+                <div id="success-plan" class="success-plan">
+                  Assinatura registrada
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- MODAL DE TROCA DE PLANO -->
+    <div id="modal-trocar-plano" class="modal-planos hidden" aria-hidden="true">
+      <div class="modal-planos-overlay" data-fechar-modal></div>
+
+      <section class="modal-planos-conteudo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-planos">
+        <header class="modal-planos-header">
           <div>
-
-            <div class="company-label">
-              Empresa
-            </div>
-
-            <div
-              id="company-name"
-              class="company-name"
-            >
-              Carregando...
-            </div>
-
+            <h2 id="titulo-modal-planos">Trocar de plano</h2>
+            <p>Escolha o plano mais adequado para sua empresa.</p>
           </div>
 
-        </div>
-
-        <!-- ==================================================
-             ESTADO DA ASSINATURA EXISTENTE
-             ================================================== -->
-
-        <div
-          id="subscription-section"
-          class="hidden"
-        >
-
-          <div class="subscription-state">
-
-            <div class="subscription-state-icon">
-              ✓
-            </div>
-
-            <h3>
-              Sua empresa já possui uma assinatura
-            </h3>
-
-            <p id="subscription-description">
-              A assinatura atual da empresa está registrada no Orvix.
-            </p>
-
-            <div
-              id="subscription-details"
-              class="subscription-details"
-            ></div>
-
-            <div class="subscription-actions">
-
-              <button
-                type="button"
-                class="btn btn-primary"
-                id="btn-dashboard-assinatura"
-              >
-                Ir para o painel
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- ==================================================
-             PLANOS
-             ================================================== -->
-
-        <div id="plans-section">
-
-          <div class="section-heading">
-
-            <div>
-
-              <h3>
-                Planos disponíveis
-              </h3>
-
-              <span>
-                Selecione a opção que melhor atende sua empresa.
-              </span>
-
-            </div>
-
-          </div>
-
-          <div
-            id="plans"
-            class="plans"
-          ></div>
-
-        </div>
-
-        <div class="subscription-actions">
-  <button
-    type="button"
-    id="btn-trocar-plano"
-    class="btn-primary"
-  >
-    Trocar de plano
-  </button>
-
-<button
-type="button"
-id="btn-cancelar-assinatura"
-class="btn-danger"
-
->
-
-Cancelar assinatura
-
-  </button>
-</div>
-
-<div id="subscription-action-message" role="status" aria-live="polite"></div>
-
-
-        <!-- ==================================================
-             PAGAMENTO
-             ================================================== -->
-
-        <div
-          id="payment-section"
-          class="hidden"
-        >
-
-          <div class="payment-header">
-
-            <div class="payment-header-icon">
-              $
-            </div>
-
-            <div>
-
-              <strong>
-                Finalize sua assinatura
-              </strong>
-
-              <span>
-                Preencha os dados para concluir o pagamento.
-              </span>
-
-            </div>
-
-          </div>
-
-          <div
-            id="selected-plan"
-            class="selected-plan"
-          ></div>
-
-          <div class="form-shell">
-
-            <form
-              id="card-form"
-              autocomplete="off"
-            >
-
-              <div class="form-group">
-
-                <label for="email">
-                  E-mail
-                </label>
-
-                <input
-                  type="email"
-                  id="email"
-                  placeholder="cliente@email.com"
-                  autocomplete="email"
-                  required
-                >
-
-              </div>
-
-              <div class="form-group">
-
-                <label for="cardholder-name">
-                  Nome no cartão
-                </label>
-
-                <input
-                  type="text"
-                  id="cardholder-name"
-                  placeholder="Nome completo"
-                  autocomplete="cc-name"
-                  required
-                >
-
-              </div>
-
-              <div class="form-group">
-
-                <label>
-                  Número do cartão
-                </label>
-
-                <div
-                  id="card-number"
-                  class="mp-field"
-                ></div>
-
-              </div>
-
-              <div class="grid">
-
-                <div class="form-group">
-
-                  <label>
-                    Validade
-                  </label>
-
-                  <div
-                    id="expiration-date"
-                    class="mp-field"
-                  ></div>
-
-                </div>
-
-                <div class="form-group">
-
-                  <label>
-                    Código de segurança
-                  </label>
-
-                  <div
-                    id="security-code"
-                    class="mp-field"
-                  ></div>
-
-                </div>
-
-              </div>
-
-              <div class="grid">
-
-                <div class="form-group">
-
-                  <label for="issuer">
-                    Banco emissor
-                  </label>
-
-                  <select id="issuer"></select>
-
-                </div>
-
-                <div class="form-group">
-
-                  <label for="installments">
-                    Parcelas
-                  </label>
-
-                  <select id="installments"></select>
-
-                </div>
-
-              </div>
-
-              <div class="grid">
-
-                <div class="form-group">
-
-                  <label for="identification-type">
-                    Tipo de documento
-                  </label>
-
-                  <select id="identification-type"></select>
-
-                </div>
-
-                <div class="form-group">
-
-                  <label for="identification-number">
-                    CPF
-                  </label>
-
-                  <input
-                    type="text"
-                    id="identification-number"
-                    placeholder="00000000000"
-                    inputmode="numeric"
-                    autocomplete="off"
-                    required
-                  >
-
-                </div>
-
-              </div>
-
-              <div class="actions">
-
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  id="btn-voltar-planos"
-                >
-                  Voltar para planos
-                </button>
-
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  id="btn-assinar"
-                >
-                  Assinar plano
-                </button>
-
-              </div>
-
-            </form>
-
-            <div class="security-box">
-
-              <div class="security-icon">
-                ✓
-              </div>
-
-              <div class="security-text">
-
-                <strong>
-                  Pagamento protegido
-                </strong>
-
-                Os dados do cartão são processados diretamente
-                pelo Mercado Pago. O número completo do cartão
-                não é enviado para o servidor da Orvix.
-
-              </div>
-
-            </div>
-
-            <div
-              id="mp-loading"
-              class="mp-loading"
-            ></div>
-
-          </div>
-
-        </div>
-
-        <!-- ==================================================
-             SUCESSO
-             ================================================== -->
-
-        <div
-          id="success-section"
-          class="hidden"
-        >
-
-          <div class="success-state">
-
-            <div class="success-icon">
-              ✓
-            </div>
-
-            <h3>
-              Assinatura criada com sucesso
-            </h3>
-
-            <p>
-              Sua assinatura foi registrada. O pagamento
-              está aguardando a confirmação do Mercado Pago.
-              Você será direcionado para o painel em instantes.
-            </p>
-
-            <div
-              id="success-plan"
-              class="success-plan"
-            >
-              Assinatura registrada
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
+          <button type="button" id="fechar-modal-planos" class="modal-planos-fechar" aria-label="Fechar">×</button>
+        </header>
+
+        <div id="lista-planos-troca" class="lista-planos-troca"></div>
+
+        <div id="mensagem-modal-planos" class="mensagem-modal-planos" role="status"></div>
+
+        <footer class="modal-planos-footer">
+          <button type="button" id="cancelar-modal-planos" class="btn-modal-secundario">
+            Voltar
+          </button>
+
+          <button type="button" id="confirmar-troca-plano" class="btn-modal-principal" disabled>
+            Confirmar troca
+          </button>
+        </footer>
+      </section>
     </div>
-
-  </section>
-
-</div>
-
-<!-- MODAL DE TROCA DE PLANO -->
-
-<div id="modal-trocar-plano" class="modal-planos hidden" aria-hidden="true">
-  <div class="modal-planos-overlay" data-fechar-modal></div>
-
-  <section class="modal-planos-conteudo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-planos">
-    <header class="modal-planos-header">
-      <div>
-        <h2 id="titulo-modal-planos">Trocar de plano</h2>
-        <p>Escolha o plano mais adequado para sua empresa.</p>
-      </div>
-
-  <button type="button" id="fechar-modal-planos" class="modal-planos-fechar" aria-label="Fechar">×</button>
-</header>
-
-<div id="lista-planos-troca" class="lista-planos-troca"></div>
-
-<div id="mensagem-modal-planos" class="mensagem-modal-planos" role="status"></div>
-
-<footer class="modal-planos-footer">
-  <button type="button" id="cancelar-modal-planos" class="btn-modal-secundario">
-    Voltar
-  </button>
-
-  <button type="button" id="confirmar-troca-plano" class="btn-modal-principal" disabled>
-    Confirmar troca
-  </button>
-</footer>
-
-  </section>
-</div>
-
-
   </main>
 
-  <script>
+<script>
 (() => {
   'use strict';
 
@@ -2400,6 +1458,9 @@ Cancelar assinatura
   const btnVoltarPlanos = $('btn-voltar-planos');
   const btnDashboardAssinatura = $('btn-dashboard-assinatura');
 
+  const paymentTitle = $('payment-title');
+  const paymentSubtitle = $('payment-subtitle');
+
   const mpLoading = $('mp-loading');
   const subscriptionSection = $('subscription-section');
   const subscriptionDetails = $('subscription-details');
@@ -2410,6 +1471,15 @@ Cancelar assinatura
   const btnCancelarAssinatura = $('btn-cancelar-assinatura');
   const subscriptionActionMessage = $('subscription-action-message');
 
+  // Modal de troca de plano
+  const modalTrocarPlano = $('modal-trocar-plano');
+  const listaPlanosTroca = $('lista-planos-troca');
+  const mensagemModalPlanos = $('mensagem-modal-planos');
+  const confirmarTrocaPlano = $('confirmar-troca-plano');
+
+  const btnFecharModalPlanos = $('fechar-modal-planos');
+  const btnCancelarModalPlanos = $('cancelar-modal-planos');
+
   // ============================================================
   // ESTADO
   // ============================================================
@@ -2419,6 +1489,11 @@ Cancelar assinatura
   let planos = [];
   let planoSelecionado = null;
   let assinaturaAtual = null;
+  let planoTrocaSelecionado = null;
+
+  // true quando o formulário de cartão é usado para uma TROCA de
+  // periodicidade (nova assinatura com novo card_token_id)
+  let modoTroca = false;
 
   let mp = null;
   let cardForm = null;
@@ -2434,8 +1509,7 @@ Cancelar assinatura
     if (alertSuccess) alertSuccess.classList.remove('show');
 
     if (alertErrorText) {
-      alertErrorText.textContent =
-        mensagem || 'Ocorreu um erro.';
+      alertErrorText.textContent = mensagem || 'Ocorreu um erro.';
     }
 
     if (alertError) alertError.classList.add('show');
@@ -2469,6 +1543,14 @@ Cancelar assinatura
 
     subscriptionActionMessage.textContent = mensagem;
     subscriptionActionMessage.className = tipo;
+  }
+
+  function mostrarMensagemModal(mensagem, tipo = '') {
+    if (!mensagemModalPlanos) return;
+
+    mensagemModalPlanos.textContent = mensagem;
+    mensagemModalPlanos.className =
+      'mensagem-modal-planos' + (tipo ? ` ${tipo}` : '');
   }
 
   // ============================================================
@@ -2527,7 +1609,9 @@ Cancelar assinatura
 
   function periodoPlano(plano) {
     const periodo = String(
-      plano?.periodo || plano?.plano_periodo || ''
+      plano?.periodo ||
+      plano?.plano_periodo ||
+      ''
     ).toLowerCase();
 
     if (periodo === 'anual') return 'anual';
@@ -2574,6 +1658,159 @@ Cancelar assinatura
   }
 
   // ============================================================
+  // MODAL DE TROCA DE PLANO
+  // ============================================================
+
+  function fecharModalTrocaPlano(forcar = false) {
+    if (!modalTrocarPlano) return;
+
+    if (processandoAcaoAssinatura && !forcar) return;
+
+    modalTrocarPlano.classList.add('hidden');
+    modalTrocarPlano.setAttribute('aria-hidden', 'true');
+
+    planoTrocaSelecionado = null;
+
+    if (confirmarTrocaPlano) {
+      confirmarTrocaPlano.disabled = true;
+    }
+  }
+
+  function mostrarModalTrocaPlano() {
+    if (
+      !modalTrocarPlano ||
+      !listaPlanosTroca ||
+      !confirmarTrocaPlano
+    ) {
+      mostrarMensagemAssinatura(
+        'O modal de troca de plano não foi encontrado. Confira o HTML.',
+        'error'
+      );
+      return;
+    }
+
+    planoTrocaSelecionado = null;
+    confirmarTrocaPlano.disabled = true;
+    confirmarTrocaPlano.textContent = 'Confirmar troca';
+
+    mostrarMensagemModal('');
+
+    const planoAtualId = Number(
+      assinaturaAtual?.plano_id ||
+      assinaturaAtual?.plano?.id
+    );
+
+    const disponiveis = planos.filter(plano =>
+      plano.ativo !== false &&
+      Number(plano.id) !== planoAtualId
+    );
+
+    if (disponiveis.length === 0) {
+      listaPlanosTroca.innerHTML = `
+        <p>Não há outros planos disponíveis para troca.</p>
+      `;
+    } else {
+      listaPlanosTroca.innerHTML = disponiveis.map(plano => `
+        <label
+          class="card-plano-troca"
+          data-card-plano="${Number(plano.id)}"
+        >
+          <input
+            type="radio"
+            name="plano-troca"
+            value="${Number(plano.id)}"
+            aria-label="Selecionar ${escapeHtml(plano.nome)}"
+          >
+
+          <span class="card-plano-troca-nome">
+            ${escapeHtml(plano.nome)}
+          </span>
+
+          <span class="card-plano-troca-descricao">
+            ${escapeHtml(plano.descricao || 'Plano para sua empresa.')}
+          </span>
+
+          <span class="card-plano-troca-preco">
+            ${formatarMoeda(plano.valor)}
+          </span>
+
+          <span class="card-plano-troca-periodo">
+            por ${escapeHtml(nomePeriodo(periodoPlano(plano)))}
+          </span>
+
+          <span class="card-plano-troca-selo">
+            Selecionar plano
+          </span>
+        </label>
+      `).join('');
+
+      listaPlanosTroca
+        .querySelectorAll('[data-card-plano]')
+        .forEach(card => {
+          card.addEventListener('click', () => {
+            const id = Number(card.dataset.cardPlano);
+
+            planoTrocaSelecionado = disponiveis.find(
+              plano => Number(plano.id) === id
+            );
+
+            listaPlanosTroca
+              .querySelectorAll('.card-plano-troca')
+              .forEach(item => {
+                item.classList.remove('selecionado');
+
+                const selo = item.querySelector('.card-plano-troca-selo');
+
+                if (selo) selo.textContent = 'Selecionar plano';
+              });
+
+            card.classList.add('selecionado');
+
+            const radio = card.querySelector('input[type="radio"]');
+
+            if (radio) radio.checked = true;
+
+            const selo = card.querySelector('.card-plano-troca-selo');
+
+            if (selo) selo.textContent = 'Plano selecionado';
+
+            confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
+
+            mostrarMensagemModal('');
+          });
+        });
+    }
+
+    modalTrocarPlano.classList.remove('hidden');
+    modalTrocarPlano.setAttribute('aria-hidden', 'false');
+  }
+
+  btnFecharModalPlanos?.addEventListener('click', () => {
+    fecharModalTrocaPlano();
+  });
+
+  btnCancelarModalPlanos?.addEventListener('click', () => {
+    fecharModalTrocaPlano();
+  });
+
+  modalTrocarPlano?.querySelectorAll('[data-fechar-modal]')
+    .forEach(elemento => {
+      elemento.addEventListener('click', () => {
+        fecharModalTrocaPlano();
+      });
+    });
+
+  document.addEventListener('keydown', evento => {
+    if (
+      evento.key === 'Escape' &&
+      modalTrocarPlano &&
+      !modalTrocarPlano.classList.contains('hidden')
+    ) {
+      fecharModalTrocaPlano();
+    }
+  });
+
+  // ============================================================
   // REQUISIÇÕES À API
   // ============================================================
 
@@ -2581,7 +1818,9 @@ Cancelar assinatura
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
     const headers = {
-      ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(opcoes.body
+        ? { 'Content-Type': 'application/json' }
+        : {}),
       ...(opcoes.headers || {})
     };
 
@@ -2642,9 +1881,7 @@ Cancelar assinatura
     const dados = await api('/auth/me');
 
     if (!dados?.usuario) {
-      throw new Error(
-        'Não foi possível identificar o usuário.'
-      );
+      throw new Error('Não foi possível identificar o usuário.');
     }
 
     usuario = dados.usuario;
@@ -2656,17 +1893,11 @@ Cancelar assinatura
       );
     }
 
-    /*
-     * IMPORTANTE:
-     * /auth/me retorna o identificador da empresa em
-     * dados.empresa.id, não em dados.usuario.empresa_id.
-     */
-    const empresaId = empresa?.id ?? usuario.empresa_id ?? null;
+    const empresaId =
+      empresa?.id ?? usuario.empresa_id ?? null;
 
     if (!empresaId) {
-      throw new Error(
-        'Seu usuário não está vinculado a uma empresa.'
-      );
+      throw new Error('Seu usuário não está vinculado a uma empresa.');
     }
 
     usuario.empresa_id = empresaId;
@@ -2676,13 +1907,12 @@ Cancelar assinatura
 
   function carregarEmpresa(dados) {
     if (companyName) {
-      companyName.textContent =
-        dados?.empresa?.nome || 'Sua empresa';
+      companyName.textContent = dados?.empresa?.nome || 'Sua empresa';
     }
   }
 
   // ============================================================
-  // PLANOS
+  // PLANOS DISPONÍVEIS
   // ============================================================
 
   async function carregarPlanos() {
@@ -2695,9 +1925,7 @@ Cancelar assinatura
     const dados = await api('/planos/disponiveis');
 
     if (!Array.isArray(dados)) {
-      throw new Error(
-        'Resposta inválida ao carregar os planos.'
-      );
+      throw new Error('Resposta inválida ao carregar os planos.');
     }
 
     planos = dados;
@@ -2718,7 +1946,6 @@ Cancelar assinatura
 
     plans.innerHTML = planos.map(plano => {
       const periodo = periodoPlano(plano);
-      const periodoCurto = `/${nomePeriodo(periodo)}`;
 
       return `
         <article class="plan">
@@ -2731,10 +1958,7 @@ Cancelar assinatura
           </div>
 
           <div class="plan-description">
-            ${escapeHtml(
-              plano.descricao ||
-              'Plano para utilização do sistema.'
-            )}
+            ${escapeHtml(plano.descricao || 'Plano para utilização do sistema.')}
           </div>
 
           <div class="plan-divider"></div>
@@ -2743,11 +1967,11 @@ Cancelar assinatura
 
           <div class="plan-price">
             ${formatarMoeda(plano.valor)}
-            <small>${periodoCurto}</small>
+            <small>/${nomePeriodo(periodo)}</small>
           </div>
 
           <div class="plan-period">
-            Cobrança ${periodo}
+            Cobrança ${escapeHtml(periodo)}
           </div>
 
           <button
@@ -2773,9 +1997,7 @@ Cancelar assinatura
   // ============================================================
 
   async function carregarAssinaturaAtual() {
-    const dados = await api(
-      '/mercado-pago/minha-assinatura'
-    );
+    const dados = await api('/mercado-pago/minha-assinatura');
 
     if (
       !dados ||
@@ -2793,6 +2015,8 @@ Cancelar assinatura
   function mostrarAssinaturaAtual() {
     if (!assinaturaAtual) return;
 
+    modoTroca = false;
+
     plansSection?.classList.add('hidden');
     paymentSection?.classList.add('hidden');
     successSection?.classList.add('hidden');
@@ -2801,9 +2025,7 @@ Cancelar assinatura
     const assinatura = assinaturaAtual;
     const plano = assinatura.plano || {};
 
-    const status = String(
-      assinatura.status || ''
-    ).toLowerCase();
+    const status = String(assinatura.status || '').toLowerCase();
 
     const statusTexto = textoStatus(assinatura.status);
 
@@ -2819,20 +2041,14 @@ Cancelar assinatura
         <div class="subscription-detail">
           <div class="subscription-detail-label">Plano</div>
           <div class="subscription-detail-value">
-            ${escapeHtml(
-              plano.nome ||
-              assinatura.plano_nome ||
-              'Plano'
-            )}
+            ${escapeHtml(plano.nome || assinatura.plano_nome || 'Plano')}
           </div>
         </div>
 
         <div class="subscription-detail">
           <div class="subscription-detail-label">Valor</div>
           <div class="subscription-detail-value">
-            ${formatarMoeda(
-              plano.valor ?? assinatura.plano_valor
-            )}
+            ${formatarMoeda(plano.valor ?? assinatura.plano_valor)}
           </div>
         </div>
 
@@ -2853,9 +2069,7 @@ Cancelar assinatura
         </div>
 
         <div class="subscription-detail">
-          <div class="subscription-detail-label">
-            Próxima cobrança
-          </div>
+          <div class="subscription-detail-label">Próxima cobrança</div>
           <div class="subscription-detail-value">
             ${formatarData(assinatura.proxima_cobranca_em)}
           </div>
@@ -2864,9 +2078,7 @@ Cancelar assinatura
         <div class="subscription-detail">
           <div class="subscription-detail-label">Período</div>
           <div class="subscription-detail-value">
-            ${escapeHtml(
-              periodoPlano(plano.nome ? plano : assinatura)
-            )}
+            ${escapeHtml(periodoPlano(plano.nome ? plano : assinatura))}
           </div>
         </div>
       `;
@@ -2900,13 +2112,13 @@ Cancelar assinatura
   }
 
   // ============================================================
-  // SELECIONAR PLANO
+  // SELECIONAR PLANO (nova assinatura OU troca com cartão)
   // ============================================================
 
   async function selecionarPlano(planoId) {
     limparAlertas();
 
-    if (assinaturaAtual) {
+    if (assinaturaAtual && !modoTroca) {
       mostrarErro('Sua empresa já possui uma assinatura.');
       return;
     }
@@ -2923,6 +2135,27 @@ Cancelar assinatura
     planoSelecionado = plano;
 
     const periodo = periodoPlano(plano);
+
+    if (paymentTitle) {
+      paymentTitle.textContent = modoTroca
+        ? 'Confirme a troca de plano'
+        : 'Finalize sua assinatura';
+    }
+
+    if (paymentSubtitle) {
+      paymentSubtitle.textContent = modoTroca
+        ? 'A nova periodicidade exige os dados do cartão. O plano atual só é cancelado após a nova assinatura ser autorizada.'
+        : 'Preencha os dados para concluir o pagamento.';
+    }
+
+    if (btnAssinar) {
+      btnAssinar.disabled = false;
+      btnAssinar.textContent = modoTroca
+        ? 'Confirmar troca de plano'
+        : 'Assinar plano';
+    }
+
+    if (btnVoltarPlanos) btnVoltarPlanos.disabled = false;
 
     if (selectedPlan) {
       selectedPlan.innerHTML = `
@@ -2950,6 +2183,15 @@ Cancelar assinatura
 
     if (email) email.value = usuario?.email || '';
 
+    // Desmonta o formulário anterior (se existir) antes de recriar
+    try {
+      if (cardForm && typeof cardForm.unmount === 'function') {
+        cardForm.unmount();
+      }
+    } catch (erroUnmount) {
+      console.warn('Não foi possível desmontar o CardForm anterior:', erroUnmount);
+    }
+
     cardForm = null;
     mp = null;
 
@@ -2973,9 +2215,7 @@ Cancelar assinatura
     const dados = await api('/mercado-pago/public-key');
 
     if (!dados?.public_key) {
-      throw new Error(
-        'Chave pública do Mercado Pago não configurada.'
-      );
+      throw new Error('Chave pública do Mercado Pago não configurada.');
     }
 
     return dados.public_key;
@@ -3056,17 +2296,13 @@ Cancelar assinatura
         callbacks: {
           onFormMounted: erro => {
             if (erro) {
-              console.error(
-                'Erro ao montar CardForm:',
-                erro
-              );
+              console.error('Erro ao montar CardForm:', erro);
 
               if (mpLoading) mpLoading.textContent = '';
+
               cardForm = null;
 
-              mostrarErro(
-                'Não foi possível carregar os campos do cartão.'
-              );
+              mostrarErro('Não foi possível carregar os campos do cartão.');
 
               return;
             }
@@ -3076,8 +2312,7 @@ Cancelar assinatura
 
           onFetching: () => {
             if (mpLoading) {
-              mpLoading.textContent =
-                'Validando os dados do pagamento...';
+              mpLoading.textContent = 'Validando os dados do pagamento...';
             }
 
             return () => {
@@ -3123,21 +2358,23 @@ Cancelar assinatura
     }
 
     if (btnCancelarAssinatura) {
-      const status = String(
-        assinaturaAtual?.status || ''
-      ).toLowerCase();
+      const status = String(assinaturaAtual?.status || '').toLowerCase();
 
       const cancelada =
         status === 'cancelada' || status === 'canceled';
 
-      btnCancelarAssinatura.disabled =
-        carregando || cancelada;
+      btnCancelarAssinatura.disabled = carregando || cancelada;
 
       btnCancelarAssinatura.textContent = carregando
         ? 'Processando...'
         : cancelada
           ? 'Assinatura cancelada'
           : 'Cancelar assinatura';
+    }
+
+    if (confirmarTrocaPlano) {
+      confirmarTrocaPlano.disabled =
+        carregando || !planoTrocaSelecionado;
     }
   }
 
@@ -3148,13 +2385,27 @@ Cancelar assinatura
   btnVoltarPlanos?.addEventListener('click', () => {
     limparAlertas();
 
+    if (mpLoading) mpLoading.textContent = '';
+
+    // Em modo de troca, volta para a tela da assinatura atual
+    if (modoTroca) {
+      modoTroca = false;
+      planoSelecionado = null;
+
+      if (btnAssinar) {
+        btnAssinar.disabled = false;
+        btnAssinar.textContent = 'Assinar plano';
+      }
+
+      mostrarAssinaturaAtual();
+      return;
+    }
+
     plansSection?.classList.remove('hidden');
     paymentSection?.classList.add('hidden');
     successSection?.classList.add('hidden');
 
     planoSelecionado = null;
-
-    if (mpLoading) mpLoading.textContent = '';
 
     if (btnAssinar) {
       btnAssinar.disabled = false;
@@ -3175,7 +2426,7 @@ Cancelar assinatura
   });
 
   // ============================================================
-  // CONFIRMAÇÃO VISUAL DA ASSINATURA
+  // SUCESSO DA NOVA ASSINATURA
   // ============================================================
 
   function mostrarSucessoAssinatura(resultado) {
@@ -3207,7 +2458,8 @@ Cancelar assinatura
   }
 
   // ============================================================
-  // CRIAR ASSINATURA
+  // CRIAR ASSINATURA / TROCAR PLANO COM CARTÃO
+  // Envia o card_token_id ao backend, que o repassa ao Mercado Pago.
   // ============================================================
 
   async function assinar() {
@@ -3220,7 +2472,7 @@ Cancelar assinatura
       return;
     }
 
-    if (assinaturaAtual) {
+    if (assinaturaAtual && !modoTroca) {
       mostrarErro('Sua empresa já possui uma assinatura.');
       return;
     }
@@ -3253,9 +2505,7 @@ Cancelar assinatura
     }
 
     if (!cardForm) {
-      mostrarErro(
-        'O formulário do cartão ainda não foi carregado.'
-      );
+      mostrarErro('O formulário do cartão ainda não foi carregado.');
       return;
     }
 
@@ -3263,22 +2513,16 @@ Cancelar assinatura
 
     try {
       if (mpLoading) {
-        mpLoading.textContent =
-          'Validando os dados do cartão...';
+        mpLoading.textContent = 'Validando os dados do cartão...';
       }
 
       dadosCartao = cardForm.getCardFormData();
     } catch (erro) {
-      console.error(
-        'Erro ao obter dados do cartão:',
-        erro
-      );
+      console.error('Erro ao obter dados do cartão:', erro);
 
       if (mpLoading) mpLoading.textContent = '';
 
-      mostrarErro(
-        'Não foi possível validar os dados do cartão.'
-      );
+      mostrarErro('Não foi possível validar os dados do cartão.');
 
       return;
     }
@@ -3327,43 +2571,80 @@ Cancelar assinatura
     if (btnVoltarPlanos) btnVoltarPlanos.disabled = true;
 
     if (mpLoading) {
-      mpLoading.textContent =
-        'Enviando pagamento com segurança...';
+      mpLoading.textContent = 'Enviando pagamento com segurança...';
     }
 
-    try {
-      const resultado = await api(
-        '/mercado-pago/assinaturas',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            plano_id: Number(planoSelecionado.id),
-            email: emailValue,
-            nome: nomeValue,
-            card_token_id: dadosCartao.token,
-            payment_method_id: paymentMethodId,
-            issuer_id: issuerId,
-            installments,
-            identification_type: identificationType,
-            identification_number: identificationNumberValue
-          })
-        }
-      );
+    const endpoint = modoTroca
+      ? '/mercado-pago/minha-assinatura/trocar-plano'
+      : '/mercado-pago/assinaturas';
 
+    try {
+      const resultado = await api(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({
+          plano_id: Number(planoSelecionado.id),
+          email: emailValue,
+          nome: nomeValue,
+          card_token_id: dadosCartao.token,
+          payment_method_id: paymentMethodId,
+          issuer_id: issuerId,
+          installments,
+          identification_type: identificationType,
+          identification_number: identificationNumberValue
+        })
+      });
+
+      // ----- Troca de plano com nova periodicidade -----
+      if (modoTroca) {
+        modoTroca = false;
+        planoSelecionado = null;
+
+        if (btnAssinar) {
+          btnAssinar.disabled = false;
+          btnAssinar.textContent = 'Assinar plano';
+        }
+
+        if (btnVoltarPlanos) btnVoltarPlanos.disabled = false;
+        if (mpLoading) mpLoading.textContent = '';
+
+        try {
+          await atualizarTelaAssinatura();
+        } catch (erroAtualizacao) {
+          console.error(
+            'A troca foi processada, mas a atualização da tela falhou:',
+            erroAtualizacao
+          );
+
+          mostrarErro(
+            'A troca foi processada, mas não foi possível atualizar os dados exibidos. Recarregue a página.'
+          );
+
+          return;
+        }
+
+        if (resultado?.aviso) {
+          mostrarErro(resultado.aviso);
+        } else {
+          mostrarSucesso(resultado?.mensagem || 'Plano atualizado.');
+        }
+
+        return;
+      }
+
+      // ----- Nova assinatura -----
       mostrarSucessoAssinatura(resultado);
 
       setTimeout(() => {
         window.location.href = '/dashboard.html';
       }, 2500);
     } catch (erro) {
-      console.error('Erro ao criar assinatura:', erro);
+      console.error('Erro ao enviar assinatura:', erro);
 
       if (mpLoading) mpLoading.textContent = '';
 
-      if (erro.status === 409) {
+      if (erro.status === 409 && !modoTroca) {
         try {
-          const possuiAssinatura =
-            await carregarAssinaturaAtual();
+          const possuiAssinatura = await carregarAssinaturaAtual();
 
           if (possuiAssinatura) {
             mostrarAssinaturaAtual();
@@ -3383,15 +2664,18 @@ Cancelar assinatura
       }
 
       mostrarErro(obterMensagemMercadoPago(erro));
+
+      // O token de cartão é de uso único: o MercadoPago.js gera um novo
+      // a cada chamada de getCardFormData().
       prepararNovaTentativa();
+
+      if (btnAssinar && modoTroca) {
+        btnAssinar.textContent = 'Tentar novamente';
+      }
     } finally {
       processandoAssinatura = false;
     }
   }
-
-  // ============================================================
-  // EVENTO DO FORMULÁRIO
-  // ============================================================
 
   form?.addEventListener('submit', evento => {
     evento.preventDefault();
@@ -3402,10 +2686,6 @@ Cancelar assinatura
 
     assinar();
   });
-
-  // ============================================================
-  // FORMATAÇÃO DO CPF
-  // ============================================================
 
   identificationNumber?.addEventListener('input', () => {
     identificationNumber.value =
@@ -3438,9 +2718,7 @@ Cancelar assinatura
       return;
     }
 
-    const status = String(
-      assinaturaAtual.status || ''
-    ).toLowerCase();
+    const status = String(assinaturaAtual.status || '').toLowerCase();
 
     if (status === 'cancelada' || status === 'canceled') {
       mostrarMensagemAssinatura(
@@ -3459,9 +2737,7 @@ Cancelar assinatura
 
     definirBotoesAssinatura(true);
 
-    mostrarMensagemAssinatura(
-      'Solicitando cancelamento ao Mercado Pago...'
-    );
+    mostrarMensagemAssinatura('Solicitando cancelamento ao Mercado Pago...');
 
     try {
       const resultado = await requisicaoAcaoAssinatura(
@@ -3469,8 +2745,7 @@ Cancelar assinatura
       );
 
       mostrarMensagemAssinatura(
-        resultado.mensagem ||
-        'Solicitação de cancelamento concluída.',
+        resultado.mensagem || 'Solicitação de cancelamento concluída.',
         'success'
       );
 
@@ -3487,250 +2762,151 @@ Cancelar assinatura
     }
   }
 
-// Estado da seleção no modal
-let planoTrocaSelecionado = null;
+  // ============================================================
+  // ABRIR TROCA DE PLANO
+  // ============================================================
 
-const modalTrocarPlano = document.getElementById('modal-trocar-plano');
-const listaPlanosTroca = document.getElementById('lista-planos-troca');
-const mensagemModalPlanos = document.getElementById('mensagem-modal-planos');
-const confirmarTrocaPlano = document.getElementById('confirmar-troca-plano');
+  async function trocarMeuPlano() {
+    if (processandoAcaoAssinatura) return;
 
-function mostrarModalTrocaPlano() {
-if (!modalTrocarPlano) {
-mostrarMensagemAssinatura('O modal de troca de plano não foi encontrado.', 'error');
-return;
-}
+    if (!assinaturaAtual) {
+      mostrarMensagemAssinatura(
+        'Não foi possível localizar sua assinatura.',
+        'error'
+      );
+      return;
+    }
 
-planoTrocaSelecionado = null;
-confirmarTrocaPlano.disabled = true;
-mensagemModalPlanos.textContent = '';
-mensagemModalPlanos.className = 'mensagem-modal-planos';
+    try {
+      if (!Array.isArray(planos) || planos.length === 0) {
+        await carregarPlanos();
+      }
 
-const planoAtualId = Number(
-assinaturaAtual?.plano_id ||
-assinaturaAtual?.plano?.id
-);
+      mostrarModalTrocaPlano();
+    } catch (erro) {
+      console.error('Erro ao carregar planos para troca:', erro);
 
-const planoAtual = planos.find(
-plano => Number(plano.id) === planoAtualId
-);
+      mostrarMensagemAssinatura(
+        'Não foi possível carregar os planos disponíveis.',
+        'error'
+      );
+    }
+  }
 
-const periodoAtual = planoAtual
-? periodoPlano(planoAtual)
-: periodoPlano(assinaturaAtual?.plano || assinaturaAtual);
+  // ============================================================
+  // CONFIRMAR TROCA DE PLANO
+  // ============================================================
 
-const disponiveis = planos.filter(plano =>
-plano.ativo !== false &&
-Number(plano.id) !== planoAtualId 
-);
+  confirmarTrocaPlano?.addEventListener('click', async () => {
+    if (processandoAcaoAssinatura) return;
+    if (!planoTrocaSelecionado) return;
 
-if (disponiveis.length === 0) {
-listaPlanosTroca.innerHTML = `       <p>Não há outros planos disponíveis com a mesma periodicidade.</p>
-    `;
-} else {
-listaPlanosTroca.innerHTML = disponiveis.map(plano => ` <label class="card-plano-troca" data-card-plano="${Number(plano.id)}"> <input
-       type="radio"
-       name="plano-troca"
-       value="${Number(plano.id)}"
-       aria-label="Selecionar ${escapeHtml(plano.nome)}"
-     >
+    const plano = planoTrocaSelecionado;
 
-
-    <span class="card-plano-troca-nome">
-      ${escapeHtml(plano.nome)}
-    </span>
-
-    <span class="card-plano-troca-descricao">
-      ${escapeHtml(plano.descricao || 'Plano para sua empresa.')}
-    </span>
-
-    <span class="card-plano-troca-preco">
-      ${formatarMoeda(plano.valor)}
-    </span>
-
-    <span class="card-plano-troca-periodo">
-      por ${escapeHtml(nomePeriodo(periodoPlano(plano)))}
-    </span>
-
-    <span class="card-plano-troca-selo">
-      Selecionar plano
-    </span>
-  </label>
-`).join('');
-
-listaPlanosTroca.querySelectorAll('[data-card-plano]').forEach(card => {
-  card.addEventListener('click', () => {
-    const id = Number(card.dataset.cardPlano);
-
-    planoTrocaSelecionado = disponiveis.find(
-      plano => Number(plano.id) === id
+    const periodoAtualPlano = periodoPlano(
+      assinaturaAtual?.plano || assinaturaAtual
     );
 
-    listaPlanosTroca.querySelectorAll('.card-plano-troca').forEach(item => {
-      item.classList.remove('selecionado');
+    const mudaPeriodicidade =
+      periodoPlano(plano) !== periodoAtualPlano;
 
-      const selo = item.querySelector('.card-plano-troca-selo');
-      if (selo) selo.textContent = 'Selecionar plano';
-    });
+    const confirmou = window.confirm(
+      `Confirma a troca para o plano "${plano.nome}"?\n\n` +
+      `Valor: ${formatarMoeda(plano.valor)} por ` +
+      `${nomePeriodo(periodoPlano(plano))}.` +
+      (mudaPeriodicidade
+        ? '\n\nComo a periodicidade muda, você informará os dados do cartão na próxima etapa.'
+        : '')
+    );
 
-    card.classList.add('selecionado');
+    if (!confirmou) return;
 
-    const radio = card.querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
+    // Periodicidade diferente: abre o formulário de cartão para gerar
+    // um novo card_token_id (o token é de uso único).
+    if (mudaPeriodicidade) {
+      fecharModalTrocaPlano(true);
 
-    const selo = card.querySelector('.card-plano-troca-selo');
-    if (selo) selo.textContent = 'Plano selecionado';
+      modoTroca = true;
 
-    confirmarTrocaPlano.disabled = false;
-    mensagemModalPlanos.textContent = '';
-    mensagemModalPlanos.className = 'mensagem-modal-planos';
+      await selecionarPlano(plano.id);
+
+      return;
+    }
+
+    // Mesma periodicidade: só atualiza o valor, sem cartão.
+    definirBotoesAssinatura(true);
+
+    if (confirmarTrocaPlano) {
+      confirmarTrocaPlano.disabled = true;
+      confirmarTrocaPlano.textContent = 'Processando...';
+    }
+
+    mostrarMensagemModal('Atualizando seu plano...');
+
+    try {
+      const resultado = await requisicaoAcaoAssinatura(
+        '/mercado-pago/minha-assinatura/trocar-plano',
+        {
+          plano_id: Number(plano.id)
+        }
+      );
+
+      // Fecha o modal logo após a confirmação do backend.
+      fecharModalTrocaPlano(true);
+
+      mostrarMensagemAssinatura(
+        resultado?.mensagem || 'Plano atualizado com sucesso.',
+        'success'
+      );
+
+      try {
+        await atualizarTelaAssinatura();
+      } catch (erroAtualizacao) {
+        console.error(
+          'A troca foi solicitada, mas a atualização da tela falhou:',
+          erroAtualizacao
+        );
+
+        mostrarMensagemAssinatura(
+          'A troca foi processada, mas não foi possível atualizar os dados exibidos. Recarregue a página.',
+          'error'
+        );
+      }
+    } catch (erro) {
+      console.error('Erro ao trocar plano:', erro);
+
+      mostrarMensagemModal(
+        erro.message || 'Não foi possível trocar o plano.',
+        'erro'
+      );
+
+      if (confirmarTrocaPlano) {
+        confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
+        confirmarTrocaPlano.textContent = 'Confirmar troca';
+      }
+    } finally {
+      definirBotoesAssinatura(false);
+
+      if (confirmarTrocaPlano) {
+        confirmarTrocaPlano.textContent = 'Confirmar troca';
+
+        if (
+          modalTrocarPlano &&
+          !modalTrocarPlano.classList.contains('hidden')
+        ) {
+          confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
+        }
+      }
+    }
   });
-});
-
-
-}
-
-modalTrocarPlano.classList.remove('hidden');
-modalTrocarPlano.setAttribute('aria-hidden', 'false');
-}
-
-function fecharModalTrocaPlano() {
-if (!modalTrocarPlano || processandoAcaoAssinatura) return;
-
-modalTrocarPlano.classList.add('hidden');
-modalTrocarPlano.setAttribute('aria-hidden', 'true');
-planoTrocaSelecionado = null;
-}
-
-document.getElementById('fechar-modal-planos')?.addEventListener(
-'click',
-fecharModalTrocaPlano
-);
-
-document.getElementById('cancelar-modal-planos')?.addEventListener(
-'click',
-fecharModalTrocaPlano
-);
-
-modalTrocarPlano?.querySelectorAll('[data-fechar-modal]').forEach(elemento => {
-elemento.addEventListener('click', fecharModalTrocaPlano);
-});
-
-document.addEventListener('keydown', evento => {
-if (
-evento.key === 'Escape' &&
-modalTrocarPlano &&
-!modalTrocarPlano.classList.contains('hidden')
-) {
-fecharModalTrocaPlano();
-}
-});
-
-async function trocarMeuPlano() {
-if (processandoAcaoAssinatura) return;
-
-if (!assinaturaAtual) {
-mostrarMensagemAssinatura(
-'Não foi possível localizar sua assinatura.',
-'error'
-);
-return;
-}
-
-try {
-if (!Array.isArray(planos) || planos.length === 0) {
-await carregarPlanos();
-}
-
-
-mostrarModalTrocaPlano();
-
-
-} catch (erro) {
-console.error('Erro ao carregar planos para troca:', erro);
-
-
-mostrarMensagemAssinatura(
-  'Não foi possível carregar os planos disponíveis.',
-  'error'
-);
-
-
-}
-}
-
-confirmarTrocaPlano?.addEventListener('click', async () => {
-if (processandoAcaoAssinatura || !planoTrocaSelecionado) return;
-
-const plano = planoTrocaSelecionado;
-
-const confirmou = window.confirm(
-`Confirma a troca para o plano "${plano.nome}"?\n\n` +
-`Valor: ${formatarMoeda(plano.valor)} por ${nomePeriodo(periodoPlano(plano))}.`
-);
-
-if (!confirmou) return;
-
-definirBotoesAssinatura(true);
-confirmarTrocaPlano.disabled = true;
-
-mensagemModalPlanos.textContent = 'Atualizando plano...';
-mensagemModalPlanos.className = 'mensagem-modal-planos';
-
-try {
-const resultado = await requisicaoAcaoAssinatura(
-'/mercado-pago/minha-assinatura/trocar-plano',
-{ plano_id: Number(plano.id) }
-);
-
-
-mensagemModalPlanos.textContent =
-  resultado.mensagem || 'Plano atualizado com sucesso.';
-mensagemModalPlanos.className =
-  'mensagem-modal-planos sucesso';
-
-await atualizarTelaAssinatura();
-
-modalTrocarPlano.classList.add('hidden');
-modalTrocarPlano.setAttribute('aria-hidden', 'true');
-
-mostrarMensagemAssinatura(
-  resultado.mensagem || 'Plano atualizado com sucesso.',
-  'success'
-);
-
-
-} catch (erro) {
-console.error('Erro ao trocar plano:', erro);
-
-
-mensagemModalPlanos.textContent =
-  erro.message || 'Não foi possível trocar o plano.';
-mensagemModalPlanos.className =
-  'mensagem-modal-planos erro';
-
-confirmarTrocaPlano.disabled = false;
-
-
-} finally {
-definirBotoesAssinatura(false);
-}
-});
-
 
   // ============================================================
   // EVENTOS DAS AÇÕES DA ASSINATURA
   // ============================================================
 
-  btnCancelarAssinatura?.addEventListener(
-    'click',
-    cancelarMinhaAssinatura
-  );
+  btnCancelarAssinatura?.addEventListener('click', cancelarMinhaAssinatura);
 
-  btnTrocarPlano?.addEventListener(
-    'click',
-    trocarMeuPlano
-  );
+  btnTrocarPlano?.addEventListener('click', trocarMeuPlano);
 
   // ============================================================
   // INICIALIZAÇÃO
@@ -3744,29 +2920,10 @@ definirBotoesAssinatura(false);
 
       carregarEmpresa(dados);
 
-      /*
-       * Carregamos os planos mesmo quando já existe assinatura.
-       * Assim, a ação "Trocar de plano" terá acesso à lista.
-       */
+      // Carregar os planos para permitir troca posteriormente.
       await carregarPlanos();
 
-      let possuiAssinatura = false;
-
-      try {
-        possuiAssinatura = await carregarAssinaturaAtual();
-      } catch (erro) {
-        console.error(
-          'Erro ao consultar assinatura atual:',
-          erro
-        );
-
-        /*
-         * Não escondemos um erro de autenticação.
-         * Se a API da assinatura falhar, mostramos o erro
-         * e evitamos assumir que a empresa não possui assinatura.
-         */
-        throw erro;
-      }
+      const possuiAssinatura = await carregarAssinaturaAtual();
 
       if (possuiAssinatura) {
         mostrarAssinaturaAtual();
@@ -3780,10 +2937,7 @@ definirBotoesAssinatura(false);
       if (loading) loading.style.display = 'none';
       content?.classList.remove('hidden');
     } catch (erro) {
-      console.error(
-        'Erro ao iniciar página de assinatura:',
-        erro
-      );
+      console.error('Erro ao iniciar página de assinatura:', erro);
 
       if (loading) loading.style.display = 'none';
       content?.classList.remove('hidden');
@@ -3800,5 +2954,4 @@ definirBotoesAssinatura(false);
 </script>
 
 </body>
-
 </html>
