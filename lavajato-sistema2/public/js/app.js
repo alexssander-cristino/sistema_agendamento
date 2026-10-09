@@ -583,6 +583,8 @@
       '/privacidade.html';
   }
 
+  
+
   window.abrirPrivacidade =
     abrirPrivacidade;
 
@@ -1182,6 +1184,8 @@
             '/admin/dashboard.html';
 
           return;
+
+          
         }
 
         atualizarSidebarUsuario();

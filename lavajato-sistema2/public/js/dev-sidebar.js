@@ -18,6 +18,8 @@
     logs: '/admin/logs.html',
     tratamentos: '/admin/tratamentos.html',
     incidentes: '/admin/incidentes.html',
+    solicitacoes: '/admin/admin-suporte.html',
+
     sistema: '/',
     status: '/admin/dashboard.html#status'
   };
