@@ -5690,385 +5690,375 @@
   }
 
 
-  // ============================================================
-  // MODAL OBRIGATÓRIO — PLANO
-  // ============================================================
+// ============================================================
+// ORVIX — MODAL OBRIGATÓRIO DE ASSINATURA
+// ============================================================
 
-  function mostrarModalPlano(){
+let carregandoPlanosObrigatorios = false;
+let redirecionandoParaAssinatura = false;
 
-    const modal =
-      $('modal-plano-obrigatorio');
 
-    if(!modal){
 
-      console.warn(
-        'Modal obrigatório de plano não encontrado no HTML.'
-      );
+// ============================================================
+// OBTER ELEMENTOS
+// ============================================================
 
-      return;
-    }
+function obterModalPlano() {
+  return $('modal-plano-obrigatorio');
+}
 
-    modal.style.display =
-      'flex';
 
-    document.body.style.overflow =
-      'hidden';
+// ============================================================
+// MOSTRAR MODAL
+// ============================================================
+
+function mostrarModalPlano() {
+  const modal = obterModalPlano();
+
+  if (!modal) {
+    console.error(
+      'Modal #modal-plano-obrigatorio não encontrado.'
+    );
+    return;
   }
 
-
-  function esconderModalPlano(){
-
-    const modal =
-      $('modal-plano-obrigatorio');
-
-    if(!modal){
-      return;
-    }
-
-    modal.style.display =
-      'none';
-
-    document.body.style.overflow =
-      '';
+  if (redirecionandoParaAssinatura) {
+    return;
   }
 
+  modal.classList.remove('hidden');
 
-  async function carregarPlanosObrigatorios(){
+  modal.style.setProperty('display', 'flex', 'important');
+  modal.style.removeProperty('visibility');
+  modal.style.removeProperty('pointer-events');
 
-    const loading =
-      $('modal-plano-loading');
+  modal.setAttribute('aria-hidden', 'false');
 
-    const lista =
-      $('modal-plano-lista');
+  document.body.style.overflow = 'hidden';
 
-    const erro =
-      $('modal-plano-erro');
+  // O carregamento é controlado pela própria função.
+  carregarPlanosObrigatorios();
+}
 
-    if(!lista){
-      return;
+
+// ============================================================
+// ESCONDER MODAL
+// ============================================================
+
+function esconderModalPlano() {
+  const modal = obterModalPlano();
+
+  if (!modal) {
+    return;
+  }
+
+  modal.classList.add('hidden');
+
+  modal.style.setProperty('display', 'none', 'important');
+  modal.style.setProperty('visibility', 'hidden', 'important');
+  modal.style.setProperty('pointer-events', 'none', 'important');
+
+  modal.setAttribute('aria-hidden', 'true');
+
+  document.body.style.overflow = '';
+}
+
+
+// ============================================================
+// CARREGAR PLANOS DISPONÍVEIS
+// ============================================================
+
+async function carregarPlanosObrigatorios() {
+  const loading = $('modal-plano-loading');
+  const lista = $('modal-plano-lista');
+  const erro = $('modal-plano-erro');
+
+  if (!lista || carregandoPlanosObrigatorios) {
+    return;
+  }
+
+  carregandoPlanosObrigatorios = true;
+
+  try {
+    if (loading) {
+      loading.style.display = 'block';
     }
 
-    try{
+    lista.innerHTML = '';
 
-      if(loading){
-        loading.style.display =
-          'block';
-      }
+    if (erro) {
+      erro.textContent = '';
+      erro.style.display = 'none';
+    }
 
-      lista.innerHTML =
-        '';
+    const resposta = await api('/planos/disponiveis');
 
-      if(erro){
+    const planos = Array.isArray(resposta)
+      ? resposta
+      : Array.isArray(resposta?.planos)
+        ? resposta.planos
+        : [];
 
-        erro.style.display =
-          'none';
-
+    if (planos.length === 0) {
+      if (erro) {
         erro.textContent =
-          '';
+          'Nenhum plano está disponível no momento.';
+
+        erro.style.display = 'block';
       }
 
-      const planos =
-        await api(
-          '/planos/disponiveis'
-        );
+      return;
+    }
 
-      if(loading){
-
-        loading.style.display =
-          'none';
-      }
-
-      if(
-        !Array.isArray(planos) ||
-        planos.length === 0
-      ){
-
-        if(erro){
-
-          erro.textContent =
-            'Nenhum plano está disponível no momento.';
-
-          erro.style.display =
-            'block';
-        }
-
+    planos.forEach((plano) => {
+      if (!plano || !plano.id) {
         return;
       }
 
-      planos.forEach(
-        plano => {
+      const card = document.createElement('div');
+      card.className = 'modal-plano-card';
 
-          const card =
-            document.createElement(
-              'div'
-            );
+      const nome = document.createElement('h3');
+      nome.textContent = plano.nome || 'Plano';
 
-          card.className =
-            'modal-plano-card';
+      const descricao = document.createElement('div');
+      descricao.className = 'modal-plano-card-descricao';
+      descricao.textContent =
+        plano.descricao || 'Plano para sua empresa.';
 
-          const nome =
-            document.createElement(
-              'h3'
-            );
+      const preco = document.createElement('div');
+      preco.className = 'modal-plano-card-preco';
 
-          nome.textContent =
-            plano.nome ||
-            'Plano';
+      const valor = Number(plano.valor);
 
-          const descricao =
-            document.createElement(
-              'div'
-            );
+      preco.textContent = Number.isFinite(valor)
+        ? valor.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          })
+        : 'Valor não informado';
 
-          descricao.className =
-            'modal-plano-card-descricao';
+      const periodo = document.createElement('small');
+      periodo.textContent = `/${plano.periodo || 'mês'}`;
 
-          descricao.textContent =
-            plano.descricao ||
-            'Plano para sua empresa.';
+      preco.appendChild(periodo);
 
-          const preco =
-            document.createElement(
-              'div'
-            );
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.className = 'modal-plano-btn';
+      botao.textContent = 'Escolher plano';
 
-          preco.className =
-            'modal-plano-card-preco';
+      botao.addEventListener('click', () => {
+        selecionarPlanoObrigatorio(plano, botao);
+      });
 
-          const valor =
-            Number(
-              plano.valor || 0
-            );
+      card.appendChild(nome);
+      card.appendChild(descricao);
+      card.appendChild(preco);
+      card.appendChild(botao);
 
-          preco.textContent =
-            'R$ ' +
-            valor.toLocaleString(
-              'pt-BR',
-              {
-                minimumFractionDigits:2,
-                maximumFractionDigits:2
-              }
-            ) +
-            ' ';
+      lista.appendChild(card);
+    });
 
-          const periodo =
-            document.createElement(
-              'small'
-            );
+    if (lista.children.length === 0 && erro) {
+      erro.textContent =
+        'Nenhum plano válido está disponível no momento.';
 
-          periodo.textContent =
-            '/' +
-            (
-              plano.periodo ||
-              'mês'
-            );
+      erro.style.display = 'block';
+    }
+  } catch (error) {
+    console.error(
+      'Erro ao carregar planos:',
+      error
+    );
 
-          preco.appendChild(
-            periodo
-          );
+    if (erro) {
+      erro.textContent =
+        error.message ||
+        'Não foi possível carregar os planos. Tente novamente.';
 
-          const botao =
-            document.createElement(
-              'button'
-            );
+      erro.style.display = 'block';
+    }
+  } finally {
+    carregandoPlanosObrigatorios = false;
 
-          botao.type =
-            'button';
-
-          botao.className =
-            'modal-plano-btn';
-
-          botao.textContent =
-            'Escolher plano';
-
-          botao.addEventListener(
-            'click',
-            () => {
-
-              selecionarPlanoObrigatorio(
-                plano
-              );
-            }
-          );
-
-          card.appendChild(
-            nome
-          );
-
-          card.appendChild(
-            descricao
-          );
-
-          card.appendChild(
-            preco
-          );
-
-          card.appendChild(
-            botao
-          );
-
-          lista.appendChild(
-            card
-          );
-        }
-      );
-
-    }catch(error){
-
-      console.error(
-        'Erro ao carregar planos:',
-        error
-      );
-
-      if(loading){
-
-        loading.style.display =
-          'none';
-      }
-
-      if(erro){
-
-        erro.textContent =
-          error.message ||
-          'Não foi possível carregar os planos.';
-
-        erro.style.display =
-          'block';
-      }
+    if (loading) {
+      loading.style.display = 'none';
     }
   }
+}
 
 
-  function selecionarPlanoObrigatorio(
-    plano
-  ){
+// ============================================================
+// SELECIONAR PLANO
+// ============================================================
 
-    if(
-      !plano ||
-      !plano.id
-    ){
-      return;
-    }
+function selecionarPlanoObrigatorio(plano, botao) {
+  if (
+    redirecionandoParaAssinatura ||
+    !plano ||
+    !plano.id
+  ) {
+    return;
+  }
 
+  try {
     sessionStorage.setItem(
       'orvix_plano_selecionado',
       JSON.stringify(plano)
     );
 
-    window.location.href =
-      '/assinaturas.html';
+    redirecionandoParaAssinatura = true;
+
+    if (botao) {
+      botao.disabled = true;
+      botao.textContent = 'Redirecionando...';
+    }
+
+    // Fecha o modal antes de navegar.
+    esconderModalPlano();
+
+    window.location.assign('/assinaturas.html');
+  } catch (error) {
+    console.error(
+      'Erro ao selecionar plano:',
+      error
+    );
+
+    redirecionandoParaAssinatura = false;
+
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = 'Escolher plano';
+    }
+
+    const erro = $('modal-plano-erro');
+
+    if (erro) {
+      erro.textContent =
+        'Não foi possível selecionar o plano. Tente novamente.';
+
+      erro.style.display = 'block';
+    }
+  }
+}
+
+
+// ============================================================
+// VERIFICAR ASSINATURA OBRIGATÓRIA
+// ============================================================
+
+async function verificarAssinaturaObrigatoria() {
+  if (!usuarioLogado) {
+    assinaturaVerificada = false;
+    return false;
   }
 
+  const perfil = String(
+    usuarioLogado.perfil || ''
+  ).toLowerCase();
 
-  // ============================================================
-  // ASSINATURA
-  // ============================================================
+  const contaTesteUsuario =
+    usuarioLogado.conta_teste === true;
 
-  async function verificarAssinaturaObrigatoria(){
+  const contaTesteEmpresa =
+    typeof empresaLogada !== 'undefined' &&
+    empresaLogada?.conta_teste === true;
 
-    if(
-      !usuarioLogado ||
-      usuarioLogado.perfil === 'dev' ||
-      usuarioLogado.conta_teste === true
-    ){
+  // Contas que não exigem assinatura.
+  if (
+    perfil === 'dev' ||
+    contaTesteUsuario ||
+    contaTesteEmpresa
+  ) {
+    assinaturaVerificada = true;
+    esconderModalPlano();
+    return true;
+  }
 
-      assinaturaVerificada =
-        true;
+  const empresaId =
+    usuarioLogado.empresa_id ??
+    (
+      typeof empresaLogada !== 'undefined'
+        ? empresaLogada?.id
+        : null
+    );
 
+  if (!empresaId) {
+    assinaturaVerificada = false;
+    mostrarModalPlano();
+    return false;
+  }
+
+  try {
+    // IMPORTANTE:
+    // Esta URL deve corresponder à rota real do backend.
+    const resposta = await api(
+      '/mercado-pago/minha-assinatura'
+    );
+
+    const possuiAssinatura =
+      resposta?.possui_assinatura === true;
+
+    const status = String(
+      resposta?.assinatura?.status || ''
+    ).trim().toLowerCase();
+
+    const assinaturaValida =
+      possuiAssinatura &&
+      ['ativa', 'authorized', 'active'].includes(status);
+
+    if (assinaturaValida) {
+      assinaturaVerificada = true;
       esconderModalPlano();
-
       return true;
     }
 
-    if(
-      empresaLogada &&
-      empresaLogada.conta_teste === true
-    ){
+    assinaturaVerificada = false;
+    mostrarModalPlano();
 
-      assinaturaVerificada =
-        true;
+    return false;
+  } catch (error) {
+    console.error(
+      'Erro ao verificar assinatura obrigatória:',
+      error
+    );
 
-      esconderModalPlano();
+    assinaturaVerificada = false;
+    mostrarModalPlano();
 
-      return true;
-    }
-
-    if(
-      !usuarioLogado.empresa_id
-    ){
-
-      assinaturaVerificada =
-        false;
-
-      mostrarModalPlano();
-
-      await carregarPlanosObrigatorios();
-
-      return false;
-    }
-
-    try{
-
-      const resposta =
-        await api(
-          '/mercado-pago/minha-assinatura'
-        );
-
-      const possuiAssinatura =
-        resposta?.possui_assinatura ===
-        true;
-
-      const status =
-        resposta?.assinatura?.status;
-
-      const assinaturaValida =
-        possuiAssinatura &&
-        [
-          'ativa',
-          'authorized',
-          'active'
-        ].includes(
-          String(
-            status || ''
-          ).toLowerCase()
-        );
-
-      if(assinaturaValida){
-
-        assinaturaVerificada =
-          true;
-
-        esconderModalPlano();
-
-        return true;
-      }
-
-      assinaturaVerificada =
-        false;
-
-      mostrarModalPlano();
-
-      await carregarPlanosObrigatorios();
-
-      return false;
-
-    }catch(error){
-
-      console.warn(
-        'Empresa sem assinatura válida:',
-        error.message
-      );
-
-      assinaturaVerificada =
-        false;
-
-      mostrarModalPlano();
-
-      await carregarPlanosObrigatorios();
-
-      return false;
-    }
+    return false;
   }
+}
+
+
+// ============================================================
+// INICIALIZAR ESTADO VISUAL DO MODAL
+// ============================================================
+
+function inicializarModalPlanoObrigatorio() {
+  const modal = obterModalPlano();
+
+  if (!modal) {
+    console.warn(
+      'Modal obrigatório de plano não encontrado nesta página.'
+    );
+    return;
+  }
+
+  modal.classList.add('hidden');
+
+  modal.style.setProperty('display', 'none', 'important');
+
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+
+inicializarModalPlanoObrigatorio();
 
 
   // ============================================================
@@ -6384,9 +6374,6 @@ async function carregarLogs() {
         log.acao || ''
       ).toLowerCase();
 
-      const entidadeOriginal = String(
-        log.entidade || ''
-      ).toLowerCase();
 
       const acaoFormatada = formatarAcaoLog(
         log.acao
@@ -6707,132 +6694,6 @@ async function carregarLogs() {
   }
 }
 
-  function renderizarLogs(logs){
-
-    const tbody =
-      document.getElementById(
-        'logs-tbody'
-      );
-
-    if(!tbody){
-      return;
-    }
-
-    if(!logs.length){
-
-      tbody.innerHTML = `
-
-        <tr>
-
-          <td
-            colspan="6"
-            class="empty-state"
-          >
-            Nenhum registro encontrado.
-          </td>
-
-        </tr>
-
-      `;
-
-      return;
-    }
-
-    tbody.innerHTML =
-      logs
-        .map(
-          log => {
-
-            const detalhes =
-              formatarDetalhesLog(
-                log.detalhes
-              );
-
-            return `
-
-              <tr>
-
-                <td>
-                  ${
-                    escaparHtmlLogs(
-                      formatarDataLog(
-                        log.criado_em
-                      )
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${
-                    escaparHtmlLogs(
-                      obterNomeUsuarioLog(
-                        log
-                      )
-                    )
-                  }
-                </td>
-
-                <td>
-
-                  <span
-                    class="log-action"
-                  >
-                    ${
-                      escaparHtmlLogs(
-                        formatarAcaoLog(
-                          log.acao
-                        )
-                      )
-                    }
-                  </span>
-
-                </td>
-
-                <td>
-                  ${
-                    escaparHtmlLogs(
-                      formatarEntidadeLog(
-                        log.entidade
-                      )
-                    )
-                  }
-                </td>
-
-                <td>
-
-                  ${
-                    log.entidade_id
-                      ? `#${escaparHtmlLogs(
-                          log.entidade_id
-                        )}`
-                      : '-'
-                  }
-
-                </td>
-
-                <td>
-
-                  <details
-                    class="log-details"
-                  >
-
-                    <summary>
-                      Ver detalhes
-                    </summary>
-
-                    <pre>${detalhes}</pre>
-
-                  </details>
-
-                </td>
-
-              </tr>
-
-            `;
-          }
-        )
-        .join('');
-  }
 
 
   function atualizarPaginacaoLogs(
