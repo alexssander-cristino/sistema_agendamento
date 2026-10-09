@@ -456,48 +456,25 @@ async function buscarAssinatura(
 // canceled   = cancelada
 // ============================================================
 
-async function atualizarAssinatura({
-  mercadoPagoId,
-  status
-}) {
-
+async function atualizarAssinatura({ mercadoPagoId, status }) {
   if (!mercadoPagoId) {
-
-    throw new Error(
-      'ID da assinatura Mercado Pago não informado.'
-    );
-
+    throw new Error('ID da assinatura Mercado Pago não informado.');
   }
 
-  const statusPermitidos = [
-    'authorized',
-    'paused',
-    'canceled'
-  ];
+  // Aceita a grafia usada no Orvix e converte para a do Mercado Pago
+  const statusMP = status === 'canceled' ? 'cancelled' : status;
 
-  if (
-    !statusPermitidos.includes(
-      status
-    )
-  ) {
+  const statusPermitidos = ['authorized', 'paused', 'cancelled'];
 
-    throw new Error(
-      'Status de assinatura Mercado Pago inválido.'
-    );
-
+  if (!statusPermitidos.includes(statusMP)) {
+    throw new Error('Status de assinatura Mercado Pago inválido.');
   }
 
   return mercadoPagoRequest(
-    `/preapproval/${encodeURIComponent(
-      mercadoPagoId
-    )}`,
+    `/preapproval/${encodeURIComponent(mercadoPagoId)}`,
     {
       method: 'PUT',
-
-      body:
-        JSON.stringify({
-          status
-        })
+      body: JSON.stringify({ status: statusMP })
     }
   );
 }
