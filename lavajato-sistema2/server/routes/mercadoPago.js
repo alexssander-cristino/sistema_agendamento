@@ -16,6 +16,8 @@ const {
   buscarPlano,
   criarAssinatura,
   buscarAssinatura,
+  atualizarAssinatura,
+  atualizarValorAssinatura,
   buscarPagamentoAutorizado
 } = require('../services/mercadoPago');
 
@@ -708,6 +710,292 @@ router.get(
         detalhes:
           process.env.NODE_ENV === 'production'
             ? null
+            : err.message
+      });
+    }
+  }
+);
+
+// ============================================================
+// CANCELAR MINHA ASSINATURA
+// POST /api/mercado-pago/minha-assinatura/cancelar
+// ============================================================
+
+router.post('/minha-assinatura/cancelar', async (req, res) => {
+  const empresaId = Number(req.usuario?.empresa_id);
+
+  if (!Number.isInteger(empresaId) || empresaId <= 0) {
+    return res.status(400).json({
+      erro: 'Usuário não está vinculado a uma empresa.'
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+        SELECT
+          id,
+          mercado_pago_id,
+          status
+        FROM assinaturas
+        WHERE empresa_id = $1
+        ORDER BY id DESC
+        LIMIT 1
+      `,
+      [empresaId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        erro: 'Nenhuma assinatura foi encontrada.'
+      });
+    }
+
+    const assinatura = result.rows[0];
+
+    if (assinatura.status === 'cancelada') {
+      return res.status(409).json({
+        erro: 'Esta assinatura já está cancelada.'
+      });
+    }
+
+    if (!assinatura.mercado_pago_id) {
+      return res.status(409).json({
+        erro: 'A assinatura não possui ID no Mercado Pago.'
+      });
+    }
+
+    // Primeiro cancela no Mercado Pago.
+    await atualizarAssinatura({
+      mercadoPagoId: assinatura.mercado_pago_id,
+      status: 'canceled'
+    });
+
+    // Só atualiza o banco depois da confirmação da API.
+    const atualizada = await pool.query(
+      `
+        UPDATE assinaturas
+        SET
+          status = 'cancelada',
+          cancelada_em = NOW(),
+          atualizado_em = NOW()
+        WHERE id = $1
+          AND empresa_id = $2
+        RETURNING
+          id,
+          status,
+          mercado_pago_id,
+          cancelada_em,
+          atualizado_em
+      `,
+      [assinatura.id, empresaId]
+    );
+
+    return res.json({
+      ok: true,
+      mensagem: 'Assinatura cancelada no Mercado Pago.',
+      assinatura: atualizada.rows[0]
+    });
+  } catch (err) {
+    console.error('Erro ao cancelar assinatura:', err);
+
+    return res.status(err.status || 500).json({
+      erro: 'Não foi possível cancelar a assinatura.',
+      detalhes:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : err.message
+    });
+  }
+});
+
+// ============================================================
+// TROCAR PLANO DA MINHA ASSINATURA
+// POST /api/mercado-pago/minha-assinatura/trocar-plano
+// Body: { "plano_id": 2 }
+// ============================================================
+
+router.post(
+  '/minha-assinatura/trocar-plano',
+  async (req, res) => {
+    const empresaId = Number(req.usuario?.empresa_id);
+    const planoId = Number(req.body?.plano_id);
+
+    if (!Number.isInteger(empresaId) || empresaId <= 0) {
+      return res.status(400).json({
+        erro: 'Usuário não está vinculado a uma empresa.'
+      });
+    }
+
+    if (!Number.isInteger(planoId) || planoId <= 0) {
+      return res.status(400).json({
+        erro: 'Selecione um plano válido.'
+      });
+    }
+
+    try {
+      const assinaturaResult = await pool.query(
+        `
+          SELECT
+            id,
+            empresa_id,
+            plano_id,
+            status,
+            mercado_pago_id
+          FROM assinaturas
+          WHERE empresa_id = $1
+          ORDER BY id DESC
+          LIMIT 1
+        `,
+        [empresaId]
+      );
+
+      if (assinaturaResult.rows.length === 0) {
+        return res.status(404).json({
+          erro: 'Nenhuma assinatura foi encontrada.'
+        });
+      }
+
+      const assinatura = assinaturaResult.rows[0];
+
+      if (assinatura.status !== 'ativa') {
+        return res.status(409).json({
+          erro: 'Somente assinaturas ativas podem trocar de plano.'
+        });
+      }
+
+      if (!assinatura.mercado_pago_id) {
+        return res.status(409).json({
+          erro: 'A assinatura não possui ID no Mercado Pago.'
+        });
+      }
+
+      if (Number(assinatura.plano_id) === planoId) {
+        return res.status(400).json({
+          erro: 'Sua empresa já utiliza este plano.'
+        });
+      }
+
+      const planoResult = await pool.query(
+        `
+          SELECT
+            id,
+            nome,
+            descricao,
+            valor,
+            periodo,
+            ativo,
+            mercado_pago_plan_id
+          FROM planos
+          WHERE id = $1
+          LIMIT 1
+        `,
+        [planoId]
+      );
+
+      if (planoResult.rows.length === 0) {
+        return res.status(404).json({
+          erro: 'Plano não encontrado.'
+        });
+      }
+
+      const novoPlano = planoResult.rows[0];
+
+      if (!novoPlano.ativo) {
+        return res.status(400).json({
+          erro: 'O plano selecionado está inativo.'
+        });
+      }
+
+      if (!novoPlano.mercado_pago_plan_id) {
+        return res.status(400).json({
+          erro: 'O plano ainda não está integrado ao Mercado Pago.'
+        });
+      }
+
+      const planoAtualResult = await pool.query(
+        `
+          SELECT id, nome, valor, periodo
+          FROM planos
+          WHERE id = $1
+          LIMIT 1
+        `,
+        [assinatura.plano_id]
+      );
+
+      if (planoAtualResult.rows.length === 0) {
+        return res.status(409).json({
+          erro: 'Não foi possível identificar o plano atual.'
+        });
+      }
+
+      const planoAtual = planoAtualResult.rows[0];
+
+      // A frequência não será alterada implicitamente.
+      if (planoAtual.periodo !== novoPlano.periodo) {
+        return res.status(409).json({
+          erro:
+            'A troca direta exige a mesma periodicidade. Para mudar de mensal para anual, por exemplo, será necessário um fluxo de nova autorização de cobrança.',
+          codigo: 'PERIODICIDADE_DIFERENTE'
+        });
+      }
+
+      // Atualiza a cobrança recorrente no Mercado Pago.
+      await atualizarValorAssinatura({
+        mercadoPagoId: assinatura.mercado_pago_id,
+        valor: novoPlano.valor
+      });
+
+      // Só altera o plano local depois da resposta positiva da API.
+      const atualizada = await pool.query(
+        `
+          UPDATE assinaturas
+          SET
+            plano_id = $1,
+            atualizado_em = NOW()
+          WHERE id = $2
+            AND empresa_id = $3
+            AND status = 'ativa'
+          RETURNING
+            id,
+            empresa_id,
+            plano_id,
+            status,
+            mercado_pago_id,
+            atualizado_em
+        `,
+        [planoId, assinatura.id, empresaId]
+      );
+
+      if (atualizada.rows.length === 0) {
+        return res.status(409).json({
+          erro:
+            'A cobrança foi atualizada, mas a assinatura local mudou durante a operação. Entre em contato com o suporte para conferência.'
+        });
+      }
+
+      return res.json({
+        ok: true,
+        mensagem: 'Plano e valor recorrente atualizados.',
+        assinatura: {
+          ...atualizada.rows[0],
+          plano: {
+            id: novoPlano.id,
+            nome: novoPlano.nome,
+            descricao: novoPlano.descricao,
+            valor: novoPlano.valor,
+            periodo: novoPlano.periodo
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Erro ao trocar plano:', err);
+
+      return res.status(err.status || 500).json({
+        erro: 'Não foi possível trocar o plano.',
+        detalhes:
+          process.env.NODE_ENV === 'production'
+            ? undefined
             : err.message
       });
     }

@@ -502,6 +502,43 @@ async function atualizarAssinatura({
   );
 }
 
+
+// ============================================================
+// ALTERAR VALOR DE UMA ASSINATURA EXISTENTE
+// ============================================================
+
+async function atualizarValorAssinatura({
+  mercadoPagoId,
+  valor
+}) {
+  if (!mercadoPagoId) {
+    throw new Error(
+      'ID da assinatura Mercado Pago não informado.'
+    );
+  }
+
+  const novoValor = Number(valor);
+
+  if (!Number.isFinite(novoValor) || novoValor <= 0) {
+    throw new Error(
+      'O valor da assinatura deve ser maior que zero.'
+    );
+  }
+
+  return mercadoPagoRequest(
+    `/preapproval/${encodeURIComponent(mercadoPagoId)}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        auto_recurring: {
+          transaction_amount: novoValor,
+          currency_id: 'BRL'
+        }
+      })
+    }
+  );
+}
+
 // ============================================================
 // BUSCAR PAGAMENTO AUTORIZADO
 // ============================================================
@@ -556,6 +593,7 @@ module.exports = {
   criarAssinatura,
   buscarAssinatura,
   atualizarAssinatura,
+  atualizarValorAssinatura,
 
   buscarPagamentoAutorizado
 

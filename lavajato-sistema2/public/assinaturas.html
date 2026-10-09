@@ -1486,6 +1486,53 @@ content="width=device-width, initial-scale=1.0"
       }
     }
 
+    .subscription-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.subscription-actions button {
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.subscription-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+#subscription-action-message {
+  margin-top: 12px;
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+#subscription-action-message.success {
+  color: #15803d;
+}
+
+#subscription-action-message.error {
+  color: #dc2626;
+}
+
   </style>
 
 </head>
@@ -1759,6 +1806,30 @@ content="width=device-width, initial-scale=1.0"
           ></div>
 
         </div>
+
+        <div class="subscription-actions">
+  <button
+    type="button"
+    id="btn-trocar-plano"
+    class="btn-primary"
+  >
+    Trocar de plano
+  </button>
+
+<button
+type="button"
+id="btn-cancelar-assinatura"
+class="btn-danger"
+
+>
+
+Cancelar assinatura
+
+  </button>
+</div>
+
+<div id="subscription-action-message" role="status" aria-live="polite"></div>
+
 
         <!-- ==================================================
              PAGAMENTO
@@ -2151,6 +2222,7 @@ content="width=device-width, initial-scale=1.0"
       let cardForm = null;
 
       let inicializandoCardForm = false;
+
 
       // ============================================================
       // ALERTAS
@@ -3839,7 +3911,317 @@ content="width=device-width, initial-scale=1.0"
 
       iniciar();
 
+
+      
     })();
+
+    // ============================================================
+// AÇÕES DA ASSINATURA ORVIX
+// ============================================================
+
+const btnTrocarPlano =
+  document.getElementById('btn-trocar-plano');
+
+const btnCancelarAssinatura =
+  document.getElementById('btn-cancelar-assinatura');
+
+const subscriptionActionMessage =
+  document.getElementById('subscription-action-message');
+
+function mostrarMensagemAssinatura(mensagem, tipo = '') {
+  if (!subscriptionActionMessage) return;
+
+  subscriptionActionMessage.textContent = mensagem;
+  subscriptionActionMessage.className = tipo;
+}
+
+function definirBotoesAssinatura(carregando) {
+  if (btnTrocarPlano) {
+    btnTrocarPlano.disabled = carregando;
+    btnTrocarPlano.textContent = carregando
+      ? 'Processando...'
+      : 'Trocar de plano';
+  }
+
+  if (btnCancelarAssinatura) {
+    btnCancelarAssinatura.disabled = carregando;
+    btnCancelarAssinatura.textContent = carregando
+      ? 'Processando...'
+      : 'Cancelar assinatura';
+  }
+}
+
+// ============================================================
+// OBTER RESPOSTA DA API
+// ============================================================
+
+async function requisicaoAcaoAssinatura(url, dados = {}) {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+
+  if (!token) {
+    throw new Error(
+      'Sua sessão expirou. Entre novamente na Orvix.'
+    );
+  }
+
+  const resposta = await fetch(`${API}${url}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(dados)
+  });
+
+  let resultado;
+
+  try {
+    resultado = await resposta.json();
+  } catch {
+    resultado = {};
+  }
+
+  if (!resposta.ok) {
+    throw new Error(
+      resultado.erro ||
+      resultado.mensagem ||
+      'Não foi possível concluir a operação.'
+    );
+  }
+
+  return resultado;
+}
+
+// ============================================================
+// CANCELAR ASSINATURA
+// ============================================================
+
+async function cancelarMinhaAssinatura() {
+const assinatura = window.assinaturaAtual;
+
+if (!assinatura) {
+    mostrarMensagemAssinatura(
+      'Não foi possível localizar sua assinatura.',
+      'error'
+    );
+    return;
+  }
+
+  const status = String(
+    assinatura.status || ''
+  ).toLowerCase();
+
+  if (status === 'cancelada' || status === 'canceled') {
+    mostrarMensagemAssinatura(
+      'Esta assinatura já está cancelada.',
+      'error'
+    );
+    return;
+  }
+
+  const confirmou = window.confirm(
+    'Deseja realmente cancelar sua assinatura?\n\n' +
+    'A solicitação será enviada ao Mercado Pago. ' +
+    'Essa ação não deve ser repetida se já estiver em processamento.'
+  );
+
+  if (!confirmou) return;
+
+  definirBotoesAssinatura(true);
+  mostrarMensagemAssinatura(
+    'Solicitando cancelamento ao Mercado Pago...'
+  );
+
+  try {
+    const resultado = await requisicaoAcaoAssinatura(
+      '/mercado-pago/minha-assinatura/cancelar'
+    );
+
+    mostrarMensagemAssinatura(
+      resultado.mensagem ||
+      'Assinatura cancelada com sucesso.',
+      'success'
+    );
+
+    // Atualiza os dados e a interface pela função existente.
+    if (typeof carregarAssinaturaAtual === 'function') {
+      await carregarAssinaturaAtual();
+    }
+
+    if (typeof carregarPlanos === 'function') {
+      await carregarPlanos();
+    }
+  } catch (erro) {
+    mostrarMensagemAssinatura(
+      erro.message || 'Erro ao cancelar a assinatura.',
+      'error'
+    );
+  } finally {
+    definirBotoesAssinatura(false);
+  }
+}
+
+// ============================================================
+// TROCAR DE PLANO
+// ============================================================
+
+async function trocarMeuPlano() {
+  const assinatura = window.assinaturaAtual;
+
+  if (!assinatura) {
+    mostrarMensagemAssinatura(
+      'Não foi possível localizar sua assinatura.',
+      'error'
+    );
+    return;
+  }
+
+  if (!Array.isArray(planos) || planos.length === 0) {
+    mostrarMensagemAssinatura(
+      'Não há planos disponíveis para seleção.',
+      'error'
+    );
+    return;
+  }
+
+  const planoAtualId = Number(
+    assinatura.plano_id ||
+    assinatura.plano?.id
+  );
+
+  const planosDisponiveis = planos.filter(plano =>
+    Number(plano.id) !== planoAtualId &&
+    plano.ativo !== false
+  );
+
+  if (planosDisponiveis.length === 0) {
+    mostrarMensagemAssinatura(
+      'Não há outros planos disponíveis para troca.',
+      'error'
+    );
+    return;
+  }
+
+  const opcoes = planosDisponiveis.map((plano, indice) => {
+    const valor = Number(plano.valor || 0).toLocaleString(
+      'pt-BR',
+      {
+        style: 'currency',
+        currency: 'BRL'
+      }
+    );
+
+    return `${indice + 1} - ${plano.nome} (${valor}/${plano.periodo})`;
+  });
+
+  const escolha = window.prompt(
+    'Digite o número do plano desejado:\n\n' +
+    opcoes.join('\n') +
+    '\n\nA troca direta exige a mesma periodicidade.'
+  );
+
+  if (escolha === null) return;
+
+  const indice = Number(escolha) - 1;
+
+  if (
+    !Number.isInteger(indice) ||
+    indice < 0 ||
+    indice >= planosDisponiveis.length
+  ) {
+    mostrarMensagemAssinatura(
+      'Selecione um número de plano válido.',
+      'error'
+    );
+    return;
+  }
+
+  const planoEscolhido = planosDisponiveis[indice];
+
+  const planoAtual = planos.find(
+    plano => Number(plano.id) === planoAtualId
+  );
+
+  if (
+    planoAtual &&
+    planoAtual.periodo !== planoEscolhido.periodo
+  ) {
+    mostrarMensagemAssinatura(
+      'A troca direta exige a mesma periodicidade. ' +
+      'Para mudar de mensal para anual, é necessário um fluxo de nova autorização.',
+      'error'
+    );
+    return;
+  }
+
+  const valorNovo = Number(
+    planoEscolhido.valor || 0
+  ).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+
+  const confirmou = window.confirm(
+    `Trocar para o plano "${planoEscolhido.nome}"?\n\n` +
+    `Novo valor recorrente: ${valorNovo} por ${planoEscolhido.periodo}.\n\n` +
+    'Confirme para enviar a alteração ao Mercado Pago.'
+  );
+
+  if (!confirmou) return;
+
+  definirBotoesAssinatura(true);
+  mostrarMensagemAssinatura(
+    'Atualizando seu plano...'
+  );
+
+  try {
+    const resultado = await requisicaoAcaoAssinatura(
+      '/mercado-pago/minha-assinatura/trocar-plano',
+      {
+        plano_id: Number(planoEscolhido.id)
+      }
+    );
+
+    mostrarMensagemAssinatura(
+      resultado.mensagem ||
+      'Plano atualizado com sucesso.',
+      'success'
+    );
+
+    if (typeof carregarAssinaturaAtual === 'function') {
+      await carregarAssinaturaAtual();
+    }
+
+    if (typeof carregarPlanos === 'function') {
+      await carregarPlanos();
+    }
+  } catch (erro) {
+    mostrarMensagemAssinatura(
+      erro.message || 'Erro ao trocar de plano.',
+      'error'
+    );
+  } finally {
+    definirBotoesAssinatura(false);
+  }
+}
+
+// ============================================================
+// EVENTOS DOS BOTÕES
+// ============================================================
+
+if (btnCancelarAssinatura) {
+  btnCancelarAssinatura.addEventListener(
+    'click',
+    cancelarMinhaAssinatura
+  );
+}
+
+if (btnTrocarPlano) {
+  btnTrocarPlano.addEventListener(
+    'click',
+    trocarMeuPlano
+  );
+}
 
   </script>
 
