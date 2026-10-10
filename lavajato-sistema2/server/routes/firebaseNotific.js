@@ -151,6 +151,8 @@ router.delete('/token', async (req, res) => {
 // ============================================================
 
 router.post('/teste', async (req, res) => {
+  res.setHeader('X-Orvix-Push-Version', 'push-debug-2026-10-09');
+
   try {
     const resultado = await enviarParaDesenvolvedores({
       usuarioId: req.usuario.id,
@@ -191,8 +193,6 @@ router.post('/teste', async (req, res) => {
     sucesso: false,
     erro: 'Não foi possível enviar a notificação.'
   });
-
-  res.setHeader('X-Orvix-Push-Version', 'diagnostico-v2');
 }
 });
 
