@@ -1,4 +1,3 @@
-
 'use strict';
 
 const adminApp = require('firebase-admin/app');
@@ -8,7 +7,7 @@ const pool = require('../db');
 let firebaseApp = null;
 
 // ============================================================
-// ERROS DO FIREBASE
+// ERROS
 // ============================================================
 
 function criarErro(codigoDiagnostico, mensagem, causaOriginal = null) {
@@ -60,11 +59,10 @@ function obterCredencialFirebase() {
   ) {
     throw criarErro(
       'FIREBASE_CREDENCIAL_INVALIDA',
-      'A credencial precisa conter type, project_id, client_email e private_key válidos.'
+      'A credencial Firebase é inválida.'
     );
   }
 
-  // Converte os caracteres literais \n em quebras de linha.
   credencial.private_key = credencial.private_key
     .replace(/\\n/g, '\n')
     .trim();
@@ -75,7 +73,7 @@ function obterCredencialFirebase() {
   ) {
     throw criarErro(
       'FIREBASE_CHAVE_PRIVADA_INVALIDA',
-      'A private_key não possui o formato PEM esperado.'
+      'A chave privada Firebase não possui o formato esperado.'
     );
   }
 
@@ -83,7 +81,7 @@ function obterCredencialFirebase() {
 }
 
 // ============================================================
-// INICIALIZAÇÃO DO FIREBASE ADMIN
+// INICIALIZAÇÃO
 // ============================================================
 
 function obterFirebaseMessaging() {
@@ -112,11 +110,10 @@ function obterFirebaseMessaging() {
     return adminMessaging.getMessaging(firebaseApp);
   } catch (erro) {
     console.error('[ORVIX FIREBASE] Falha na inicialização:', {
-      nome: erro?.name || 'Error',
-      codigo: erro?.code || null,
+      codigo: erro?.codigoDiagnostico || erro?.code || null,
       mensagem: String(
-        erro?.message || 'Erro desconhecido na inicialização'
-      ).slice(0, 300)
+        erro?.message || 'Falha na inicialização'
+      ).slice(0, 200)
     });
 
     if (erro?.codigoDiagnostico) {
@@ -125,9 +122,7 @@ function obterFirebaseMessaging() {
 
     throw criarErro(
       'FIREBASE_INICIALIZACAO_FALHOU',
-      String(
-        erro?.message || 'Não foi possível inicializar o Firebase Admin.'
-      ).slice(0, 300),
+      String(erro?.message || 'Não foi possível inicializar o Firebase.').slice(0, 300),
       erro
     );
   }
@@ -142,55 +137,72 @@ async function desativarToken(token) {
 
   try {
     await pool.query(
-      `UPDATE notificacoes_tokens
+      `UPDATE public.notificacoes_tokens
        SET ativo = FALSE
        WHERE token = $1`,
       [token]
     );
   } catch (erro) {
     console.error(
-      '[ORVIX FIREBASE] Não foi possível desativar token:',
+      '[ORVIX FIREBASE] Falha ao desativar token:',
       erro.message
     );
   }
 }
 
 // ============================================================
-// ENVIAR NOTIFICAÇÃO PARA TOKENS ATIVOS
+// OBTER TOKENS DOS DESENVOLVEDORES
 // ============================================================
 
-async function enviarParaTokensAtivos({
+async function obterTokensDesenvolvedores() {
+  const resultado = await pool.query(
+    `SELECT DISTINCT nt.token
+     FROM public.notificacoes_tokens nt
+     INNER JOIN public.usuarios u
+       ON u.id = nt.usuario_id
+     WHERE nt.ativo = TRUE
+       AND u.perfil = 'dev'
+       AND u.ativo = TRUE
+       AND nt.token IS NOT NULL
+       AND BTRIM(nt.token) <> ''`
+  );
+
+  return [
+    ...new Set(
+      resultado.rows
+        .map((registro) => registro.token)
+        .filter(Boolean)
+    )
+  ];
+}
+
+// ============================================================
+// ENVIAR PARA UMA LISTA ESPECÍFICA DE TOKENS
+// ============================================================
+
+async function enviarParaListaDeTokens(tokens, {
   titulo,
   corpo,
   link = '/'
 } = {}) {
-  if (!titulo || !corpo) {
+  if (
+    typeof titulo !== 'string' ||
+    !titulo.trim() ||
+    typeof corpo !== 'string' ||
+    !corpo.trim()
+  ) {
     throw criarErro(
       'NOTIFICACAO_INVALIDA',
       'O título e o conteúdo da notificação são obrigatórios.'
     );
   }
 
-  const resultadoTokens = await pool.query(
-    `SELECT token
-     FROM notificacoes_tokens
-     WHERE ativo = TRUE
-       AND token IS NOT NULL
-       AND BTRIM(token) <> ''`
-  );
+  const lista = [...new Set(tokens.filter(Boolean))];
 
-  const tokens = [
-    ...new Set(
-      resultadoTokens.rows
-        .map((registro) => registro.token)
-        .filter(Boolean)
-    )
-  ];
-
-  if (tokens.length === 0) {
+  if (lista.length === 0) {
     return {
       sucesso: true,
-      mensagem: 'Nenhum dispositivo possui token ativo.',
+      mensagem: 'Nenhum dispositivo autorizado possui token ativo.',
       total: 0,
       enviados: 0,
       falhas: 0
@@ -202,22 +214,24 @@ async function enviarParaTokensAtivos({
   let enviados = 0;
   let falhas = 0;
 
-  // O Firebase aceita no máximo 500 tokens por lote.
-  for (let inicio = 0; inicio < tokens.length; inicio += 500) {
-    const lote = tokens.slice(inicio, inicio + 500);
+  for (let inicio = 0; inicio < lista.length; inicio += 500) {
+    const lote = lista.slice(inicio, inicio + 500);
 
     const mensagem = {
       tokens: lote,
+
       notification: {
-        title: String(titulo).slice(0, 200),
-        body: String(corpo).slice(0, 1000)
+        title: titulo.trim().slice(0, 200),
+        body: corpo.trim().slice(0, 1000)
       },
+
       data: {
-        link: String(link || '/')
+        link: String(link || '/').slice(0, 500)
       },
+
       webpush: {
         fcmOptions: {
-          link: String(link || '/')
+          link: String(link || '/').slice(0, 500)
         }
       }
     };
@@ -229,12 +243,14 @@ async function enviarParaTokensAtivos({
     } catch (erro) {
       console.error('[ORVIX FIREBASE] Erro no envio:', {
         codigo: erro?.code || null,
-        mensagem: String(erro?.message || 'Falha no envio').slice(0, 300)
+        mensagem: String(
+          erro?.message || 'Falha no envio'
+        ).slice(0, 200)
       });
 
       throw criarErro(
         'FIREBASE_ENVIO_FALHOU',
-        String(erro?.message || 'Falha ao enviar notificações.').slice(0, 300),
+        'Não foi possível enviar as notificações Firebase.',
         erro
       );
     }
@@ -251,16 +267,13 @@ async function enviarParaTokensAtivos({
         if (
           codigo.includes('registration-token-not-registered') ||
           codigo.includes('invalid-registration-token') ||
-          codigo.includes('invalid-argument')
+          codigo === 'messaging/invalid-argument'
         ) {
           await desativarToken(lote[i]);
         }
 
-        console.error('[ORVIX FIREBASE] Falha em um dispositivo:', {
-          codigo: codigo || 'ERRO_DESCONHECIDO',
-          mensagem: String(
-            item.error?.message || 'Falha no envio'
-          ).slice(0, 200)
+        console.error('[ORVIX FIREBASE] Falha em dispositivo:', {
+          codigo: codigo || 'ERRO_DESCONHECIDO'
         });
       }
     }
@@ -268,21 +281,76 @@ async function enviarParaTokensAtivos({
 
   return {
     sucesso: falhas === 0,
-    total: tokens.length,
+    total: lista.length,
     enviados,
     falhas
   };
 }
 
 // ============================================================
-// NOTIFICAÇÃO DE TESTE PARA DESENVOLVEDORES
+// ENVIAR PARA TODOS OS DESENVOLVEDORES ATIVOS
 // ============================================================
 
-async function enviarParaDesenvolvedores() {
-  return enviarParaTokensAtivos({
-    titulo: 'Orvix — Notificação de teste',
-    corpo: 'O serviço de notificações do Orvix está funcionando.',
-    link: '/'
+async function enviarParaDesenvolvedores({
+  titulo = 'Orvix — Notificação de teste',
+  corpo = 'O serviço de notificações do Orvix está funcionando.',
+  link = '/'
+} = {}) {
+  const tokens = await obterTokensDesenvolvedores();
+
+  return enviarParaListaDeTokens(tokens, {
+    titulo,
+    corpo,
+    link
+  });
+}
+
+// ============================================================
+// ALERTA DE SEGURANÇA PARA DESENVOLVEDORES
+// ============================================================
+
+async function enviarAlertaSeguranca({
+  titulo,
+  corpo,
+  link = '/admin/logs'
+} = {}) {
+  return enviarParaDesenvolvedores({
+    titulo: titulo || 'Orvix — Alerta de segurança',
+    corpo: corpo || 'Foi detectado um evento que requer verificação.',
+    link
+  });
+}
+
+// ============================================================
+// ENVIO GENÉRICO PARA TOKENS ATIVOS
+// ============================================================
+//
+// Mantido para compatibilidade com funcionalidades existentes.
+// ATENÇÃO: esta função envia para todos os tokens ativos.
+// Não a utilize para alertas exclusivos de segurança.
+// ============================================================
+
+async function enviarParaTokensAtivos({
+  titulo,
+  corpo,
+  link = '/'
+} = {}) {
+  const resultado = await pool.query(
+    `SELECT token
+     FROM public.notificacoes_tokens
+     WHERE ativo = TRUE
+       AND token IS NOT NULL
+       AND BTRIM(token) <> ''`
+  );
+
+  const tokens = resultado.rows
+    .map((registro) => registro.token)
+    .filter(Boolean);
+
+  return enviarParaListaDeTokens(tokens, {
+    titulo,
+    corpo,
+    link
   });
 }
 
@@ -290,5 +358,6 @@ module.exports = {
   obterFirebaseMessaging,
   enviarParaTokensAtivos,
   enviarParaDesenvolvedores,
+  enviarAlertaSeguranca,
   desativarToken
 };
