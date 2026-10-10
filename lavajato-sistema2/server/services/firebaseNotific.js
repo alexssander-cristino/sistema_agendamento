@@ -1,31 +1,40 @@
-
 'use strict';
 
 const admin = require('firebase-admin');
 const pool = require('../db');
 
-let firebaseApp = null;
-
-function erroDiagnostico(codigo, mensagem) {
-  const erro = new Error(mensagem);
-  erro.codigoDiagnostico = codigo;
-  return erro;
-}
-
 // ============================================================
 // FIREBASE ADMIN
 // ============================================================
+
+let firebaseApp = null;
+
+function criarErro(codigoDiagnostico, mensagem) {
+  const erro = new Error(mensagem);
+  erro.codigoDiagnostico = codigoDiagnostico;
+  return erro;
+}
 
 function obterFirebaseMessaging() {
   if (firebaseApp) {
     return admin.messaging(firebaseApp);
   }
 
+  // Reutiliza uma instância padrão caso já exista.
+  const appExistente = admin.apps.find(
+    (app) => app.name === '[DEFAULT]'
+  );
+
+  if (appExistente) {
+    firebaseApp = appExistente;
+    return admin.messaging(firebaseApp);
+  }
+
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
-  if (!json) {
-    throw erroDiagnostico(
-      'FIREBASE_ENV_AUSENTE',
+  if (!json || !json.trim()) {
+    throw criarErro(
+      'FIREBASE_CREDENCIAL_AUSENTE',
       'A variável FIREBASE_SERVICE_ACCOUNT_JSON não está configurada.'
     );
   }
@@ -35,43 +44,65 @@ function obterFirebaseMessaging() {
   try {
     credencial = JSON.parse(json);
   } catch {
-    throw erroDiagnostico(
+    throw criarErro(
       'FIREBASE_JSON_INVALIDO',
-      'O JSON da conta de serviço não é válido.'
+      'A variável FIREBASE_SERVICE_ACCOUNT_JSON não contém JSON válido.'
     );
   }
 
   if (
+    !credencial ||
+    typeof credencial !== 'object' ||
     !credencial.project_id ||
     !credencial.client_email ||
     !credencial.private_key
   ) {
-    throw erroDiagnostico(
+    throw criarErro(
       'FIREBASE_CREDENCIAL_INCOMPLETA',
-      'Faltam campos obrigatórios na conta de serviço.'
+      'A credencial precisa conter project_id, client_email e private_key.'
     );
   }
 
-  // Corrige as quebras de linha escapadas da chave privada.
-  credencial.private_key = credencial.private_key.replace(/\\n/g, '\n');
+  // Converte os caracteres literais "\n" em quebras de linha.
+  if (typeof credencial.private_key !== 'string') {
+    throw criarErro(
+      'FIREBASE_CHAVE_INVALIDA',
+      'A chave privada precisa ser uma string.'
+    );
+  }
+
+  credencial.private_key = credencial.private_key.replace(
+    /\\n/g,
+    '\n'
+  );
+
+  if (
+    !credencial.private_key.includes('-----BEGIN PRIVATE KEY-----') ||
+    !credencial.private_key.includes('-----END PRIVATE KEY-----')
+  ) {
+    throw criarErro(
+      'FIREBASE_CHAVE_FORMATO_INVALIDO',
+      'A chave privada não possui o formato PEM esperado.'
+    );
+  }
 
   try {
-    firebaseApp = admin.apps.length > 0
-      ? admin.app()
-      : admin.initializeApp({
-          credential: admin.credential.cert(credencial)
-        });
+    firebaseApp = admin.initializeApp({
+      credential: admin.credential.cert(credencial)
+    });
 
     return admin.messaging(firebaseApp);
   } catch (erro) {
-    console.error('[Orvix Push] Falha na inicialização do Firebase:', {
-      code: erro.code || null,
-      message: erro.message
+    // Não registra nem devolve a chave privada.
+    console.error('[Orvix Push] Falha ao inicializar Firebase:', {
+      code: erro?.code || null,
+      name: erro?.name || null,
+      message: erro?.message || null
     });
 
-    throw erroDiagnostico(
-      'FIREBASE_INICIALIZACAO_FALHOU',
-      'O Firebase Admin não conseguiu inicializar.'
+    throw criarErro(
+      'FIREBASE_CREDENCIAL_REJEITADA',
+      'O Firebase Admin rejeitou a credencial. Confira a chave e a conta de serviço.'
     );
   }
 }
@@ -91,20 +122,24 @@ function obterLinkNotificacao(link = '/') {
 
   try {
     urlBase = new URL(appUrl);
-
-    if (!['http:', 'https:'].includes(urlBase.protocol)) {
-      throw new Error('Protocolo inválido.');
-    }
   } catch {
-    throw erroDiagnostico(
+    throw criarErro(
       'APP_URL_INVALIDA',
       'A variável APP_URL não contém uma URL válida.'
+    );
+  }
+
+  if (!['http:', 'https:'].includes(urlBase.protocol)) {
+    throw criarErro(
+      'APP_URL_PROTOCOLO_INVALIDO',
+      'A variável APP_URL deve usar HTTP ou HTTPS.'
     );
   }
 
   try {
     const url = new URL(link || '/', urlBase.origin + '/');
 
+    // Impede que a notificação redirecione para outro domínio.
     if (
       url.origin !== urlBase.origin ||
       !['http:', 'https:'].includes(url.protocol)
@@ -119,7 +154,7 @@ function obterLinkNotificacao(link = '/') {
 }
 
 // ============================================================
-// ENVIO
+// ENVIO DE NOTIFICAÇÕES
 // ============================================================
 
 async function enviarParaDesenvolvedores({
@@ -129,9 +164,9 @@ async function enviarParaDesenvolvedores({
   link = '/'
 }) {
   if (!usuarioId) {
-    throw erroDiagnostico(
+    throw criarErro(
       'USUARIO_DESTINATARIO_INVALIDO',
-      'O ID do destinatário é obrigatório.'
+      'Informe o ID do desenvolvedor destinatário.'
     );
   }
 
@@ -141,52 +176,52 @@ async function enviarParaDesenvolvedores({
     typeof mensagem !== 'string' ||
     !mensagem.trim()
   ) {
-    throw erroDiagnostico(
+    throw criarErro(
       'NOTIFICACAO_INVALIDA',
-      'Título e mensagem são obrigatórios.'
+      'O título e a mensagem são obrigatórios.'
     );
   }
 
-  let rows;
+  let resultadoBanco;
 
   try {
-    const resultado = await pool.query(
+    resultadoBanco = await pool.query(
       `SELECT id, token
-         FROM notificacoes_tokens
-        WHERE usuario_id = $1
-          AND ativo = TRUE`,
+       FROM notificacoes_tokens
+       WHERE usuario_id = $1
+         AND ativo = TRUE`,
       [usuarioId]
     );
-
-    rows = resultado.rows;
   } catch (erro) {
-    console.error('[Orvix Push] Falha ao consultar dispositivos:', {
-      code: erro.code || null,
-      message: erro.message
+    console.error('[Orvix Push] Erro ao consultar dispositivos:', {
+      code: erro?.code || null,
+      message: erro?.message || null
     });
 
-    throw erroDiagnostico(
-      'BANCO_CONSULTA_TOKENS_FALHOU',
+    throw criarErro(
+      'FIREBASE_BANCO_CONSULTA_FALHOU',
       'Não foi possível consultar os dispositivos registrados.'
     );
   }
 
-  if (rows.length === 0) {
+  const dispositivos = resultadoBanco.rows || [];
+
+  if (dispositivos.length === 0) {
     return {
       enviados: 0,
       falhas: 0,
-      diagnostico: 'NENHUM_DISPOSITIVO_ATIVO'
+      mensagem: 'Nenhum dispositivo ativo está registrado.'
     };
   }
 
+  // Inicializa o Firebase somente quando há dispositivos.
   const messaging = obterFirebaseMessaging();
   const linkFinal = obterLinkNotificacao(link);
 
   let enviados = 0;
   let falhas = 0;
-  const codigosErro = [];
 
-  for (const dispositivo of rows) {
+  for (const dispositivo of dispositivos) {
     try {
       const notificacao = {
         token: dispositivo.token,
@@ -209,38 +244,36 @@ async function enviarParaDesenvolvedores({
     } catch (erro) {
       falhas++;
 
-      const codigo = erro.code || 'ERRO_DESCONHECIDO';
-
-      if (!codigosErro.includes(codigo)) {
-        codigosErro.push(codigo);
-      }
-
       console.error('[Orvix Push] Falha no envio:', {
+        usuarioId,
         dispositivoId: dispositivo.id,
-        code: codigo,
-        message: erro.message
+        code: erro?.code || null,
+        message: erro?.message || null
       });
 
       const tokenInvalido = [
         'messaging/registration-token-not-registered',
         'messaging/invalid-registration-token'
-      ].includes(codigo);
+      ].includes(erro?.code);
 
       if (tokenInvalido) {
         try {
           await pool.query(
             `UPDATE notificacoes_tokens
-                SET ativo = FALSE,
-                    atualizado_em = NOW()
-              WHERE id = $1
-                AND usuario_id = $2`,
+             SET ativo = FALSE,
+                 atualizado_em = NOW()
+             WHERE id = $1
+               AND usuario_id = $2`,
             [dispositivo.id, usuarioId]
           );
         } catch (erroBanco) {
-          console.error('[Orvix Push] Falha ao desativar token:', {
-            code: erroBanco.code || null,
-            message: erroBanco.message
-          });
+          console.error(
+            '[Orvix Push] Erro ao desativar token inválido:',
+            {
+              code: erroBanco?.code || null,
+              message: erroBanco?.message || null
+            }
+          );
         }
       }
     }
@@ -248,10 +281,13 @@ async function enviarParaDesenvolvedores({
 
   return {
     enviados,
-    falhas,
-    codigosErro
+    falhas
   };
 }
+
+// ============================================================
+// EXPORTAÇÕES
+// ============================================================
 
 module.exports = {
   enviarParaDesenvolvedores
