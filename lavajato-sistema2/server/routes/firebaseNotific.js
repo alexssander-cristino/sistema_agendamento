@@ -191,6 +191,8 @@ router.post('/teste', async (req, res) => {
     sucesso: false,
     erro: 'Não foi possível enviar a notificação.'
   });
+
+  res.setHeader('X-Orvix-Push-Version', 'diagnostico-v2');
 }
 });
 
