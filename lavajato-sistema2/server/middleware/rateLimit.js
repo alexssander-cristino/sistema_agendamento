@@ -1,187 +1,160 @@
+'use strict';
+
 const { rateLimit } = require('express-rate-limit');
 
+const monitoramentoSeguranca =
+  require('../services/monitoramentoSeguranca');
 
 // ============================================================
-// RATE LIMIT GERAL DA API
+// CONFIGURAÇÃO SEGURA DO RATE LIMIT
+// ============================================================
+
+function registrarAlerta(req, codigo) {
+  try {
+    monitoramentoSeguranca.registrarRateLimit(req, codigo);
+  } catch (erro) {
+    console.error('[ORVIX SEGURANÇA] Falha ao registrar alerta:', {
+      codigo,
+      mensagem: String(erro?.message || 'Erro desconhecido').slice(0, 200)
+    });
+  }
+}
+
+function criarRespostaRateLimit({
+  codigo,
+  mensagem,
+  limite,
+  janelaMs
+}) {
+  return (req, res) => {
+    registrarAlerta(req, codigo);
+
+    res.setHeader('Cache-Control', 'no-store');
+
+    return res.status(429).json({
+      erro: mensagem,
+      codigo,
+      redirecionar: '/429.html',
+      ...(limite ? { limite } : {}),
+      ...(req.rateLimit?.used
+        ? { tentativas: req.rateLimit.used }
+        : {}),
+      aguardarSegundos: Math.ceil(janelaMs / 1000)
+    });
+  };
+}
+
+// ============================================================
+// 1. RATE LIMIT GERAL DA API
 // ============================================================
 //
-// 120 requisições por IP a cada 1 minuto.
+// Máximo de 120 requisições por IP a cada minuto.
+//
+// Ao exceder:
+// - Responde HTTP 429.
+// - Registra alerta de segurança.
+// - Evita cache da resposta.
+// - Mantém a API funcionando normalmente.
 //
 // ============================================================
 
 const apiRateLimit = rateLimit({
-
   windowMs: 60 * 1000,
-
   limit: 120,
 
   standardHeaders: 'draft-8',
-
   legacyHeaders: false,
 
-  handler: (req, res) => {
+  message: {
+    erro: 'Muitas requisições. Tente novamente em alguns instantes.',
+    codigo: 'RATE_LIMIT_GERAL'
+  },
 
-    console.warn(
-      '[RATE LIMIT] Limite geral atingido:',
-      {
-        ip: req.ip,
-        metodo: req.method,
-        rota: req.originalUrl
-      }
-    );
-
-    return res.status(429).json({
-
-      erro:
-        'Muitas requisições. Tente novamente em alguns instantes.',
-
-      codigo:
-        'RATE_LIMIT_GERAL',
-
-      redirecionar:
-        '/429.html'
-
-    });
-
-    
-  }
-
+  handler: criarRespostaRateLimit({
+    codigo: 'RATE_LIMIT_GERAL',
+    mensagem: 'Muitas requisições. Tente novamente em alguns instantes.',
+    limite: 120,
+    janelaMs: 60 * 1000
+  })
 });
 
-
 // ============================================================
-// RATE LIMIT DE AUTENTICAÇÃO
+// 2. RATE LIMIT DE AUTENTICAÇÃO
 // ============================================================
 //
-// 6 tentativas de autenticação inválidas por IP
-// a cada 15 minutos.
+// Máximo de 6 tentativas malsucedidas em 15 minutos.
 //
-// Login correto NÃO consome tentativa.
-//
-// Exemplo:
-//
-// senha errada  -> tentativa 1 de 6
-// senha errada  -> tentativa 2 de 6
-// senha errada  -> tentativa 3 de 6
-// senha errada  -> tentativa 4 de 6
-// senha errada  -> tentativa 5 de 6
-// senha errada  -> tentativa 6 de 6
-//                 ↓
-//                 HTTP 429
-//                 ↓
-//              /429.html
+// Tentativas bem-sucedidas não contam para o limite.
 //
 // ============================================================
 
 const authRateLimit = rateLimit({
-
   windowMs: 15 * 60 * 1000,
-
   limit: 6,
 
   standardHeaders: 'draft-8',
-
   legacyHeaders: false,
-
-  // ==========================================================
-  // LOGIN BEM-SUCEDIDO NÃO CONSUME O LIMITE
-  // ==========================================================
 
   skipSuccessfulRequests: true,
 
-  handler: (req, res) => {
-
-    console.warn(
-      '[RATE LIMIT] Limite de autenticação atingido:',
-      {
-        ip: req.ip,
-        metodo: req.method,
-        rota: req.originalUrl
-      }
-    );
-
-    return res.status(429).json({
-
-      erro:
-        'Você atingiu o limite de 6 tentativas. Aguarde 15 minutos antes de tentar novamente.',
-
-      codigo:
-        'RATE_LIMIT_AUTENTICACAO',
-
-      redirecionar:
-        '/429.html',
-
-      limite:
-        6,
-
-      tentativas:
-        req.rateLimit?.used || 6
-
-    });
-  }
-
+  handler: criarRespostaRateLimit({
+    codigo: 'RATE_LIMIT_AUTENTICACAO',
+    mensagem:
+      'Você atingiu o limite de tentativas de autenticação. Aguarde 15 minutos antes de tentar novamente.',
+    limite: 6,
+    janelaMs: 15 * 60 * 1000
+  })
 });
 
-
 // ============================================================
-// RATE LIMIT DE RECUPERAÇÃO DE SENHA
+// 3. RATE LIMIT DE RECUPERAÇÃO DE SENHA
 // ============================================================
 //
-// 5 solicitações por IP a cada 15 minutos.
+// Máximo de 5 solicitações por IP a cada 15 minutos.
 //
 // ============================================================
 
 const passwordResetRateLimit = rateLimit({
-
   windowMs: 15 * 60 * 1000,
-
   limit: 5,
 
   standardHeaders: 'draft-8',
-
   legacyHeaders: false,
 
-  handler: (req, res) => {
-
-    console.warn(
-      '[RATE LIMIT] Recuperação de senha:',
-      {
-        ip: req.ip,
-        metodo: req.method,
-        rota: req.originalUrl
-      }
-    );
-
-    return res.status(429).json({
-
-      erro:
-        'Muitas solicitações de recuperação. Tente novamente mais tarde.',
-
-      codigo:
-        'RATE_LIMIT_RECUPERACAO',
-
-      redirecionar:
-        '/429.html'
-
-    });
-  }
-
+  handler: criarRespostaRateLimit({
+    codigo: 'RATE_LIMIT_RECUPERACAO',
+    mensagem:
+      'Muitas solicitações de recuperação de senha. Tente novamente mais tarde.',
+    limite: 5,
+    janelaMs: 15 * 60 * 1000
+  })
 });
 
+// ============================================================
+// AUXILIAR PARA CONSULTAR O FIM DO BLOQUEIO
+// ============================================================
 
-function bloqueadoAte(req, fallbackMs) {
+function bloqueadoAte(req, fallbackMs = 60 * 1000) {
   const reset = req.rateLimit?.resetTime;
-  return reset
-    ? new Date(reset).getTime()
-    : Date.now() + fallbackMs;
+
+  if (reset instanceof Date && Number.isFinite(reset.getTime())) {
+    return reset.getTime();
+  }
+
+  if (typeof reset === 'number' && Number.isFinite(reset)) {
+    return reset;
+  }
+
+  return Date.now() + fallbackMs;
 }
 
 // ============================================================
-// EXPORTAR
+// EXPORTAÇÕES
 // ============================================================
 
 module.exports = {
   apiRateLimit,
   authRateLimit,
-  passwordResetRateLimit
+  passwordResetRateLimit,
+  bloqueadoAte
 };
