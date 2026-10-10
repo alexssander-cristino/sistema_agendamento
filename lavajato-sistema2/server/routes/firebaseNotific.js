@@ -178,19 +178,20 @@ router.post('/teste', async (req, res) => {
         ? 'Notificação enviada, mas houve falha em um ou mais dispositivos.'
         : 'Notificação enviada com sucesso.'
     });
-  } catch (erro) {
-    // Detalhes ficam nos logs privados do servidor.
-    console.error('[Orvix Push] Erro no teste:', {
-      code: erro.code || null,
-      message: erro.message,
-      stack: erro.stack
-    });
+ 
+} catch (erro) {
+  console.error('[Orvix Push] Erro no teste:', {
+    name: erro.name,
+    code: erro.code,
+    message: erro.message,
+    stack: erro.stack
+  });
 
-    return res.status(500).json({
-      sucesso: false,
-      erro: 'Não foi possível enviar a notificação.'
-    });
-  }
+  return res.status(500).json({
+    sucesso: false,
+    erro: 'Não foi possível enviar a notificação.'
+  });
+}
 });
 
 module.exports = router;
