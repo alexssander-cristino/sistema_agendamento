@@ -3,15 +3,7 @@
 const admin = require('firebase-admin');
 const pool = require('../db');
 
-// ============================================================
-// INSTÂNCIA DO FIREBASE
-// ============================================================
-
 let firebaseApp = null;
-
-// ============================================================
-// ERROS COM DIAGNÓSTICO
-// ============================================================
 
 function criarErro(codigoDiagnostico, mensagem) {
   const erro = new Error(mensagem);
@@ -20,109 +12,133 @@ function criarErro(codigoDiagnostico, mensagem) {
 }
 
 // ============================================================
-// INICIALIZAR FIREBASE ADMIN
+// FIREBASE ADMIN
 // ============================================================
 
 function obterFirebaseMessaging() {
-  // Reutiliza a instância criada por este módulo.
-  if (firebaseApp) {
-    return admin.messaging(firebaseApp);
-  }
-
-  const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-
-  if (typeof json !== 'string' || !json.trim()) {
-    throw criarErro(
-      'FIREBASE_CREDENCIAL_AUSENTE',
-      'FIREBASE_SERVICE_ACCOUNT_JSON não está configurada.'
-    );
-  }
-
-  let credencial;
-
   try {
-    credencial = JSON.parse(json);
-  } catch {
-    throw criarErro(
-      'FIREBASE_JSON_INVALIDO',
-      'A variável de credenciais não contém um JSON válido.'
-    );
-  }
+    // Reutiliza a instância já criada por este módulo.
+    if (firebaseApp) {
+      return admin.messaging(firebaseApp);
+    }
 
-  if (
-    !credencial ||
-    typeof credencial !== 'object' ||
-    typeof credencial.project_id !== 'string' ||
-    typeof credencial.client_email !== 'string' ||
-    typeof credencial.private_key !== 'string' ||
-    !credencial.project_id.trim() ||
-    !credencial.client_email.trim() ||
-    !credencial.private_key.trim()
-  ) {
-    throw criarErro(
-      'FIREBASE_CREDENCIAL_INCOMPLETA',
-      'A credencial precisa conter project_id, client_email e private_key.'
-    );
-  }
+    // Compatibilidade com versões do SDK que exportam admin.apps.
+    if (Array.isArray(admin.apps)) {
+      const existente = admin.apps.find(
+        app => app && app.name === '[DEFAULT]'
+      );
 
-  // Corrige quebras de linha escapadas na variável de ambiente.
-  credencial.private_key = credencial.private_key.replace(
-    /\\n/g,
-    '\n'
-  );
+      if (existente) {
+        firebaseApp = existente;
+        return admin.messaging(firebaseApp);
+      }
+    }
 
-  if (
-    !credencial.private_key.includes(
-      '-----BEGIN PRIVATE KEY-----'
-    ) ||
-    !credencial.private_key.includes(
-      '-----END PRIVATE KEY-----'
-    )
-  ) {
-    throw criarErro(
-      'FIREBASE_CHAVE_FORMATO_INVALIDO',
-      'A chave privada não está no formato esperado.'
-    );
-  }
+    const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
-  try {
-    // Evita depender de admin.apps.find(), que falhou
-    // na versão ou exportação utilizada pelo projeto.
-    firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert(credencial)
-    });
+    if (!json || !json.trim()) {
+      throw criarErro(
+        'FIREBASE_CREDENCIAL_AUSENTE',
+        'Configure FIREBASE_SERVICE_ACCOUNT_JSON na Vercel.'
+      );
+    }
 
-    return admin.messaging(firebaseApp);
+    let credencial;
+
+    try {
+      credencial = JSON.parse(json);
+    } catch {
+      throw criarErro(
+        'FIREBASE_JSON_INVALIDO',
+        'O valor de FIREBASE_SERVICE_ACCOUNT_JSON não é um JSON válido.'
+      );
+    }
+
+    if (
+      !credencial ||
+      credencial.type !== 'service_account' ||
+      !credencial.project_id ||
+      !credencial.client_email ||
+      !credencial.private_key
+    ) {
+      throw criarErro(
+        'FIREBASE_CREDENCIAL_INCOMPLETA',
+        'O JSON não contém uma credencial de conta de serviço completa.'
+      );
+    }
+
+    const privateKey = String(credencial.private_key)
+      .replace(/\\n/g, '\n')
+      .trim();
+
+    if (
+      !privateKey.includes('-----BEGIN PRIVATE KEY-----') ||
+      !privateKey.includes('-----END PRIVATE KEY-----')
+    ) {
+      throw criarErro(
+        'FIREBASE_CHAVE_PRIVADA_INVALIDA',
+        'A chave privada não está no formato PEM esperado.'
+      );
+    }
+
+    credencial.private_key = privateKey;
+
+    try {
+      firebaseApp = admin.initializeApp({
+        credential: admin.credential.cert(credencial),
+        projectId: credencial.project_id
+      });
+
+      return admin.messaging(firebaseApp);
+    } catch (erro) {
+      // Não registrar nem expor a chave privada.
+      console.error('[Orvix Push] Erro original do Firebase:', {
+        code: erro?.code || null,
+        name: erro?.name || null,
+        message: erro?.message || null
+      });
+
+      throw criarErro(
+        'FIREBASE_INICIALIZACAO_FALHOU',
+        String(erro?.message || 'Falha ao inicializar Firebase Admin')
+          .slice(0, 250)
+      );
+    }
   } catch (erro) {
-    console.error('[Orvix Push] Falha ao inicializar Firebase:', {
+    // Preserva os diagnósticos já identificados.
+    if (erro?.codigoDiagnostico) {
+      throw erro;
+    }
+
+    console.error('[Orvix Push] Erro ao preparar Firebase:', {
       code: erro?.code || null,
       name: erro?.name || null,
       message: erro?.message || null
     });
 
     throw criarErro(
-      'FIREBASE_CREDENCIAL_REJEITADA',
-      'O Firebase Admin não conseguiu inicializar com a credencial fornecida.'
+      'FIREBASE_CONFIGURACAO_FALHOU',
+      String(erro?.message || 'Falha na configuração do Firebase')
+        .slice(0, 250)
     );
   }
 }
 
 // ============================================================
-// VALIDAR LINK DA NOTIFICAÇÃO
+// LINK DA NOTIFICAÇÃO
 // ============================================================
 
 function obterLinkNotificacao(link = '/') {
   const appUrl = String(process.env.APP_URL || '').trim();
 
-  // O link é opcional.
   if (!appUrl) {
     return undefined;
   }
 
-  let urlBase;
+  let base;
 
   try {
-    urlBase = new URL(appUrl);
+    base = new URL(appUrl);
   } catch {
     throw criarErro(
       'APP_URL_INVALIDA',
@@ -130,32 +146,31 @@ function obterLinkNotificacao(link = '/') {
     );
   }
 
-  if (!['https:', 'http:'].includes(urlBase.protocol)) {
+  if (!['https:', 'http:'].includes(base.protocol)) {
     throw criarErro(
-      'APP_URL_PROTOCOLO_INVALIDO',
-      'APP_URL deve utilizar HTTP ou HTTPS.'
+      'APP_URL_INVALIDA',
+      'APP_URL deve usar HTTP ou HTTPS.'
     );
   }
 
   try {
-    const url = new URL(link || '/', urlBase.origin + '/');
+    const destino = new URL(link || '/', base.origin + '/');
 
-    // Aceita somente links do próprio sistema.
     if (
-      url.origin !== urlBase.origin ||
-      !['https:', 'http:'].includes(url.protocol)
+      destino.origin !== base.origin ||
+      !['https:', 'http:'].includes(destino.protocol)
     ) {
-      return urlBase.origin + '/';
+      return base.origin + '/';
     }
 
-    return url.toString();
+    return destino.toString();
   } catch {
-    return urlBase.origin + '/';
+    return base.origin + '/';
   }
 }
 
 // ============================================================
-// CONSULTAR DISPOSITIVOS ATIVOS
+// CONSULTAR DISPOSITIVOS
 // ============================================================
 
 async function obterDispositivos(usuarioId) {
@@ -170,7 +185,7 @@ async function obterDispositivos(usuarioId) {
 
     return resultado.rows || [];
   } catch (erro) {
-    console.error('[Orvix Push] Falha ao consultar dispositivos:', {
+    console.error('[Orvix Push] Erro ao consultar dispositivos:', {
       code: erro?.code || null,
       message: erro?.message || null
     });
@@ -197,7 +212,7 @@ async function desativarToken(usuarioId, dispositivoId) {
       [dispositivoId, usuarioId]
     );
   } catch (erro) {
-    console.error('[Orvix Push] Falha ao desativar token:', {
+    console.error('[Orvix Push] Erro ao desativar token:', {
       dispositivoId,
       code: erro?.code || null,
       message: erro?.message || null
@@ -206,7 +221,7 @@ async function desativarToken(usuarioId, dispositivoId) {
 }
 
 // ============================================================
-// ENVIAR NOTIFICAÇÃO AOS DISPOSITIVOS DO DESENVOLVEDOR
+// ENVIAR NOTIFICAÇÕES
 // ============================================================
 
 async function enviarParaDesenvolvedores({
@@ -217,8 +232,8 @@ async function enviarParaDesenvolvedores({
 }) {
   if (!usuarioId) {
     throw criarErro(
-      'USUARIO_DESTINATARIO_INVALIDO',
-      'O ID do desenvolvedor destinatário é obrigatório.'
+      'USUARIO_INVALIDO',
+      'O usuário destinatário é obrigatório.'
     );
   }
 
@@ -230,7 +245,7 @@ async function enviarParaDesenvolvedores({
   ) {
     throw criarErro(
       'NOTIFICACAO_INVALIDA',
-      'O título e a mensagem da notificação são obrigatórios.'
+      'Título e mensagem são obrigatórios.'
     );
   }
 
@@ -244,7 +259,6 @@ async function enviarParaDesenvolvedores({
     };
   }
 
-  // Inicializa o Firebase somente quando há dispositivos.
   const messaging = obterFirebaseMessaging();
   const linkFinal = obterLinkNotificacao(link);
 
@@ -253,16 +267,7 @@ async function enviarParaDesenvolvedores({
 
   for (const dispositivo of dispositivos) {
     try {
-      if (
-        typeof dispositivo.token !== 'string' ||
-        !dispositivo.token.trim()
-      ) {
-        falhas++;
-        await desativarToken(usuarioId, dispositivo.id);
-        continue;
-      }
-
-      const notificacao = {
+      const payload = {
         token: dispositivo.token,
         notification: {
           title: titulo.trim().slice(0, 100),
@@ -271,45 +276,37 @@ async function enviarParaDesenvolvedores({
       };
 
       if (linkFinal) {
-        notificacao.webpush = {
+        payload.webpush = {
           fcmOptions: {
             link: linkFinal
           }
         };
       }
 
-      await messaging.send(notificacao);
+      await messaging.send(payload);
       enviados++;
     } catch (erro) {
       falhas++;
 
-      console.error('[Orvix Push] Falha ao enviar notificação:', {
-        usuarioId,
+      console.error('[Orvix Push] Falha no envio:', {
         dispositivoId: dispositivo.id,
         code: erro?.code || null,
         message: erro?.message || null
       });
 
-      const tokenInvalido = [
-        'messaging/registration-token-not-registered',
-        'messaging/invalid-registration-token'
-      ].includes(erro?.code);
-
-      if (tokenInvalido) {
+      if (
+        [
+          'messaging/registration-token-not-registered',
+          'messaging/invalid-registration-token'
+        ].includes(erro?.code)
+      ) {
         await desativarToken(usuarioId, dispositivo.id);
       }
     }
   }
 
-  return {
-    enviados,
-    falhas
-  };
+  return { enviados, falhas };
 }
-
-// ============================================================
-// EXPORTAÇÕES
-// ============================================================
 
 module.exports = {
   enviarParaDesenvolvedores
