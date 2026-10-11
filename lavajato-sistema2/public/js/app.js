@@ -1293,7 +1293,9 @@
                 nicho,
                 nome,
                 email,
-                senha
+                senha,
+                aceite_termos: $('register-terms')?.checked === true
+
               })
             }
           );
