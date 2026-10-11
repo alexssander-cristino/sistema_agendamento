@@ -1,88 +1,361 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Política de Privacidade da plataforma Orvix.">
+  <meta name="theme-color" content="#2563eb">
   <title>Política de Privacidade | Orvix</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
   <style>
-    :root { --primary:#2563eb; --text:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f4f7fb; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--text); background:var(--bg); line-height:1.7; }
-    .wrap { max-width:820px; margin:0 auto; padding:32px 20px 60px; }
-    .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-    .top a { color:var(--primary); font-weight:700; text-decoration:none; font-size:14px; }
-    .doc { background:#fff; border:1px solid var(--border); border-radius:20px; padding:36px; box-shadow:0 18px 50px rgba(15,23,42,.06); }
-    h1 { margin:0 0 6px; font-size:30px; letter-spacing:-.03em; }
-    .updated { color:var(--muted); font-size:13px; margin-bottom:28px; }
-    h2 { margin:30px 0 8px; font-size:18px; }
-    p, li { font-size:15px; color:#334155; }
-    ul { padding-left:22px; }
-    .todo { background:#fef9c3; padding:0 4px; border-radius:4px; }
-    @media (max-width:560px){ .doc{padding:22px;} h1{font-size:25px;} }
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    a { color: var(--primary); }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--text);
+    }
+
+    .brand span { color: var(--primary); }
+
+    .top a {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .top a:hover, .footer a:hover { text-decoration: underline; }
+
+    .doc {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, .06);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(25px, 5vw, 32px);
+      letter-spacing: -.04em;
+      line-height: 1.25;
+    }
+
+    .updated {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      margin: 30px 0 8px;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+
+    p, li {
+      font-size: 15px;
+      color: #334155;
+    }
+
+    ul { padding-left: 22px; }
+
+    li { margin-bottom: 7px; }
+
+    .footer {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      padding-top: 24px;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    @media (max-width: 560px) {
+      .wrap { padding: 22px 14px 36px; }
+      .doc { padding: 22px 18px; border-radius: 16px; }
+      .top { align-items: flex-start; }
+      .top a { text-align: right; }
+      p, li { font-size: 14px; }
+    }
   </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="top">
-    <strong>Orvix</strong>
-    <a href="/">← Voltar ao login</a>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">Orvix<span>.</span></div>
+      <a href="/">← Voltar ao login</a>
+    </header>
+
+    <main>
+      <article class="doc">
+        <h1>Política de Privacidade</h1>
+        <div class="updated">Última atualização: 11/10/2026</div>
+
+        <p>
+          Esta Política de Privacidade explica como o Orvix coleta, utiliza,
+          armazena, compartilha e protege dados pessoais, observando a Lei
+          nº 13.709/2018 (Lei Geral de Proteção de Dados Pessoais — LGPD).
+        </p>
+
+        <h2>1. Responsável pelo tratamento</h2>
+        <p>
+          O Orvix é uma plataforma de gestão empresarial desenvolvida e
+          operada por seu responsável, Alexssander Cassio Comper Cristino.
+          Para assuntos relacionados à privacidade, utilize o canal de
+          contato informado nesta Política.
+        </p>
+
+        <h2>2. Dados pessoais tratados</h2>
+        <p>Conforme os recursos utilizados, poderão ser tratados:</p>
+        <ul>
+          <li><strong>Dados da empresa:</strong> nome empresarial ou nome de exibição, e-mail, telefone e informações de configuração.</li>
+          <li><strong>Dados dos usuários:</strong> nome, e-mail, perfil de acesso, permissões e credenciais armazenadas de forma protegida.</li>
+          <li><strong>Dados de cobrança:</strong> informações necessárias à identificação da assinatura e ao processamento dos pagamentos.</li>
+          <li><strong>Dados inseridos pela empresa:</strong> informações de clientes, contatos, serviços, agendamentos, despesas, faturamento e outros registros cadastrados na plataforma.</li>
+          <li><strong>Dados técnicos e de segurança:</strong> endereço IP, data e hora dos acessos, registros de atividades e informações técnicas do navegador.</li>
+          <li><strong>Dados de suporte:</strong> informações fornecidas pelo usuário ao solicitar atendimento ou exercer seus direitos.</li>
+        </ul>
+        <p>
+          Os dados tratados dependem das funcionalidades utilizadas e das
+          informações efetivamente fornecidas à plataforma.
+        </p>
+
+        <h2>3. Finalidades do tratamento</h2>
+        <p>Os dados poderão ser utilizados para:</p>
+        <ul>
+          <li>Criar, autenticar e administrar contas;</li>
+          <li>Disponibilizar os recursos contratados;</li>
+          <li>Processar assinaturas e pagamentos;</li>
+          <li>Administrar usuários e permissões;</li>
+          <li>Proteger a plataforma e prevenir fraudes e acessos indevidos;</li>
+          <li>Manter registros de auditoria e investigar incidentes;</li>
+          <li>Prestar suporte e enviar comunicações essenciais;</li>
+          <li>Cumprir obrigações legais e exercer direitos.</li>
+        </ul>
+
+        <h2>4. Dados dos clientes cadastrados pelas empresas</h2>
+        <p>
+          Quando uma empresa utiliza o Orvix para registrar informações
+          pessoais de seus clientes, funcionários ou contatos, ela normalmente
+          determina as finalidades e os meios do tratamento e poderá atuar
+          como controladora desses dados.
+        </p>
+        <p>
+          Nessas situações, o Orvix poderá atuar como operador, tratando
+          informações em nome da empresa para fornecer o serviço, conforme
+          as instruções aplicáveis.
+        </p>
+        <p>
+          A empresa usuária deve possuir fundamento legal adequado para o
+          tratamento, observar os direitos dos titulares e fornecer as
+          informações exigidas pela legislação.
+        </p>
+
+        <h2>5. Bases legais</h2>
+        <p>
+          O tratamento poderá fundamentar-se, conforme o caso, na execução
+          de contrato, no cumprimento de obrigação legal ou regulatória,
+          no exercício regular de direitos, no legítimo interesse quando
+          aplicável, no consentimento ou em outra base legal prevista na LGPD.
+        </p>
+        <p>
+          A base legal dependerá da finalidade e da natureza de cada
+          operação de tratamento.
+        </p>
+
+        <h2>6. Compartilhamento de dados</h2>
+        <p>
+          O Orvix não comercializa dados pessoais. Quando necessário à
+          operação da plataforma, os dados poderão ser compartilhados com:
+        </p>
+        <ul>
+          <li>Provedores de hospedagem e infraestrutura;</li>
+          <li>Provedores de banco de dados;</li>
+          <li>Processadores de pagamentos, incluindo o Mercado Pago, quando utilizado;</li>
+          <li>Serviços de envio de comunicações, quando habilitados;</li>
+          <li>Serviços de segurança e prevenção de fraudes, quando utilizados.</li>
+        </ul>
+        <p>
+          Os dados também poderão ser fornecidos às autoridades competentes
+          quando houver obrigação legal, ordem válida ou outra hipótese
+          autorizada pela legislação.
+        </p>
+        <p>
+          O compartilhamento deverá ser limitado ao necessário para a
+          finalidade correspondente.
+        </p>
+
+        <h2>7. Segurança da informação</h2>
+        <p>
+          O Orvix adota medidas técnicas e organizacionais destinadas a
+          proteger dados pessoais contra acessos não autorizados, perda,
+          alteração, divulgação indevida e outras formas de tratamento
+          inadequado.
+        </p>
+        <p>
+          Essas medidas podem incluir controles de acesso, proteção de
+          credenciais, comunicação criptografada, registros de auditoria
+          e monitoramento de eventos de segurança.
+        </p>
+        <p>
+          Nenhum sistema pode garantir segurança absoluta. Em caso de
+          incidente que possa acarretar risco ou dano relevante aos titulares,
+          serão adotadas as medidas cabíveis, incluindo comunicações à ANPD
+          e aos titulares quando exigidas pela legislação.
+        </p>
+
+        <h2>8. Armazenamento e retenção</h2>
+        <p>
+          Os dados serão mantidos pelo período necessário às finalidades
+          do tratamento, à prestação do serviço e ao cumprimento de
+          obrigações legais ou regulatórias.
+        </p>
+        <p>
+          Após o encerramento da conta, determinados registros poderão ser
+          conservados pelo período necessário ao cumprimento de obrigações
+          legais, à prevenção de fraudes, ao exercício regular de direitos
+          ou a outras hipóteses autorizadas pela legislação.
+        </p>
+        <p>
+          Quando não houver fundamento para a conservação, os dados serão
+          eliminados ou anonimizados, conforme aplicável e tecnicamente
+          viável.
+        </p>
+
+        <h2>9. Direitos dos titulares</h2>
+        <p>
+          Nos termos da LGPD, os titulares poderão solicitar, conforme
+          aplicável:
+        </p>
+        <ul>
+          <li>Confirmação da existência de tratamento e acesso aos dados;</li>
+          <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
+          <li>Anonimização, bloqueio ou eliminação de dados tratados em desconformidade com a legislação;</li>
+          <li>Portabilidade, observadas as condições legais e regulamentares;</li>
+          <li>Informações sobre compartilhamento de dados;</li>
+          <li>Informações sobre a possibilidade de não fornecer consentimento e suas consequências;</li>
+          <li>Revogação do consentimento, quando aplicável;</li>
+          <li>Eliminação dos dados tratados com consentimento, ressalvadas as hipóteses legais de conservação;</li>
+          <li>Revisão de decisões tomadas unicamente com base em tratamento automatizado, quando aplicável.</li>
+        </ul>
+        <p>
+          As solicitações poderão ser encaminhadas pelos canais oficiais
+          de privacidade e suporte. Poderá ser necessária a confirmação
+          da identidade do solicitante para proteger os dados contra
+          divulgação indevida.
+        </p>
+
+        <h2>10. Cookies e armazenamento no navegador</h2>
+        <p>
+          O Orvix poderá utilizar cookies e mecanismos técnicos necessários
+          à autenticação, à manutenção de sessões, à segurança e ao
+          funcionamento da plataforma.
+        </p>
+        <p>
+          A forma de armazenamento das credenciais dependerá da implementação
+          técnica utilizada, podendo incluir cookies com atributos de
+          segurança ou outros mecanismos apropriados.
+        </p>
+        <p>
+          Recomenda-se que os usuários evitem compartilhar dispositivos
+          autenticados e encerrem suas sessões quando utilizarem equipamentos
+          compartilhados.
+        </p>
+        <p>
+          Caso sejam implementadas tecnologias adicionais para análise de
+          utilização ou outras finalidades não essenciais, suas finalidades
+          serão informadas conforme as exigências legais aplicáveis.
+        </p>
+
+        <h2>11. Transferências internacionais</h2>
+        <p>
+          Alguns fornecedores de infraestrutura ou serviços poderão processar
+          dados pessoais fora do Brasil. Quando houver transferência
+          internacional, serão observados os requisitos e mecanismos de
+          proteção previstos na legislação brasileira aplicável.
+        </p>
+
+        <h2>12. Alterações desta Política</h2>
+        <p>
+          Esta Política poderá ser atualizada para refletir mudanças na
+          plataforma, nos procedimentos de tratamento, nos fornecedores
+          utilizados ou nas exigências legais.
+        </p>
+        <p>
+          A versão vigente indicará a data da última atualização. Alterações
+          relevantes poderão ser comunicadas pela plataforma ou por outros
+          canais apropriados.
+        </p>
+
+        <h2>13. Contato e solicitações de privacidade</h2>
+        <p>
+          Para dúvidas, solicitações ou assuntos relacionados à privacidade,
+          entre em contato pelo endereço
+          <a href="mailto:a2odevelopment21@gmail.com">a2odevelopment21@gmail.com</a>.
+        </p>
+        <p>
+          Os titulares também poderão buscar informações e orientações
+          junto à Autoridade Nacional de Proteção de Dados (ANPD).
+        </p>
+
+        <h2>14. Legislação aplicável</h2>
+        <p>
+          Esta Política será interpretada conforme a legislação brasileira
+          aplicável, especialmente a Lei nº 13.709/2018 (LGPD).
+        </p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <a href="/">Início</a>
+      <a href="/termos.html">Termos de Uso</a>
+      <a href="/politica-privacidade.html">Política de Privacidade</a>
+    </footer>
   </div>
-
-  <article class="doc">
-    <h1>Política de Privacidade</h1>
-    <div class="updated">Última atualização: <span class="todo">[DD/MM/AAAA]</span></div>
-
-    <p>Esta política explica como a Orvix trata dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).</p>
-
-    <h2>1. Quem é o responsável</h2>
-    <p><span class="todo">Nexa Sistemas / Alexssander Cassio Comper Cristino</span>, CNPJ/CPF <span class="todo">[NÚMERO]</span>. Canal de privacidade (encarregado): <span class="todo">[E-MAIL]</span>.</p>
-
-    <h2>2. Dados que coletamos</h2>
-    <ul>
-      <li><strong>Cadastro da empresa:</strong> nome, e-mail, telefone e tipo de negócio.</li>
-      <li><strong>Usuários:</strong> nome, e-mail, cargo, permissões e senha (armazenada de forma protegida).</li>
-      <li><strong>Pagamento:</strong> e-mail, nome do titular e CPF informados na assinatura. Os dados do cartão são processados diretamente pelo Mercado Pago; a Orvix não recebe nem armazena o número completo do cartão.</li>
-      <li><strong>Dados inseridos por você:</strong> clientes, telefones, placas, agendamentos, serviços, despesas e valores.</li>
-      <li><strong>Dados técnicos e de segurança:</strong> endereço IP, data e hora de acesso, ações realizadas e informações do navegador, usados em logs e auditoria.</li>
-    </ul>
-
-    <h2>3. Para que usamos</h2>
-    <ul>
-      <li>Criar e manter sua conta e prestar o serviço contratado.</li>
-      <li>Processar assinaturas e cobranças.</li>
-      <li>Garantir a segurança, prevenir fraudes e manter registros de auditoria.</li>
-      <li>Cumprir obrigações legais e responder a solicitações.</li>
-      <li>Enviar comunicações essenciais sobre a conta e o serviço.</li>
-    </ul>
-
-    <h2>4. Dados dos clientes da sua empresa</h2>
-    <p>Sobre os dados de clientes que você cadastra, a sua empresa é a controladora e a Orvix é operadora: tratamos esses dados apenas para fornecer o sistema, conforme suas instruções. Você é responsável por informar seus clientes e ter base legal para o tratamento.</p>
-
-    <h2>5. Bases legais</h2>
-    <p>Execução de contrato, cumprimento de obrigação legal, legítimo interesse (segurança e prevenção a fraudes) e consentimento, quando aplicável.</p>
-
-    <h2>6. Compartilhamento</h2>
-    <p>Não vendemos dados pessoais. Compartilhamos apenas com prestadores necessários à operação, como o Mercado Pago (pagamentos) e provedores de hospedagem e banco de dados, e com autoridades quando exigido por lei. <span class="todo">[Liste aqui outros fornecedores que você usa, ex.: e-mail transacional.]</span></p>
-
-    <h2>7. Armazenamento e segurança</h2>
-    <p>Adotamos medidas técnicas e organizacionais para proteger os dados, como controle de acesso, senhas protegidas e comunicação criptografada. Nenhum sistema é totalmente imune a incidentes; em caso de incidente relevante, comunicaremos os afetados e a ANPD conforme a lei.</p>
-
-    <h2>8. Por quanto tempo guardamos</h2>
-    <p>Mantemos os dados enquanto a conta estiver ativa e pelo tempo necessário para cumprir obrigações legais, exercer direitos e resolver disputas. <span class="todo">[Defina prazos, ex.: dados da conta excluídos em X dias após o encerramento.]</span></p>
-
-    <h2>9. Seus direitos</h2>
-    <p>Você pode solicitar: confirmação de tratamento, acesso, correção, anonimização, portabilidade, eliminação de dados tratados com consentimento, informação sobre compartilhamento e revogação do consentimento. Para exercer seus direitos, use a área "Privacidade e Dados" do sistema ou escreva para <span class="todo">[E-MAIL]</span>.</p>
-
-    <h2>10. Armazenamento no navegador</h2>
-    <p>Usamos o armazenamento local do navegador para manter sua sessão (token de acesso) e preferências. Esses dados são necessários ao funcionamento do login.</p>
-
-    <h2>11. Alterações</h2>
-    <p>Podemos atualizar esta política. Mudanças relevantes serão comunicadas no sistema ou por e-mail.</p>
-
-    <h2>12. Contato</h2>
-    <p>Dúvidas sobre privacidade: <span class="todo">a2odevelopment21@gmail.com</span>. Você também pode contatar a Autoridade Nacional de Proteção de Dados (ANPD).</p>
-  </article>
-</div>
 </body>
 </html>
