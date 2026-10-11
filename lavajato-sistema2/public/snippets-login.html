@@ -1,0 +1,42 @@
+<!-- ========================================================
+     1) CSS: cole dentro do <style> do index.html
+     ======================================================== -->
+<style>
+  .legal-note { margin-top:14px; text-align:center; color:#64748b; font-size:12px; line-height:1.6; }
+  .legal-note a, .terms-check a { color:#2563eb; font-weight:700; text-decoration:none; }
+  .legal-note a:hover, .terms-check a:hover { text-decoration:underline; }
+  .terms-check { display:flex; align-items:flex-start; gap:10px; margin:14px 0 4px; font-size:13px; color:#334155; line-height:1.5; }
+  .terms-check input[type="checkbox"] { width:18px; height:18px; min-height:0; margin:2px 0 0; padding:0; flex-shrink:0; accent-color:#2563eb; }
+</style>
+
+<!-- ========================================================
+     2) LOGIN: cole logo ABAIXO do botão "Entrar", dentro do formulário de login
+     ======================================================== -->
+<p class="legal-note">
+  Ao entrar, você concorda com os
+  <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a
+  <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.
+</p>
+
+<!-- ========================================================
+     3) CADASTRO: cole logo ACIMA do botão "Criar conta", dentro do formulário de cadastro
+     ======================================================== -->
+<label class="terms-check">
+  <input type="checkbox" id="aceite-termos" required>
+  <span>
+    Li e aceito os
+    <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a
+    <a href="/politica-de-privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.
+  </span>
+</label>
+
+<!-- ========================================================
+     4) JS (só se o cadastro NÃO usa <form> com evento submit):
+     coloque no INÍCIO da função que envia o cadastro
+     ======================================================== -->
+<script>
+  // if (!document.getElementById('aceite-termos')?.checked) {
+  //   alert('Aceite os Termos de Uso e a Política de Privacidade para criar a conta.');
+  //   return;
+  // }
+</script>
