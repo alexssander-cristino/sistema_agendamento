@@ -1,82 +1,324 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Termos de Uso da plataforma Orvix.">
+  <meta name="theme-color" content="#2563eb">
   <title>Termos de Uso | Orvix</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
   <style>
-    :root { --primary:#2563eb; --text:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f4f7fb; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--text); background:var(--bg); line-height:1.7; }
-    .wrap { max-width:820px; margin:0 auto; padding:32px 20px 60px; }
-    .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-    .top a { color:var(--primary); font-weight:700; text-decoration:none; font-size:14px; }
-    .doc { background:#fff; border:1px solid var(--border); border-radius:20px; padding:36px; box-shadow:0 18px 50px rgba(15,23,42,.06); }
-    h1 { margin:0 0 6px; font-size:30px; letter-spacing:-.03em; }
-    .updated { color:var(--muted); font-size:13px; margin-bottom:28px; }
-    h2 { margin:30px 0 8px; font-size:18px; }
-    p, li { font-size:15px; color:#334155; }
-    ul { padding-left:22px; }
-    .todo { background:#fef9c3; padding:0 4px; border-radius:4px; }
-    @media (max-width:560px){ .doc{padding:22px;} h1{font-size:25px;} }
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    a { color: var(--primary); }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--text);
+    }
+
+    .brand span { color: var(--primary); }
+
+    .top a {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .top a:hover, .footer a:hover { text-decoration: underline; }
+
+    .doc {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, .06);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(25px, 5vw, 32px);
+      letter-spacing: -.04em;
+      line-height: 1.25;
+    }
+
+    .updated {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      margin: 30px 0 8px;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+
+    p, li {
+      font-size: 15px;
+      color: #334155;
+    }
+
+    ul { padding-left: 22px; }
+
+    li { margin-bottom: 7px; }
+
+    .footer {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      padding-top: 24px;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    @media (max-width: 560px) {
+      .wrap { padding: 22px 14px 36px; }
+      .doc { padding: 22px 18px; border-radius: 16px; }
+      .top { align-items: flex-start; }
+      .top a { text-align: right; }
+      p, li { font-size: 14px; }
+    }
   </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="top">
-    <strong>Orvix</strong>
-    <a href="/">← Voltar ao login</a>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">Orvix<span>.</span></div>
+      <a href="/">← Voltar ao login</a>
+    </header>
+
+    <main>
+      <article class="doc">
+        <h1>Termos de Uso</h1>
+        <div class="updated">Última atualização: 11/10/2026</div>
+
+        <p>
+          Bem-vindo ao Orvix. Estes Termos de Uso estabelecem as condições
+          para acessar e utilizar a plataforma. Ao criar uma conta ou utilizar
+          o serviço, você declara que leu e compreendeu estas condições.
+        </p>
+
+        <h2>1. Sobre a plataforma</h2>
+        <p>
+          O Orvix é uma plataforma de gestão empresarial que disponibiliza
+          ferramentas para organizar informações, usuários, clientes,
+          serviços, agendamentos, despesas, faturamento e outros recursos
+          disponibilizados conforme a modalidade contratada.
+        </p>
+        <p>
+          As funcionalidades podem ser atualizadas, ampliadas ou modificadas
+          para melhorar o serviço, respeitadas as obrigações legais e
+          contratuais aplicáveis.
+        </p>
+
+        <h2>2. Cadastro e conta</h2>
+        <ul>
+          <li>As informações fornecidas no cadastro devem ser verdadeiras, completas e atualizadas.</li>
+          <li>O usuário deve manter a confidencialidade de suas credenciais de acesso.</li>
+          <li>O responsável pela empresa deve administrar os usuários e suas permissões adequadamente.</li>
+          <li>O usuário deve comunicar atividades suspeitas ou acessos não autorizados assim que possível.</li>
+          <li>O compartilhamento de contas individuais poderá ser restringido por razões de segurança.</li>
+        </ul>
+
+        <h2>3. Responsabilidades do usuário</h2>
+        <p>Ao utilizar o Orvix, você concorda em:</p>
+        <ul>
+          <li>Utilizar a plataforma de acordo com a legislação aplicável;</li>
+          <li>Fornecer informações corretas e manter os dados cadastrais atualizados;</li>
+          <li>Possuir autorização e fundamento legal para inserir dados pessoais de terceiros;</li>
+          <li>Não tentar acessar dados, contas, sistemas ou recursos sem autorização;</li>
+          <li>Não explorar vulnerabilidades, contornar controles de segurança ou interferir no funcionamento do serviço;</li>
+          <li>Não utilizar a plataforma para atividades ilícitas, fraudes ou distribuição de conteúdo malicioso.</li>
+        </ul>
+
+        <h2>4. Dados cadastrados na plataforma</h2>
+        <p>
+          A empresa usuária é responsável pela legitimidade, exatidão e
+          utilização dos dados que inserir no Orvix, incluindo informações
+          de clientes, contatos, funcionários e registros financeiros.
+        </p>
+        <p>
+          A empresa deve observar as normas aplicáveis à proteção de dados
+          pessoais, incluindo a Lei Geral de Proteção de Dados Pessoais
+          (Lei nº 13.709/2018 — LGPD).
+        </p>
+
+        <h2>5. Planos, pagamentos e assinaturas</h2>
+        <p>
+          Os valores, recursos, limites e condições de cada plano serão
+          apresentados nos canais oficiais do Orvix no momento da contratação.
+        </p>
+        <p>
+          Quando houver assinatura paga, o usuário deverá observar os valores,
+          a periodicidade de cobrança e as condições informadas antes de
+          concluir a contratação.
+        </p>
+        <p>
+          Os pagamentos poderão ser processados por prestadores especializados,
+          como o Mercado Pago, quando disponibilizado. O processamento também
+          estará sujeito às condições do respectivo prestador.
+        </p>
+        <p>
+          Eventuais cancelamentos, reembolsos, cobranças pendentes e efeitos
+          do encerramento da assinatura seguirão as condições apresentadas
+          na contratação e a legislação aplicável, inclusive as normas de
+          proteção do consumidor quando incidentes.
+        </p>
+
+        <h2>6. Disponibilidade e manutenção</h2>
+        <p>
+          O Orvix busca manter a plataforma disponível e funcional. Entretanto,
+          poderão ocorrer interrupções temporárias decorrentes de manutenção,
+          atualizações, falhas técnicas, indisponibilidade de fornecedores,
+          problemas de conectividade ou eventos fora do controle razoável
+          do responsável pela plataforma.
+        </p>
+        <p>
+          Sempre que viável, manutenções programadas poderão ser comunicadas
+          previamente.
+        </p>
+
+        <h2>7. Segurança e prevenção de abusos</h2>
+        <p>
+          Poderão ser utilizados controles de acesso, registros técnicos,
+          monitoramento de atividades e mecanismos de limitação de requisições
+          para proteger a plataforma e seus usuários.
+        </p>
+        <p>
+          Diante de indícios de fraude, abuso, comprometimento de conta ou
+          violação destes Termos, poderão ser adotadas medidas proporcionais,
+          incluindo solicitação de esclarecimentos, restrição temporária
+          de funcionalidades ou suspensão de acesso, respeitadas as obrigações
+          legais aplicáveis.
+        </p>
+
+        <h2>8. Propriedade intelectual</h2>
+        <p>
+          A plataforma, sua identidade visual, seu código, seus elementos
+          gráficos e demais componentes protegidos pertencem aos respectivos
+          titulares e são protegidos pela legislação aplicável.
+        </p>
+        <p>
+          A contratação do serviço não transfere ao usuário a propriedade
+          intelectual do Orvix. O usuário mantém os direitos que possuir
+          sobre os conteúdos e dados que inserir na plataforma.
+        </p>
+
+        <h2>9. Limites de responsabilidade</h2>
+        <p>
+          O Orvix é uma ferramenta de apoio à gestão e não substitui a
+          conferência das informações, a tomada de decisões pela empresa
+          ou a orientação de profissionais qualificados quando necessária.
+        </p>
+        <p>
+          O usuário é responsável por revisar os registros inseridos e os
+          resultados utilizados em suas decisões empresariais.
+        </p>
+        <p>
+          Estes Termos não excluem nem limitam responsabilidades que não
+          possam ser afastadas por lei, nem prejudicam os direitos
+          assegurados aos consumidores, quando aplicáveis.
+        </p>
+
+        <h2>10. Suspensão e encerramento</h2>
+        <p>
+          O usuário poderá solicitar o encerramento de sua conta pelos canais
+          disponibilizados pelo Orvix, observadas eventuais pendências e
+          obrigações legais aplicáveis.
+        </p>
+        <p>
+          O acesso poderá ser suspenso ou encerrado em caso de violação
+          relevante destes Termos, fraude, risco à segurança ou exigência
+          legal. Quando apropriado e permitido, o usuário será informado
+          sobre a medida adotada.
+        </p>
+        <p>
+          O encerramento da conta não elimina automaticamente dados cuja
+          conservação seja necessária por obrigação legal ou outra hipótese
+          autorizada pela legislação.
+        </p>
+
+        <h2>11. Privacidade e proteção de dados</h2>
+        <p>
+          O tratamento de dados pessoais relacionados à utilização da
+          plataforma é explicado na
+          <a href="/politica-privacidade.html">Política de Privacidade</a>,
+          que deve ser lida em conjunto com estes Termos.
+        </p>
+
+        <h2>12. Alterações destes Termos</h2>
+        <p>
+          Estes Termos poderão ser atualizados para refletir mudanças no
+          serviço, nos procedimentos operacionais ou na legislação.
+          A versão vigente apresentará a data de sua última atualização.
+          Mudanças relevantes poderão ser comunicadas por meios apropriados.
+        </p>
+
+        <h2>13. Legislação e foro</h2>
+        <p>
+          Estes Termos serão interpretados conforme as leis brasileiras.
+          Eventuais controvérsias serão submetidas ao foro competente,
+          respeitadas as regras legais de competência e os direitos dos
+          consumidores, quando aplicáveis.
+        </p>
+
+        <h2>14. Contato</h2>
+        <p>
+          Para dúvidas sobre estes Termos, utilize o canal oficial de
+          atendimento: <a href="mailto:a2odevelopment21@gmail.com">a2odevelopment21@gmail.com</a>.
+        </p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <a href="/">Início</a>
+      <a href="/termos.html">Termos de Uso</a>
+      <a href="/politica-privacidade.html">Política de Privacidade</a>
+    </footer>
   </div>
-
-  <article class="doc">
-    <h1>Termos de Uso</h1>
-    <div class="updated">Última atualização: <span class="todo">[DD/MM/AAAA]</span></div>
-
-    <p>Estes Termos regulam o uso da plataforma Orvix (agenda, faturamento e gestão para empresas). Ao criar uma conta ou usar o sistema, você declara que leu e concorda com eles.</p>
-
-    <h2>1. Quem somos</h2>
-    <p>A Orvix é operada por <span class="todo">Nexa Sistemas / Alexssander Cassio Comper Cristino</span>, 117.304.099-46 <span class="todo">[NÚMERO]</span>. Contato: <span class="todo">[E-MAIL DE SUPORTE]</span>.</p>
-
-    <h2>2. O serviço</h2>
-    <p>A Orvix oferece ferramentas online para agendamentos, cadastro de serviços e clientes, controle de despesas, faturamento e relatórios. Funcionalidades podem ser alteradas, aprimoradas ou descontinuadas ao longo do tempo.</p>
-
-    <h2>3. Conta e acesso</h2>
-    <ul>
-      <li>Você deve fornecer informações verdadeiras e mantê-las atualizadas.</li>
-      <li>Você é responsável pela confidencialidade da senha e por toda atividade realizada na sua conta, inclusive pelos usuários que cadastrar na sua empresa.</li>
-      <li>Avise-nos imediatamente se suspeitar de uso não autorizado.</li>
-    </ul>
-
-    <h2>4. Planos, pagamento e cancelamento</h2>
-    <ul>
-      <li>O uso contínuo exige uma assinatura paga, com cobrança recorrente conforme o plano escolhido (mensal, trimestral, semestral ou anual).</li>
-      <li>Os pagamentos são processados pelo Mercado Pago. A Orvix não armazena o número completo do cartão.</li>
-      <li>Você pode cancelar a assinatura a qualquer momento na tela "Minha assinatura". O cancelamento interrompe as cobranças futuras. <span class="todo">[Defina aqui a política de reembolso e do período já pago.]</span></li>
-      <li>Em caso de falha no pagamento, o acesso pode ser limitado até a regularização.</li>
-    </ul>
-
-    <h2>5. Seus dados e os dados dos seus clientes</h2>
-    <p>Os dados que você cadastra (clientes, agendamentos, valores) pertencem a você. Em relação a eles, a sua empresa atua como controladora e a Orvix como operadora, tratando-os apenas para prestar o serviço. Você é responsável por ter base legal para inserir dados de terceiros no sistema. Veja a <a href="/privacidade.html">Política de Privacidade</a>.</p>
-
-    <h2>6. Uso aceitável</h2>
-    <p>É proibido usar a plataforma para fins ilegais, tentar acessar áreas ou dados de outras empresas, interferir no funcionamento do sistema, enviar conteúdo malicioso ou revender o acesso sem autorização.</p>
-
-    <h2>7. Disponibilidade</h2>
-    <p>Buscamos manter o sistema disponível, mas não garantimos funcionamento ininterrupto. Pode haver manutenções, falhas de terceiros ou indisponibilidades fora do nosso controle.</p>
-
-    <h2>8. Limitação de responsabilidade</h2>
-    <p>Na extensão permitida pela lei, a Orvix não responde por lucros cessantes, perda de oportunidades ou danos indiretos decorrentes do uso ou da impossibilidade de uso do sistema. Recomendamos que você mantenha cópias dos dados importantes.</p>
-
-    <h2>9. Suspensão e encerramento</h2>
-    <p>Podemos suspender ou encerrar contas que violem estes Termos. Você pode encerrar sua conta a qualquer momento, e os dados serão tratados conforme a Política de Privacidade.</p>
-
-    <h2>10. Alterações</h2>
-    <p>Podemos atualizar estes Termos. Mudanças relevantes serão comunicadas no sistema ou por e-mail. O uso continuado após a atualização indica concordância.</p>
-
-    <h2>11. Lei aplicável e foro</h2>
-    <p>Estes Termos são regidos pelas leis do Brasil. Fica eleito o foro da comarca de <span class="todo">[CIDADE/UF]</span>, ressalvado o foro do consumidor quando aplicável.</p>
-  </article>
-</div>
 </body>
 </html>
