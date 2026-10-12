@@ -2,332 +2,531 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacidade e Dados | Orvix</title>
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 
   <style>
-    /* =========================================================
-   ORVIX — PRIVACIDADE E DADOS · tema escuro "Nexa"
-   Cole no lugar do conteúdo do <style> da página (ou salve como
-   arquivo e use <link rel="stylesheet">). HTML e JS não mudam.
-   ========================================================= */
+    :root {
+      color-scheme: dark;
 
-:root {
-  color-scheme: dark;
+      --canvas: #0a0e1a;
+      --canvas-2: #0f1424;
+      --card: rgba(255, 255, 255, .04);
+      --card-hover: rgba(255, 255, 255, .065);
+      --field: rgba(255, 255, 255, .05);
 
-  --canvas: #0a0e1a;
-  --canvas-2: #0f1424;
-  --bg: var(--canvas);
-  --card: rgba(255, 255, 255, .04);
-  --card-hover: rgba(255, 255, 255, .065);
+      --text: #e8ecf5;
+      --muted: #9aa4bd;
+      --faint: #7a849e;
 
-  --text: #e8ecf5;
-  --muted: #9aa4bd;
-  --faint: #7a849e;
+      --border: rgba(255, 255, 255, .09);
+      --border-strong: rgba(255, 255, 255, .16);
 
-  --border: rgba(255, 255, 255, .09);
-  --border-strong: rgba(255, 255, 255, .16);
+      --ac: #4f8cff;
+      --ac2: #22d3ee;
+      --violet: #6d5cff;
+      --grad: linear-gradient(135deg, var(--ac), var(--violet));
+      --ring: 0 0 0 3px rgba(79, 140, 255, .3);
+      --glow: 0 8px 24px -8px rgba(79, 140, 255, .65);
 
-  --ac: #4f8cff;
-  --ac2: #22d3ee;
-  --violet: #6d5cff;
-  --primary: var(--ac);
-  --primary-hover: #6a9dff;
-  --grad: linear-gradient(135deg, var(--ac), var(--violet));
-  --grad-text: linear-gradient(90deg, var(--ac), var(--ac2));
-  --ring: 0 0 0 3px rgba(79, 140, 255, .3);
-  --glow: 0 8px 24px -8px rgba(79, 140, 255, .65);
+      --success: #2fd68b;
+      --warning: #fbbf24;
+      --danger: #ff5d73;
+      --info: #8db4ff;
 
-  --success: #2fd68b;
-  --warning: #fbbf24;
-  --danger: #ff5d73;
+      --radius: 12px;
+      --radius-l: 18px;
+      --shadow: 0 10px 30px -18px rgba(0, 0, 0, .7);
+      --ease: 170ms cubic-bezier(.22, .8, .24, 1);
+    }
 
-  --radius: 12px;
-  --radius-l: 18px;
-  --shadow: 0 10px 30px -18px rgba(0, 0, 0, .7);
-  --ease: 170ms cubic-bezier(.22, .8, .24, 1);
-}
+    *, *::before, *::after { box-sizing: border-box; }
 
-*, *::before, *::after { box-sizing: border-box; }
+    html { background: var(--canvas); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
-html { background: var(--canvas); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(620px 500px at 100% 0, rgba(79, 140, 255, .15), transparent 70%),
+        radial-gradient(520px 420px at 0 100%, rgba(109, 92, 255, .10), transparent 70%),
+        var(--canvas);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(620px 500px at 100% 0, rgba(79, 140, 255, .15), transparent 70%),
-    radial-gradient(520px 420px at 0 100%, rgba(109, 92, 255, .10), transparent 70%),
-    var(--canvas);
-  background-repeat: no-repeat;
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+    ::selection { background: rgba(79, 140, 255, .4); color: #fff; }
+    ::placeholder { color: var(--faint); opacity: 1; }
+    :focus-visible { outline: 2px solid var(--ac2); outline-offset: 3px; border-radius: 8px; }
 
-::selection { background: rgba(79, 140, 255, .4); color: #fff; }
-::placeholder { color: var(--faint); opacity: 1; }
-:focus-visible { outline: 2px solid var(--ac2); outline-offset: 3px; border-radius: 8px; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
 
-* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .18) transparent; }
-*::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .18); border-radius: 20px; }
+    h2, h3, p { margin: 0; }
 
-/* ---------- Estrutura ---------- */
-.container { width: min(1200px, calc(100% - 32px)); margin: 40px auto; }
+    .container { width: min(1180px, calc(100% - 32px)); margin: 36px auto 60px; }
 
-.topo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
+    /* ---------- Topo ---------- */
 
-.topo h1 {
-  margin: 0;
-  font-size: clamp(1.6rem, 3.5vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: 1.15;
-}
+    .topo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
 
-.topo p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+    .topo h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3.5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+    }
 
-.btn-voltar {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  padding: 10px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  color: var(--text);
-  font-size: 13.5px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: transform var(--ease), border-color var(--ease), background-color var(--ease);
-}
+    .topo p { margin-top: 8px; color: var(--muted); max-width: 620px; }
 
-.btn-voltar:hover { transform: translateY(-1px); border-color: var(--ac); background: var(--card-hover); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 18px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform var(--ease), filter var(--ease), border-color var(--ease), background-color var(--ease);
+    }
 
-.card {
-  margin-bottom: 20px;
-  padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-l);
-  background: var(--card);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-}
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-/* ---------- Filtros e campos ---------- */
-.filtros {
-  display: grid;
-  grid-template-columns: minmax(180px, 250px) 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
-}
+    .btn-primary { background: var(--grad); color: #fff; box-shadow: var(--glow); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
 
-select,
-textarea,
-#filtroTexto {
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, .04);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  transition: border-color var(--ease), box-shadow var(--ease), background-color var(--ease);
-}
+    .btn-ghost { background: var(--card); border-color: var(--border); color: var(--text); }
+    .btn-ghost:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--ac); background: var(--card-hover); }
 
-/* o input de pesquisa tem style inline no HTML; estes !important o igualam aos demais campos */
-#filtroTexto {
-  width: 100% !important;
-  padding: 10px 14px !important;
-  border: 1px solid var(--border-strong) !important;
-  border-radius: 10px !important;
-  font-size: 14px !important;
-}
+    .btn-danger { background: rgba(255,93,115,.12); border-color: rgba(255,93,115,.35); color: #ff8497; }
+    .btn-danger:hover:not(:disabled) { background: rgba(255,93,115,.2); }
 
-select { cursor: pointer; }
-select option { background: var(--canvas-2); color: var(--text); }
+    .btn-small { min-height: 34px; padding: 6px 14px; font-size: 12.5px; }
 
-textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-select:hover, textarea:hover, #filtroTexto:hover { border-color: rgba(255, 255, 255, .26) !important; }
+    .spin svg { animation: spin .8s linear infinite; }
 
-select:focus,
-textarea:focus,
-#filtroTexto:focus {
-  outline: none;
-  border-color: var(--ac) !important;
-  background-color: rgba(255, 255, 255, .06);
-  box-shadow: var(--ring);
-}
+    /* ---------- Aviso introdutório ---------- */
 
-/* ---------- Lista de solicitações ---------- */
-.lista { display: grid; gap: 14px; }
+    .intro {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
 
-.solicitacao {
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--ac);
-  border-radius: var(--radius-l);
-  background: rgba(255, 255, 255, .03);
-  transition: border-color var(--ease), background-color var(--ease);
-}
+    .intro-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-l);
+      background: var(--card);
+    }
 
-.solicitacao:hover { border-color: rgba(79, 140, 255, .45); border-left-color: var(--ac2); background: var(--card-hover); }
+    .intro-icone {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(79,140,255,.14);
+      color: var(--info);
+    }
 
-.solicitacao-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+    .intro-icone svg { width: 18px; height: 18px; }
 
-.tipo { font-size: 17px; font-weight: 700; letter-spacing: -.015em; }
-.usuario { margin-top: 5px; color: var(--muted); font-size: 13.5px; overflow-wrap: anywhere; }
+    .intro-item strong { display: block; font-size: 13.5px; }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  min-height: 24px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: .02em;
-  white-space: nowrap;
-}
+    .intro-item span { color: var(--muted); font-size: 12.5px; line-height: 1.5; }
 
-.status-pendente { background: rgba(251, 191, 36, .14); color: var(--warning); }
-.status-em_analise { background: rgba(79, 140, 255, .16); color: #8db4ff; }
-.status-atendida { background: rgba(47, 214, 139, .14); color: var(--success); }
-.status-recusada,
-.status-cancelada { background: rgba(255, 93, 115, .14); color: #ff8497; }
+    .intro-item a { color: var(--ac2); font-weight: 600; text-decoration: none; }
+    .intro-item a:hover { text-decoration: underline; }
 
-.descricao {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .03);
-  color: var(--text);
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-}
+    /* ---------- Layout ---------- */
 
-.descricao strong { color: var(--ac2); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 20px;
+      align-items: start;
+    }
 
-.data { margin-top: 10px; color: var(--faint); font-size: 12px; }
+    .card {
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-l);
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
 
-.acoes { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
-.acoes-grid { display: grid; grid-template-columns: 220px 1fr; gap: 12px; }
+    .card-form { position: sticky; top: 20px; }
 
-/* ---------- Botões ---------- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 10px 20px;
-  border: 0;
-  border-radius: var(--radius);
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  line-height: 1.2;
-  cursor: pointer;
-  transition: transform var(--ease), filter var(--ease), box-shadow var(--ease);
-}
+    .card-titulo { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
 
-.btn:active { transform: none; }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
+    .card-sub { margin: 6px 0 18px; color: var(--muted); }
 
-.btn-primary { background: var(--grad); color: #fff; box-shadow: var(--glow); }
-.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.1); background: var(--grad); }
+    .rotulo {
+      display: block;
+      margin: 18px 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
 
-/* ---------- Mensagens e estados ---------- */
-.mensagem {
-  display: none;
-  margin-bottom: 20px;
-  padding: 12px 16px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  font-size: 14px;
-  animation: msgIn .25s var(--ease) both;
-}
+    /* ---------- Escolha do tipo ---------- */
 
-@keyframes msgIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .tipos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
-.mensagem.sucesso { display: block; border-color: rgba(47, 214, 139, .3); background: rgba(47, 214, 139, .12); color: var(--success); }
-.mensagem.erro { display: block; border-color: rgba(255, 93, 115, .3); background: rgba(255, 93, 115, .12); color: #ff8497; }
+    .tipo-opcao {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 13px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--field);
+      color: var(--text);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color var(--ease), background-color var(--ease), transform var(--ease);
+    }
 
-.vazio {
-  padding: 45px 20px;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, .02);
-  color: var(--muted);
-  text-align: center;
-}
+    .tipo-opcao:hover { border-color: rgba(255,255,255,.3); background: var(--card-hover); }
 
-.loading { padding: 30px; color: var(--muted); text-align: center; }
+    .tipo-opcao[aria-checked="true"] {
+      border-color: var(--ac);
+      background: rgba(79,140,255,.14);
+      box-shadow: var(--ring);
+    }
 
-.loading::before {
-  content: "";
-  display: block;
-  width: 22px;
-  height: 22px;
-  margin: 0 auto 12px;
-  border: 2px solid rgba(255, 255, 255, .14);
-  border-top-color: var(--ac2);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
+    .tipo-opcao svg { width: 20px; height: 20px; color: var(--info); }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+    .tipo-opcao strong { font-size: 13px; line-height: 1.3; }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-}
+    .tipo-opcao span { color: var(--muted); font-size: 12px; line-height: 1.45; }
 
-/* ---------- Responsivo ---------- */
-@media (max-width: 700px) {
-  .container { width: calc(100% - 20px); margin: 16px auto 32px; }
-  .topo { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .card { padding: 16px; border-radius: var(--radius); }
-  .filtros, .acoes-grid { grid-template-columns: 1fr; }
-  .solicitacao { padding: 16px; }
-  .solicitacao-topo { flex-direction: column; gap: 10px; }
-  .acoes .btn { width: 100%; }
-  .btn { min-height: 44px; }
-}
+    /* ---------- Campos ---------- */
 
-@media (max-width: 380px) {
-  .container { width: calc(100% - 14px); }
-  .btn-voltar { width: 100%; justify-content: center; }
-}
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background: var(--field);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.55;
+      resize: vertical;
+      transition: border-color var(--ease), box-shadow var(--ease), background-color var(--ease);
+    }
+
+    textarea:hover { border-color: rgba(255,255,255,.26); }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--ac);
+      background: rgba(255,255,255,.07);
+      box-shadow: var(--ring);
+    }
+
+    textarea.invalido { border-color: var(--danger); }
+
+    .campo-rodape {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+      color: var(--faint);
+      font-size: 12px;
+    }
+
+    .campo-rodape .limite { color: var(--warning); }
+
+    .aviso {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(251,191,36,.3);
+      border-radius: 10px;
+      background: rgba(251,191,36,.08);
+      color: #fcd980;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .aviso.visivel { display: block; }
+
+    .erro-campo {
+      display: none;
+      margin-top: 12px;
+      padding: 11px 14px;
+      border: 1px solid rgba(255,93,115,.3);
+      border-radius: 10px;
+      background: rgba(255,93,115,.1);
+      color: #ff8497;
+      font-size: 13px;
+    }
+
+    .erro-campo.visivel { display: block; }
+
+    .form-acoes { margin-top: 18px; }
+
+    .form-acoes .btn { width: 100%; }
+
+    .nota { margin-top: 12px; color: var(--faint); font-size: 12px; line-height: 1.5; }
+
+    /* ---------- Lista de solicitações ---------- */
+
+    .lista-topo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .lista-topo .card-sub { margin-bottom: 0; }
+
+    .filtros { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+    .chip {
+      min-height: 34px;
+      padding: 5px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      background: var(--field);
+      color: var(--muted);
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color var(--ease), background-color var(--ease), color var(--ease);
+    }
+
+    .chip:hover { color: var(--text); border-color: rgba(255,255,255,.3); }
+
+    .chip[aria-pressed="true"] { border-color: var(--ac); background: rgba(79,140,255,.18); color: #fff; }
+
+    .chip b { margin-left: 4px; font-weight: 700; opacity: .8; }
+
+    .lista { display: grid; gap: 12px; }
+
+    .solicitacao {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--ac);
+      border-radius: var(--radius-l);
+      background: rgba(255,255,255,.03);
+      transition: background-color var(--ease);
+    }
+
+    .solicitacao:hover { background: var(--card-hover); }
+
+    .solicitacao[data-status="pendente"] { border-left-color: var(--warning); }
+    .solicitacao[data-status="atendida"] { border-left-color: var(--success); }
+    .solicitacao[data-status="recusada"], .solicitacao[data-status="cancelada"] { border-left-color: var(--danger); }
+
+    .sol-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+
+    .sol-tipo { font-size: 16px; font-weight: 700; letter-spacing: -.015em; }
+
+    .sol-meta { margin-top: 3px; color: var(--faint); font-size: 12.5px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      min-height: 24px;
+      padding: 3px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+
+    .b-pendente { background: rgba(251,191,36,.14); color: var(--warning); }
+    .b-em_analise { background: rgba(79,140,255,.16); color: var(--info); }
+    .b-atendida { background: rgba(47,214,139,.14); color: var(--success); }
+    .b-recusada, .b-cancelada { background: rgba(255,93,115,.14); color: #ff8497; }
+
+    /* Linha do tempo */
+
+    .passos { display: flex; align-items: center; margin: 16px 0 4px; }
+
+    .passo { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 64px; }
+
+    .passo-ponto {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border-strong);
+      border-radius: 50%;
+      background: var(--canvas-2);
+      color: transparent;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .passo-rotulo { color: var(--faint); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+
+    .passo.feito .passo-ponto { border-color: var(--ac); background: var(--ac); color: #fff; }
+    .passo.feito .passo-rotulo { color: var(--text); }
+
+    .passo.final-ok .passo-ponto { border-color: var(--success); background: var(--success); color: #07210f; }
+    .passo.final-erro .passo-ponto { border-color: var(--danger); background: var(--danger); color: #2a0610; }
+
+    .linha { flex: 1; height: 2px; margin: 0 4px 20px; background: var(--border-strong); }
+    .linha.feita { background: var(--ac); }
+
+    .previsao {
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .previsao.atraso { background: rgba(251,191,36,.1); color: #fcd980; }
+
+    .bloco {
+      margin-top: 12px;
+      padding: 13px 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.03);
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .bloco-titulo {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ac2);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .bloco-resposta { border-color: rgba(47,214,139,.28); background: rgba(47,214,139,.06); }
+    .bloco-resposta .bloco-titulo { color: var(--success); }
+
+    .sol-acoes { margin-top: 14px; }
+
+    /* ---------- Estados ---------- */
+
+    .vazio, .erro-estado {
+      padding: 40px 20px;
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.02);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .vazio strong, .erro-estado strong { display: block; margin-bottom: 4px; color: var(--text); font-size: 15px; }
+
+    .erro-estado .btn { margin-top: 14px; }
+
+    .skeleton {
+      height: 120px;
+      border-radius: var(--radius-l);
+      background: linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 75%);
+      background-size: 200% 100%;
+      animation: brilho 1.3s linear infinite;
+    }
+
+    @keyframes brilho { to { background-position: -200% 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---------- Avisos (toast) ---------- */
+
+    .toasts {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      display: grid;
+      gap: 10px;
+      width: min(380px, calc(100% - 36px));
+    }
+
+    .toast {
+      padding: 13px 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      background: #141a2e;
+      box-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+      font-size: 13.5px;
+      animation: entra .22s var(--ease) both;
+    }
+
+    .toast.sucesso { border-color: rgba(47,214,139,.4); color: var(--success); }
+    .toast.erro { border-color: rgba(255,93,115,.4); color: #ff8497; }
+
+    @keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+
+    /* ---------- Responsivo ---------- */
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .card-form { position: static; }
+      .intro { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .container { width: calc(100% - 20px); margin: 16px auto 40px; }
+      .topo { flex-direction: column; gap: 14px; }
+      .topo .btn { width: 100%; }
+      .card { padding: 16px; border-radius: var(--radius); }
+      .tipos { grid-template-columns: 1fr; }
+      .sol-topo { flex-direction: column; gap: 8px; }
+      .passo { min-width: 52px; }
+      .btn { min-height: 44px; }
+    }
   </style>
 </head>
 
@@ -338,755 +537,731 @@ textarea:focus,
     <header class="topo">
       <div>
         <h1>Privacidade e Dados</h1>
-        <p>
-          Gerencie solicitações relacionadas aos seus dados pessoais.
-        </p>
+        <p>Peça acesso, correção ou exclusão dos seus dados pessoais e acompanhe o andamento de cada solicitação.</p>
       </div>
 
-      <a
-        href="/dashboard.html"
-        class="btn-voltar"
-      >
-        Voltar
-      </a>
+      <a href="/" class="btn btn-ghost">← Voltar ao sistema</a>
     </header>
 
-    <section class="grid">
+    <section class="intro" aria-label="Como funciona">
+      <div class="intro-item">
+        <div class="intro-icone">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5V10l2.5 1.5"/></svg>
+        </div>
+        <div>
+          <strong>Prazo de resposta</strong>
+          <span>Respondemos em até 15 dias após o recebimento.</span>
+        </div>
+      </div>
+
+      <div class="intro-item">
+        <div class="intro-icone">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5 16 4.7v4.5c0 3.8-2.4 6.8-6 8.3-3.6-1.5-6-4.5-6-8.3V4.7L10 2.5Z"/><path d="m7.5 10 1.7 1.7 3.5-3.5"/></svg>
+        </div>
+        <div>
+          <strong>Seus direitos (LGPD)</strong>
+          <span>Você pode acompanhar e cancelar pedidos que ainda estejam pendentes.</span>
+        </div>
+      </div>
+
+      <div class="intro-item">
+        <div class="intro-icone">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h7l3 3v10H5v-13Z"/><path d="M12 3.5v3h3M7.5 10h5M7.5 13h5"/></svg>
+        </div>
+        <div>
+          <strong>Documentos</strong>
+          <span>
+            <a href="/politica-de-privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>
+            e
+            <a href="/termos-de-uso.html" target="_blank" rel="noopener">Termos de Uso</a>.
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
 
       <!-- =====================================================
            NOVA SOLICITAÇÃO
       ====================================================== -->
 
-      <div class="card">
-        <h2>Solicitar atendimento</h2>
+      <section class="card card-form" id="area-formulario">
 
-        <p>
-          Você pode enviar uma solicitação relacionada aos
-          seus dados pessoais.
-        </p>
+        <h2 class="card-titulo">Nova solicitação</h2>
+        <p class="card-sub">Escolha o que você precisa e, se quiser, explique os detalhes.</p>
 
-        <div class="opcoes">
+        <form id="form-solicitacao" novalidate>
 
-          <div
-            class="opcao"
-            onclick="selecionarTipo('acesso')"
-          >
-            <strong>Acesso aos meus dados</strong>
-            <span>
-              Solicitar informações sobre os dados pessoais
-              associados à sua conta.
-            </span>
+          <span class="rotulo" id="rotulo-tipo">Tipo de solicitação</span>
+
+          <div class="tipos" id="tipos" role="radiogroup" aria-labelledby="rotulo-tipo"></div>
+
+          <div class="aviso" id="aviso-tipo" role="note"></div>
+
+          <label class="rotulo" for="descricao">Descrição <span id="descricao-obrigatoria"></span></label>
+
+          <textarea id="descricao" maxlength="5000" placeholder="Explique sua solicitação..."></textarea>
+
+          <div class="campo-rodape">
+            <span id="dica-descricao">Escolha um tipo para ver orientações.</span>
+            <span id="contador">0 / 5000</span>
           </div>
 
-          <div
-            class="opcao"
-            onclick="selecionarTipo('correcao')"
-          >
-            <strong>Correção de dados</strong>
-            <span>
-              Solicitar correção ou atualização de informações.
-            </span>
+          <div class="erro-campo" id="erro-form" role="alert"></div>
+
+          <div class="form-acoes">
+            <button type="submit" class="btn btn-primary" id="btn-enviar">Enviar solicitação</button>
           </div>
 
-          <div
-            class="opcao"
-            onclick="selecionarTipo('exclusao')"
-          >
-            <strong>Exclusão de dados</strong>
-            <span>
-              Solicitar a exclusão dos seus dados, quando aplicável.
-            </span>
-          </div>
-
-          <div
-            class="opcao"
-            onclick="selecionarTipo('informacoes')"
-          >
-            <strong>Informações sobre o tratamento</strong>
-            <span>
-              Solicitar informações sobre como seus dados são tratados.
-            </span>
-          </div>
-
-          <div
-            class="opcao"
-            onclick="selecionarTipo('revogacao')"
-          >
-            <strong>Revogação</strong>
-            <span>
-              Solicitar a revogação de consentimentos, quando aplicável.
-            </span>
-          </div>
-
-          <div
-            class="opcao"
-            onclick="selecionarTipo('outro')"
-          >
-            <strong>Outra solicitação</strong>
-            <span>
-              Enviar uma solicitação relacionada à privacidade.
-            </span>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- =====================================================
-           FORMULÁRIO
-      ====================================================== -->
-
-      <div class="card">
-
-        <h2>Nova solicitação</h2>
-
-        <p>
-          Informe o tipo e, se necessário, explique o que deseja.
-        </p>
-
-        <form id="formSolicitacao">
-
-          <label for="tipo">
-            Tipo de solicitação
-          </label>
-
-          <select
-            id="tipo"
-            required
-          >
-            <option value="">
-              Selecione
-            </option>
-
-            <option value="acesso">
-              Acesso aos meus dados
-            </option>
-
-            <option value="correcao">
-              Correção de dados
-            </option>
-
-            <option value="exclusao">
-              Exclusão de dados
-            </option>
-
-            <option value="informacoes">
-              Informações sobre o tratamento
-            </option>
-
-            <option value="revogacao">
-              Revogação
-            </option>
-
-            <option value="outro">
-              Outro
-            </option>
-          </select>
-
-          <label for="descricao">
-            Descrição
-          </label>
-
-          <textarea
-            id="descricao"
-            maxlength="5000"
-            placeholder="Explique sua solicitação..."
-          ></textarea>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            id="btnEnviar"
-          >
-            Enviar solicitação
-          </button>
-
-          <div
-            id="mensagem"
-            class="mensagem"
-          ></div>
+          <p class="nota">
+            Não envie senhas nem dados de cartão neste campo. Podemos pedir informações adicionais para confirmar a sua identidade.
+          </p>
 
         </form>
 
-      </div>
+      </section>
 
       <!-- =====================================================
-           SOLICITAÇÕES
+           MINHAS SOLICITAÇÕES
       ====================================================== -->
 
-      <div class="card solicitacoes">
+      <section class="card" aria-labelledby="titulo-lista">
 
-        <h2>Minhas solicitações</h2>
-
-        <p>
-          Acompanhe aqui as solicitações relacionadas aos seus dados.
-        </p>
-
-        <div
-          id="listaSolicitacoes"
-          class="lista"
-        >
-          <div class="loading">
-            Carregando solicitações...
+        <div class="lista-topo">
+          <div>
+            <h2 class="card-titulo" id="titulo-lista">Minhas solicitações</h2>
+            <p class="card-sub">Acompanhe o andamento e as respostas.</p>
           </div>
+
+          <button type="button" class="btn btn-ghost btn-small" id="btn-atualizar">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7M16.5 3.5v3.3h-3.3"/></svg>
+            Atualizar
+          </button>
         </div>
 
-      </div>
+        <div class="filtros" id="filtros" role="group" aria-label="Filtrar solicitações"></div>
 
-    </section>
+        <div class="lista" id="lista" aria-live="polite"></div>
+
+      </section>
+
+    </div>
 
   </main>
 
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
   <script>
+  (() => {
+    'use strict';
+
+    // ==========================================================
+    // CONFIGURAÇÃO
+    // ==========================================================
+
     const API = '/api';
+    const TOKEN_KEY = 'lavajato_auth_token';
+    const HOME = '/';
+    const PRAZO_DIAS = 15;
+    const LIMITE_DESCRICAO = 5000;
+    const MIN_DESCRICAO = 10;
+    const DIA = 86400000;
 
-    const token = localStorage.getItem(
-      'lavajato_auth_token'
-    );
+    const ICONES = {
+      acesso: '<circle cx="10" cy="10" r="2.5"/><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10Z"/>',
+      correcao: '<path d="m4 16 .8-3.2L13.6 4a1.6 1.6 0 0 1 2.4 2.4l-8.8 8.8L4 16Z"/>',
+      exclusao: '<path d="M4.5 6h11M8 6V4.5h4V6m-6 0 .6 9.5h6.8L14 6"/>',
+      informacoes: '<circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.6v.1"/>',
+      revogacao: '<circle cx="10" cy="10" r="7"/><path d="m5.5 5.5 9 9"/>',
+      outro: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h9A1.5 1.5 0 0 1 16 5.5v6a1.5 1.5 0 0 1-1.5 1.5H9l-3.5 3v-3A1.5 1.5 0 0 1 4 11.5v-6Z"/>'
+    };
 
-    const form = document.getElementById(
-      'formSolicitacao'
-    );
+    const TIPOS = {
+      acesso: {
+        nome: 'Acesso aos meus dados',
+        resumo: 'Saber quais dados pessoais temos sobre você.',
+        dica: 'Opcional: indique quais informações você quer receber.',
+        placeholder: 'Ex.: Quero receber uma cópia dos dados do meu cadastro.',
+        obrigatoria: false
+      },
+      correcao: {
+        nome: 'Correção de dados',
+        resumo: 'Corrigir ou atualizar informações incorretas.',
+        dica: 'Informe qual dado está incorreto e qual é o valor correto.',
+        placeholder: 'Ex.: Meu telefone está errado. O correto é (47) 99999-9999.',
+        obrigatoria: true
+      },
+      exclusao: {
+        nome: 'Exclusão de dados',
+        resumo: 'Pedir a exclusão dos seus dados, quando aplicável.',
+        dica: 'Opcional: conte o motivo ou quais dados deseja excluir.',
+        placeholder: 'Ex.: Quero excluir meus dados pessoais do sistema.',
+        obrigatoria: false,
+        aviso: 'Alguns dados podem precisar ser mantidos por obrigação legal ou regulatória. Se isso acontecer, explicaremos na resposta.'
+      },
+      informacoes: {
+        nome: 'Informações sobre o tratamento',
+        resumo: 'Entender como seus dados são usados e compartilhados.',
+        dica: 'Opcional: diga o que você gostaria de saber.',
+        placeholder: 'Ex.: Com quem meus dados são compartilhados?',
+        obrigatoria: false
+      },
+      revogacao: {
+        nome: 'Revogação de consentimento',
+        resumo: 'Retirar um consentimento dado anteriormente.',
+        dica: 'Informe qual consentimento você quer revogar.',
+        placeholder: 'Ex.: Não quero mais receber comunicações por e-mail.',
+        obrigatoria: true,
+        aviso: 'A revogação não afeta tratamentos já realizados e pode limitar o uso de algumas funcionalidades.'
+      },
+      outro: {
+        nome: 'Outra solicitação',
+        resumo: 'Qualquer outro assunto sobre privacidade.',
+        dica: 'Descreva com detalhes o que você precisa.',
+        placeholder: 'Descreva a sua solicitação...',
+        obrigatoria: true
+      }
+    };
 
-    const tipo = document.getElementById(
-      'tipo'
-    );
+    const STATUS = {
+      pendente: 'Pendente',
+      em_analise: 'Em análise',
+      atendida: 'Atendida',
+      recusada: 'Recusada',
+      cancelada: 'Cancelada'
+    };
 
-    const descricao = document.getElementById(
-      'descricao'
-    );
-
-    const btnEnviar = document.getElementById(
-      'btnEnviar'
-    );
-
-    const mensagem = document.getElementById(
-      'mensagem'
-    );
-
-    const lista = document.getElementById(
-      'listaSolicitacoes'
-    );
+    const FILTROS = [
+      { id: 'todas', rotulo: 'Todas' },
+      { id: 'andamento', rotulo: 'Em andamento' },
+      { id: 'concluidas', rotulo: 'Concluídas' }
+    ];
 
     // ==========================================================
-    // AUTENTICAÇÃO
+    // ESTADO E ELEMENTOS
     // ==========================================================
 
-    async function verificarUsuario() {
+    const estado = {
+      todas: [],
+      tipoSelecionado: '',
+      filtro: 'todas',
+      enviando: false,
+      cancelando: new Set(),
+      carregando: false
+    };
+
+    const $ = id => document.getElementById(id);
+
+    const el = {
+      form: $('form-solicitacao'),
+      tipos: $('tipos'),
+      aviso: $('aviso-tipo'),
+      descricao: $('descricao'),
+      obrigatoria: $('descricao-obrigatoria'),
+      dica: $('dica-descricao'),
+      contador: $('contador'),
+      erro: $('erro-form'),
+      enviar: $('btn-enviar'),
+      lista: $('lista'),
+      filtros: $('filtros'),
+      atualizar: $('btn-atualizar'),
+      toasts: $('toasts'),
+      areaForm: $('area-formulario')
+    };
+
+    // ==========================================================
+    // UTILITÁRIOS
+    // ==========================================================
+
+    function escapeHtml(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      })[c]);
+    }
+
+    function nomeTipo(tipo) { return TIPOS[tipo]?.nome || tipo || 'Solicitação'; }
+
+    function nomeStatus(status) { return STATUS[status] || status || '-'; }
+
+    function paraData(valor) {
+      if (!valor) return null;
+      const data = new Date(valor);
+      return Number.isNaN(data.getTime()) ? null : data;
+    }
+
+    function formatarData(valor, completo = true) {
+      const data = paraData(valor);
+      if (!data) return '-';
+
+      return completo
+        ? data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+        : data.toLocaleDateString('pt-BR');
+    }
+
+    function emAberto(solicitacao) {
+      return solicitacao.status === 'pendente' || solicitacao.status === 'em_analise';
+    }
+
+    function dataPrevista(solicitacao) {
+      const criada = paraData(solicitacao.criado_em);
+      return criada ? new Date(criada.getTime() + PRAZO_DIAS * DIA) : null;
+    }
+
+    function svg(tipo) {
+      return `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[tipo] || ICONES.outro}</svg>`;
+    }
+
+    function toast(texto, tipo = 'sucesso') {
+      const item = document.createElement('div');
+      item.className = `toast ${tipo}`;
+      item.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+      item.textContent = texto;
+      el.toasts.appendChild(item);
+
+      setTimeout(() => item.remove(), tipo === 'erro' ? 7000 : 4000);
+    }
+
+    // ==========================================================
+    // API
+    // ==========================================================
+
+    function irParaLogin() {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = HOME;
+    }
+
+    async function api(caminho, opcoes = {}) {
+      const token = localStorage.getItem(TOKEN_KEY);
+
       if (!token) {
-        window.location.href = '/login.html';
-        return false;
+        irParaLogin();
+        throw new Error('Sessão não encontrada.');
       }
 
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(opcoes.headers || {})
+      };
+
+      const resposta = await fetch(API + caminho, { ...opcoes, headers });
+
+      let dados = null;
+      try { dados = await resposta.json(); } catch (_) { dados = null; }
+
+      if (resposta.status === 401) {
+        irParaLogin();
+        throw new Error('Sessão expirada. Entre novamente.');
+      }
+
+      if (!resposta.ok) {
+        const erro = new Error(dados?.erro || dados?.mensagem || 'Erro na requisição.');
+        erro.status = resposta.status;
+        throw erro;
+      }
+
+      return dados;
+    }
+
+    async function verificarUsuario() {
       try {
-        const resposta = await fetch(
-          `${API}/auth/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
+        const dados = await api('/auth/me');
 
-        if (!resposta.ok) {
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
-          window.location.href = '/login.html';
-
-          return false;
-        }
-
-        const dados = await resposta.json();
-
-        if (
-          dados.usuario &&
-          dados.usuario.perfil === 'dev'
-        ) {
-          alert(
-            'Esta página é destinada aos usuários de empresas.'
-          );
-
-          window.location.href = '/dashboard.html';
-
+        if (dados?.usuario?.perfil === 'dev') {
+          alert('Esta página é destinada aos usuários de empresas.');
+          window.location.href = '/admin/dashboard.html';
           return false;
         }
 
         return true;
-
-      } catch (err) {
-        console.error(
-          'Erro ao verificar usuário:',
-          err
-        );
-
-        mostrarMensagem(
-          'Não foi possível verificar sua sessão.',
-          'erro'
-        );
-
+      } catch (erro) {
+        console.error('Erro ao verificar usuário:', erro);
+        el.lista.innerHTML = estadoErro('Não foi possível verificar sua sessão.');
         return false;
       }
     }
 
     // ==========================================================
-    // SELECIONAR TIPO
+    // FORMULÁRIO
     // ==========================================================
 
-    function selecionarTipo(valor) {
-      tipo.value = valor;
-
-      descricao.focus();
+    function renderizarTipos() {
+      el.tipos.innerHTML = Object.entries(TIPOS).map(([chave, tipo]) => `
+        <button type="button" class="tipo-opcao" role="radio"
+                data-tipo="${chave}" aria-checked="false" tabindex="0">
+          ${svg(chave)}
+          <strong>${escapeHtml(tipo.nome)}</strong>
+          <span>${escapeHtml(tipo.resumo)}</span>
+        </button>
+      `).join('');
     }
 
-    // ==========================================================
-    // MENSAGEM
-    // ==========================================================
-
-    function mostrarMensagem(
-      texto,
-      tipoMensagem
-    ) {
-      mensagem.textContent = texto;
-
-      mensagem.className =
-        `mensagem ${tipoMensagem}`;
+    function mostrarErroForm(mensagem) {
+      el.erro.textContent = mensagem;
+      el.erro.classList.toggle('visivel', Boolean(mensagem));
     }
 
-    function limparMensagem() {
-      mensagem.textContent = '';
+    function atualizarContador() {
+      const tamanho = el.descricao.value.length;
 
-      mensagem.className =
-        'mensagem';
+      el.contador.textContent = `${tamanho} / ${LIMITE_DESCRICAO}`;
+      el.contador.classList.toggle('limite', tamanho > LIMITE_DESCRICAO * 0.9);
     }
 
-    // ==========================================================
-    // FORMATAR TIPO
-    // ==========================================================
+    function selecionarTipo(chave, { foco = true } = {}) {
+      const tipo = TIPOS[chave];
+      if (!tipo) return;
 
-    function nomeTipo(tipo) {
-      const tipos = {
-        acesso: 'Acesso aos dados',
-        correcao: 'Correção de dados',
-        exclusao: 'Exclusão de dados',
-        informacoes: 'Informações sobre o tratamento',
-        revogacao: 'Revogação',
-        outro: 'Outra solicitação'
-      };
+      estado.tipoSelecionado = chave;
 
-      return tipos[tipo] || tipo;
+      el.tipos.querySelectorAll('.tipo-opcao').forEach(botao => {
+        botao.setAttribute('aria-checked', String(botao.dataset.tipo === chave));
+      });
+
+      el.descricao.placeholder = tipo.placeholder;
+      el.dica.textContent = tipo.dica;
+      el.obrigatoria.textContent = tipo.obrigatoria ? '(obrigatória)' : '(opcional)';
+
+      el.aviso.textContent = tipo.aviso || '';
+      el.aviso.classList.toggle('visivel', Boolean(tipo.aviso));
+
+      el.descricao.classList.remove('invalido');
+      mostrarErroForm('');
+
+      if (foco) el.descricao.focus();
     }
 
-    // ==========================================================
-    // FORMATAR STATUS
-    // ==========================================================
+    el.tipos.addEventListener('click', evento => {
+      const botao = evento.target.closest('[data-tipo]');
+      if (botao) selecionarTipo(botao.dataset.tipo);
+    });
 
-    function nomeStatus(status) {
-      const statuses = {
-        pendente: 'Pendente',
-        em_analise: 'Em análise',
-        atendida: 'Atendida',
-        recusada: 'Recusada',
-        cancelada: 'Cancelada'
-      };
+    // Navegação por setas, como em qualquer grupo de opções.
+    el.tipos.addEventListener('keydown', evento => {
+      if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(evento.key)) return;
 
-      return statuses[status] || status;
-    }
+      const botoes = [...el.tipos.querySelectorAll('[data-tipo]')];
+      const atual = botoes.indexOf(document.activeElement);
+      if (atual === -1) return;
 
-    // ==========================================================
-    // FORMATAR DATA
-    // ==========================================================
+      evento.preventDefault();
 
-    function formatarData(data) {
-      if (!data) {
-        return '-';
+      const passo = ['ArrowRight', 'ArrowDown'].includes(evento.key) ? 1 : -1;
+      const proximo = botoes[(atual + passo + botoes.length) % botoes.length];
+
+      proximo.focus();
+      selecionarTipo(proximo.dataset.tipo, { foco: false });
+    });
+
+    el.descricao.addEventListener('input', () => {
+      atualizarContador();
+      el.descricao.classList.remove('invalido');
+      mostrarErroForm('');
+    });
+
+    el.form.addEventListener('submit', async evento => {
+      evento.preventDefault();
+
+      if (estado.enviando) return;
+
+      mostrarErroForm('');
+
+      const tipo = estado.tipoSelecionado;
+      const descricao = el.descricao.value.trim();
+
+      if (!tipo) {
+        mostrarErroForm('Selecione o tipo de solicitação.');
+        el.tipos.querySelector('[data-tipo]')?.focus();
+        return;
       }
 
-      const dataObj = new Date(data);
-
-      if (Number.isNaN(dataObj.getTime())) {
-        return data;
+      if (TIPOS[tipo].obrigatoria && descricao.length < MIN_DESCRICAO) {
+        mostrarErroForm(`Descreva sua solicitação com pelo menos ${MIN_DESCRICAO} caracteres.`);
+        el.descricao.classList.add('invalido');
+        el.descricao.focus();
+        return;
       }
 
-      return dataObj.toLocaleString(
-        'pt-BR',
-        {
-          dateStyle: 'short',
-          timeStyle: 'short'
-        }
-      );
-    }
+      const duplicada = estado.todas.some(s => s.tipo === tipo && emAberto(s));
+
+      if (duplicada && !confirm('Você já tem uma solicitação deste tipo em andamento. Deseja enviar outra mesmo assim?')) {
+        return;
+      }
+
+      if (tipo === 'exclusao' && !confirm('Confirma o pedido de exclusão dos seus dados pessoais?')) {
+        return;
+      }
+
+      estado.enviando = true;
+      el.enviar.disabled = true;
+      el.enviar.textContent = 'Enviando...';
+
+      try {
+        await api('/privacidade/solicitacoes', {
+          method: 'POST',
+          body: JSON.stringify({ tipo, descricao })
+        });
+
+        toast('Solicitação enviada. Você receberá a resposta aqui.');
+
+        el.form.reset();
+        estado.tipoSelecionado = '';
+
+        el.tipos.querySelectorAll('.tipo-opcao').forEach(b => b.setAttribute('aria-checked', 'false'));
+        el.aviso.classList.remove('visivel');
+        el.obrigatoria.textContent = '';
+        el.dica.textContent = 'Escolha um tipo para ver orientações.';
+        el.descricao.placeholder = 'Explique sua solicitação...';
+        atualizarContador();
+
+        estado.filtro = 'todas';
+        await carregar({ silencioso: true });
+      } catch (erro) {
+        console.error('Erro ao enviar solicitação:', erro);
+        mostrarErroForm(erro.message || 'Não foi possível registrar a solicitação.');
+      } finally {
+        estado.enviando = false;
+        el.enviar.disabled = false;
+        el.enviar.textContent = 'Enviar solicitação';
+      }
+    });
 
     // ==========================================================
-    // CARREGAR SOLICITAÇÕES
+    // LISTA
     // ==========================================================
 
-    async function carregarSolicitacoes() {
-      lista.innerHTML = `
-        <div class="loading">
-          Carregando solicitações...
+    function estadoErro(mensagem) {
+      return `
+        <div class="erro-estado">
+          <strong>${escapeHtml(mensagem)}</strong>
+          Verifique sua conexão e tente novamente.
+          <div><button type="button" class="btn btn-ghost" data-acao="recarregar">Tentar novamente</button></div>
         </div>
       `;
+    }
+
+    function mostrarSkeleton() {
+      el.lista.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
+    }
+
+    async function carregar({ silencioso = false } = {}) {
+      if (estado.carregando) return;
+
+      estado.carregando = true;
+      el.atualizar.classList.add('spin');
+      el.atualizar.disabled = true;
+
+      if (!silencioso) mostrarSkeleton();
 
       try {
-        const resposta = await fetch(
-          `${API}/privacidade`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
+        const dados = await api('/privacidade');
 
-        if (resposta.status === 401) {
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
+        estado.todas = (Array.isArray(dados) ? dados : Array.isArray(dados?.solicitacoes) ? dados.solicitacoes : [])
+          .slice()
+          .sort((a, b) => (paraData(b.criado_em)?.getTime() ?? 0) - (paraData(a.criado_em)?.getTime() ?? 0));
 
-          window.location.href = '/login.html';
+        renderizar();
+      } catch (erro) {
+        console.error('Erro ao carregar solicitações:', erro);
 
-          return;
-        }
-
-        if (!resposta.ok) {
-          const erro = await resposta.json()
-            .catch(() => ({}));
-
-          throw new Error(
-            erro.erro ||
-            'Erro ao carregar solicitações.'
-          );
-        }
-
-        const solicitacoes =
-          await resposta.json();
-
-        renderizarSolicitacoes(
-          solicitacoes
-        );
-
-      } catch (err) {
-        console.error(
-          'Erro ao carregar solicitações:',
-          err
-        );
-
-        lista.innerHTML = `
-          <div class="vazio">
-            Não foi possível carregar suas solicitações.
-          </div>
-        `;
+        if (silencioso) toast('Não foi possível atualizar a lista.', 'erro');
+        else el.lista.innerHTML = estadoErro('Não foi possível carregar suas solicitações.');
+      } finally {
+        estado.carregando = false;
+        el.atualizar.classList.remove('spin');
+        el.atualizar.disabled = false;
       }
     }
 
-    // ==========================================================
-    // RENDERIZAR SOLICITAÇÕES
-    // ==========================================================
+    function filtrar() {
+      if (estado.filtro === 'andamento') return estado.todas.filter(emAberto);
+      if (estado.filtro === 'concluidas') return estado.todas.filter(s => !emAberto(s));
+      return estado.todas;
+    }
 
-    function renderizarSolicitacoes(
-      solicitacoes
-    ) {
-      if (
-        !Array.isArray(solicitacoes) ||
-        solicitacoes.length === 0
-      ) {
-        lista.innerHTML = `
-          <div class="vazio">
-            Você ainda não possui solicitações.
+    function renderizarFiltros() {
+      const contagem = {
+        todas: estado.todas.length,
+        andamento: estado.todas.filter(emAberto).length,
+        concluidas: estado.todas.filter(s => !emAberto(s)).length
+      };
+
+      el.filtros.innerHTML = FILTROS.map(f => `
+        <button type="button" class="chip" data-filtro="${f.id}" aria-pressed="${estado.filtro === f.id}">
+          ${f.rotulo}<b>${contagem[f.id]}</b>
+        </button>
+      `).join('');
+    }
+
+    function htmlPassos(solicitacao) {
+      if (solicitacao.status === 'cancelada') return '';
+
+      const status = solicitacao.status;
+      const analise = status === 'em_analise' || status === 'atendida' || status === 'recusada';
+      const concluida = status === 'atendida' || status === 'recusada';
+
+      const classeFinal = status === 'atendida' ? 'final-ok' : status === 'recusada' ? 'final-erro' : '';
+      const rotuloFinal = status === 'recusada' ? 'Recusada' : 'Atendida';
+      const simboloFinal = status === 'recusada' ? '×' : '✓';
+
+      return `
+        <div class="passos" role="img" aria-label="Andamento: ${escapeHtml(nomeStatus(status))}">
+          <div class="passo feito"><span class="passo-ponto">✓</span><span class="passo-rotulo">Recebida</span></div>
+          <div class="linha ${analise ? 'feita' : ''}"></div>
+          <div class="passo ${analise ? 'feito' : ''}"><span class="passo-ponto">✓</span><span class="passo-rotulo">Em análise</span></div>
+          <div class="linha ${concluida ? 'feita' : ''}"></div>
+          <div class="passo ${concluida ? `feito ${classeFinal}` : ''}"><span class="passo-ponto">${simboloFinal}</span><span class="passo-rotulo">${rotuloFinal}</span></div>
+        </div>
+      `;
+    }
+
+    function htmlPrevisao(solicitacao) {
+      if (!emAberto(solicitacao)) return '';
+
+      const prevista = dataPrevista(solicitacao);
+      if (!prevista) return '';
+
+      const atrasada = prevista.getTime() < Date.now();
+
+      return atrasada
+        ? `<div class="previsao atraso">A previsão de resposta era ${escapeHtml(formatarData(prevista, false))}. Sua solicitação continua em andamento.</div>`
+        : `<div class="previsao">Resposta prevista até ${escapeHtml(formatarData(prevista, false))}.</div>`;
+    }
+
+    function htmlSolicitacao(solicitacao) {
+      const cancelando = estado.cancelando.has(solicitacao.id);
+
+      return `
+        <article class="solicitacao" data-id="${escapeHtml(solicitacao.id)}" data-status="${escapeHtml(solicitacao.status)}">
+
+          <div class="sol-topo">
+            <div>
+              <div class="sol-tipo">${escapeHtml(nomeTipo(solicitacao.tipo))}</div>
+              <div class="sol-meta">Solicitação #${escapeHtml(solicitacao.id)} · ${escapeHtml(formatarData(solicitacao.criado_em))}</div>
+            </div>
+
+            <span class="badge b-${escapeHtml(solicitacao.status)}">${escapeHtml(nomeStatus(solicitacao.status))}</span>
           </div>
-        `;
 
+          ${htmlPassos(solicitacao)}
+          ${htmlPrevisao(solicitacao)}
+
+          ${solicitacao.descricao ? `
+            <div class="bloco">
+              <span class="bloco-titulo">Sua descrição</span>${escapeHtml(solicitacao.descricao)}
+            </div>` : ''}
+
+          ${solicitacao.resposta ? `
+            <div class="bloco bloco-resposta">
+              <span class="bloco-titulo">Resposta</span>${escapeHtml(solicitacao.resposta)}
+            </div>` : ''}
+
+          ${solicitacao.status === 'pendente' ? `
+            <div class="sol-acoes">
+              <button type="button" class="btn btn-danger btn-small" data-acao="cancelar" ${cancelando ? 'disabled' : ''}>
+                ${cancelando ? 'Cancelando...' : 'Cancelar solicitação'}
+              </button>
+            </div>` : ''}
+
+        </article>
+      `;
+    }
+
+    function renderizar() {
+      renderizarFiltros();
+
+      const lista = filtrar();
+
+      if (!lista.length) {
+        el.lista.innerHTML = estado.todas.length
+          ? '<div class="vazio"><strong>Nada neste filtro</strong>Mude o filtro para ver as outras solicitações.</div>'
+          : '<div class="vazio"><strong>Você ainda não fez solicitações</strong>Quando enviar uma, ela aparecerá aqui com o andamento.</div>';
         return;
       }
 
-      lista.innerHTML =
-        solicitacoes.map(
-          solicitacao => {
-
-            const statusClass =
-              `status-${solicitacao.status}`;
-
-            const podeCancelar =
-              solicitacao.status === 'pendente';
-
-            return `
-              <div class="solicitacao">
-
-                <div class="solicitacao-topo">
-
-                  <div class="solicitacao-tipo">
-                    ${escapeHtml(
-                      nomeTipo(
-                        solicitacao.tipo
-                      )
-                    )}
-                  </div>
-
-                  <span
-                    class="status ${statusClass}"
-                  >
-                    ${escapeHtml(
-                      nomeStatus(
-                        solicitacao.status
-                      )
-                    )}
-                  </span>
-
-                </div>
-
-                <small>
-                  Solicitação #${solicitacao.id}
-                  ·
-                  ${formatarData(
-                    solicitacao.criado_em
-                  )}
-                </small>
-
-                ${
-                  solicitacao.descricao
-                    ? `
-                      <p>
-                        <strong>Descrição:</strong><br>
-                        ${escapeHtml(
-                          solicitacao.descricao
-                        )}
-                      </p>
-                    `
-                    : ''
-                }
-
-                ${
-                  solicitacao.resposta
-                    ? `
-                      <p>
-                        <strong>Resposta:</strong><br>
-                        ${escapeHtml(
-                          solicitacao.resposta
-                        )}
-                      </p>
-                    `
-                    : ''
-                }
-
-                ${
-                  podeCancelar
-                    ? `
-                      <div class="solicitacao-acoes">
-
-                        <button
-                          class="btn btn-danger"
-                          onclick="cancelarSolicitacao(${solicitacao.id})"
-                        >
-                          Cancelar solicitação
-                        </button>
-
-                      </div>
-                    `
-                    : ''
-                }
-
-              </div>
-            `;
-          }
-        ).join('');
+      el.lista.innerHTML = lista.map(htmlSolicitacao).join('');
     }
 
     // ==========================================================
-    // ESCAPAR HTML
+    // CANCELAR
     // ==========================================================
 
-    function escapeHtml(valor) {
-      if (valor === null || valor === undefined) {
-        return '';
+    async function cancelar(id) {
+      const solicitacao = estado.todas.find(s => String(s.id) === String(id));
+      if (!solicitacao || estado.cancelando.has(solicitacao.id)) return;
+
+      if (!confirm('Deseja realmente cancelar esta solicitação?')) return;
+
+      estado.cancelando.add(solicitacao.id);
+      renderizar();
+
+      try {
+        await api(`/privacidade/solicitacoes/${encodeURIComponent(solicitacao.id)}/cancelar`, { method: 'PATCH' });
+
+        toast('Solicitação cancelada.');
+      } catch (erro) {
+        console.error('Erro ao cancelar solicitação:', erro);
+        toast(erro.message || 'Não foi possível cancelar a solicitação.', 'erro');
+      } finally {
+        estado.cancelando.delete(solicitacao.id);
       }
 
-      return String(valor)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      await carregar({ silencioso: true });
     }
 
     // ==========================================================
-    // ENVIAR SOLICITAÇÃO
+    // EVENTOS
     // ==========================================================
 
-    form.addEventListener(
-      'submit',
-      async event => {
-        event.preventDefault();
+    document.addEventListener('click', evento => {
+      const filtro = evento.target.closest('[data-filtro]');
 
-        limparMensagem();
-
-        if (!tipo.value) {
-          mostrarMensagem(
-            'Selecione o tipo de solicitação.',
-            'erro'
-          );
-
-          return;
-        }
-
-        btnEnviar.disabled = true;
-        btnEnviar.textContent =
-          'Enviando...';
-
-        try {
-          const resposta = await fetch(
-            `${API}/privacidade/solicitacoes`,
-            {
-              method: 'POST',
-
-              headers: {
-                'Content-Type':
-                  'application/json',
-
-                Authorization:
-                  `Bearer ${token}`
-              },
-
-              body: JSON.stringify({
-                tipo: tipo.value,
-                descricao:
-                  descricao.value.trim()
-              })
-            }
-          );
-
-          if (resposta.status === 401) {
-            localStorage.removeItem(
-              'lavajato_auth_token'
-            );
-
-            window.location.href =
-              '/login.html';
-
-            return;
-          }
-
-          const dados =
-            await resposta.json()
-              .catch(() => ({}));
-
-          if (!resposta.ok) {
-            throw new Error(
-              dados.erro ||
-              'Não foi possível registrar a solicitação.'
-            );
-          }
-
-          mostrarMensagem(
-            'Solicitação enviada com sucesso.',
-            'sucesso'
-          );
-
-          form.reset();
-
-          await carregarSolicitacoes();
-
-        } catch (err) {
-          console.error(
-            'Erro ao enviar solicitação:',
-            err
-          );
-
-          mostrarMensagem(
-            err.message ||
-            'Erro ao enviar solicitação.',
-            'erro'
-          );
-
-        } finally {
-          btnEnviar.disabled = false;
-
-          btnEnviar.textContent =
-            'Enviar solicitação';
-        }
-      }
-    );
-
-    // ==========================================================
-    // CANCELAR SOLICITAÇÃO
-    // ==========================================================
-
-    async function cancelarSolicitacao(id) {
-      const confirmar =
-        window.confirm(
-          'Deseja realmente cancelar esta solicitação?'
-        );
-
-      if (!confirmar) {
+      if (filtro) {
+        estado.filtro = filtro.dataset.filtro;
+        renderizar();
         return;
       }
 
-      try {
-        const resposta = await fetch(
-          `${API}/privacidade/solicitacoes/${id}/cancelar`,
-          {
-            method: 'PATCH',
+      const alvo = evento.target.closest('[data-acao]');
+      if (!alvo) return;
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
-          }
-        );
-
-        if (resposta.status === 401) {
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
-          window.location.href =
-            '/login.html';
-
-          return;
-        }
-
-        const dados =
-          await resposta.json()
-            .catch(() => ({}));
-
-        if (!resposta.ok) {
-          throw new Error(
-            dados.erro ||
-            'Não foi possível cancelar a solicitação.'
-          );
-        }
-
-        await carregarSolicitacoes();
-
-      } catch (err) {
-        console.error(
-          'Erro ao cancelar solicitação:',
-          err
-        );
-
-        alert(
-          err.message ||
-          'Erro ao cancelar solicitação.'
-        );
+      if (alvo.dataset.acao === 'recarregar') {
+        carregar();
+        return;
       }
-    }
+
+      if (alvo.dataset.acao === 'cancelar') {
+        cancelar(alvo.closest('.solicitacao')?.dataset.id);
+      }
+    });
+
+    el.atualizar.addEventListener('click', () => carregar({ silencioso: estado.todas.length > 0 }));
+
+    // Ao voltar para a aba, confere se houve resposta nova.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && estado.todas.length) carregar({ silencioso: true });
+    });
 
     // ==========================================================
     // INICIALIZAÇÃO
     // ==========================================================
 
-    async function iniciar() {
-      const autenticado =
-        await verificarUsuario();
+    (async function iniciar() {
+      renderizarTipos();
+      renderizarFiltros();
+      atualizarContador();
+      mostrarSkeleton();
 
-      if (!autenticado) {
-        return;
-      }
+      // Permite abrir a página já com um tipo escolhido: /privacidade.html?tipo=exclusao
+      const tipoUrl = new URLSearchParams(window.location.search).get('tipo');
+      if (tipoUrl && TIPOS[tipoUrl]) selecionarTipo(tipoUrl, { foco: false });
 
-      await carregarSolicitacoes();
-    }
+      const autorizado = await verificarUsuario();
+      if (!autorizado) return;
 
-    iniciar();
+      await carregar();
+    })();
+  })();
   </script>
 
 </body>
-</html>
