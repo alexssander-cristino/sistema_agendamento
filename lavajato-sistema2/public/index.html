@@ -155,35 +155,77 @@
         Tipo de negócio
       </label>
 
-      <select id="register-nicho">
-        <option value="lavajato">
-          Lava-jato / Estética automotiva
-        </option>
 
-        <option value="barbearia">
-          Barbearia / Salão de beleza
-        </option>
+<select id="register-nicho">
+  <option value="lavajato">
+    Lava-jato / Estética automotiva
+  </option>
 
-        <option value="clinica">
-          Clínica / Consultório
-        </option>
+  <option value="barbearia">
+    Barbearia / Salão de beleza
+  </option>
 
-        <option value="pet">
-          Pet shop / Veterinária
-        </option>
+  <option value="clinica">
+    Clínica / Consultório
+  </option>
 
-        <option value="oficina">
-          Oficina mecânica
-        </option>
+  <option value="pet">
+    Pet shop / Veterinária
+  </option>
 
-        <option value="personal">
-          Personal / Aulas / Consultoria
-        </option>
+  <option value="oficina">
+    Oficina mecânica
+  </option>
 
-        <option value="generico">
-          Outro
-        </option>
-      </select>
+  <option value="personal">
+    Personal / Aulas / Consultoria
+  </option>
+
+  <option value="personalizados">
+    Produtos personalizados
+  </option>
+
+  <option value="moveis">
+    Móveis / Marcenaria
+  </option>
+
+  <option value="grafica">
+    Gráfica / Comunicação visual
+  </option>
+
+  <option value="confeccao">
+    Costura / Confecção / Ajustes
+  </option>
+
+  <option value="eletronicos">
+    Assistência técnica / Eletrônicos
+  </option>
+
+  <option value="construcao">
+    Construção / Reformas
+  </option>
+
+  <option value="fotografia">
+    Fotografia / Vídeo
+  </option>
+
+  <option value="eventos">
+    Eventos / Festas
+  </option>
+
+  <option value="limpeza">
+    Limpeza / Conservação
+  </option>
+
+  <option value="tecnologia">
+    Tecnologia / Desenvolvimento de sistemas
+  </option>
+
+  <option value="generico">
+    Outro tipo de negócio
+  </option>
+</select>
+
     </div>
 
     <div class="auth-field">
@@ -2622,35 +2664,26 @@ aria-label="Abrir menu"
             Tipo de negócio
           </label>
 
-          <select id="config-empresa-nicho">
+<select id="config-empresa-nicho" name="nicho">
+  <option value="lavajato">Lava-jato / Estética automotiva</option>
+  <option value="barbearia">Barbearia / Salão de beleza</option>
+  <option value="clinica">Clínica / Consultório</option>
+  <option value="pet">Pet shop / Veterinária</option>
+  <option value="oficina">Oficina mecânica</option>
+  <option value="personal">Personal / Aulas / Consultoria</option>
+  <option value="personalizados">Produtos personalizados</option>
+  <option value="moveis">Móveis / Marcenaria</option>
+  <option value="grafica">Gráfica / Comunicação visual</option>
+  <option value="confeccao">Costura / Confecção / Ajustes</option>
+  <option value="eletronicos">Assistência técnica / Eletrônicos</option>
+  <option value="construcao">Construção / Reformas</option>
+  <option value="fotografia">Fotografia / Vídeo</option>
+  <option value="eventos">Eventos / Festas</option>
+  <option value="limpeza">Limpeza / Conservação</option>
+  <option value="tecnologia">Tecnologia / Desenvolvimento de sistemas</option>
+  <option value="generico">Outro tipo de negócio</option>
+</select>
 
-            <option value="lavajato">
-              Lava-jato / Estética automotiva
-            </option>
-
-            <option value="barbearia">
-              Barbearia / Salão de beleza
-            </option>
-
-            <option value="clinica">
-              Clínica / Consultório
-            </option>
-
-            <option value="pet">
-              Pet shop / Veterinária
-            </option>
-
-            <option value="oficina">
-              Oficina mecânica
-            </option>
-
-            <option value="personal">
-              Personal / Aulas / Consultoria
-            </option>
-
-            <option value="generico">
-              Outro
-            </option>
 
           </select>
 
@@ -3524,6 +3557,51 @@ aria-label="Abrir menu"
           id="config-usuario-perfil"
           readonly
         >
+
+      </div>
+
+    </section>
+
+        <!-- SEGURANÇA E DISPOSITIVOS -->
+
+    <section class="block" id="secao-sessoes">
+
+      <h2>
+        Segurança e dispositivos
+      </h2>
+
+      <p
+        class="date-label"
+        style="margin-bottom:20px;"
+      >
+        Veja onde a sua conta está conectada e encerre acessos que você não reconhece.
+      </p>
+
+      <div
+        id="sessoes-mensagem"
+        class="auth-error"
+        style="display:none;"
+      ></div>
+
+      <div id="sessoes-lista"></div>
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-ghost"
+          id="btn-sessoes-atualizar"
+        >
+          Atualizar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-sessoes-encerrar-outras"
+        >
+          Encerrar outras sessões
+        </button>
 
       </div>
 
@@ -4920,6 +4998,12 @@ aria-label="Abrir menu"
 
 </div>
 
+
+<!-- ============================================================
+     2) index.html — junto aos scripts, logo DEPOIS de /js/app.js
+     ============================================================ -->
+
+
   </div>
 
   <!-- =========================================================
@@ -4935,6 +5019,9 @@ aria-label="Abrir menu"
   <script src="/js/bloqueio.js"></script>
 
   <script src="/js/app.js"></script>
+
+    <script src="/js/sessoes.js"></script>
+
 
   <!-- =========================================================
        CONTROLE DA SIDEBAR

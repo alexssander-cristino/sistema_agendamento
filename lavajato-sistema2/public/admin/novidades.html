@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f6fb">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Gerencie as novidades, melhorias e avisos da plataforma Orvix.">
+
+  <title>Centro de Novidades | Orvix</title>
+
+  <link rel="icon" href="/favicon-32x32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/css/dev.css">
+
+  <script src="/js/dev-sidebar.js" defer></script>
+  <script src="/admin/js/novidades.js" defer></script>
+</head>
+
+<body>
+
+  <!-- MENU MOBILE -->
+  <button
+    type="button"
+    id="mobile-menu-btn"
+    class="mobile-menu-btn"
+    aria-label="Abrir menu de navegação"
+    aria-controls="sidebar"
+    aria-expanded="false"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+
+    <div class="sidebar-header">
+
+      <a href="/admin/dashboard.html" class="sidebar-brand" aria-label="Orvix — Painel administrativo">
+        <span class="brand-mark" aria-hidden="true">O</span>
+
+        <span class="brand-info">
+          <strong>Orvix</strong>
+          <small>Painel administrativo</small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        id="sidebar-toggle"
+        class="sidebar-toggle"
+        aria-label="Recolher ou expandir menu"
+        aria-controls="sidebar"
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Menu administrativo">
+
+      <div class="sidebar-section-title">GERENCIAMENTO</div>
+
+      <a class="nav-btn" href="/admin/dashboard.html">
+        <span class="nav-icon" aria-hidden="true">⌂</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+
+      <a class="nav-btn" href="/admin/empresas.html">
+        <span class="nav-icon" aria-hidden="true">▦</span>
+        <span class="nav-label">Empresas</span>
+      </a>
+
+      <a class="nav-btn" href="/admin/assinaturas.html">
+        <span class="nav-icon" aria-hidden="true">◈</span>
+        <span class="nav-label">Assinaturas</span>
+      </a>
+
+      <a class="nav-btn" href="/admin/planos.html">
+        <span class="nav-icon" aria-hidden="true">◇</span>
+        <span class="nav-label">Planos</span>
+      </a>
+
+      <div class="sidebar-section-title">PLATAFORMA</div>
+
+      <a class="nav-btn active" href="/admin/novidades.html" aria-current="page">
+        <span class="nav-icon" aria-hidden="true">◉</span>
+        <span class="nav-label">Centro de Novidades</span>
+      </a>
+
+      <a class="nav-btn" href="/admin/usuarios.html">
+        <span class="nav-icon" aria-hidden="true">♙</span>
+        <span class="nav-label">Usuários</span>
+      </a>
+
+      <a class="nav-btn" href="/admin/logs.html">
+        <span class="nav-icon" aria-hidden="true">≡</span>
+        <span class="nav-label">Logs do sistema</span>
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="sidebar-status-dot" aria-hidden="true"></span>
+      <span class="sidebar-footer-label">Ambiente administrativo</span>
+    </div>
+
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-content">
+
+    <header class="page-header">
+
+      <div class="page-header-content">
+        <nav class="page-breadcrumb" aria-label="Você está em">
+          <span>Orvix</span>
+          <span aria-hidden="true">/</span>
+          <span>Plataforma</span>
+        </nav>
+
+        <h1>Centro de Novidades</h1>
+
+        <p>Publique novidades, melhorias, correções e avisos para todas as empresas.</p>
+      </div>
+
+      <div class="page-header-actions">
+        <button type="button" class="btn btn-primary" id="btnNovaNovidade">
+          <span aria-hidden="true">+</span>
+          Nova publicação
+        </button>
+      </div>
+
+    </header>
+
+    <noscript>
+      <div class="news-feedback error">
+        Este painel precisa de JavaScript para funcionar. Ative o JavaScript no navegador e recarregue a página.
+      </div>
+    </noscript>
+
+    <!-- FEEDBACK -->
+    <div id="newsFeedback" class="news-feedback" role="status" aria-live="polite" hidden></div>
+
+    <!-- INDICADORES -->
+    <section class="news-stats" aria-label="Resumo das publicações">
+
+      <article class="news-stat-card">
+        <div class="news-stat-icon" aria-hidden="true">▤</div>
+        <div class="news-stat-content">
+          <span>Total de publicações</span>
+          <strong id="statTotal">0</strong>
+          <small>Registros cadastrados</small>
+        </div>
+      </article>
+
+      <article class="news-stat-card">
+        <div class="news-stat-icon" aria-hidden="true">◷</div>
+        <div class="news-stat-content">
+          <span>Rascunhos</span>
+          <strong id="statRascunhos">0</strong>
+          <small>Aguardando publicação</small>
+        </div>
+      </article>
+
+      <article class="news-stat-card">
+        <div class="news-stat-icon" aria-hidden="true">✓</div>
+        <div class="news-stat-content">
+          <span>Publicadas</span>
+          <strong id="statPublicadas">0</strong>
+          <small>Disponibilizadas às empresas</small>
+        </div>
+      </article>
+
+      <article class="news-stat-card">
+        <div class="news-stat-icon" aria-hidden="true">⌁</div>
+        <div class="news-stat-content">
+          <span>Arquivadas</span>
+          <strong id="statArquivadas">0</strong>
+          <small>Publicações arquivadas</small>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- LISTAGEM -->
+    <section class="news-panel" aria-labelledby="newsPanelTitle">
+
+      <div class="news-panel-header">
+        <div>
+          <h2 id="newsPanelTitle">Publicações</h2>
+          <p>Gerencie o conteúdo exibido no sistema de notificações.</p>
+        </div>
+
+        <button type="button" class="btn btn-ghost" id="btnAtualizarNovidades">
+          Atualizar lista
+        </button>
+      </div>
+
+      <div class="news-toolbar">
+
+        <div class="news-search">
+          <label for="newsSearch">Pesquisar</label>
+          <input
+            type="search"
+            id="newsSearch"
+            placeholder="Buscar pelo título..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="news-filter">
+          <label for="newsStatusFilter">Status</label>
+          <select id="newsStatusFilter">
+            <option value="todos">Todos os status</option>
+            <option value="rascunho">Rascunhos</option>
+            <option value="publicada">Publicadas</option>
+            <option value="arquivada">Arquivadas</option>
+          </select>
+        </div>
+
+        <div class="news-filter">
+          <label for="newsCategoryFilter">Categoria</label>
+          <select id="newsCategoryFilter">
+            <option value="todas">Todas as categorias</option>
+            <option value="novidade">Novidade</option>
+            <option value="melhoria">Melhoria</option>
+            <option value="correcao">Correção</option>
+            <option value="aviso">Aviso</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- CARREGAMENTO -->
+      <div id="newsLoading" class="news-loading" role="status">
+        <span class="news-spinner" aria-hidden="true"></span>
+        <span>Carregando publicações...</span>
+      </div>
+
+      <!-- CARDS GERADOS PELO JAVASCRIPT -->
+      <div id="newsList" class="news-list" aria-live="polite"></div>
+
+      <!-- ESTADO VAZIO -->
+      <div id="newsEmpty" class="news-empty" hidden>
+        <div class="news-empty-icon" aria-hidden="true">▤</div>
+        <h3>Nenhuma publicação encontrada</h3>
+        <p>Crie uma novidade ou altere os filtros da pesquisa.</p>
+
+        <button type="button" class="btn btn-primary" id="btnCriarPrimeiraNovidade">
+          Criar publicação
+        </button>
+      </div>
+
+    </section>
+
+    <footer class="news-page-footer">
+      <span>Orvix — Painel administrativo</span>
+      <span>Centro de Novidades</span>
+    </footer>
+
+  </main>
+
+  <!-- MODAL DE CRIAÇÃO E EDIÇÃO -->
+  <div
+    id="newsModal"
+    class="news-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="newsModalTitle"
+    aria-describedby="newsModalDescription"
+    hidden
+  >
+
+    <div class="news-modal-backdrop" data-close-modal></div>
+
+    <section class="news-modal-dialog">
+
+      <header class="news-modal-header">
+        <div>
+          <span class="news-modal-eyebrow">GERENCIAMENTO DE CONTEÚDO</span>
+          <h2 id="newsModalTitle">Nova publicação</h2>
+          <p id="newsModalDescription">Preencha as informações para salvar a publicação como rascunho.</p>
+        </div>
+
+        <button type="button" class="news-modal-close" id="btnFecharModal" aria-label="Fechar janela">
+          ×
+        </button>
+      </header>
+
+      <form id="newsForm" novalidate autocomplete="off">
+
+        <input type="hidden" id="newsId">
+
+        <div class="news-form-body">
+
+          <div class="news-form-field">
+            <label for="newsTitle">Título <span aria-hidden="true">*</span></label>
+            <input
+              type="text"
+              id="newsTitle"
+              name="titulo"
+              maxlength="160"
+              placeholder="Ex.: Nova funcionalidade disponível"
+              required
+              aria-required="true"
+            >
+            <small>Máximo de 160 caracteres.</small>
+          </div>
+
+          <div class="news-form-field">
+            <label for="newsSummary">Resumo</label>
+            <textarea
+              id="newsSummary"
+              name="resumo"
+              rows="3"
+              maxlength="280"
+              placeholder="Escreva um resumo para a notificação..."
+            ></textarea>
+            <small>Máximo de 280 caracteres.</small>
+          </div>
+
+          <div class="news-form-field">
+            <label for="newsMessage">Conteúdo completo <span aria-hidden="true">*</span></label>
+            <textarea
+              id="newsMessage"
+              name="mensagem"
+              rows="7"
+              maxlength="20000"
+              placeholder="Descreva a novidade, melhoria, correção ou aviso..."
+              required
+              aria-required="true"
+            ></textarea>
+            <small>Máximo de 20.000 caracteres.</small>
+          </div>
+
+          <div class="news-form-grid">
+
+            <div class="news-form-field">
+              <label for="newsCategory">Categoria</label>
+              <select id="newsCategory" name="categoria">
+                <option value="novidade">Novidade</option>
+                <option value="melhoria">Melhoria</option>
+                <option value="correcao">Correção</option>
+                <option value="aviso">Aviso</option>
+              </select>
+            </div>
+
+            <div class="news-form-field">
+              <label for="newsLink">Link opcional</label>
+              <input
+                type="url"
+                id="newsLink"
+                name="link"
+                maxlength="500"
+                placeholder="https://..."
+                inputmode="url"
+              >
+              <small>Utilize um endereço HTTP ou HTTPS.</small>
+            </div>
+
+          </div>
+
+          <div class="news-notice">
+            <span class="news-notice-icon" aria-hidden="true">i</span>
+            <p>
+              Salvar cria um rascunho. A notificação para as empresas só é
+              gerada quando você publicar a novidade.
+            </p>
+          </div>
+
+          <div id="newsFormFeedback" class="news-form-feedback" role="alert" hidden></div>
+
+        </div>
+
+        <footer class="news-modal-actions">
+          <button type="button" class="btn btn-ghost" id="btnCancelarNovidade">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnSalvarNovidade">Salvar rascunho</button>
+        </footer>
+
+      </form>
+
+    </section>
+
+  </div>
+
+</body>
+</html>
