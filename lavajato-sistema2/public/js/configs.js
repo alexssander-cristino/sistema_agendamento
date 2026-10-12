@@ -18,15 +18,26 @@
     fundo: '#F5F7FA'
   };
 
-  const NICHOS_VALIDOS = [
-    'lavajato',
-    'barbearia',
-    'clinica',
-    'pet',
-    'oficina',
-    'personal',
-    'generico'
-  ];
+const NICHOS_VALIDOS = [
+  'lavajato',
+  'barbearia',
+  'clinica',
+  'pet',
+  'oficina',
+  'personal',
+  'personalizados',
+  'moveis',
+  'grafica',
+  'confeccao',
+  'eletronicos',
+  'construcao',
+  'fotografia',
+  'eventos',
+  'limpeza',
+  'tecnologia',
+  'generico'
+];
+
 
   const INTERVALOS_AGENDA_VALIDOS = [15, 30, 45, 60, 90, 120];
 

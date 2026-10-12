@@ -329,6 +329,8 @@ app.use(
 
 app.use('/api/firebase-notific', firebaseNotificRoutes);
 
+app.use('/api/sessoes', require('./routes/sessoes'));
+
 
 // ============================================================
 // PRIVACIDADE — ADMINISTRADOR

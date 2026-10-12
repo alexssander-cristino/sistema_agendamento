@@ -221,108 +221,270 @@
   // NICHOS
   // ============================================================
 
-  const NICHOS = {
+ 
+const NICHOS = {
 
-    lavajato: {
-      nome: 'Lava-jato / Estética automotiva',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: {
-        label:'Placa',
-        placeholder:'ABC1D23',
-        upper:true
-      },
-      extra2: {
-        label:'Veículo',
-        placeholder:'Modelo / cor'
-      }
+  lavajato: {
+    nome: 'Lava-jato / Estética automotiva',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Placa',
+      placeholder: 'ABC1D23',
+      upper: true
     },
-
-    barbearia: {
-      nome: 'Barbearia / Salão de beleza',
-      cliente: 'Cliente',
-      servico: 'Serviço',
-      servicos: 'Serviços',
-      novoServico: 'Novo serviço',
-      extra1: {
-        label:'Profissional',
-        placeholder:'Quem vai atender'
-      },
-      extra2:null
-    },
-
-    clinica: {
-      nome: 'Clínica / Consultório',
-      cliente: 'Paciente',
-      servico: 'Procedimento',
-      servicos: 'Procedimentos',
-      novoServico: 'Novo procedimento',
-      extra1: {
-        label:'Convênio',
-        placeholder:'Particular, Unimed...'
-      },
-      extra2: {
-        label:'Profissional',
-        placeholder:'Médico / dentista'
-      }
-    },
-
-    pet: {
-      nome:'Pet shop / Veterinária',
-      cliente:'Tutor',
-      servico:'Serviço',
-      servicos:'Serviços',
-      novoServico:'Novo serviço',
-      extra1:{
-        label:'Nome do pet',
-        placeholder:'Ex: Thor'
-      },
-      extra2:{
-        label:'Raça / porte',
-        placeholder:'Ex: Golden, grande'
-      }
-    },
-
-    oficina: {
-      nome:'Oficina mecânica',
-      cliente:'Cliente',
-      servico:'Serviço',
-      servicos:'Serviços',
-      novoServico:'Novo serviço',
-      extra1:{
-        label:'Placa',
-        placeholder:'ABC1D23',
-        upper:true
-      },
-      extra2:{
-        label:'Veículo',
-        placeholder:'Modelo / ano'
-      }
-    },
-
-    personal: {
-      nome:'Personal / Aulas / Consultoria',
-      cliente:'Aluno / Cliente',
-      servico:'Aula / Sessão',
-      servicos:'Aulas e sessões',
-      novoServico:'Nova aula / sessão',
-      extra1:null,
-      extra2:null
-    },
-
-    generico: {
-      nome:'Outro',
-      cliente:'Cliente',
-      servico:'Serviço',
-      servicos:'Serviços',
-      novoServico:'Novo serviço',
-      extra1:null,
-      extra2:null
+    extra2: {
+      label: 'Veículo',
+      placeholder: 'Modelo / cor'
     }
+  },
 
-  };
+  barbearia: {
+    nome: 'Barbearia / Salão de beleza',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Profissional',
+      placeholder: 'Quem vai atender'
+    },
+    extra2: null
+  },
+
+  clinica: {
+    nome: 'Clínica / Consultório',
+    cliente: 'Paciente',
+    servico: 'Procedimento',
+    servicos: 'Procedimentos',
+    novoServico: 'Novo procedimento',
+    extra1: {
+      label: 'Convênio',
+      placeholder: 'Particular, Unimed...'
+    },
+    extra2: {
+      label: 'Profissional',
+      placeholder: 'Médico / dentista'
+    }
+  },
+
+  pet: {
+    nome: 'Pet shop / Veterinária',
+    cliente: 'Tutor',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Nome do pet',
+      placeholder: 'Ex: Thor'
+    },
+    extra2: {
+      label: 'Raça / porte',
+      placeholder: 'Ex: Golden, grande'
+    }
+  },
+
+  oficina: {
+    nome: 'Oficina mecânica',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: {
+      label: 'Placa',
+      placeholder: 'ABC1D23',
+      upper: true
+    },
+    extra2: {
+      label: 'Veículo',
+      placeholder: 'Modelo / ano'
+    }
+  },
+
+  personal: {
+    nome: 'Personal / Aulas / Consultoria',
+    cliente: 'Aluno / Cliente',
+    servico: 'Aula / Sessão',
+    servicos: 'Aulas e sessões',
+    novoServico: 'Nova aula / sessão',
+    extra1: null,
+    extra2: null
+  },
+
+  personalizados: {
+    nome: 'Produtos personalizados',
+    cliente: 'Cliente',
+    servico: 'Produto personalizado',
+    servicos: 'Produtos personalizados',
+    novoServico: 'Novo produto personalizado',
+    extra1: {
+      label: 'Personalização',
+      placeholder: 'Nome, frase, logo, arte...'
+    },
+    extra2: {
+      label: 'Material',
+      placeholder: 'MDF, acrílico, tecido, metal...'
+    }
+  },
+
+  moveis: {
+    nome: 'Móveis / Marcenaria',
+    cliente: 'Cliente',
+    servico: 'Projeto / Móvel',
+    servicos: 'Projetos e móveis',
+    novoServico: 'Novo projeto / móvel',
+    extra1: {
+      label: 'Tipo de móvel',
+      placeholder: 'Armário, mesa, painel...'
+    },
+    extra2: {
+      label: 'Material',
+      placeholder: 'MDF, madeira maciça...'
+    }
+  },
+
+  grafica: {
+    nome: 'Gráfica / Comunicação visual',
+    cliente: 'Cliente',
+    servico: 'Produto gráfico',
+    servicos: 'Produtos gráficos',
+    novoServico: 'Novo produto gráfico',
+    extra1: {
+      label: 'Tipo de material',
+      placeholder: 'Banner, adesivo, cartão...'
+    },
+    extra2: {
+      label: 'Formato / tamanho',
+      placeholder: 'A4, 10x15 cm...'
+    }
+  },
+
+  confeccao: {
+    nome: 'Costura / Confecção / Ajustes',
+    cliente: 'Cliente',
+    servico: 'Peça / Serviço',
+    servicos: 'Peças e serviços',
+    novoServico: 'Nova peça / serviço',
+    extra1: {
+      label: 'Tipo de peça',
+      placeholder: 'Calça, vestido, camisa...'
+    },
+    extra2: {
+      label: 'Ajuste / medida',
+      placeholder: 'Barra, cintura, comprimento...'
+    }
+  },
+
+  eletronicos: {
+    nome: 'Assistência técnica / Eletrônicos',
+    cliente: 'Cliente',
+    servico: 'Reparo',
+    servicos: 'Reparos e serviços',
+    novoServico: 'Novo reparo',
+    extra1: {
+      label: 'Equipamento',
+      placeholder: 'Celular, notebook, TV...'
+    },
+    extra2: {
+      label: 'Marca / modelo',
+      placeholder: 'Marca e modelo do equipamento'
+    }
+  },
+
+  construcao: {
+    nome: 'Construção / Reformas',
+    cliente: 'Cliente',
+    servico: 'Serviço / Projeto',
+    servicos: 'Serviços e projetos',
+    novoServico: 'Novo serviço / projeto',
+    extra1: {
+      label: 'Local da obra',
+      placeholder: 'Endereço ou identificação'
+    },
+    extra2: {
+      label: 'Tipo de serviço',
+      placeholder: 'Pintura, elétrica, reforma...'
+    }
+  },
+
+  fotografia: {
+    nome: 'Fotografia / Vídeo',
+    cliente: 'Cliente',
+    servico: 'Ensaio / Evento',
+    servicos: 'Ensaios e eventos',
+    novoServico: 'Novo ensaio / evento',
+    extra1: {
+      label: 'Tipo de trabalho',
+      placeholder: 'Casamento, aniversário, ensaio...'
+    },
+    extra2: {
+      label: 'Local',
+      placeholder: 'Estúdio ou endereço'
+    }
+  },
+
+  eventos: {
+    nome: 'Eventos / Festas',
+    cliente: 'Contratante',
+    servico: 'Evento / Serviço',
+    servicos: 'Eventos e serviços',
+    novoServico: 'Novo evento / serviço',
+    extra1: {
+      label: 'Tipo de evento',
+      placeholder: 'Casamento, aniversário, corporativo...'
+    },
+    extra2: {
+      label: 'Local do evento',
+      placeholder: 'Salão, endereço ou espaço'
+    }
+  },
+
+  limpeza: {
+    nome: 'Limpeza / Conservação',
+    cliente: 'Cliente',
+    servico: 'Serviço de limpeza',
+    servicos: 'Serviços de limpeza',
+    novoServico: 'Novo serviço de limpeza',
+    extra1: {
+      label: 'Local',
+      placeholder: 'Casa, apartamento, empresa...'
+    },
+    extra2: {
+      label: 'Tipo de limpeza',
+      placeholder: 'Regular, pós-obra, pesada...'
+    }
+  },
+
+  tecnologia: {
+    nome: 'Tecnologia / Desenvolvimento de sistemas',
+    cliente: 'Cliente',
+    servico: 'Projeto / Serviço',
+    servicos: 'Projetos e serviços',
+    novoServico: 'Novo projeto / serviço',
+    extra1: {
+      label: 'Tipo de projeto',
+      placeholder: 'Site, sistema, aplicativo...'
+    },
+    extra2: {
+      label: 'Tecnologia / Plataforma',
+      placeholder: 'Web, mobile, integração...'
+    }
+  },
+
+  generico: {
+    nome: 'Outro tipo de negócio',
+    cliente: 'Cliente',
+    servico: 'Serviço',
+    servicos: 'Serviços',
+    novoServico: 'Novo serviço',
+    extra1: null,
+    extra2: null
+  }
+
+};
+
 
 
   function normalizarNicho(valor){
@@ -5899,6 +6061,7 @@ async function carregarPlanosObrigatorios() {
 // SELECIONAR PLANO
 // ============================================================
 
+
 function selecionarPlanoObrigatorio(plano, botao) {
   if (
     redirecionandoParaAssinatura ||
@@ -8231,34 +8394,29 @@ document.addEventListener(
   // LOGOUT
   // ============================================================
 
-  $('btn-logout')
-    ?.addEventListener(
-      'click',
-      () => {
+$('btn-logout')?.addEventListener('click', async () => {
+  if (!confirm('Deseja sair da sua conta?')) return;
 
-        if(
-          !confirm(
-            'Deseja sair da sua conta?'
-          )
-        ){
-          return;
-        }
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
-        localStorage.removeItem(
-          AUTH_TOKEN_KEY
-        );
-        
-        window.dispatchEvent(new Event('orvix:sessao-alterada'));
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'same-origin'
+    });
+  } catch (_) {
+    // Mesmo sem rede, o acesso local é encerrado abaixo.
+  }
 
-        usuarioLogado =
-          null;
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  window.dispatchEvent(new Event('orvix:sessao-alterada'));
 
-        empresaLogada =
-          null;
+  usuarioLogado = null;
+  empresaLogada = null;
 
-        window.location.reload();
-      }
-    );
+  window.location.reload();
+});
 
 
   // ============================================================
@@ -8578,9 +8736,11 @@ function atualizarDatasDashboard() {
 
 
 
+
 /* =========================================================
    ORVIX — CENTRAL DE NOTIFICAÇÕES
    Compatível com lavajato_auth_token
+   Links internos e externos seguros
    ========================================================= */
 
 (() => {
@@ -8672,6 +8832,7 @@ function atualizarDatasDashboard() {
 
             sessaoAnterior = false;
             ocultarCentral();
+
             return false;
         }
 
@@ -8689,7 +8850,11 @@ function atualizarDatasDashboard() {
        REQUISIÇÕES
        ===================================================== */
 
-    async function requisitar(path, options = {}, tokenEsperado = obterToken()) {
+    async function requisitar(
+        path,
+        options = {},
+        tokenEsperado = obterToken()
+    ) {
         if (!tokenEsperado || !usuarioAutenticado()) {
             throw new Error('Sessão não autenticada.');
         }
@@ -8710,7 +8875,6 @@ function atualizarDatasDashboard() {
             cache: 'no-store'
         });
 
-        // Impede que uma resposta de outra sessão seja exibida.
         if (obterToken() !== tokenEsperado) {
             throw new Error('A sessão foi alterada.');
         }
@@ -8726,7 +8890,9 @@ function atualizarDatasDashboard() {
         }
 
         if (resposta.status === 403) {
-            throw new Error('Acesso às notificações não autorizado.');
+            throw new Error(
+                'Acesso às notificações não autorizado.'
+            );
         }
 
         if (!resposta.ok) {
@@ -8739,6 +8905,7 @@ function atualizarDatasDashboard() {
 
             const erro = new Error(mensagem);
             erro.status = resposta.status;
+
             throw erro;
         }
 
@@ -8750,7 +8917,7 @@ function atualizarDatasDashboard() {
     }
 
     /* =====================================================
-       FORMATAÇÃO E SEGURANÇA HTML
+       SEGURANÇA E FORMATAÇÃO
        ===================================================== */
 
     function escaparHTML(valor) {
@@ -8763,12 +8930,67 @@ function atualizarDatasDashboard() {
         })[caractere]);
     }
 
+    /**
+     * Aceita:
+     * - Caminhos internos: /relatorios.html
+     * - URLs HTTP/HTTPS: https://exemplo.com
+     *
+     * Rejeita:
+     * - javascript:
+     * - data:
+     * - vbscript:
+     * - URLs com protocolo não permitido
+     * - URLs relativas ambíguas
+     */
+    function validarLink(valor) {
+        if (typeof valor !== 'string' || !valor.trim()) {
+            return null;
+        }
+
+        const link = valor.trim();
+
+        try {
+            if (link.startsWith('/') && !link.startsWith('//')) {
+                const urlInterna = new URL(link, window.location.origin);
+
+                if (urlInterna.origin !== window.location.origin) {
+                    return null;
+                }
+
+                return {
+                    href: urlInterna.pathname +
+                        urlInterna.search +
+                        urlInterna.hash,
+                    externo: false
+                };
+            }
+
+            const urlExterna = new URL(link);
+
+            if (
+                urlExterna.protocol !== 'https:' &&
+                urlExterna.protocol !== 'http:'
+            ) {
+                return null;
+            }
+
+            return {
+                href: urlExterna.href,
+                externo: urlExterna.origin !== window.location.origin
+            };
+        } catch (_) {
+            return null;
+        }
+    }
+
     function formatarData(valor) {
         if (!valor) return '';
 
         const data = new Date(valor);
 
-        if (Number.isNaN(data.getTime())) return '';
+        if (Number.isNaN(data.getTime())) {
+            return '';
+        }
 
         return data.toLocaleString('pt-BR', {
             day: '2-digit',
@@ -8802,6 +9024,10 @@ function atualizarDatasDashboard() {
         }
     }
 
+    /* =====================================================
+       RENDERIZAÇÃO
+       ===================================================== */
+
     function renderizarNotificacoes() {
         if (!notificacoes.length) {
             mostrarMensagem('Nenhuma notificação por enquanto.');
@@ -8810,12 +9036,29 @@ function atualizarDatasDashboard() {
 
         lista.innerHTML = notificacoes.map(notificacao => {
             const naoLida = !notificacao.lida_em;
+            const linkValido = validarLink(notificacao.link);
+
+            const acaoLink = linkValido
+                ? `
+                    <a
+                        class="notificacao-link"
+                        href="${escaparHTML(linkValido.href)}"
+                        data-notificacao-abrir-link="true"
+                        ${linkValido.externo
+                            ? 'target="_blank" rel="noopener noreferrer"'
+                            : ''}
+                        aria-label="Acessar página: ${escaparHTML(notificacao.titulo)}"
+                    >
+                        Acessar página
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                `
+                : '';
 
             return `
                 <article
                     class="notificacao-item ${naoLida ? 'nao-lida' : ''}"
                     data-notificacao-id="${escaparHTML(notificacao.id)}"
-                    data-notificacao-link="${escaparHTML(notificacao.link || '')}"
                     role="button"
                     tabindex="0"
                     aria-label="${escaparHTML(notificacao.titulo)}"
@@ -8827,6 +9070,8 @@ function atualizarDatasDashboard() {
                     <p class="notificacao-mensagem">
                         ${escaparHTML(notificacao.mensagem)}
                     </p>
+
+                    ${acaoLink}
 
                     <time class="notificacao-data">
                         ${escaparHTML(formatarData(notificacao.criado_em))}
@@ -8882,7 +9127,6 @@ function atualizarDatasDashboard() {
 
             atualizarContador(contagem?.nao_lidas);
             renderizarNotificacoes();
-
         } catch (erro) {
             if (
                 idRequisicao !== requisicaoAtual ||
@@ -8906,7 +9150,6 @@ function atualizarDatasDashboard() {
                     ? 'Você não tem autorização para consultar as notificações.'
                     : 'Não foi possível carregar as notificações. Tente novamente.'
             );
-
         } finally {
             if (idRequisicao === requisicaoAtual) {
                 carregando = false;
@@ -8927,7 +9170,7 @@ function atualizarDatasDashboard() {
        ===================================================== */
 
     async function marcarComoLida(id) {
-        if (!sincronizarSessao()) return;
+        if (!sincronizarSessao()) return false;
 
         const token = obterToken();
 
@@ -8938,17 +9181,17 @@ function atualizarDatasDashboard() {
                 token
             );
 
-            if (
+            return (
                 obterToken() === token &&
                 usuarioAutenticado()
-            ) {
-                await carregarNotificacoes();
-            }
+            );
         } catch (erro) {
             console.error(
                 '[Orvix] Erro ao marcar notificação como lida:',
                 erro
             );
+
+            return false;
         }
     }
 
@@ -8994,28 +9237,63 @@ function atualizarDatasDashboard() {
         if (!sincronizarSessao()) return;
 
         const id = elemento.dataset.notificacaoId;
-        const link = elemento.dataset.notificacaoLink;
 
         const notificacao = notificacoes.find(
             item => String(item.id) === String(id)
         );
 
         if (notificacao && !notificacao.lida_em) {
-            await marcarComoLida(id);
+            const marcada = await marcarComoLida(id);
+
+            if (marcada) {
+                notificacao.lida_em = new Date().toISOString();
+
+                elemento.classList.remove('nao-lida');
+            }
+        }
+    }
+
+    async function abrirLinkNotificacao(linkElemento, evento) {
+        const hrefOriginal = linkElemento.getAttribute('href');
+
+        const linkValido = validarLink(hrefOriginal);
+
+        if (!linkValido) {
+            evento.preventDefault();
+
+            console.warn(
+                '[Orvix] Link de notificação inválido.'
+            );
+
+            return;
+        }
+
+        evento.preventDefault();
+        evento.stopPropagation();
+
+        const item = linkElemento.closest('.notificacao-item');
+
+        if (!item) return;
+
+        const id = item.dataset.notificacaoId;
+        const notificacao = notificacoes.find(
+            itemAtual => String(itemAtual.id) === String(id)
+        );
+
+        if (notificacao && !notificacao.lida_em) {
+            await abrirNotificacao(item);
         }
 
         if (!usuarioAutenticado()) return;
 
-        if (link) {
-            // Somente caminhos internos; evita redirecionamento externo.
-            if (link.startsWith('/') && !link.startsWith('//')) {
-                window.location.assign(link);
-            } else {
-                console.warn(
-                    '[Orvix] Link inválido ignorado:',
-                    link
-                );
-            }
+        if (linkValido.externo) {
+            window.open(
+                linkValido.href,
+                '_blank',
+                'noopener,noreferrer'
+            );
+        } else {
+            window.location.assign(linkValido.href);
         }
     }
 
@@ -9042,6 +9320,15 @@ function atualizarDatasDashboard() {
     });
 
     lista.addEventListener('click', async evento => {
+        const link = evento.target.closest(
+            '[data-notificacao-abrir-link="true"]'
+        );
+
+        if (link) {
+            await abrirLinkNotificacao(link, evento);
+            return;
+        }
+
         const item = evento.target.closest('.notificacao-item');
 
         if (item) {
@@ -9050,9 +9337,20 @@ function atualizarDatasDashboard() {
     });
 
     lista.addEventListener('keydown', async evento => {
-        if (evento.key !== 'Enter' && evento.key !== ' ') return;
+        const link = evento.target.closest(
+            '[data-notificacao-abrir-link="true"]'
+        );
+
+        // Links funcionam normalmente com Enter.
+        // Não intercepta Enter ou Espaço em links.
+        if (link) return;
+
+        if (evento.key !== 'Enter' && evento.key !== ' ') {
+            return;
+        }
 
         const item = evento.target.closest('.notificacao-item');
+
         if (!item) return;
 
         evento.preventDefault();
@@ -9090,19 +9388,12 @@ function atualizarDatasDashboard() {
         }
     });
 
-    /*
-     * Ao voltar para a aba, verifica a sessão e atualiza a lista.
-     */
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden && sincronizarSessao()) {
             carregarNotificacoes();
         }
     });
 
-    /*
-     * Observa a tela de login. Isso cobre os casos em que
-     * showAuthScreen() / hideAuthScreen() alteram sua exibição.
-     */
     const telaAuth = document.getElementById('auth-screen');
 
     if (telaAuth && typeof MutationObserver !== 'undefined') {
@@ -9116,9 +9407,10 @@ function atualizarDatasDashboard() {
         });
     }
 
-    /*
-     * Inicialização e atualização periódica.
-     */
+    /* =====================================================
+       INICIALIZAÇÃO
+       ===================================================== */
+
     sincronizarSessao();
 
     intervalo = window.setInterval(() => {
@@ -9127,9 +9419,6 @@ function atualizarDatasDashboard() {
         }
     }, INTERVALO_ATUALIZACAO);
 
-    /*
-     * Não deixa o intervalo continuar após a página ser encerrada.
-     */
     window.addEventListener('pagehide', () => {
         if (intervalo !== null) {
             window.clearInterval(intervalo);
@@ -9137,4 +9426,5 @@ function atualizarDatasDashboard() {
         }
     });
 })();
+
 })();

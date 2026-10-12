@@ -32,6 +32,12 @@ const {
 
 const router = express.Router();
 
+const {
+  criarSessao,
+  revogarSessao,
+  revogarTodasSessoes
+} = require('../services/sessoes');
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // ============================================================
@@ -169,9 +175,13 @@ function obterUrlAplicacao() {
 // GERAR JWT
 // ============================================================
 
-function gerarTokenJwt(usuario) {
+function gerarTokenJwt(usuario, sessaoId) {
   if (!JWT_SECRET) {
     throw new Error('JWT_SECRET não configurado.');
+  }
+
+  if (!sessaoId) {
+    throw new Error('Sessão não informada para gerar o token.');
   }
 
   return jwt.sign(
@@ -180,7 +190,8 @@ function gerarTokenJwt(usuario) {
       empresa_id: usuario.empresa_id ?? null,
       nome: usuario.nome,
       email: usuario.email,
-      perfil: usuario.perfil
+      perfil: usuario.perfil,
+      sid: sessaoId
     },
     JWT_SECRET,
     {
@@ -454,7 +465,8 @@ router.post('/cadastro', async (req, res) => {
     // GERAR JWT
     // --------------------------------------------------------
 
-    const token = gerarTokenJwt(usuario);
+    const sessao = await criarSessao(req, usuario);
+    const token = gerarTokenJwt(usuario, sessao.id);
 
     // --------------------------------------------------------
     // SALVAR JWT NO COOKIE HTTPONLY
@@ -616,7 +628,8 @@ router.post('/login', async (req, res) => {
     // GERAR JWT
     // --------------------------------------------------------
 
-    const token = gerarTokenJwt(usuario);
+   const sessao = await criarSessao(req, usuario);
+   const token = gerarTokenJwt(usuario, sessao.id);
 
     // --------------------------------------------------------
     // SALVAR JWT NO COOKIE HTTPONLY
@@ -677,21 +690,11 @@ router.post('/login', async (req, res) => {
 // ============================================================
 
 router.post('/logout', autenticar, async (req, res) => {
-  try {
-    await registrarAuditoria(req, {
-      acao: 'logout',
-      entidade: 'usuario',
-      entidadeId: req.usuario.id,
-      detalhes: {
-        origem: 'logout'
-      }
-    });
-  } catch (erro) {
-    console.error(
-      'Erro ao registrar auditoria do logout:',
-      erro?.message || erro
-    );
-  }
+ try {
+  await revogarSessao(pool, req.usuario.id, req.sessaoId, 'logout');
+} catch (erro) {
+  console.error('Erro ao revogar sessão no logout:', erro?.message || erro);
+}
 
   limparCookieToken(res);
 
@@ -853,14 +856,14 @@ router.post(
       );
 
       return res.json(respostaPadrao);
-    } catch (err) {
-      console.error(
-        'Erro ao solicitar recuperação de senha:',
-        err?.message || err
-      );
+} catch (err) {
+  console.error(
+    'Erro ao solicitar recuperação de senha:',
+    err?.message || err
+  );
 
-      return res.json(respostaPadrao);
-    }
+  return res.json(respostaPadrao);
+}
   }
 );
 
@@ -985,6 +988,10 @@ router.post('/redefinir-senha', async (req, res) => {
       `,
       [novaSenhaHash, recuperacao.usuario_id]
     );
+
+    await revogarTodasSessoes(client, recuperacao.usuario_id, {
+  motivo: 'senha_redefinida'
+});
 
     // --------------------------------------------------------
     // INVALIDAR TOKENS DE RECUPERAÇÃO PENDENTES

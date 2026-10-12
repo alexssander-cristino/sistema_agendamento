@@ -1200,6 +1200,500 @@ router.get('/logs/:id', async (req, res) => {
   }
 });
 
+
+
+/* ============================================================
+ * CENTRO DE NOVIDADES — ORVIX
+ * Base: /api/admin/novidades
+ * Acesso: somente desenvolvedor
+ * ============================================================ */
+
+// ------------------------------------------------------------
+// LISTAR NOVIDADES
+// GET /api/admin/novidades
+// ------------------------------------------------------------
+
+router.get('/novidades', async (req, res) => {
+  try {
+    // Confirma que a tabela existe no schema public.
+    const tabela = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_name = 'novidades'
+      ) AS existe
+    `);
+
+    if (!tabela.rows[0].existe) {
+      console.error(
+        '[Novidades] A tabela public.novidades não existe.'
+      );
+
+      return res.status(500).json({
+        erro: 'A tabela de novidades não foi encontrada no banco de dados.',
+        codigo: 'TABELA_NOVIDADES_AUSENTE',
+        novidades: []
+      });
+    }
+
+    // Consulta os registros sem depender de um JOIN obrigatório.
+    const resultado = await pool.query(`
+      SELECT
+        n.id,
+        n.titulo,
+        n.resumo,
+        n.mensagem,
+        n.categoria,
+        n.link,
+        n.status,
+        n.publicada_em,
+        n.criado_em,
+        n.atualizado_em,
+        n.criada_por,
+        u.nome AS autor_nome
+      FROM public.novidades n
+      LEFT JOIN public.usuarios u
+        ON u.id = n.criada_por
+      ORDER BY n.criado_em DESC NULLS LAST, n.id DESC
+    `);
+
+    return res.status(200).json({
+      sucesso: true,
+      total: resultado.rowCount,
+      novidades: resultado.rows
+    });
+  } catch (err) {
+    console.error(
+      '[Novidades] Erro ao consultar o banco:',
+      {
+        message: err.message,
+        code: err.code,
+        detail: err.detail,
+        table: err.table,
+        column: err.column
+      }
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível carregar as novidades.',
+      codigo: err.code || 'ERRO_AO_LISTAR_NOVIDADES',
+      novidades: []
+    });
+  }
+});
+
+// ------------------------------------------------------------
+// CRIAR RASCUNHO
+// POST /api/admin/novidades
+// ------------------------------------------------------------
+
+router.post('/novidades', async (req, res) => {
+  const {
+    titulo,
+    resumo,
+    mensagem,
+    categoria = 'novidade',
+    link = null
+  } = req.body || {};
+
+  const categoriasValidas = [
+    'novidade',
+    'melhoria',
+    'correcao',
+    'aviso'
+  ];
+
+  if (
+    typeof titulo !== 'string' ||
+    !titulo.trim() ||
+    titulo.trim().length > 160
+  ) {
+    return res.status(400).json({
+      erro: 'Informe um título de até 160 caracteres.'
+    });
+  }
+
+  if (
+    typeof mensagem !== 'string' ||
+    !mensagem.trim() ||
+    mensagem.trim().length > 20000
+  ) {
+    return res.status(400).json({
+      erro: 'Informe uma mensagem de até 20.000 caracteres.'
+    });
+  }
+
+  if (
+    resumo != null &&
+    (
+      typeof resumo !== 'string' ||
+      resumo.trim().length > 280
+    )
+  ) {
+    return res.status(400).json({
+      erro: 'O resumo deve ter até 280 caracteres.'
+    });
+  }
+
+  if (!categoriasValidas.includes(categoria)) {
+    return res.status(400).json({
+      erro: 'Categoria de novidade inválida.'
+    });
+  }
+
+  if (
+    link != null &&
+    (
+      typeof link !== 'string' ||
+      link.trim().length > 500 ||
+      !link.trim() ||
+      /^(javascript|data|vbscript):/i.test(link.trim())
+    )
+  ) {
+    return res.status(400).json({
+      erro: 'Link inválido.'
+    });
+  }
+
+  try {
+    const resultado = await pool.query(
+      `
+        INSERT INTO public.novidades (
+          titulo,
+          resumo,
+          mensagem,
+          categoria,
+          link,
+          status,
+          criada_por
+        )
+        VALUES ($1, $2, $3, $4, $5, 'rascunho', $6)
+        RETURNING *
+      `,
+      [
+        titulo.trim(),
+        resumo?.trim() || null,
+        mensagem.trim(),
+        categoria,
+        link?.trim() || null,
+        req.usuario.id
+      ]
+    );
+
+    return res.status(201).json({
+      sucesso: true,
+      mensagem: 'Rascunho criado com sucesso.',
+      novidade: resultado.rows[0]
+    });
+  } catch (err) {
+    console.error(
+      '[Novidades] Erro ao criar rascunho:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível criar o rascunho.',
+      codigo: err.code || 'ERRO_AO_CRIAR_NOVIDADE'
+    });
+  }
+});
+
+// ------------------------------------------------------------
+// EDITAR RASCUNHO
+// PUT /api/admin/novidades/:id
+// ------------------------------------------------------------
+
+router.put('/novidades/:id', async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return res.status(400).json({
+      erro: 'Identificador inválido.'
+    });
+  }
+
+  const {
+    titulo,
+    resumo,
+    mensagem,
+    categoria = 'novidade',
+    link = null
+  } = req.body || {};
+
+  const categoriasValidas = [
+    'novidade',
+    'melhoria',
+    'correcao',
+    'aviso'
+  ];
+
+  if (
+    typeof titulo !== 'string' ||
+    !titulo.trim() ||
+    titulo.trim().length > 160 ||
+    typeof mensagem !== 'string' ||
+    !mensagem.trim() ||
+    mensagem.trim().length > 20000 ||
+    (
+      resumo != null &&
+      (
+        typeof resumo !== 'string' ||
+        resumo.trim().length > 280
+      )
+    ) ||
+    !categoriasValidas.includes(categoria) ||
+    (
+      link != null &&
+      (
+        typeof link !== 'string' ||
+        !link.trim() ||
+        link.trim().length > 500 ||
+        /^(javascript|data|vbscript):/i.test(link.trim())
+      )
+    )
+  ) {
+    return res.status(400).json({
+      erro: 'Confira os campos e tente novamente.'
+    });
+  }
+
+  try {
+    const resultado = await pool.query(
+      `
+        UPDATE public.novidades
+        SET
+          titulo = $1,
+          resumo = $2,
+          mensagem = $3,
+          categoria = $4,
+          link = $5,
+          atualizado_em = NOW()
+        WHERE id = $6
+          AND status = 'rascunho'
+        RETURNING *
+      `,
+      [
+        titulo.trim(),
+        resumo?.trim() || null,
+        mensagem.trim(),
+        categoria,
+        link?.trim() || null,
+        id
+      ]
+    );
+
+    if (resultado.rowCount === 0) {
+      return res.status(404).json({
+        erro: 'Rascunho não encontrado ou não pode mais ser editado.'
+      });
+    }
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Rascunho atualizado com sucesso.',
+      novidade: resultado.rows[0]
+    });
+  } catch (err) {
+    console.error(
+      '[Novidades] Erro ao editar rascunho:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível atualizar o rascunho.',
+      codigo: err.code || 'ERRO_AO_EDITAR_NOVIDADE'
+    });
+  }
+});
+
+// ------------------------------------------------------------
+// PUBLICAR NOVIDADE
+// POST /api/admin/novidades/:id/publicar
+// ------------------------------------------------------------
+
+
+router.post('/novidades/:id/publicar', async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return res.status(400).json({
+      erro: 'Identificador inválido.'
+    });
+  }
+
+  let client;
+
+  try {
+    client = await pool.connect();
+
+    await client.query('BEGIN');
+
+    // Bloqueia a novidade para evitar duas publicações simultâneas.
+    const resultado = await client.query(
+      `
+        SELECT *
+        FROM public.novidades
+        WHERE id = $1
+        FOR UPDATE
+      `,
+      [id]
+    );
+
+    if (resultado.rowCount === 0) {
+      await client.query('ROLLBACK');
+
+      return res.status(404).json({
+        erro: 'Novidade não encontrada.'
+      });
+    }
+
+    const novidade = resultado.rows[0];
+
+    if (novidade.status !== 'rascunho') {
+      await client.query('ROLLBACK');
+
+      return res.status(409).json({
+        erro: 'Somente rascunhos podem ser publicados.'
+      });
+    }
+
+    // Publica a novidade.
+    const publicada = await client.query(
+      `
+        UPDATE public.novidades
+        SET
+          status = 'publicada',
+          publicada_em = NOW(),
+          atualizado_em = NOW()
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id]
+    );
+
+    // Cria uma notificação individual para cada usuário ativo
+    // vinculado a uma empresa.
+    const notificacoes = await client.query(
+      `
+        INSERT INTO public.notificacoes (
+          empresa_id,
+          usuario_id,
+          tipo,
+          titulo,
+          mensagem,
+          link
+        )
+        SELECT
+          u.empresa_id,
+          u.id,
+          'novidade',
+          $1,
+          $2,
+          $3
+        FROM public.usuarios u
+        WHERE u.empresa_id IS NOT NULL
+          AND u.ativo = TRUE
+        RETURNING id
+      `,
+      [
+        novidade.titulo,
+        novidade.resumo || novidade.mensagem,
+        novidade.link
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Novidade publicada e notificações enviadas.',
+      novidade: publicada.rows[0],
+      usuariosNotificados: notificacoes.rowCount
+    });
+  } catch (err) {
+    if (client) {
+      try {
+        await client.query('ROLLBACK');
+      } catch (erroRollback) {
+        console.error(
+          '[Novidades] Erro ao reverter publicação:',
+          erroRollback
+        );
+      }
+    }
+
+    console.error(
+      '[Novidades] Erro ao publicar:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível publicar a novidade.',
+      codigo: err.code || 'ERRO_AO_PUBLICAR_NOVIDADE'
+    });
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+});
+
+
+// ------------------------------------------------------------
+// ARQUIVAR NOVIDADE
+// POST /api/admin/novidades/:id/arquivar
+// ------------------------------------------------------------
+
+router.post('/novidades/:id/arquivar', async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return res.status(400).json({
+      erro: 'Identificador inválido.'
+    });
+  }
+
+  try {
+    const resultado = await pool.query(
+      `
+        UPDATE public.novidades
+        SET
+          status = 'arquivada',
+          atualizado_em = NOW()
+        WHERE id = $1
+          AND status IN ('rascunho', 'publicada')
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (resultado.rowCount === 0) {
+      return res.status(404).json({
+        erro: 'Novidade não encontrada ou já arquivada.'
+      });
+    }
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Novidade arquivada com sucesso.',
+      novidade: resultado.rows[0]
+    });
+  } catch (err) {
+    console.error(
+      '[Novidades] Erro ao arquivar:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Não foi possível arquivar a novidade.',
+      codigo: err.code || 'ERRO_AO_ARQUIVAR_NOVIDADE'
+    });
+  }
+});
+
+
+
 // ============================================================
 // EXPORTAÇÃO
 // ============================================================

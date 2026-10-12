@@ -28,8 +28,19 @@ const NICHOS_VALIDOS = [
   'pet',
   'oficina',
   'personal',
+  'personalizados',
+  'moveis',
+  'grafica',
+  'confeccao',
+  'eletronicos',
+  'construcao',
+  'fotografia',
+  'eventos',
+  'limpeza',
+  'tecnologia',
   'generico'
 ];
+
 
 const MOEDAS_VALIDAS = [
   'BRL',
