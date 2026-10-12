@@ -1,333 +1,507 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacidade e Dados | Orvix</title>
 
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
   <style>
+    :root {
+      color-scheme: dark;
 
-    /* =========================================================
-   ORVIX — PRIVACIDADE E DADOS · tema escuro "Nexa"
-   Cole no lugar do conteúdo do <style> da página (ou salve como
-   arquivo e use <link rel="stylesheet">). HTML e JS não mudam.
-   ========================================================= */
+      --canvas: #0a0e1a;
+      --canvas-2: #0f1424;
+      --card: rgba(255, 255, 255, .04);
+      --card-hover: rgba(255, 255, 255, .065);
+      --field: rgba(255, 255, 255, .05);
 
-:root {
-  color-scheme: dark;
+      --text: #e8ecf5;
+      --muted: #9aa4bd;
+      --faint: #7a849e;
 
-  --canvas: #0a0e1a;
-  --canvas-2: #0f1424;
-  --bg: var(--canvas);
-  --card: rgba(255, 255, 255, .04);
-  --card-hover: rgba(255, 255, 255, .065);
+      --border: rgba(255, 255, 255, .09);
+      --border-strong: rgba(255, 255, 255, .16);
 
-  --text: #e8ecf5;
-  --muted: #9aa4bd;
-  --faint: #7a849e;
+      --ac: #4f8cff;
+      --ac2: #22d3ee;
+      --violet: #6d5cff;
+      --grad: linear-gradient(135deg, var(--ac), var(--violet));
+      --ring: 0 0 0 3px rgba(79, 140, 255, .3);
+      --glow: 0 8px 24px -8px rgba(79, 140, 255, .65);
 
-  --border: rgba(255, 255, 255, .09);
-  --border-strong: rgba(255, 255, 255, .16);
+      --success: #2fd68b;
+      --warning: #fbbf24;
+      --danger: #ff5d73;
+      --info: #8db4ff;
 
-  --ac: #4f8cff;
-  --ac2: #22d3ee;
-  --violet: #6d5cff;
-  --primary: var(--ac);
-  --primary-hover: #6a9dff;
-  --grad: linear-gradient(135deg, var(--ac), var(--violet));
-  --grad-text: linear-gradient(90deg, var(--ac), var(--ac2));
-  --ring: 0 0 0 3px rgba(79, 140, 255, .3);
-  --glow: 0 8px 24px -8px rgba(79, 140, 255, .65);
+      --radius: 12px;
+      --radius-l: 18px;
+      --shadow: 0 10px 30px -18px rgba(0, 0, 0, .7);
+      --ease: 170ms cubic-bezier(.22, .8, .24, 1);
+    }
 
-  --success: #2fd68b;
-  --warning: #fbbf24;
-  --danger: #ff5d73;
+    *, *::before, *::after { box-sizing: border-box; }
 
-  --radius: 12px;
-  --radius-l: 18px;
-  --shadow: 0 10px 30px -18px rgba(0, 0, 0, .7);
-  --ease: 170ms cubic-bezier(.22, .8, .24, 1);
-}
+    html { background: var(--canvas); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
-*, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(620px 500px at 100% 0, rgba(79, 140, 255, .15), transparent 70%),
+        radial-gradient(520px 420px at 0 100%, rgba(109, 92, 255, .10), transparent 70%),
+        var(--canvas);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
 
-html { background: var(--canvas); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    ::selection { background: rgba(79, 140, 255, .4); color: #fff; }
+    ::placeholder { color: var(--faint); opacity: 1; }
+    :focus-visible { outline: 2px solid var(--ac2); outline-offset: 3px; border-radius: 8px; }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(620px 500px at 100% 0, rgba(79, 140, 255, .15), transparent 70%),
-    radial-gradient(520px 420px at 0 100%, rgba(109, 92, 255, .10), transparent 70%),
-    var(--canvas);
-  background-repeat: no-repeat;
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+    * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
 
-::selection { background: rgba(79, 140, 255, .4); color: #fff; }
-::placeholder { color: var(--faint); opacity: 1; }
-:focus-visible { outline: 2px solid var(--ac2); outline-offset: 3px; border-radius: 8px; }
+    .container { width: min(1100px, calc(100% - 32px)); margin: 36px auto 60px; }
 
-* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .18) transparent; }
-*::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .18); border-radius: 20px; }
+    /* ---------- Topo ---------- */
 
-/* ---------- Estrutura ---------- */
-.container { width: min(1200px, calc(100% - 32px)); margin: 40px auto; }
+    .topo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 26px;
+    }
 
-.topo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
+    .topo h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3.5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+    }
 
-.topo h1 {
-  margin: 0;
-  font-size: clamp(1.6rem, 3.5vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: 1.15;
-}
+    .topo p { margin: 8px 0 0; color: var(--muted); max-width: 620px; }
 
-.topo p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+    .topo-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
 
-.btn-voltar {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  padding: 10px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  color: var(--text);
-  font-size: 13.5px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: transform var(--ease), border-color var(--ease), background-color var(--ease);
-}
+    /* ---------- Botões ---------- */
 
-.btn-voltar:hover { transform: translateY(-1px); border-color: var(--ac); background: var(--card-hover); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 18px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform var(--ease), filter var(--ease), border-color var(--ease), background-color var(--ease);
+    }
 
-.card {
-  margin-bottom: 20px;
-  padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-l);
-  background: var(--card);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-}
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-/* ---------- Filtros e campos ---------- */
-.filtros {
-  display: grid;
-  grid-template-columns: minmax(180px, 250px) 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
-}
+    .btn-primary { background: var(--grad); color: #fff; box-shadow: var(--glow); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
 
-select,
-textarea,
-#filtroTexto {
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, .04);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  transition: border-color var(--ease), box-shadow var(--ease), background-color var(--ease);
-}
+    .btn-ghost { background: var(--card); border-color: var(--border); color: var(--text); }
+    .btn-ghost:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--ac); background: var(--card-hover); }
 
-/* o input de pesquisa tem style inline no HTML; estes !important o igualam aos demais campos */
-#filtroTexto {
-  width: 100% !important;
-  padding: 10px 14px !important;
-  border: 1px solid var(--border-strong) !important;
-  border-radius: 10px !important;
-  font-size: 14px !important;
-}
+    .btn-small { min-height: 34px; padding: 6px 12px; font-size: 12.5px; }
 
-select { cursor: pointer; }
-select option { background: var(--canvas-2); color: var(--text); }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+    .spin svg { animation: spin .8s linear infinite; }
 
-select:hover, textarea:hover, #filtroTexto:hover { border-color: rgba(255, 255, 255, .26) !important; }
+    /* ---------- Indicadores ---------- */
 
-select:focus,
-textarea:focus,
-#filtroTexto:focus {
-  outline: none;
-  border-color: var(--ac) !important;
-  background-color: rgba(255, 255, 255, .06);
-  box-shadow: var(--ring);
-}
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
 
-/* ---------- Lista de solicitações ---------- */
-.lista { display: grid; gap: 14px; }
+    .stat {
+      position: relative;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-l);
+      background: var(--card);
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: transform var(--ease), border-color var(--ease), background-color var(--ease);
+    }
 
-.solicitacao {
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--ac);
-  border-radius: var(--radius-l);
-  background: rgba(255, 255, 255, .03);
-  transition: border-color var(--ease), background-color var(--ease);
-}
+    .stat:hover { transform: translateY(-2px); border-color: var(--border-strong); background: var(--card-hover); }
 
-.solicitacao:hover { border-color: rgba(79, 140, 255, .45); border-left-color: var(--ac2); background: var(--card-hover); }
+    .stat.ativo { border-color: var(--ac); background: rgba(79, 140, 255, .10); box-shadow: var(--ring); }
 
-.solicitacao-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+    .stat-label { display: block; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .02em; }
 
-.tipo { font-size: 17px; font-weight: 700; letter-spacing: -.015em; }
-.usuario { margin-top: 5px; color: var(--muted); font-size: 13.5px; overflow-wrap: anywhere; }
+    .stat-valor { display: block; margin-top: 6px; font-size: 26px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  min-height: 24px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: .02em;
-  white-space: nowrap;
-}
+    .stat[data-filtro="pendente"] .stat-valor { color: var(--warning); }
+    .stat[data-filtro="em_analise"] .stat-valor { color: var(--info); }
+    .stat[data-filtro="atrasadas"] .stat-valor { color: var(--danger); }
+    .stat[data-filtro="atendida"] .stat-valor { color: var(--success); }
+    .stat[data-filtro="recusada"] .stat-valor { color: #ff8497; }
 
-.status-pendente { background: rgba(251, 191, 36, .14); color: var(--warning); }
-.status-em_analise { background: rgba(79, 140, 255, .16); color: #8db4ff; }
-.status-atendida { background: rgba(47, 214, 139, .14); color: var(--success); }
-.status-recusada,
-.status-cancelada { background: rgba(255, 93, 115, .14); color: #ff8497; }
+    /* ---------- Cartão principal e barra de ferramentas ---------- */
 
-.descricao {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .03);
-  color: var(--text);
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-}
+    .card {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-l);
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
 
-.descricao strong { color: var(--ac2); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 190px 170px 160px auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
 
-.data { margin-top: 10px; color: var(--faint); font-size: 12px; }
+    .busca { position: relative; }
 
-.acoes { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
-.acoes-grid { display: grid; grid-template-columns: 220px 1fr; gap: 12px; }
+    .busca svg {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      width: 16px;
+      height: 16px;
+      color: var(--faint);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
 
-/* ---------- Botões ---------- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 10px 20px;
-  border: 0;
-  border-radius: var(--radius);
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  line-height: 1.2;
-  cursor: pointer;
-  transition: transform var(--ease), filter var(--ease), box-shadow var(--ease);
-}
+    .busca input { padding-left: 40px; }
 
-.btn:active { transform: none; }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
+    select, textarea, input[type="search"] {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background-color: var(--field);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color var(--ease), box-shadow var(--ease), background-color var(--ease);
+    }
 
-.btn-primary { background: var(--grad); color: #fff; box-shadow: var(--glow); }
-.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.1); background: var(--grad); }
+    select { cursor: pointer; }
+    select option { background: var(--canvas-2); color: var(--text); }
 
-/* ---------- Mensagens e estados ---------- */
-.mensagem {
-  display: none;
-  margin-bottom: 20px;
-  padding: 12px 16px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  font-size: 14px;
-  animation: msgIn .25s var(--ease) both;
-}
+    textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
 
-@keyframes msgIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    select:hover, textarea:hover, input[type="search"]:hover { border-color: rgba(255,255,255,.26); }
 
-.mensagem.sucesso { display: block; border-color: rgba(47, 214, 139, .3); background: rgba(47, 214, 139, .12); color: var(--success); }
-.mensagem.erro { display: block; border-color: rgba(255, 93, 115, .3); background: rgba(255, 93, 115, .12); color: #ff8497; }
+    select:focus, textarea:focus, input[type="search"]:focus {
+      outline: none;
+      border-color: var(--ac);
+      background-color: rgba(255,255,255,.07);
+      box-shadow: var(--ring);
+    }
 
-.vazio {
-  padding: 45px 20px;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, .02);
-  color: var(--muted);
-  text-align: center;
-}
+    .resumo-lista {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-.loading { padding: 30px; color: var(--muted); text-align: center; }
+    .limpar {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--ac2);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-.loading::before {
-  content: "";
-  display: block;
-  width: 22px;
-  height: 22px;
-  margin: 0 auto 12px;
-  border: 2px solid rgba(255, 255, 255, .14);
-  border-top-color: var(--ac2);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
+    .limpar:hover { text-decoration: underline; }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+    /* ---------- Solicitações ---------- */
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-}
+    .lista { display: grid; gap: 12px; }
 
-/* ---------- Responsivo ---------- */
-@media (max-width: 700px) {
-  .container { width: calc(100% - 20px); margin: 16px auto 32px; }
-  .topo { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .card { padding: 16px; border-radius: var(--radius); }
-  .filtros, .acoes-grid { grid-template-columns: 1fr; }
-  .solicitacao { padding: 16px; }
-  .solicitacao-topo { flex-direction: column; gap: 10px; }
-  .acoes .btn { width: 100%; }
-  .btn { min-height: 44px; }
-}
+    .solicitacao {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--ac);
+      border-radius: var(--radius-l);
+      background: rgba(255,255,255,.03);
+      transition: border-color var(--ease), background-color var(--ease);
+    }
 
-@media (max-width: 380px) {
-  .container { width: calc(100% - 14px); }
-  .btn-voltar { width: 100%; justify-content: center; }
-}
+    .solicitacao:hover { background: var(--card-hover); }
+
+    .solicitacao[data-status="pendente"] { border-left-color: var(--warning); }
+    .solicitacao[data-status="em_analise"] { border-left-color: var(--ac); }
+    .solicitacao[data-status="atendida"] { border-left-color: var(--success); }
+    .solicitacao[data-status="recusada"], .solicitacao[data-status="cancelada"] { border-left-color: var(--danger); }
+    .solicitacao.atrasada { border-color: rgba(255, 93, 115, .45); border-left-color: var(--danger); }
+
+    .sol-cabecalho {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 14px;
+      width: 100%;
+      padding: 18px 20px;
+      border: 0;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .tipo { font-size: 16.5px; font-weight: 700; letter-spacing: -.015em; }
+
+    .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; color: var(--muted); font-size: 13px; }
+
+    .meta span { overflow-wrap: anywhere; }
+
+    .previa {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: 10px;
+      color: var(--text);
+      opacity: .85;
+      overflow-wrap: anywhere;
+    }
+
+    .lado { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+    .chevron { width: 18px; height: 18px; color: var(--faint); transition: transform var(--ease); }
+
+    .solicitacao.aberta .chevron { transform: rotate(180deg); }
+
+    .solicitacao.aberta .previa { display: none; }
+
+    .badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+
+    .b-pendente { background: rgba(251,191,36,.14); color: var(--warning); }
+    .b-em_analise { background: rgba(79,140,255,.16); color: var(--info); }
+    .b-atendida { background: rgba(47,214,139,.14); color: var(--success); }
+    .b-recusada, .b-cancelada { background: rgba(255,93,115,.14); color: #ff8497; }
+
+    .p-ok { background: rgba(255,255,255,.07); color: var(--muted); }
+    .p-aviso { background: rgba(251,191,36,.14); color: var(--warning); }
+    .p-atraso { background: rgba(255,93,115,.18); color: #ff8497; }
+
+    .sol-corpo { display: none; padding: 0 20px 20px; }
+
+    .solicitacao.aberta .sol-corpo { display: block; }
+
+    .bloco {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.03);
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .bloco-titulo {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ac2);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .bloco-resposta { border-color: rgba(47,214,139,.25); background: rgba(47,214,139,.05); }
+    .bloco-resposta .bloco-titulo { color: var(--success); }
+
+    .detalhes-id { margin-top: 12px; color: var(--faint); font-size: 12px; }
+
+    /* ---------- Formulário de resposta ---------- */
+
+    .form {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .form-titulo { display: block; margin-bottom: 8px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+    .pill {
+      min-height: 36px;
+      padding: 6px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      background: var(--field);
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color var(--ease), background-color var(--ease), color var(--ease);
+    }
+
+    .pill:hover { border-color: rgba(255,255,255,.3); color: var(--text); }
+
+    .pill[aria-pressed="true"] { border-color: var(--ac); background: rgba(79,140,255,.18); color: #fff; }
+
+    .pill[aria-pressed="true"][data-valor="atendida"] { border-color: var(--success); background: rgba(47,214,139,.16); }
+    .pill[aria-pressed="true"][data-valor="recusada"] { border-color: var(--danger); background: rgba(255,93,115,.16); }
+    .pill[aria-pressed="true"][data-valor="pendente"] { border-color: var(--warning); background: rgba(251,191,36,.14); }
+
+    .modelos { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
+
+    .form-rodape {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .contador { color: var(--faint); font-size: 12px; }
+
+    .contador.limite { color: var(--warning); }
+
+    .alterado { display: none; color: var(--warning); font-size: 12px; font-weight: 600; }
+
+    .alterado.visivel { display: inline; }
+
+    .form-acoes { display: flex; align-items: center; gap: 14px; }
+
+    .encerrada { margin-top: 14px; color: var(--faint); font-size: 13px; }
+
+    /* ---------- Estados ---------- */
+
+    .vazio, .erro-estado {
+      padding: 48px 20px;
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.02);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .vazio strong, .erro-estado strong { display: block; margin-bottom: 4px; color: var(--text); font-size: 15px; }
+
+    .erro-estado .btn { margin-top: 14px; }
+
+    .skeleton {
+      height: 96px;
+      border-radius: var(--radius-l);
+      background: linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 75%);
+      background-size: 200% 100%;
+      animation: brilho 1.3s linear infinite;
+    }
+
+    @keyframes brilho { to { background-position: -200% 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .mais { display: flex; justify-content: center; margin-top: 16px; }
+
+    /* ---------- Avisos (toast) ---------- */
+
+    .toasts {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      display: grid;
+      gap: 10px;
+      width: min(380px, calc(100% - 36px));
+    }
+
+    .toast {
+      padding: 13px 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      background: #141a2e;
+      box-shadow: 0 16px 40px -12px rgba(0,0,0,.8);
+      font-size: 13.5px;
+      animation: entra .22s var(--ease) both;
+    }
+
+    .toast.sucesso { border-color: rgba(47,214,139,.4); color: var(--success); }
+    .toast.erro { border-color: rgba(255,93,115,.4); color: #ff8497; }
+
+    @keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+
+    /* ---------- Responsivo ---------- */
+
+    @media (max-width: 960px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .busca { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: calc(100% - 20px); margin: 16px auto 40px; }
+      .topo { flex-direction: column; gap: 14px; }
+      .topo-acoes { width: 100%; }
+      .topo-acoes .btn { flex: 1; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .card { padding: 14px; border-radius: var(--radius); }
+      .toolbar { grid-template-columns: 1fr; }
+      .sol-cabecalho { grid-template-columns: 1fr; padding: 16px; }
+      .lado { flex-direction: row-reverse; align-items: center; justify-content: space-between; }
+      .badges { justify-content: flex-start; }
+      .sol-corpo { padding: 0 16px 16px; }
+      .form-rodape { flex-direction: column; align-items: stretch; }
+      .form-acoes { justify-content: space-between; }
+      .btn { min-height: 44px; }
+    }
   </style>
-
 </head>
 
 <body>
@@ -335,889 +509,941 @@ textarea:focus,
   <main class="container">
 
     <header class="topo">
-
       <div>
-
-        <h1>
-          Privacidade e Dados
-        </h1>
-
+        <h1>Privacidade e Dados</h1>
         <p>
-          Gerencie as solicitações de privacidade da empresa.
+          Acompanhe e responda as solicitações de titulares de dados (LGPD).
+          Solicitações em aberto são sinalizadas conforme o prazo de resposta de 15 dias.
         </p>
-
       </div>
 
-      <a
-        href="/login.html"
-        class="btn-voltar"
-      >
-        Voltar
-      </a>
+      <div class="topo-acoes">
+        <button type="button" class="btn btn-ghost" id="btn-atualizar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7M16.5 3.5v3.3h-3.3"/></svg>
+          Atualizar
+        </button>
 
+        <button type="button" class="btn btn-ghost" id="btn-exportar" disabled>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 14.5v1A1.5 1.5 0 0 0 5.5 17h9a1.5 1.5 0 0 0 1.5-1.5v-1"/></svg>
+          Exportar CSV
+        </button>
+
+        <a href="/" class="btn btn-primary">Voltar ao sistema</a>
+      </div>
     </header>
 
-    <div
-      id="mensagem"
-      class="mensagem"
-    ></div>
+    <section class="stats" id="stats" aria-label="Resumo das solicitações"></section>
 
     <section class="card">
 
-      <div class="filtros">
-
-        <select id="filtroStatus">
-
-          <option value="">
-            Todos os status
-          </option>
-
-          <option value="pendente">
-            Pendentes
-          </option>
-
-          <option value="em_analise">
-            Em análise
-          </option>
-
-          <option value="atendida">
-            Atendidas
-          </option>
-
-          <option value="recusada">
-            Recusadas
-          </option>
-
-          <option value="cancelada">
-            Canceladas
-          </option>
-
-        </select>
-
-        <input
-          type="text"
-          id="filtroTexto"
-          placeholder="Pesquisar por usuário, e-mail ou descrição..."
-          style="
-            width:100%;
-            padding:11px 12px;
-            border:1px solid var(--border);
-            border-radius:8px;
-            font-size:14px;
-          "
-        >
-
-      </div>
-
-      <div
-        id="lista"
-        class="lista"
-      >
-
-        <div class="loading">
-          Carregando solicitações...
+      <div class="toolbar">
+        <div class="busca">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="m17 17-3.7-3.7"/></svg>
+          <label class="sr-only" for="filtro-texto">Pesquisar</label>
+          <input type="search" id="filtro-texto" placeholder="Pesquisar por nome, e-mail, descrição ou número..." autocomplete="off">
         </div>
 
+        <div>
+          <label class="sr-only" for="filtro-status">Status</label>
+          <select id="filtro-status">
+            <option value="">Todos os status</option>
+            <option value="pendente">Pendentes</option>
+            <option value="em_analise">Em análise</option>
+            <option value="atrasadas">Atrasadas</option>
+            <option value="atendida">Atendidas</option>
+            <option value="recusada">Recusadas</option>
+            <option value="cancelada">Canceladas</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="sr-only" for="filtro-tipo">Tipo</label>
+          <select id="filtro-tipo">
+            <option value="">Todos os tipos</option>
+            <option value="acesso">Acesso aos dados</option>
+            <option value="correcao">Correção de dados</option>
+            <option value="exclusao">Exclusão de dados</option>
+            <option value="informacoes">Informações sobre o tratamento</option>
+            <option value="revogacao">Revogação</option>
+            <option value="outro">Outra solicitação</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="sr-only" for="filtro-ordem">Ordenar</label>
+          <select id="filtro-ordem">
+            <option value="urgencia">Mais urgentes</option>
+            <option value="recentes">Mais recentes</option>
+            <option value="antigas">Mais antigas</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn btn-ghost" id="btn-limpar">Limpar</button>
       </div>
+
+      <div class="resumo-lista" id="resumo-lista" aria-live="polite"></div>
+
+      <div class="lista" id="lista"></div>
+
+      <div class="mais" id="mais"></div>
 
     </section>
 
   </main>
 
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
   <script>
+  (() => {
+    'use strict';
+
+    // ==========================================================
+    // CONFIGURAÇÃO
+    // ==========================================================
 
     const API = '/api';
+    const TOKEN_KEY = 'lavajato_auth_token';
+    const HOME = '/';
+    const PRAZO_DIAS = 15;
+    const POR_PAGINA = 20;
+    const LIMITE_RESPOSTA = 5000;
+    const DIA = 86400000;
 
-    const token =
-      localStorage.getItem(
-        'lavajato_auth_token'
-      );
+    const TIPOS = {
+      acesso: 'Acesso aos dados',
+      correcao: 'Correção de dados',
+      exclusao: 'Exclusão de dados',
+      informacoes: 'Informações sobre o tratamento',
+      revogacao: 'Revogação',
+      outro: 'Outra solicitação'
+    };
 
-    const lista =
-      document.getElementById(
-        'lista'
-      );
+    const STATUS = {
+      pendente: 'Pendente',
+      em_analise: 'Em análise',
+      atendida: 'Atendida',
+      recusada: 'Recusada',
+      cancelada: 'Cancelada'
+    };
 
-    const filtroStatus =
-      document.getElementById(
-        'filtroStatus'
-      );
+    const STATUS_EDITAVEIS = ['pendente', 'em_analise', 'atendida', 'recusada'];
 
-    const filtroTexto =
-      document.getElementById(
-        'filtroTexto'
-      );
+    const MODELOS = [
+      {
+        rotulo: 'Recebida — em análise',
+        status: 'em_analise',
+        texto: 'Recebemos a sua solicitação e ela está em análise. Retornaremos com uma resposta completa dentro do prazo legal de 15 dias.'
+      },
+      {
+        rotulo: 'Atendida',
+        status: 'atendida',
+        texto: 'Sua solicitação foi atendida. [Descreva o que foi feito ou informe os dados solicitados.] Em caso de dúvidas, responda por este canal.'
+      },
+      {
+        rotulo: 'Dados corrigidos',
+        status: 'atendida',
+        texto: 'Os dados informados foram corrigidos conforme solicitado. [Liste os campos atualizados.]'
+      },
+      {
+        rotulo: 'Dados excluídos',
+        status: 'atendida',
+        texto: 'Os dados pessoais solicitados foram excluídos dos nossos sistemas, ressalvadas as informações que precisamos manter por obrigação legal ou regulatória. [Detalhe, se houver retenção.]'
+      },
+      {
+        rotulo: 'Recusada — com justificativa',
+        status: 'recusada',
+        texto: 'Não foi possível atender a sua solicitação neste momento. Motivo: [informe o fundamento]. Você pode registrar uma nova solicitação ou entrar em contato por este canal.'
+      }
+    ];
 
-    const mensagem =
-      document.getElementById(
-        'mensagem'
-      );
-
-    let solicitacoes = [];
+    const ICONE_CHEVRON =
+      '<svg class="chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg>';
 
     // ==========================================================
-    // MENSAGEM
+    // ESTADO
     // ==========================================================
 
-    function mostrarMensagem(
-      texto,
-      tipo
-    ) {
+    const estado = {
+      todas: [],
+      filtroStatus: '',
+      filtroTipo: '',
+      busca: '',
+      ordem: 'urgencia',
+      visiveis: POR_PAGINA,
+      abertas: new Set(),
+      rascunhos: new Map(),
+      salvando: new Set(),
+      carregando: false
+    };
 
-      mensagem.textContent = texto;
+    // ==========================================================
+    // ELEMENTOS
+    // ==========================================================
 
-      mensagem.className =
-        `mensagem ${tipo}`;
+    const $ = id => document.getElementById(id);
 
+    const el = {
+      stats: $('stats'),
+      lista: $('lista'),
+      mais: $('mais'),
+      resumo: $('resumo-lista'),
+      toasts: $('toasts'),
+      busca: $('filtro-texto'),
+      status: $('filtro-status'),
+      tipo: $('filtro-tipo'),
+      ordem: $('filtro-ordem'),
+      limpar: $('btn-limpar'),
+      atualizar: $('btn-atualizar'),
+      exportar: $('btn-exportar')
+    };
+
+    // ==========================================================
+    // UTILITÁRIOS
+    // ==========================================================
+
+    function escapeHtml(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      })[c]);
     }
 
-    function limparMensagem() {
+    function nomeTipo(tipo) { return TIPOS[tipo] || tipo || 'Solicitação'; }
 
-      mensagem.textContent = '';
+    function nomeStatus(status) { return STATUS[status] || status || '-'; }
 
-      mensagem.className =
-        'mensagem';
+    function paraData(valor) {
+      if (!valor) return null;
+      const data = new Date(valor);
+      return Number.isNaN(data.getTime()) ? null : data;
+    }
 
+    function formatarData(valor) {
+      const data = paraData(valor);
+      if (!data) return '-';
+      return data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function tempoRelativo(valor) {
+      const data = paraData(valor);
+      if (!data) return '';
+
+      const dias = Math.floor((Date.now() - data.getTime()) / DIA);
+
+      if (dias <= 0) return 'hoje';
+      if (dias === 1) return 'ontem';
+      if (dias < 30) return `há ${dias} dias`;
+
+      const meses = Math.floor(dias / 30);
+      return meses === 1 ? 'há 1 mês' : `há ${meses} meses`;
+    }
+
+    function normalizar(texto) {
+      return String(texto ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function emAberto(solicitacao) {
+      return solicitacao.status === 'pendente' || solicitacao.status === 'em_analise';
+    }
+
+    // Dias restantes para o prazo (negativo = atrasada). null quando não se aplica.
+    function diasRestantes(solicitacao) {
+      if (!emAberto(solicitacao)) return null;
+
+      const criada = paraData(solicitacao.criado_em);
+      if (!criada) return null;
+
+      const decorridos = Math.floor((Date.now() - criada.getTime()) / DIA);
+      return PRAZO_DIAS - decorridos;
+    }
+
+    function estaAtrasada(solicitacao) {
+      const restantes = diasRestantes(solicitacao);
+      return restantes !== null && restantes < 0;
+    }
+
+    function rascunhoDe(solicitacao) {
+      if (!estado.rascunhos.has(solicitacao.id)) {
+        estado.rascunhos.set(solicitacao.id, {
+          status: STATUS_EDITAVEIS.includes(solicitacao.status) ? solicitacao.status : 'pendente',
+          resposta: solicitacao.resposta || ''
+        });
+      }
+      return estado.rascunhos.get(solicitacao.id);
+    }
+
+    function rascunhoAlterado(solicitacao) {
+      const r = rascunhoDe(solicitacao);
+      return r.status !== solicitacao.status || r.resposta.trim() !== (solicitacao.resposta || '').trim();
     }
 
     // ==========================================================
-    // AUTENTICAÇÃO
+    // AVISOS
     // ==========================================================
 
-    async function verificarAdministrador() {
+    function toast(texto, tipo = 'sucesso') {
+      const item = document.createElement('div');
+      item.className = `toast ${tipo}`;
+      item.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+      item.textContent = texto;
+      el.toasts.appendChild(item);
+
+      setTimeout(() => item.remove(), tipo === 'erro' ? 7000 : 4000);
+    }
+
+    // ==========================================================
+    // API
+    // ==========================================================
+
+    function irParaLogin() {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = HOME;
+    }
+
+    async function api(caminho, opcoes = {}) {
+      const token = localStorage.getItem(TOKEN_KEY);
 
       if (!token) {
-
-        window.location.href =
-          '/login.html';
-
-        return false;
+        irParaLogin();
+        throw new Error('Sessão não encontrada.');
       }
 
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(opcoes.headers || {})
+      };
+
+      const resposta = await fetch(API + caminho, { ...opcoes, headers });
+
+      let dados = null;
+      try { dados = await resposta.json(); } catch (_) { dados = null; }
+
+      if (resposta.status === 401) {
+        irParaLogin();
+        throw new Error('Sessão expirada. Entre novamente.');
+      }
+
+      if (resposta.status === 403) {
+        window.location.href = HOME;
+        throw new Error('Acesso não autorizado.');
+      }
+
+      if (!resposta.ok) {
+        const erro = new Error(dados?.erro || dados?.mensagem || 'Erro na requisição.');
+        erro.status = resposta.status;
+        throw erro;
+      }
+
+      return dados;
+    }
+
+    async function verificarAdministrador() {
       try {
+        const dados = await api('/auth/me');
 
-        const resposta =
-          await fetch(
-            `${API}/auth/me`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
-
-        if (!resposta.ok) {
-
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
-          window.location.href =
-            '/login.html';
-
-          return false;
-        }
-
-        const dados =
-          await resposta.json();
-
-        if (
-          !dados.usuario ||
-          dados.usuario.perfil !==
-            'administrador'
-        ) {
-
-          alert(
-            'Acesso permitido somente para administradores.'
-          );
-
-          window.location.href =
-            '/dashboard.html';
-
+        if (dados?.usuario?.perfil !== 'administrador') {
+          alert('Acesso permitido somente para administradores.');
+          window.location.href = HOME;
           return false;
         }
 
         return true;
+      } catch (erro) {
+        console.error('Erro ao verificar usuário:', erro);
 
-      } catch (err) {
-
-        console.error(
-          'Erro ao verificar usuário:',
-          err
-        );
-
-        mostrarMensagem(
-          'Não foi possível verificar sua sessão.',
-          'erro'
-        );
-
+        el.lista.innerHTML = estadoErro('Não foi possível verificar sua sessão.');
         return false;
       }
-
     }
 
     // ==========================================================
-    // FORMATAR TIPO
+    // CARREGAMENTO
     // ==========================================================
 
-    function nomeTipo(tipo) {
-
-      const tipos = {
-
-        acesso:
-          'Acesso aos dados',
-
-        correcao:
-          'Correção de dados',
-
-        exclusao:
-          'Exclusão de dados',
-
-        informacoes:
-          'Informações sobre o tratamento',
-
-        revogacao:
-          'Revogação',
-
-        outro:
-          'Outra solicitação'
-
-      };
-
-      return tipos[tipo] || tipo;
-
+    function mostrarSkeleton() {
+      el.lista.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+      el.mais.innerHTML = '';
+      el.resumo.textContent = '';
     }
 
-    // ==========================================================
-    // FORMATAR STATUS
-    // ==========================================================
-
-    function nomeStatus(status) {
-
-      const statuses = {
-
-        pendente:
-          'Pendente',
-
-        em_analise:
-          'Em análise',
-
-        atendida:
-          'Atendida',
-
-        recusada:
-          'Recusada',
-
-        cancelada:
-          'Cancelada'
-
-      };
-
-      return (
-        statuses[status] ||
-        status
-      );
-
-    }
-
-    // ==========================================================
-    // DATA
-    // ==========================================================
-
-    function formatarData(data) {
-
-      if (!data) {
-        return '-';
-      }
-
-      const valor =
-        new Date(data);
-
-      if (
-        Number.isNaN(
-          valor.getTime()
-        )
-      ) {
-
-        return data;
-      }
-
-      return valor.toLocaleString(
-        'pt-BR',
-        {
-          dateStyle: 'short',
-          timeStyle: 'short'
-        }
-      );
-
-    }
-
-    // ==========================================================
-    // ESCAPE HTML
-    // ==========================================================
-
-    function escapeHtml(valor) {
-
-      if (
-        valor === null ||
-        valor === undefined
-      ) {
-
-        return '';
-      }
-
-      return String(valor)
-        .replace(
-          /&/g,
-          '&amp;'
-        )
-        .replace(
-          /</g,
-          '&lt;'
-        )
-        .replace(
-          />/g,
-          '&gt;'
-        )
-        .replace(
-          /"/g,
-          '&quot;'
-        )
-        .replace(
-          /'/g,
-          '&#039;'
-        );
-
-    }
-
-    // ==========================================================
-    // CARREGAR
-    // ==========================================================
-
-    async function carregarSolicitacoes() {
-
-      lista.innerHTML = `
-        <div class="loading">
-          Carregando solicitações...
+    function estadoErro(mensagem) {
+      return `
+        <div class="erro-estado">
+          <strong>${escapeHtml(mensagem)}</strong>
+          Verifique sua conexão e tente novamente.
+          <div><button type="button" class="btn btn-ghost" data-acao="recarregar">Tentar novamente</button></div>
         </div>
       `;
+    }
+
+    async function carregar({ silencioso = false } = {}) {
+      if (estado.carregando) return;
+
+      estado.carregando = true;
+      el.atualizar.classList.add('spin');
+      el.atualizar.disabled = true;
+
+      if (!silencioso) mostrarSkeleton();
 
       try {
+        const dados = await api('/admin/privacidade');
 
-        const resposta =
-          await fetch(
-            `${API}/admin/privacidade`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
+        const lista = Array.isArray(dados)
+          ? dados
+          : Array.isArray(dados?.solicitacoes) ? dados.solicitacoes : [];
 
-        if (
-          resposta.status === 401
-        ) {
-
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
-          window.location.href =
-            '/login.html';
-
-          return;
-        }
-
-        if (
-          resposta.status === 403
-        ) {
-
-          window.location.href =
-            '/dashboard.html';
-
-          return;
-        }
-
-        const dados =
-          await resposta.json();
-
-        if (!resposta.ok) {
-
-          throw new Error(
-            dados.erro ||
-            'Erro ao carregar solicitações.'
-          );
-
-        }
-
-        solicitacoes =
-          Array.isArray(dados)
-            ? dados
-            : [];
+        estado.todas = lista;
+        el.exportar.disabled = lista.length === 0;
 
         renderizar();
+      } catch (erro) {
+        console.error('Erro ao carregar solicitações:', erro);
 
-      } catch (err) {
-
-        console.error(
-          'Erro ao carregar solicitações:',
-          err
-        );
-
-        lista.innerHTML = `
-          <div class="vazio">
-            Não foi possível carregar as solicitações.
-          </div>
-        `;
-
+        if (silencioso) {
+          toast('Não foi possível atualizar a lista.', 'erro');
+        } else {
+          el.stats.innerHTML = '';
+          el.lista.innerHTML = estadoErro('Não foi possível carregar as solicitações.');
+        }
+      } finally {
+        estado.carregando = false;
+        el.atualizar.classList.remove('spin');
+        el.atualizar.disabled = false;
       }
-
     }
 
     // ==========================================================
-    // FILTRAR
+    // FILTROS E ORDENAÇÃO
     // ==========================================================
+
+    function correspondeStatus(solicitacao, filtro) {
+      if (!filtro) return true;
+      if (filtro === 'atrasadas') return estaAtrasada(solicitacao);
+      return solicitacao.status === filtro;
+    }
 
     function obterFiltradas() {
+      const termo = normalizar(estado.busca.trim());
 
-      const status =
-        filtroStatus.value;
+      const lista = estado.todas.filter(s => {
+        if (!correspondeStatus(s, estado.filtroStatus)) return false;
+        if (estado.filtroTipo && s.tipo !== estado.filtroTipo) return false;
+        if (!termo) return true;
 
-      const texto =
-        filtroTexto.value
-          .trim()
-          .toLowerCase();
+        const conteudo = normalizar([
+          s.id, s.usuario_nome, s.usuario_email, s.descricao,
+          s.resposta, nomeTipo(s.tipo), nomeStatus(s.status)
+        ].filter(Boolean).join(' '));
 
-      return solicitacoes.filter(
-        solicitacao => {
+        return conteudo.includes(termo);
+      });
 
-          if (
-            status &&
-            solicitacao.status !==
-              status
-          ) {
+      const tempo = s => paraData(s.criado_em)?.getTime() ?? 0;
 
-            return false;
-          }
+      lista.sort((a, b) => {
+        if (estado.ordem === 'recentes') return tempo(b) - tempo(a);
+        if (estado.ordem === 'antigas') return tempo(a) - tempo(b);
 
-          if (!texto) {
-            return true;
-          }
+        // Urgência: em aberto primeiro, pelo menor prazo restante.
+        const aberA = emAberto(a), aberB = emAberto(b);
+        if (aberA !== aberB) return aberA ? -1 : 1;
+        if (aberA && aberB) return (diasRestantes(a) ?? 99) - (diasRestantes(b) ?? 99);
 
-          const conteudo = [
+        return tempo(b) - tempo(a);
+      });
 
-            solicitacao.usuario_nome,
-
-            solicitacao.usuario_email,
-
-            solicitacao.descricao,
-
-            solicitacao.tipo,
-
-            solicitacao.status
-
-          ]
-            .filter(Boolean)
-            .join(' ')
-            .toLowerCase();
-
-          return conteudo.includes(
-            texto
-          );
-
-        }
-      );
-
+      return lista;
     }
 
     // ==========================================================
-    // RENDERIZAR
+    // RENDERIZAÇÃO — INDICADORES
+    // ==========================================================
+
+    function renderizarStats() {
+      const todas = estado.todas;
+
+      const cartoes = [
+        { filtro: '', rotulo: 'Todas', valor: todas.length },
+        { filtro: 'pendente', rotulo: 'Pendentes', valor: todas.filter(s => s.status === 'pendente').length },
+        { filtro: 'em_analise', rotulo: 'Em análise', valor: todas.filter(s => s.status === 'em_analise').length },
+        { filtro: 'atrasadas', rotulo: 'Atrasadas', valor: todas.filter(estaAtrasada).length },
+        { filtro: 'atendida', rotulo: 'Atendidas', valor: todas.filter(s => s.status === 'atendida').length },
+        { filtro: 'recusada', rotulo: 'Recusadas', valor: todas.filter(s => s.status === 'recusada').length }
+      ];
+
+      el.stats.innerHTML = cartoes.map(c => `
+        <button type="button"
+                class="stat ${estado.filtroStatus === c.filtro ? 'ativo' : ''}"
+                data-filtro="${c.filtro}"
+                aria-pressed="${estado.filtroStatus === c.filtro}">
+          <span class="stat-label">${c.rotulo}</span>
+          <span class="stat-valor">${c.valor}</span>
+        </button>
+      `).join('');
+    }
+
+    // ==========================================================
+    // RENDERIZAÇÃO — CARTÃO
+    // ==========================================================
+
+    function badgePrazo(solicitacao) {
+      const restantes = diasRestantes(solicitacao);
+      if (restantes === null) return '';
+
+      if (restantes < 0) {
+        const atraso = Math.abs(restantes);
+        return `<span class="badge p-atraso">Atrasada há ${atraso} ${atraso === 1 ? 'dia' : 'dias'}</span>`;
+      }
+
+      if (restantes === 0) return '<span class="badge p-atraso">Vence hoje</span>';
+
+      if (restantes <= 5) {
+        return `<span class="badge p-aviso">${restantes} ${restantes === 1 ? 'dia restante' : 'dias restantes'}</span>`;
+      }
+
+      return `<span class="badge p-ok">${restantes} dias restantes</span>`;
+    }
+
+    function htmlFormulario(solicitacao) {
+      const r = rascunhoDe(solicitacao);
+      const alterado = rascunhoAlterado(solicitacao);
+      const salvando = estado.salvando.has(solicitacao.id);
+
+      const pills = STATUS_EDITAVEIS.map(valor => `
+        <button type="button" class="pill" data-valor="${valor}" data-acao="definir-status"
+                aria-pressed="${r.status === valor}">${nomeStatus(valor)}</button>
+      `).join('');
+
+      const modelos = MODELOS.map((m, i) =>
+        `<option value="${i}">${escapeHtml(m.rotulo)}</option>`
+      ).join('');
+
+      return `
+        <div class="form">
+          <span class="form-titulo">Atualizar solicitação</span>
+
+          <div class="pills" role="group" aria-label="Novo status">${pills}</div>
+
+          <div class="modelos">
+            <label class="sr-only" for="modelo-${solicitacao.id}">Resposta pronta</label>
+            <select id="modelo-${solicitacao.id}" data-acao="modelo">
+              <option value="">Usar uma resposta pronta...</option>
+              ${modelos}
+            </select>
+          </div>
+
+          <label class="sr-only" for="resposta-${solicitacao.id}">Resposta ao titular</label>
+          <textarea id="resposta-${solicitacao.id}" data-campo="resposta"
+                    maxlength="${LIMITE_RESPOSTA}"
+                    placeholder="Escreva a resposta que será registrada para o titular...">${escapeHtml(r.resposta)}</textarea>
+
+          <div class="form-rodape">
+            <span class="contador ${r.resposta.length > LIMITE_RESPOSTA * 0.9 ? 'limite' : ''}" data-contador>
+              ${r.resposta.length} / ${LIMITE_RESPOSTA}
+            </span>
+
+            <div class="form-acoes">
+              <span class="alterado ${alterado ? 'visivel' : ''}" data-alterado>Alterações não salvas</span>
+              <button type="button" class="btn btn-primary" data-acao="salvar" ${salvando ? 'disabled' : ''}>
+                ${salvando ? 'Salvando...' : 'Salvar atualização'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function htmlSolicitacao(solicitacao) {
+      const aberta = estado.abertas.has(solicitacao.id);
+      const atrasada = estaAtrasada(solicitacao);
+      const atualizada = paraData(solicitacao.atualizado_em);
+      const criada = paraData(solicitacao.criado_em);
+      const mostrouAtualizacao = atualizada && criada && atualizada.getTime() - criada.getTime() > 60000;
+
+      const contato = [solicitacao.usuario_nome || 'Usuário', solicitacao.usuario_email]
+        .filter(Boolean)
+        .map(v => `<span>${escapeHtml(v)}</span>`)
+        .join('');
+
+      return `
+        <article class="solicitacao ${aberta ? 'aberta' : ''} ${atrasada ? 'atrasada' : ''}"
+                 data-id="${escapeHtml(solicitacao.id)}" data-status="${escapeHtml(solicitacao.status)}">
+
+          <button type="button" class="sol-cabecalho" data-acao="alternar" aria-expanded="${aberta}">
+            <div>
+              <div class="tipo">${escapeHtml(nomeTipo(solicitacao.tipo))}</div>
+              <div class="meta">
+                ${contato}
+                <span title="${escapeHtml(formatarData(solicitacao.criado_em))}">
+                  Aberta ${escapeHtml(tempoRelativo(solicitacao.criado_em))}
+                </span>
+              </div>
+              ${solicitacao.descricao ? `<div class="previa">${escapeHtml(solicitacao.descricao)}</div>` : ''}
+            </div>
+
+            <div class="lado">
+              <div class="badges">
+                <span class="badge b-${escapeHtml(solicitacao.status)}">${escapeHtml(nomeStatus(solicitacao.status))}</span>
+                ${badgePrazo(solicitacao)}
+              </div>
+              ${ICONE_CHEVRON}
+            </div>
+          </button>
+
+          <div class="sol-corpo">
+            ${solicitacao.descricao ? `
+              <div class="bloco">
+                <span class="bloco-titulo">Solicitação do titular</span>${escapeHtml(solicitacao.descricao)}
+              </div>` : ''}
+
+            ${solicitacao.resposta ? `
+              <div class="bloco bloco-resposta">
+                <span class="bloco-titulo">Resposta registrada</span>${escapeHtml(solicitacao.resposta)}
+              </div>` : ''}
+
+            <div class="detalhes-id">
+              Solicitação #${escapeHtml(solicitacao.id)} · criada em ${escapeHtml(formatarData(solicitacao.criado_em))}
+              ${mostrouAtualizacao ? ` · atualizada em ${escapeHtml(formatarData(solicitacao.atualizado_em))}` : ''}
+            </div>
+
+            ${solicitacao.status === 'cancelada'
+              ? '<div class="encerrada">Esta solicitação foi cancelada pelo titular e não pode mais ser alterada.</div>'
+              : htmlFormulario(solicitacao)}
+          </div>
+        </article>
+      `;
+    }
+
+    // ==========================================================
+    // RENDERIZAÇÃO — LISTA
     // ==========================================================
 
     function renderizar() {
+      renderizarStats();
 
-      const listaFiltrada =
-        obterFiltradas();
+      const filtradas = obterFiltradas();
+      const visiveis = filtradas.slice(0, estado.visiveis);
+      const filtrosAtivos = Boolean(estado.filtroStatus || estado.filtroTipo || estado.busca.trim());
 
-      if (
-        listaFiltrada.length === 0
-      ) {
+      el.resumo.innerHTML = filtradas.length
+        ? `<span>Exibindo ${visiveis.length} de ${filtradas.length} ${filtradas.length === 1 ? 'solicitação' : 'solicitações'}</span>
+           ${filtrosAtivos ? '<button type="button" class="limpar" data-acao="limpar">Limpar filtros</button>' : ''}`
+        : '';
 
-        lista.innerHTML = `
-          <div class="vazio">
-            Nenhuma solicitação encontrada.
-          </div>
-        `;
+      if (!filtradas.length) {
+        el.lista.innerHTML = estado.todas.length
+          ? `<div class="vazio"><strong>Nenhuma solicitação encontrada</strong>Ajuste os filtros ou a pesquisa para ver outros resultados.</div>`
+          : `<div class="vazio"><strong>Nenhuma solicitação por enquanto</strong>Quando um titular registrar um pedido de privacidade, ele aparecerá aqui.</div>`;
 
+        el.mais.innerHTML = '';
         return;
       }
 
-      lista.innerHTML =
-        listaFiltrada
-          .map(
-            solicitacao => {
+      el.lista.innerHTML = visiveis.map(htmlSolicitacao).join('');
 
-              const statusClass =
-                `status-${solicitacao.status}`;
-
-              return `
-
-                <article
-                  class="solicitacao"
-                >
-
-                  <div
-                    class="solicitacao-topo"
-                  >
-
-                    <div>
-
-                      <div class="tipo">
-                        ${escapeHtml(
-                          nomeTipo(
-                            solicitacao.tipo
-                          )
-                        )}
-                      </div>
-
-                      <div class="usuario">
-
-                        ${escapeHtml(
-                          solicitacao.usuario_nome ||
-                          'Usuário'
-                        )}
-
-                        ${
-                          solicitacao.usuario_email
-                            ? `
-                              ·
-                              ${escapeHtml(
-                                solicitacao.usuario_email
-                              )}
-                            `
-                            : ''
-                        }
-
-                      </div>
-
-                    </div>
-
-                    <span
-                      class="status ${statusClass}"
-                    >
-                      ${escapeHtml(
-                        nomeStatus(
-                          solicitacao.status
-                        )
-                      )}
-                    </span>
-
-                  </div>
-
-                  ${
-                    solicitacao.descricao
-                      ? `
-                        <div class="descricao">
-
-                          <strong>
-                            Solicitação:
-                          </strong>
-
-                          <br><br>
-
-                          ${escapeHtml(
-                            solicitacao.descricao
-                          )}
-
-                        </div>
-                      `
-                      : ''
-                  }
-
-                  ${
-                    solicitacao.resposta
-                      ? `
-                        <div
-                          class="descricao"
-                          style="margin-top:10px;"
-                        >
-
-                          <strong>
-                            Resposta atual:
-                          </strong>
-
-                          <br><br>
-
-                          ${escapeHtml(
-                            solicitacao.resposta
-                          )}
-
-                        </div>
-                      `
-                      : ''
-                  }
-
-                  <div class="data">
-
-                    Solicitação #${solicitacao.id}
-
-                    ·
-
-                    ${formatarData(
-                      solicitacao.criado_em
-                    )}
-
-                  </div>
-
-                  ${
-                    solicitacao.status !==
-                      'cancelada'
-                      ? `
-
-                        <div class="acoes">
-
-                          <div
-                            class="acoes-grid"
-                          >
-
-                            <select
-                              id="status-${solicitacao.id}"
-                            >
-
-                              <option
-                                value="pendente"
-                                ${
-                                  solicitacao.status ===
-                                  'pendente'
-                                    ? 'selected'
-                                    : ''
-                                }
-                              >
-                                Pendente
-                              </option>
-
-                              <option
-                                value="em_analise"
-                                ${
-                                  solicitacao.status ===
-                                  'em_analise'
-                                    ? 'selected'
-                                    : ''
-                                }
-                              >
-                                Em análise
-                              </option>
-
-                              <option
-                                value="atendida"
-                                ${
-                                  solicitacao.status ===
-                                  'atendida'
-                                    ? 'selected'
-                                    : ''
-                                }
-                              >
-                                Atendida
-                              </option>
-
-                              <option
-                                value="recusada"
-                                ${
-                                  solicitacao.status ===
-                                  'recusada'
-                                    ? 'selected'
-                                    : ''
-                                }
-                              >
-                                Recusada
-                              </option>
-
-                            </select>
-
-                            <textarea
-                              id="resposta-${solicitacao.id}"
-                              maxlength="5000"
-                              placeholder="Digite uma resposta para o usuário..."
-                            >${escapeHtml(
-                              solicitacao.resposta || ''
-                            )}</textarea>
-
-                          </div>
-
-                          <button
-                            class="btn btn-primary"
-                            style="margin-top:12px;"
-                            onclick="atualizarSolicitacao(${solicitacao.id})"
-                          >
-                            Salvar atualização
-                          </button>
-
-                        </div>
-
-                      `
-                      : ''
-                  }
-
-                </article>
-
-              `;
-
-            }
-          )
-          .join('');
-
+      el.mais.innerHTML = filtradas.length > visiveis.length
+        ? `<button type="button" class="btn btn-ghost" data-acao="mais">Mostrar mais (${filtradas.length - visiveis.length})</button>`
+        : '';
     }
 
     // ==========================================================
-    // ATUALIZAR
+    // SALVAR
     // ==========================================================
 
-    async function atualizarSolicitacao(
-      id
-    ) {
+    async function salvar(id, botao) {
+      const solicitacao = estado.todas.find(s => String(s.id) === String(id));
+      if (!solicitacao || estado.salvando.has(solicitacao.id)) return;
 
-      limparMensagem();
+      const r = rascunhoDe(solicitacao);
+      const resposta = r.resposta.trim();
 
-      const statusElement =
-        document.getElementById(
-          `status-${id}`
-        );
-
-      const respostaElement =
-        document.getElementById(
-          `resposta-${id}`
-        );
-
-      if (
-        !statusElement ||
-        !respostaElement
-      ) {
-
+      if (!rascunhoAlterado(solicitacao)) {
+        toast('Nenhuma alteração para salvar.', 'erro');
         return;
       }
 
-      const status =
-        statusElement.value;
+      if (r.status === 'recusada' && !resposta) {
+        toast('Informe a justificativa ao recusar uma solicitação.', 'erro');
+        document.getElementById(`resposta-${solicitacao.id}`)?.focus();
+        return;
+      }
 
-      const resposta =
-        respostaElement.value.trim();
+      if (/\[[^\]]+\]/.test(resposta)) {
+        toast('Preencha ou remova os trechos entre colchetes antes de salvar.', 'erro');
+        document.getElementById(`resposta-${solicitacao.id}`)?.focus();
+        return;
+      }
+
+      estado.salvando.add(solicitacao.id);
+
+      if (botao) {
+        botao.disabled = true;
+        botao.textContent = 'Salvando...';
+      }
 
       try {
+        await api(`/admin/privacidade/${encodeURIComponent(solicitacao.id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: r.status, resposta })
+        });
 
-        const response =
-          await fetch(
-            `${API}/admin/privacidade/${id}`,
-            {
-              method: 'PATCH',
+        solicitacao.status = r.status;
+        solicitacao.resposta = resposta;
+        solicitacao.atualizado_em = new Date().toISOString();
 
-              headers: {
+        estado.rascunhos.delete(solicitacao.id);
 
-                'Content-Type':
-                  'application/json',
-
-                Authorization:
-                  `Bearer ${token}`
-
-              },
-
-              body: JSON.stringify({
-
-                status,
-
-                resposta
-
-              })
-
-            }
-          );
-
-        if (
-          response.status === 401
-        ) {
-
-          localStorage.removeItem(
-            'lavajato_auth_token'
-          );
-
-          window.location.href =
-            '/login.html';
-
-          return;
-        }
-
-        const dados =
-          await response.json();
-
-        if (!response.ok) {
-
-          throw new Error(
-            dados.erro ||
-            'Não foi possível atualizar a solicitação.'
-          );
-
-        }
-
-        mostrarMensagem(
-          'Solicitação atualizada com sucesso.',
-          'sucesso'
-        );
-
-        await carregarSolicitacoes();
-
-      } catch (err) {
-
-        console.error(
-          'Erro ao atualizar solicitação:',
-          err
-        );
-
-        mostrarMensagem(
-          err.message ||
-          'Erro ao atualizar solicitação.',
-          'erro'
-        );
-
+        toast('Solicitação atualizada com sucesso.');
+      } catch (erro) {
+        console.error('Erro ao atualizar solicitação:', erro);
+        toast(erro.message || 'Não foi possível atualizar a solicitação.', 'erro');
+      } finally {
+        estado.salvando.delete(solicitacao.id);
+        renderizar();
       }
 
+      // Sincroniza com o servidor sem trocar a tela por um carregamento.
+      carregar({ silencioso: true });
     }
 
     // ==========================================================
-    // FILTROS
+    // EXPORTAÇÃO CSV
     // ==========================================================
 
-    filtroStatus.addEventListener(
-      'change',
-      renderizar
-    );
+    function celulaCsv(valor) {
+      let texto = String(valor ?? '').replace(/\r?\n/g, ' ');
 
-    filtroTexto.addEventListener(
-      'input',
-      renderizar
-    );
+      // Evita que planilhas interpretem o conteúdo como fórmula.
+      if (/^[=+\-@\t]/.test(texto)) texto = `'${texto}`;
+
+      return `"${texto.replace(/"/g, '""')}"`;
+    }
+
+    function exportarCsv() {
+      const lista = obterFiltradas();
+
+      if (!lista.length) {
+        toast('Não há solicitações para exportar.', 'erro');
+        return;
+      }
+
+      const cabecalho = ['Número', 'Tipo', 'Status', 'Titular', 'E-mail', 'Descrição', 'Resposta', 'Criada em', 'Atualizada em'];
+
+      const linhas = lista.map(s => [
+        s.id, nomeTipo(s.tipo), nomeStatus(s.status), s.usuario_nome, s.usuario_email,
+        s.descricao, s.resposta, formatarData(s.criado_em), formatarData(s.atualizado_em)
+      ].map(celulaCsv).join(';'));
+
+      const csv = '\uFEFF' + [cabecalho.map(celulaCsv).join(';'), ...linhas].join('\r\n');
+
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = `solicitacoes-privacidade-${new Date().toISOString().slice(0, 10)}.csv`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      toast(`${lista.length} ${lista.length === 1 ? 'solicitação exportada' : 'solicitações exportadas'}.`);
+    }
+
+    // ==========================================================
+    // EVENTOS
+    // ==========================================================
+
+    function limparFiltros() {
+      estado.filtroStatus = '';
+      estado.filtroTipo = '';
+      estado.busca = '';
+      estado.visiveis = POR_PAGINA;
+
+      el.status.value = '';
+      el.tipo.value = '';
+      el.busca.value = '';
+
+      renderizar();
+    }
+
+    function aplicarFiltro(campo, valor) {
+      estado[campo] = valor;
+      estado.visiveis = POR_PAGINA;
+      renderizar();
+    }
+
+    el.status.addEventListener('change', () => aplicarFiltro('filtroStatus', el.status.value));
+    el.tipo.addEventListener('change', () => aplicarFiltro('filtroTipo', el.tipo.value));
+    el.ordem.addEventListener('change', () => aplicarFiltro('ordem', el.ordem.value));
+
+    let temporizadorBusca;
+    el.busca.addEventListener('input', () => {
+      clearTimeout(temporizadorBusca);
+      temporizadorBusca = setTimeout(() => aplicarFiltro('busca', el.busca.value), 200);
+    });
+
+    el.limpar.addEventListener('click', limparFiltros);
+    el.atualizar.addEventListener('click', () => carregar({ silencioso: estado.todas.length > 0 }));
+    el.exportar.addEventListener('click', exportarCsv);
+
+    el.stats.addEventListener('click', evento => {
+      const cartao = evento.target.closest('[data-filtro]');
+      if (!cartao) return;
+
+      const filtro = cartao.dataset.filtro;
+      estado.filtroStatus = estado.filtroStatus === filtro ? '' : filtro;
+      estado.visiveis = POR_PAGINA;
+      el.status.value = estado.filtroStatus;
+
+      renderizar();
+    });
+
+    function idDoCartao(elemento) {
+      return elemento.closest('.solicitacao')?.dataset.id;
+    }
+
+    function buscarPorId(id) {
+      return estado.todas.find(s => String(s.id) === String(id));
+    }
+
+    function atualizarIndicadoresForm(cartao, solicitacao) {
+      const r = rascunhoDe(solicitacao);
+
+      const contador = cartao.querySelector('[data-contador]');
+      if (contador) {
+        contador.textContent = `${r.resposta.length} / ${LIMITE_RESPOSTA}`;
+        contador.classList.toggle('limite', r.resposta.length > LIMITE_RESPOSTA * 0.9);
+      }
+
+      cartao.querySelector('[data-alterado]')
+        ?.classList.toggle('visivel', rascunhoAlterado(solicitacao));
+    }
+
+    document.addEventListener('click', evento => {
+      const alvo = evento.target.closest('[data-acao]');
+      if (!alvo) return;
+
+      const acao = alvo.dataset.acao;
+
+      if (acao === 'recarregar') { carregar(); return; }
+      if (acao === 'limpar') { limparFiltros(); return; }
+
+      if (acao === 'mais') {
+        estado.visiveis += POR_PAGINA;
+        renderizar();
+        return;
+      }
+
+      const id = idDoCartao(alvo);
+      const solicitacao = id !== undefined ? buscarPorId(id) : null;
+      if (!solicitacao) return;
+
+      const cartao = alvo.closest('.solicitacao');
+
+      if (acao === 'alternar') {
+        const aberta = cartao.classList.toggle('aberta');
+
+        if (aberta) estado.abertas.add(solicitacao.id);
+        else estado.abertas.delete(solicitacao.id);
+
+        alvo.setAttribute('aria-expanded', String(aberta));
+
+        // O formulário é montado só quando necessário para manter a página leve.
+        return;
+      }
+
+      if (acao === 'definir-status') {
+        rascunhoDe(solicitacao).status = alvo.dataset.valor;
+
+        cartao.querySelectorAll('[data-acao="definir-status"]').forEach(pill => {
+          pill.setAttribute('aria-pressed', String(pill === alvo));
+        });
+
+        atualizarIndicadoresForm(cartao, solicitacao);
+        return;
+      }
+
+      if (acao === 'salvar') {
+        salvar(solicitacao.id, alvo);
+      }
+    });
+
+    document.addEventListener('input', evento => {
+      const campo = evento.target.closest('[data-campo="resposta"]');
+      if (!campo) return;
+
+      const solicitacao = buscarPorId(idDoCartao(campo));
+      if (!solicitacao) return;
+
+      rascunhoDe(solicitacao).resposta = campo.value;
+      atualizarIndicadoresForm(campo.closest('.solicitacao'), solicitacao);
+    });
+
+    document.addEventListener('change', evento => {
+      const seletor = evento.target.closest('[data-acao="modelo"]');
+      if (!seletor || seletor.value === '') return;
+
+      const cartao = seletor.closest('.solicitacao');
+      const solicitacao = buscarPorId(idDoCartao(seletor));
+      const modelo = MODELOS[Number(seletor.value)];
+
+      seletor.value = '';
+
+      if (!solicitacao || !modelo) return;
+
+      const r = rascunhoDe(solicitacao);
+
+      if (r.resposta.trim() && r.resposta.trim() !== modelo.texto &&
+          !confirm('Substituir o texto atual pela resposta pronta?')) {
+        return;
+      }
+
+      r.status = modelo.status;
+      r.resposta = modelo.texto;
+
+      const campo = cartao.querySelector('[data-campo="resposta"]');
+      if (campo) {
+        campo.value = modelo.texto;
+        campo.focus();
+      }
+
+      cartao.querySelectorAll('[data-acao="definir-status"]').forEach(pill => {
+        pill.setAttribute('aria-pressed', String(pill.dataset.valor === modelo.status));
+      });
+
+      atualizarIndicadoresForm(cartao, solicitacao);
+    });
+
+    // Avisa antes de sair se houver respostas em edição sem salvar.
+    window.addEventListener('beforeunload', evento => {
+      const pendente = estado.todas.some(s =>
+        estado.rascunhos.has(s.id) && s.status !== 'cancelada' && rascunhoAlterado(s)
+      );
+
+      if (pendente) {
+        evento.preventDefault();
+        evento.returnValue = '';
+      }
+    });
 
     // ==========================================================
     // INICIALIZAÇÃO
     // ==========================================================
 
-    async function iniciar() {
+    (async function iniciar() {
+      mostrarSkeleton();
 
-      const autorizado =
-        await verificarAdministrador();
+      const autorizado = await verificarAdministrador();
+      if (!autorizado) return;
 
-      if (!autorizado) {
-        return;
-      }
-
-      await carregarSolicitacoes();
-
-    }
-
-    iniciar();
-
+      await carregar();
+    })();
+  })();
   </script>
 
 </body>
-
-</html>
