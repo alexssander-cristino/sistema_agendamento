@@ -2886,6 +2886,63 @@ aria-label="Abrir menu"
 
     </section>
 
+    
+<!-- LINK PÚBLICO DE AGENDAMENTO -->
+<section class="block" id="secao-link-agendamento">
+  <h2>Agendamento online</h2>
+
+  <p class="date-label" style="margin-bottom:20px;">
+    Compartilhe o link da sua empresa para que os clientes
+    consultem os serviços e solicitem agendamentos pela internet.
+  </p>
+
+  <div class="field">
+    <label for="config-link-agendamento">
+      Seu link público
+    </label>
+
+    <input
+      type="url"
+      id="config-link-agendamento"
+      readonly
+      placeholder="Carregando link..."
+    >
+
+    <small class="date-label">
+      O endereço é gerado automaticamente para sua empresa.
+    </small>
+  </div>
+
+  <div
+    id="config-link-agendamento-message"
+    class="auth-error"
+    style="display:none;"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <div class="modal-actions">
+    <button
+      type="button"
+      class="btn btn-ghost"
+      id="btn-visualizar-agendamento"
+      disabled
+    >
+      Visualizar página
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      id="btn-copiar-agendamento"
+      disabled
+    >
+      Copiar link
+    </button>
+  </div>
+</section>
+
+
 
     <!-- PREFERÊNCIAS REGIONAIS -->
 

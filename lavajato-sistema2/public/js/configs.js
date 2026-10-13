@@ -753,6 +753,8 @@ const NICHOS_VALIDOS = [
 
     // Tema
     atualizarPreviewTema();
+
+    atualizarLinkAgendamento(empresa);
   }
 
 
@@ -1327,6 +1329,125 @@ const NICHOS_VALIDOS = [
   }
 
 
+  
+  // ==========================================================
+  // LINK PÚBLICO DE AGENDAMENTO
+  // ==========================================================
+
+  function atualizarLinkAgendamento(empresa) {
+    const campo = elemento('config-link-agendamento');
+    const btnVisualizar = elemento('btn-visualizar-agendamento');
+    const btnCopiar = elemento('btn-copiar-agendamento');
+
+    if (!campo) return;
+
+    const link = String(empresa?.link_agendamento || '').trim();
+
+    campo.value = link;
+    campo.placeholder = link
+      ? ''
+      : 'Não foi possível carregar o link';
+
+    if (btnVisualizar) {
+      btnVisualizar.disabled = !link;
+    }
+
+    if (btnCopiar) {
+      btnCopiar.disabled = !link;
+    }
+
+    if (!link) {
+      mostrarMensagem(
+        'config-link-agendamento-message',
+        'O link não foi retornado pela API. Atualize as configurações.',
+        'error'
+      );
+    } else {
+      limparMensagem('config-link-agendamento-message');
+    }
+  }
+
+  function configurarLinkAgendamento() {
+    const btnVisualizar = elemento('btn-visualizar-agendamento');
+    const btnCopiar = elemento('btn-copiar-agendamento');
+    const campo = elemento('config-link-agendamento');
+
+    if (btnVisualizar && !btnVisualizar.dataset.configurado) {
+      btnVisualizar.dataset.configurado = 'true';
+
+      btnVisualizar.addEventListener('click', () => {
+        const link = String(campo?.value || '').trim();
+
+        if (!link) {
+          mostrarMensagem(
+            'config-link-agendamento-message',
+            'O link ainda não está disponível.',
+            'error'
+          );
+          return;
+        }
+
+        try {
+          const url = new URL(link, window.location.origin);
+
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error('URL inválida');
+          }
+
+          window.open(url.href, '_blank', 'noopener,noreferrer');
+        } catch (error) {
+          mostrarMensagem(
+            'config-link-agendamento-message',
+            'O endereço do agendamento é inválido.',
+            'error'
+          );
+        }
+      });
+    }
+
+    if (btnCopiar && !btnCopiar.dataset.configurado) {
+      btnCopiar.dataset.configurado = 'true';
+
+      btnCopiar.addEventListener('click', async () => {
+        const link = String(campo?.value || '').trim();
+
+        if (!link) {
+          mostrarMensagem(
+            'config-link-agendamento-message',
+            'Não há link disponível para copiar.',
+            'error'
+          );
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(link);
+
+          mostrarMensagem(
+            'config-link-agendamento-message',
+            'Link copiado com sucesso!',
+            'success'
+          );
+        } catch (error) {
+          // Alternativa para navegadores sem acesso à Clipboard API.
+          campo.focus();
+          campo.select();
+
+          const copiado = document.execCommand('copy');
+
+          mostrarMensagem(
+            'config-link-agendamento-message',
+            copiado
+              ? 'Link copiado com sucesso!'
+              : 'Não foi possível copiar automaticamente. Selecione e copie o endereço.',
+            copiado ? 'success' : 'error'
+          );
+        }
+      });
+    }
+  }
+
+
   // ==========================================================
   // INICIALIZAÇÃO
   // ==========================================================
@@ -1338,6 +1459,7 @@ const NICHOS_VALIDOS = [
     configurarFormularioPrincipal();
     configurarBotoes();
     configurarNicho();
+    configurarLinkAgendamento();
 
     limparMensagem('configuracoes-message');
     limparMensagem('config-aparencia-message');

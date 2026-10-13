@@ -84,6 +84,9 @@ const notificacoesRouter =
 
   const clientesRouter = require('./routes/clientes');
 
+  const publicAgendamentosRouter =
+  require('./routes/publicAgendamentos');
+
 // ============================================================
 // APP
 // ============================================================
@@ -335,6 +338,15 @@ app.use('/api/sessoes', require('./routes/sessoes'));
 
 app.use('/api/clientes', clientesRouter);
 
+// ============================================================
+// API — AGENDAMENTO PÚBLICO
+// ============================================================
+
+app.use(
+  '/api/public/agendamentos',
+  publicAgendamentosRouter
+);
+
 
 // ============================================================
 // PRIVACIDADE — ADMINISTRADOR
@@ -496,6 +508,33 @@ app.use(
     publicPath
   )
 );
+
+// ============================================================
+// PÁGINA PÚBLICA DE AGENDAMENTO POR SLUG
+// Exemplo: /agendar/studio-bella
+// ============================================================
+
+app.get('/agendar/:slug', (req, res, next) => {
+  const { slug } = req.params;
+
+  // Aceita slugs como:
+  // studio-bella
+  // clinica-sao-jose
+  // empresa123
+
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    return res.status(404).sendFile(
+      path.join(publicPath, '404.html')
+    );
+  }
+
+  return res.sendFile(
+    path.join(publicPath, 'agendar.html'),
+    (err) => {
+      if (err) next(err);
+    }
+  );
+});
 
 // ============================================================
 // LOGS -  EMPRESAS
