@@ -2200,3 +2200,260 @@ body.cli-modal-open, body.cli-form-open { overflow: hidden; }
 @media (max-width: 760px) {
   .ui-toasts { right: 16px; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); width: auto; }
 }
+
+/* =========================================================
+   ORVIX — BOTÃO DE TEMA + TEMA CLARO
+   Colar NO FINAL do style.css.
+
+   - Tema escuro continua sendo o padrão (nada muda sem o atributo).
+   - O tema claro liga com <html data-theme="light">.
+   - O JS de configs.js continua mandando: só sobrescrevo variáveis
+     que ele NÃO altera (--canvas, --ink, --card...). O destaque
+     segue a cor da empresa (--accent / --ac / --ac2).
+   ========================================================= */
+
+/* ---------- 1. BOTÕES DE TROCA ---------- */
+
+/* versão da sidebar (mesmo estilo do "Sair") */
+.sidebar-theme {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  background: var(--card);
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color var(--ease), color var(--ease), border-color var(--ease);
+}
+
+.sidebar-theme:hover { border-color: var(--ac); color: var(--ink); }
+.sidebar-theme svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+@media (min-width: 761px) {
+  .sidebar.collapsed .sidebar-theme { justify-content: center; padding-inline: 8px; }
+}
+
+/* versão flutuante (tela de login) */
+.theme-toggle-floating {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 13px;
+  background: var(--canvas-2);
+  color: var(--ink-soft);
+  box-shadow: var(--shadow-2);
+  transition: color var(--ease), border-color var(--ease), transform var(--ease);
+}
+
+.theme-toggle-floating:hover { border-color: var(--ac); color: var(--ink); transform: translateY(-1px); }
+.theme-toggle-floating svg { width: 19px; height: 19px; }
+
+/* ícone: lua no escuro, sol no claro (o ícone mostra o tema ATUAL) */
+[data-theme-toggle] .icon-sun { display: none; }
+:root[data-theme="light"] [data-theme-toggle] .icon-sun { display: block; }
+:root[data-theme="light"] [data-theme-toggle] .icon-moon { display: none; }
+
+/* transição suave só durante a troca (classe posta pelo JS) */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: background-color .25s ease, border-color .25s ease, color .25s ease, fill .25s ease, stroke .25s ease !important;
+}
+
+/* ---------- 2. TOKENS DO TEMA CLARO ---------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --canvas: #f3f5fa;
+  --canvas-2: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eef1f7;
+  --card: #ffffff;
+  --card-hover: #f4f7fc;
+
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --ink-faint: #64748b;
+
+  --border: rgba(15, 23, 42, .10);
+  --border-strong: rgba(15, 23, 42, .18);
+
+  --accent-ink: color-mix(in srgb, var(--ac) 65%, #0b1220);
+
+  --money: #b7791f;
+  --good: #059669;
+  --good-soft: rgba(5, 150, 105, .12);
+  --warn: #e11d48;
+  --warn-soft: rgba(225, 29, 72, .10);
+  --warn-ink: #be123c;
+  --amber: #b45309;
+
+  --shadow-1: 0 6px 20px -12px rgba(15, 23, 42, .22);
+  --shadow-2: 0 10px 28px -14px rgba(15, 23, 42, .28);
+  --shadow-3: 0 16px 38px -14px rgba(15, 23, 42, .30);
+  --shadow-4: 0 26px 70px -22px rgba(15, 23, 42, .38);
+
+  --input-bg: #ffffff;
+  --notification-unread-bg: color-mix(in srgb, var(--ac) 9%, #ffffff);
+}
+
+/* ---------- 3. AJUSTES DE COMPONENTES NO CLARO ---------- */
+:root[data-theme="light"] ::selection { color: var(--ink); }
+
+/* login */
+:root[data-theme="light"] .auth-card { background: rgba(255, 255, 255, .9); }
+:root[data-theme="light"] .auth-logo-mark::after { border-color: rgba(255, 255, 255, .9); }
+
+/* campos */
+:root[data-theme="light"] :is(
+  .auth-field :is(input, select),
+  .field :is(input, select, textarea):not([type="color"]),
+  .form-group :is(input, select, textarea),
+  .date-picker-row input[type="date"],
+  select.pay-method,
+  .cli-form-field :is(input, textarea)
+) { background-color: #fff; }
+
+:root[data-theme="light"] :is(
+  .auth-field :is(input, select),
+  .field :is(input, select, textarea),
+  .form-group :is(input, select),
+  .date-picker-row input[type="date"],
+  .cli-form-field :is(input, textarea)
+):hover { border-color: rgba(15, 23, 42, .32); }
+
+:root[data-theme="light"] :is(
+  .auth-field :is(input, select),
+  .field :is(input, select, textarea),
+  .form-group :is(input, select),
+  .date-picker-row input[type="date"],
+  select.pay-method,
+  .cli-form-field :is(input, textarea)
+):focus { background-color: #fff; }
+
+:root[data-theme="light"] input:-webkit-autofill { box-shadow: 0 0 0 100px #fff inset; }
+:root[data-theme="light"] .field input[readonly] { background: var(--surface-2); }
+
+:root[data-theme="light"] .auth-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* sidebar */
+:root[data-theme="light"] .sidebar {
+  background:
+    radial-gradient(260px 220px at 0 0, color-mix(in srgb, var(--ac) 12%, transparent), transparent 70%),
+    linear-gradient(180deg, #ffffff, var(--canvas));
+}
+
+:root[data-theme="light"] .nav-btn.active { color: var(--ink); }
+:root[data-theme="light"] .sidebar.collapsed .nav-btn[data-tab]::after { background: #0f172a; color: #fff; }
+:root[data-theme="light"] .mobile-menu-btn { background: rgba(255, 255, 255, .9); }
+
+/* superfícies translúcidas e "lavados" brancos do escuro */
+:root[data-theme="light"] :is(
+  .pay-method-locked, .user-permissions-section, .modal-footer,
+  .log-details, .relatorio-servico, .cli-history-content .cli-history-notes
+) { background: var(--surface-2); }
+
+:root[data-theme="light"] :is(.search-clear, .bar-track, .log-id, .log-method, .log-card-icon, .logs-empty-state .logs-empty-icon, .cli-status) {
+  background: rgba(15, 23, 42, .07);
+}
+
+:root[data-theme="light"] .log-route { background: rgba(15, 23, 42, .05); }
+:root[data-theme="light"] th { background: var(--surface-2); }
+:root[data-theme="light"] .permission-item input[type="checkbox"] { border-color: rgba(15, 23, 42, .35); }
+:root[data-theme="light"] .color-picker input[type="color"],
+:root[data-theme="light"] .search-bar { background: #fff; }
+:root[data-theme="light"] .theme-preset-color { box-shadow: 0 0 0 2px rgba(15, 23, 42, .15); }
+:root[data-theme="light"] .btn-accent { color: #fff; }
+
+/* logs: ícones/badges mais escuros para ter contraste no fundo claro */
+:root[data-theme="light"] .log-action-badge.criacao,
+:root[data-theme="light"] .log-action-badge.criacao .log-action-dot { color: #047857; }
+:root[data-theme="light"] .log-action-badge.atualizacao,
+:root[data-theme="light"] .log-action-badge.atualizacao .log-action-dot { color: #1d4ed8; }
+:root[data-theme="light"] .log-action-badge.exclusao,
+:root[data-theme="light"] .log-action-badge.exclusao .log-action-dot { color: #b91c1c; }
+:root[data-theme="light"] .log-action-badge.login,
+:root[data-theme="light"] .log-action-badge.login .log-action-dot,
+:root[data-theme="light"] .log-status { color: #15803d; }
+:root[data-theme="light"] .log-action-badge.logout,
+:root[data-theme="light"] .log-action-badge.logout .log-action-dot { color: #c2410c; }
+
+:root[data-theme="light"] .log-card-icon.criacao { color: #047857; background: rgba(16, 185, 129, .14); }
+:root[data-theme="light"] .log-card-icon.atualizacao { color: #1d4ed8; background: rgba(59, 130, 246, .14); }
+:root[data-theme="light"] .log-card-icon.exclusao { color: #b91c1c; background: rgba(239, 68, 68, .14); }
+:root[data-theme="light"] .log-card-icon.login { color: #15803d; background: rgba(34, 197, 94, .14); }
+:root[data-theme="light"] .log-card-icon.logout { color: #c2410c; background: rgba(249, 115, 22, .14); }
+
+/* relatórios: ícones dos cards */
+:root[data-theme="light"] .relatorio-card-icon.faturamento { color: #047857; }
+:root[data-theme="light"] .relatorio-card-icon.despesas { color: #b91c1c; }
+:root[data-theme="light"] .relatorio-card-icon.lucro { color: #1d4ed8; }
+:root[data-theme="light"] .relatorio-card-icon.agenda { color: #7e22ce; }
+
+/* dashboard (usa variáveis locais --dashboard-*) */
+:root[data-theme="light"] #panel-dashboard {
+  --dashboard-card: #ffffff;
+  --dashboard-card-hover: #f4f7fc;
+  --dashboard-border: rgba(15, 23, 42, .10);
+  --dashboard-border-hover: rgba(15, 23, 42, .20);
+  --dashboard-text: #0f172a;
+  --dashboard-muted: #475569;
+  --dashboard-faint: #64748b;
+  --dashboard-primary: #0284c7;
+  --dashboard-success: #059669;
+  --dashboard-danger: #e11d48;
+  --dashboard-warning: #b45309;
+}
+
+:root[data-theme="light"] #panel-dashboard .dashboard-card { background: linear-gradient(145deg, rgba(15, 23, 42, .02), transparent 65%), #fff; }
+:root[data-theme="light"] #panel-dashboard .dashboard-info-card { background: #fff; }
+:root[data-theme="light"] #panel-dashboard .dashboard-datas input { background: #fff; color-scheme: light; }
+:root[data-theme="light"] #panel-dashboard .dashboard-ranking-bar,
+:root[data-theme="light"] #panel-dashboard .dashboard-servico-bar { background: rgba(15, 23, 42, .08); }
+:root[data-theme="light"] #panel-dashboard .dashboard-empty { background: var(--surface-2); }
+
+:root[data-theme="light"] #panel-dashboard .dashboard-status,
+:root[data-theme="light"] #panel-dashboard .dashboard-recente-status,
+:root[data-theme="light"] #panel-dashboard .dashboard-agendamento-status { background: rgba(15, 23, 42, .05); }
+
+:root[data-theme="light"] #panel-dashboard .dashboard-card-icon.faturamento { color: #0369a1; }
+:root[data-theme="light"] #panel-dashboard .dashboard-card-icon.despesas { color: #be123c; }
+:root[data-theme="light"] #panel-dashboard .dashboard-card-icon.resultado { color: #047857; }
+:root[data-theme="light"] #panel-dashboard .dashboard-card-icon.agenda { color: #6d28d9; }
+
+/* gráfico de movimentação */
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-grade { stroke: rgba(15, 23, 42, .09); }
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-faturamento { color: #4f46e5; }
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-despesas { color: #e11d48; }
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-resultado { color: #059669; }
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-resumo-item:nth-child(1) :is(.mov-resumo-valor, > strong) { color: #4f46e5; }
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-resumo-item:nth-child(2) :is(.mov-resumo-valor, > strong) { color: #e11d48; }
+:root[data-theme="light"] #panel-dashboard #dashboard-grafico .mov-resumo-item:nth-child(3) :is(.mov-resumo-valor, > strong) { color: #059669; }
+
+/* agenda: concluído/cancelado continuam legíveis */
+:root[data-theme="light"] .ticket.status-cancelado { opacity: .6; }
+
+/* toasts e notificações usam tokens: só reforço o contraste do sino */
+:root[data-theme="light"] #btn-notificacoes { background: #fff; }
+:root[data-theme="light"] #painel-notificacoes .notificacao-item.nao-lida { background: var(--notification-unread-bg); }
+
+/* scrollbar: thumb um pouco mais forte no claro */
+:root[data-theme="light"] *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ac) 70%, transparent), color-mix(in srgb, var(--violet) 70%, transparent)) padding-box;
+}
