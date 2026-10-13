@@ -1,4 +1,3 @@
-```yaml
 name: Verificações
 
 on:
@@ -58,4 +57,4 @@ jobs:
               )
             fi
           done
-```
+
