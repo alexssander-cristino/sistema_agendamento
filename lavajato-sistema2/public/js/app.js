@@ -938,9 +938,332 @@ const NICHOS = {
   }
 
 
+
+
+
+  // ============================================================
+  // API
+  // ============================================================
+
+  async function api(path, options = {}) {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+
+    const headers = Object.assign(
+      {
+        'Content-Type': 'application/json'
+      },
+      options.headers || {}
+    );
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const requestOptions = Object.assign(
+      {},
+      options,
+      { headers }
+    );
+
+    const res = await fetch(API + path, requestOptions);
+
+    if (res.status === 401) {
+      if (
+        path !== '/auth/login' &&
+        path !== '/auth/cadastro'
+      ) {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+
+        usuarioLogado = null;
+        empresaLogada = null;
+
+        showAuthScreen();
+
+        const erroSessao = new Error(
+          'Sessão expirada. Faça login novamente.'
+        );
+
+        erroSessao.status = 401;
+        throw erroSessao;
+      }
+    }
+
+    if (!res.ok) {
+      let msg = 'Erro na requisição';
+      let codigo = null;
+
+      try {
+        const resposta = await res.json();
+        msg = resposta.erro || msg;
+        codigo = resposta.codigo || null;
+      } catch (e) {
+        // A resposta pode não conter JSON.
+      }
+
+      const erro = new Error(msg);
+      erro.status = res.status;
+      erro.codigo = codigo;
+
+      throw erro;
+    }
+
+    if (res.status === 204) {
+      return null;
+    }
+
+    return res.json();
+  }
+
+
+  // ============================================================
+  // MODAL DE CLIENTES — ABRIR E FECHAR
+  // ============================================================
+
+  (function configurarModalClientes() {
+    document.addEventListener('click', function (event) {
+      const origem = event.target;
+
+      if (!(origem instanceof Element)) {
+        return;
+      }
+
+      const botao = origem.closest(
+        '#btn-ap-new-client, #btn-cli-new'
+      );
+
+      if (!botao) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const modal = document.getElementById('cli-form-modal');
+      const formulario = document.getElementById('cli-form');
+
+      if (!modal || !formulario) {
+        console.error(
+          'Orvix: modal ou formulário de clientes não encontrado.',
+          {
+            modalEncontrado: Boolean(modal),
+            formularioEncontrado: Boolean(formulario)
+          }
+        );
+
+        return;
+      }
+
+      formulario.reset();
+
+      const campoId = document.getElementById('cli-form-id');
+      const titulo = document.getElementById('cli-form-title');
+      const erro = document.getElementById('cli-form-error');
+      const salvar = document.getElementById('btn-cli-save');
+
+      if (campoId) {
+        campoId.value = '';
+      }
+
+      if (titulo) {
+        titulo.textContent = 'Novo cliente';
+      }
+
+      if (erro) {
+        erro.textContent = '';
+        erro.hidden = true;
+      }
+
+      if (salvar) {
+        salvar.disabled = false;
+        salvar.textContent = 'Salvar cliente';
+      }
+
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+
+      requestAnimationFrame(function () {
+        const estilo = getComputedStyle(modal);
+
+        console.log('Orvix: modal de clientes aberto.', {
+          display: estilo.display,
+          visibility: estilo.visibility,
+          classeIsOpen: modal.classList.contains('is-open')
+        });
+
+        document.getElementById('cli-form-nome')?.focus();
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      const origem = event.target;
+
+      if (!(origem instanceof Element)) {
+        return;
+      }
+
+      if (!origem.closest('[data-cli-form-close]')) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const modal = document.getElementById('cli-form-modal');
+
+      if (!modal) {
+        return;
+      }
+
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    });
+  })();
+
+
+  
+  // ============================================================
+  // SALVAR CLIENTE — CADASTRO E EDIÇÃO
+  // ============================================================
+
+  document.addEventListener('submit', async function (event) {
+    const formulario = event.target;
+
+if (
+  !(formulario instanceof HTMLFormElement) ||
+  formulario.getAttribute('id') !== 'cli-form'
+) {
+  return;
+}
+
+    
+
+    console.log('[CLIENTE 1] Listener executado.');
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    console.log('[CLIENTE 2] Envio nativo bloqueado:', {
+      defaultPrevented: event.defaultPrevented
+    });
+
+    const modal = document.getElementById('cli-form-modal');
+    const erro = document.getElementById('cli-form-error');
+    const botao = document.getElementById('btn-cli-save');
+    const campoId = document.getElementById('cli-form-id');
+
+    if (!botao) {
+      console.error('[CLIENTE ERRO] Botão de salvar não encontrado.');
+      return;
+    }
+
+    if (botao.disabled) {
+      console.warn('[CLIENTE] Botão já está desabilitado.');
+      return;
+    }
+
+    const id = campoId?.value?.trim() || '';
+    const dados = Object.fromEntries(
+      new FormData(formulario).entries()
+    );
+
+    delete dados.id;
+
+    console.log('[CLIENTE 3] Dados preparados.', {
+      operacao: id ? 'editar' : 'cadastrar',
+      nome: dados.nome,
+      email: dados.email
+    });
+
+    if (erro) {
+      erro.textContent = '';
+      erro.hidden = true;
+    }
+
+    botao.disabled = true;
+    botao.textContent = 'Salvando...';
+
+    try {
+      const endpoint = id
+        ? `/clientes/${encodeURIComponent(id)}`
+        : '/clientes';
+
+      const metodo = id ? 'PATCH' : 'POST';
+
+      console.log('[CLIENTE 4] Chamando API.', {
+        endpoint,
+        metodo,
+        tipoApi: typeof api
+      });
+
+      const cliente = await api(endpoint, {
+        method: metodo,
+        body: JSON.stringify(dados)
+      });
+
+      console.log('[CLIENTE 5] Resposta da API recebida.', cliente);
+
+      if (!cliente || cliente.id == null) {
+        throw new Error(
+          'A API não retornou os dados do cliente salvo.'
+        );
+      }
+
+      if (modal) {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      const overlay = document.getElementById('overlay-appointment');
+      const estiloOverlay = overlay
+        ? getComputedStyle(overlay)
+        : null;
+
+      const agendamentoAberto = Boolean(
+        overlay &&
+        estiloOverlay.display !== 'none' &&
+        estiloOverlay.visibility !== 'hidden' &&
+        overlay.getClientRects().length > 0
+      );
+
+      if (agendamentoAberto) {
+        const campoCliente = document.getElementById('ap-client');
+        const campoTelefone = document.getElementById('ap-phone');
+        const campoClienteId = document.getElementById('ap-client-id');
+
+        if (campoCliente) campoCliente.value = cliente.nome || '';
+        if (campoTelefone) campoTelefone.value = cliente.telefone || '';
+        if (campoClienteId) campoClienteId.value = cliente.id;
+
+        console.log('[CLIENTE 6] Cliente selecionado no agendamento.');
+        return;
+      }
+
+      const busca = document.getElementById('cli-search-input');
+      const botaoBusca = document.getElementById('btn-cli-search');
+
+      if (busca) {
+        busca.value = cliente.nome || '';
+        botaoBusca?.click();
+      }
+
+      console.log('[CLIENTE 6] Cadastro concluído.');
+
+    } catch (e) {
+      console.error('[CLIENTE ERRO] Falha no cadastro:', e);
+
+      if (erro) {
+        erro.textContent =
+          e.message || 'Não foi possível salvar o cliente.';
+        erro.hidden = false;
+      }
+    } finally {
+      botao.disabled = false;
+      botao.textContent = 'Salvar cliente';
+    }
+  }, true);
+
   // ============================================================
   // AUTENTICAÇÃO
   // ============================================================
+
 
   const authScreen =
     $('auth-screen');
@@ -1323,7 +1646,10 @@ const NICHOS = {
                 email,
                 senha
               })
+              
             }
+
+            
           );
 
         localStorage.setItem(
@@ -4165,373 +4491,656 @@ const NICHOS = {
   }
 
 
-  // ============================================================
-  // CLIENTES
-  // ============================================================
+// ============================================================
+// CLIENTES
+// ============================================================
 
-  function clientesEmptyHtml(){
+(async function () {
+  'use strict';
 
-    const n =
-      getNicho();
+  const $ = (id) => document.getElementById(id);
 
-    const dica =
-      n.extra1
-        ? 'nome, telefone ou ' +
-          n.extra1.label.toLowerCase()
-        : 'nome ou telefone';
+  let clientesAtuais = [];
 
-    return `
+  // ==========================================================
+  // UTILITÁRIOS
+  // ==========================================================
 
-      <div class="empty">
+  function formatarData(data) {
+    if (!data) return '—';
 
-        <svg
-          class="empty-icon"
-          viewBox="0 0 20 20"
-        >
-          <circle
-            cx="9"
-            cy="9"
-            r="6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-          />
+    const valor = String(data).slice(0, 10);
+    const partes = valor.split('-');
 
-          <path
-            d="M17 17l-4-4"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-          />
+    if (partes.length !== 3) return valor;
 
-        </svg>
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
 
-        <strong>
-          Busque um(a)
-          ${escapeHtml(
-            n.cliente.toLowerCase()
-          )}
-        </strong>
+  function formatarHora(hora) {
+    return hora ? String(hora).slice(0, 5) : '—';
+  }
 
-        Digite
-        ${escapeHtml(dica)}
-        e veja todo o histórico de atendimentos.
+  function formatarDinheiro(valor) {
+    return Number(valor || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
 
-      </div>
+  function escapar(valor) {
+    if (typeof escapeHtml === 'function') {
+      return escapeHtml(String(valor ?? ''));
+    }
 
+    return String(valor ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[char]);
+  }
+
+  function normalizarNome(valor) {
+    return String(valor || '')
+      .trim()
+      .toLocaleLowerCase('pt-BR')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function statusTexto(status) {
+    const estados = {
+      agendado: 'Agendado',
+      pendente: 'Pendente',
+      confirmado: 'Confirmado',
+      em_andamento: 'Em andamento',
+      concluido: 'Concluído',
+      cancelado: 'Cancelado',
+      nao_compareceu: 'Não compareceu',
+      'não_compareceu': 'Não compareceu'
+    };
+
+    return estados[String(status || '').toLowerCase()]
+      || status
+      || 'Sem status';
+  }
+
+  // ==========================================================
+  // MODAL DE HISTÓRICO
+  // ==========================================================
+
+  function criarModalClientes() {
+    if ($('cli-history-modal')) return;
+
+    const modal = document.createElement('div');
+
+    modal.id = 'cli-history-modal';
+    modal.className = 'cli-modal';
+    modal.setAttribute('aria-hidden', 'true');
+
+    modal.innerHTML = `
+      <div class="cli-modal-backdrop" data-close-modal></div>
+
+      <section
+        class="cli-modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cli-modal-title"
+      >
+        <header class="cli-modal-header">
+          <div>
+            <span class="cli-modal-eyebrow">
+              CADASTRO DE CLIENTE
+            </span>
+
+            <h2 id="cli-modal-title">
+              Histórico do cliente
+            </h2>
+
+            <p id="cli-modal-phone"></p>
+          </div>
+
+          <button
+            type="button"
+            class="cli-modal-close"
+            data-close-modal
+            aria-label="Fechar"
+          >&times;</button>
+        </header>
+
+        <div
+          id="cli-modal-summary"
+          class="cli-modal-summary"
+        ></div>
+
+        <div class="cli-modal-section">
+          <h3>Histórico de serviços</h3>
+
+          <div id="cli-modal-history">
+            <div class="cli-modal-loading">
+              Carregando histórico...
+            </div>
+          </div>
+        </div>
+      </section>
     `;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (event) => {
+      if (event.target.closest('[data-close-modal]')) {
+        fecharModalCliente();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (
+        event.key === 'Escape' &&
+        modal.classList.contains('open')
+      ) {
+        fecharModalCliente();
+      }
+    });
   }
 
+  function abrirModalCliente() {
+    criarModalClientes();
 
-  $('btn-cli-search')
-    ?.addEventListener(
-      'click',
-      runClientSearch
-    );
+    const modal = $('cli-history-modal');
 
+    if (!modal) return;
 
-  $('cli-search-input')
-    ?.addEventListener(
-      'keydown',
-      e => {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('cli-modal-open');
+  }
 
-        if(e.key === 'Enter'){
+  function fecharModalCliente() {
+    const modal = $('cli-history-modal');
 
-          e.preventDefault();
+    if (!modal) return;
 
-          runClientSearch();
-        }
-      }
-    );
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('cli-modal-open');
+  }
 
+  // ==========================================================
+  // LISTAGEM DE CLIENTES
+  // ==========================================================
 
-  $('cli-search-input')
-    ?.addEventListener(
-      'input',
-      e => {
+  function renderizarClientes(clientes) {
+    const resumo = $('cli-summary');
+    const resultados = $('cli-results');
 
-        $('btn-cli-clear')
-          ?.classList
-          .toggle(
-            'visible',
-            e.target.value.length > 0
-          );
-      }
-    );
+    if (!resumo || !resultados) return;
 
+    clientesAtuais = clientes;
 
-  $('btn-cli-clear')
-    ?.addEventListener(
-      'click',
-      () => {
+    if (!clientes.length) {
+      resumo.innerHTML = '';
 
-        const input =
-          $('cli-search-input');
-
-        if(!input){
-          return;
-        }
-
-        input.value =
-          '';
-
-        $('btn-cli-clear')
-          ?.classList
-          .remove('visible');
-
-        $('cli-summary')
-          .innerHTML =
-          '';
-
-        $('cli-results')
-          .innerHTML =
-          clientesEmptyHtml();
-
-        input.focus();
-      }
-    );
-
-
-  async function runClientSearch(){
-
-    const termo =
-      $('cli-search-input')
-        .value.trim();
-
-    const resultsEl =
-      $('cli-results');
-
-    const summaryEl =
-      $('cli-summary');
-
-    if(!termo){
-
-      resultsEl.innerHTML =
-        clientesEmptyHtml();
-
-      summaryEl.innerHTML =
-        '';
+      resultados.innerHTML = `
+        <div class="empty">
+          <strong>Nenhum cliente encontrado</strong>
+          Confira o nome ou telefone informado.
+        </div>
+      `;
 
       return;
     }
 
-    resultsEl.innerHTML =
-      '<div class="empty">Buscando…</div>';
-
-    summaryEl.innerHTML =
-      '';
-
-    try{
-
-      const items =
-        await api(
-          '/agendamentos?busca=' +
-          encodeURIComponent(
-            termo
-          )
-        );
-
-      renderClientResults(
-        items
-      );
-
-    }catch(e){
-
-      resultsEl.innerHTML =
-        '<div class="empty">' +
-          '<strong>Não foi possível buscar</strong>' +
-          'Verifique a conexão com o banco de dados.' +
-        '</div>';
-    }
-  }
-
-
-  function renderClientResults(items){
-
-    const summaryEl =
-      $('cli-summary');
-
-    const resultsEl =
-      $('cli-results');
-
-    if(items.length === 0){
-
-      summaryEl.innerHTML =
-        '';
-
-      resultsEl.innerHTML =
-        '<div class="empty">' +
-          '<strong>Nada encontrado</strong>' +
-          'Confira se digitou corretamente.' +
-        '</div>';
-
-      return;
-    }
-
-    const concluidos =
-      items.filter(
-        a =>
-          a.status ===
-          'concluido'
-      );
-
-    const totalGasto =
-      concluidos.reduce(
-        (s,a) =>
-          s + Number(a.valor),
-        0
-      );
-
-    const ultima =
-      items[0];
-
-    summaryEl.innerHTML = `
-
+    resumo.innerHTML = `
       <div class="totals-strip">
+        <div class="stat-card">
+          <div class="label">Clientes encontrados</div>
+          <div class="value">${clientes.length}</div>
+        </div>
 
         <div class="stat-card">
-
-          <div class="label">
-            Visitas encontradas
-          </div>
-
+          <div class="label">Atendimentos</div>
           <div class="value">
-            ${items.length}
+            ${clientes.reduce(
+              (total, item) =>
+                total + Number(item.total_atendimentos || 0),
+              0
+            )}
           </div>
-
         </div>
 
         <div class="stat-card money">
-
-          <div class="label">
-            Total gasto (concluídos)
-          </div>
-
+          <div class="label">Total gasto</div>
           <div class="value">
-            ${money(totalGasto)}
-          </div>
-
-        </div>
-
-        <div class="stat-card">
-
-          <div class="label">
-            Última visita
-          </div>
-
-          <div
-            class="value"
-            style="font-size:16px;"
-          >
-            ${
-              new Date(
-                ultima.data +
-                'T00:00:00'
-              ).toLocaleDateString(
-                'pt-BR'
+            ${formatarDinheiro(
+              clientes.reduce(
+                (total, item) =>
+                  total + Number(item.total_gasto || 0),
+                0
               )
-            }
+            )}
           </div>
-
         </div>
-
       </div>
-
     `;
 
-    resultsEl.innerHTML =
-      items
-        .map(
-          ap => {
+    resultados.innerHTML = clientes.map((cliente, indice) => `
+      <button
+        type="button"
+        class="cli-client-card"
+        data-client-index="${indice}"
+      >
+        <span class="cli-client-avatar" aria-hidden="true">
+          ${escapar(
+            String(cliente.cliente || cliente.nome || '?')
+              .trim()
+              .charAt(0)
+              .toUpperCase()
+          )}
+        </span>
 
-            const statusLabel = {
+        <span class="cli-client-main">
+          <strong>
+            ${escapar(cliente.cliente || cliente.nome || 'Cliente')}
+          </strong>
 
-              agendado:
-                'agendado',
+          <span>
+            ${escapar(
+              cliente.telefone || 'Sem telefone cadastrado'
+            )}
+          </span>
 
-              em_andamento:
-                'em andamento',
+          <small>
+            ${Number(cliente.total_atendimentos || 0)}
+            atendimento(s)
+            · Última visita:
+            ${formatarData(cliente.ultima_visita)}
+          </small>
+        </span>
 
-              concluido:
-                'concluído',
+        <span class="cli-client-right">
+          <strong>
+            ${formatarDinheiro(cliente.total_gasto)}
+          </strong>
 
-              cancelado:
-                'cancelado'
+          <span>Ver histórico &rarr;</span>
+        </span>
+      </button>
+    `).join('');
+  }
 
-            }[ap.status];
+  // ==========================================================
+  // PESQUISA DE CLIENTES
+  // ==========================================================
 
-            const dataCurta =
-              new Date(
-                ap.data +
-                'T00:00:00'
-              ).toLocaleDateString(
-                'pt-BR',
-                {
-                  day:'2-digit',
-                  month:'2-digit'
-                }
-              );
+  async function runClientSearch() {
+    const input = $('cli-search-input');
+    const resultados = $('cli-results');
+    const resumo = $('cli-summary');
 
-            return `
+    if (!input || !resultados || !resumo) return;
 
-              <div
-                class="ticket status-${ap.status}"
-              >
+    const termo = input.value.trim();
 
-                <div class="ticket-time">
+    if (!termo) {
+      resumo.innerHTML = '';
 
-                  ${dataCurta}
+      resultados.innerHTML = `
+        <div class="empty">
+          <strong>Busque um cliente</strong>
+          Digite o nome ou telefone para consultar o histórico.
+        </div>
+      `;
 
-                  <small>
-                    ${statusLabel}
-                  </small>
+      clientesAtuais = [];
+      return;
+    }
 
-                </div>
+    resultados.innerHTML = `
+      <div class="empty">Buscando clientes...</div>
+    `;
 
-                <div class="ticket-body">
+    resumo.innerHTML = '';
 
-                  <div class="client">
-                    ${escapeHtml(ap.cliente)}
-                  </div>
+    try {
+      const clientes = await api(
+        '/clientes?busca=' + encodeURIComponent(termo)
+      );
 
-                  <div class="meta">
+      if (!Array.isArray(clientes)) {
+        throw new Error('Resposta inválida do servidor.');
+      }
 
-                    <span>
-                      ${ap.hora.slice(0,5)}
-                    </span>
+      renderizarClientes(clientes);
+    } catch (error) {
+      console.error('Erro na busca de clientes:', error);
 
-                    <span>
-                      ${
-                        escapeHtml(
-                          ap.servico_nome ||
-                          serviceName(
-                            ap.servico_id
-                          )
-                        )
-                      }
-                    </span>
+      resultados.innerHTML = `
+        <div class="empty">
+          <strong>Não foi possível buscar clientes</strong>
+          Verifique a conexão e tente novamente.
+        </div>
+      `;
+    }
+  }
 
-                    ${detalhesHtml(ap)}
+  // ==========================================================
+  // HISTÓRICO DO CLIENTE
+  // ==========================================================
 
-                  </div>
+  async function abrirHistoricoCliente(cliente) {
+    if (!cliente) return;
 
-                </div>
+    criarModalClientes();
+    abrirModalCliente();
 
-                <div class="ticket-actions">
+    const titulo = $('cli-modal-title');
+    const telefoneElemento = $('cli-modal-phone');
+    const resumo = $('cli-modal-summary');
+    const historicoElemento = $('cli-modal-history');
 
-                  <span class="price-tag">
-                    ${money(ap.valor)}
+    if (!titulo || !telefoneElemento || !resumo || !historicoElemento) {
+      console.error('Elementos do modal de clientes não encontrados.');
+      return;
+    }
+
+    const nomeCliente = String(
+      cliente.cliente || cliente.nome || 'Cliente'
+    ).trim();
+
+    titulo.textContent = nomeCliente || 'Cliente';
+
+    telefoneElemento.textContent =
+      cliente.telefone || 'Telefone não cadastrado';
+
+    resumo.innerHTML = '';
+
+    historicoElemento.innerHTML = `
+      <div class="cli-modal-loading">
+        Carregando histórico...
+      </div>
+    `;
+
+    try {
+      const clienteId = Number(cliente.id);
+      const clienteCadastrado =
+        Number.isSafeInteger(clienteId) && clienteId > 0;
+
+      let parametro;
+
+      if (clienteCadastrado) {
+        // Para clientes cadastrados, consulta pelo ID exato.
+        parametro =
+          'cliente_id=' + encodeURIComponent(clienteId);
+      } else {
+        // Para clientes antigos sem cadastro, prioriza o nome.
+        // Não usa telefone compartilhado como identificação única.
+        parametro =
+          'cliente=' + encodeURIComponent(nomeCliente);
+      }
+
+      const historicoRecebido = await api(
+        '/clientes/historico?' + parametro
+      );
+
+      if (!Array.isArray(historicoRecebido)) {
+        throw new Error('Resposta inválida do servidor.');
+      }
+
+      let historicoCliente;
+
+      if (clienteCadastrado) {
+        // Segurança adicional: exige vínculo exato pelo ID.
+        historicoCliente = historicoRecebido.filter(
+          item => Number(item.cliente_id) === clienteId
+        );
+      } else {
+        // Sem ID não existe vínculo confiável.
+        // Mantém apenas registros sem cliente_id e com nome igual.
+        historicoCliente = historicoRecebido.filter(item => {
+          const semVinculo =
+            item.cliente_id === null ||
+            item.cliente_id === undefined ||
+            item.cliente_id === '';
+
+          return (
+            semVinculo &&
+            normalizarNome(item.cliente) ===
+              normalizarNome(nomeCliente)
+          );
+        });
+      }
+
+      const nicho = String(
+        historicoCliente[0]?.nicho_empresa ||
+        cliente.nicho_empresa ||
+        'generico'
+      ).toLowerCase();
+
+      const exibirVeiculo = [
+        'lavajato',
+        'oficina'
+      ].includes(nicho);
+
+      const rotuloServico = {
+        lavajato: 'Serviço realizado',
+        barbearia: 'Serviço realizado',
+        clinica: 'Procedimento / consulta',
+        pet: 'Serviço realizado',
+        oficina: 'Serviço realizado',
+        personal: 'Atendimento',
+        generico: 'Serviço / atendimento'
+      }[nicho] || 'Serviço / atendimento';
+
+      const concluidos = historicoCliente.filter(
+        item =>
+          String(item.status || '').toLowerCase() === 'concluido'
+      );
+
+      const totalGasto = concluidos.reduce(
+        (total, item) => total + Number(item.valor || 0),
+        0
+      );
+
+      resumo.innerHTML = `
+        <div class="totals-strip">
+          <div class="stat-card">
+            <div class="label">Atendimentos</div>
+            <div class="value">${historicoCliente.length}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="label">Concluídos</div>
+            <div class="value">${concluidos.length}</div>
+          </div>
+
+          <div class="stat-card money">
+            <div class="label">Total gasto</div>
+            <div class="value">
+              ${formatarDinheiro(totalGasto)}
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="label">Última visita</div>
+            <div class="value">
+              ${formatarData(historicoCliente[0]?.data)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      if (!historicoCliente.length) {
+        historicoElemento.innerHTML = `
+          <div class="empty">
+            <strong>Nenhum atendimento encontrado</strong>
+            Este cliente não possui atendimentos vinculados
+            ao seu cadastro.
+          </div>
+        `;
+
+        return;
+      }
+
+      historicoElemento.innerHTML = `
+        <div class="cli-history-list">
+          ${historicoCliente.map(item => `
+            <article class="cli-history-item">
+              <div class="cli-history-item-header">
+                <div>
+                  <strong>
+                    ${escapar(item.servico_nome || rotuloServico)}
+                  </strong>
+
+                  <span>
+                    ${formatarData(item.data)}
+                    às ${formatarHora(item.hora)}
                   </span>
-
                 </div>
 
+                <span class="cli-history-status">
+                  ${escapar(statusTexto(item.status))}
+                </span>
               </div>
 
-            `;
-          }
-        )
-        .join('');
+              <div class="cli-history-item-details">
+                <div>
+                  <span class="label">Valor</span>
+                  <strong>
+                    ${formatarDinheiro(item.valor)}
+                  </strong>
+                </div>
+
+                ${item.status_pagamento ? `
+                  <div>
+                    <span class="label">Pagamento</span>
+                    <strong>
+                      ${escapar(item.status_pagamento)}
+                    </strong>
+                  </div>
+                ` : ''}
+
+                ${item.forma_pagamento ? `
+                  <div>
+                    <span class="label">Forma de pagamento</span>
+                    <strong>
+                      ${escapar(item.forma_pagamento)}
+                    </strong>
+                  </div>
+                ` : ''}
+
+                ${exibirVeiculo && item.veiculo ? `
+                  <div>
+                    <span class="label">Veículo</span>
+                    <strong>${escapar(item.veiculo)}</strong>
+                  </div>
+                ` : ''}
+
+                ${exibirVeiculo && item.placa ? `
+                  <div>
+                    <span class="label">Placa</span>
+                    <strong>${escapar(item.placa)}</strong>
+                  </div>
+                ` : ''}
+              </div>
+
+              ${item.observacoes ? `
+                <div class="cli-history-observations">
+                  <span class="label">Observações</span>
+                  <p>${escapar(item.observacoes)}</p>
+                </div>
+              ` : ''}
+            </article>
+          `).join('')}
+        </div>
+      `;
+    } catch (error) {
+      console.error(
+        'Erro ao carregar histórico do cliente:',
+        error
+      );
+
+      resumo.innerHTML = '';
+
+      historicoElemento.innerHTML = `
+        <div class="empty">
+          <strong>Não foi possível carregar o histórico</strong>
+          Verifique a conexão e tente novamente.
+        </div>
+      `;
+    }
   }
+
+  // ==========================================================
+  // EVENTOS DA INTERFACE
+  // ==========================================================
+
+  $('btn-cli-search')?.addEventListener(
+    'click',
+    runClientSearch
+  );
+
+  $('cli-search-input')?.addEventListener(
+    'keydown',
+    event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        runClientSearch();
+      }
+    }
+  );
+
+  $('cli-search-input')?.addEventListener(
+    'input',
+    event => {
+      $('btn-cli-clear')?.classList.toggle(
+        'visible',
+        event.target.value.length > 0
+      );
+    }
+  );
+
+  $('btn-cli-clear')?.addEventListener('click', () => {
+    const input = $('cli-search-input');
+
+    if (input) input.value = '';
+
+    clientesAtuais = [];
+
+    $('btn-cli-clear')?.classList.remove('visible');
+
+    if ($('cli-summary')) {
+      $('cli-summary').innerHTML = '';
+    }
+
+    if ($('cli-results')) {
+      $('cli-results').innerHTML = `
+        <div class="empty">
+          <strong>Busque um cliente</strong>
+          Digite o nome ou telefone para consultar o histórico.
+        </div>
+      `;
+    }
+
+    input?.focus();
+  });
+
+  $('cli-results')?.addEventListener('click', event => {
+    const card = event.target.closest('[data-client-index]');
+
+    if (!card) return;
+
+    const indice = Number(card.dataset.clientIndex);
+    const cliente = clientesAtuais[indice];
+
+    if (cliente) {
+      abrirHistoricoCliente(cliente);
+    }
+  });
+
+  criarModalClientes();
+})();
 
 
   // ============================================================

@@ -82,6 +82,8 @@ const notificacoesRouter =
   const firebaseNotificRoutes =
   require('./routes/firebaseNotific');
 
+  const clientesRouter = require('./routes/clientes');
+
 // ============================================================
 // APP
 // ============================================================
@@ -330,6 +332,8 @@ app.use(
 app.use('/api/firebase-notific', firebaseNotificRoutes);
 
 app.use('/api/sessoes', require('./routes/sessoes'));
+
+app.use('/api/clientes', clientesRouter);
 
 
 // ============================================================
