@@ -1,29 +1,3 @@
-/* =========================================================
-   ORVIX — STYLE.CSS · tema escuro "Nexa" (glass + azul/ciano)
-   Mesmas classes/ids do HTML e do JS.
-
-   O JS altera --primary, --primary-2, --primary-dark, --accent,
-   --accent-2 e --bg (esta última vem do banco, geralmente CLARA).
-   Por isso:
-   - o fundo usa --canvas (fixo) e nunca --bg
-   - destaques usam --ac / --ac2 (derivados de --accent), nunca --primary
-   - superfícies flutuantes (modais, painéis) usam fundo SÓLIDO
-
-   ÍNDICE
-    1. Tokens            10. Indicadores e gráficos
-    2. Base              11. Tabelas
-    3. Login / cadastro  12. Modais
-    4. Campos            13. Permissões
-    5. Sidebar           14. Configurações
-    6. Conteúdo/topbar   15. Modal de plano
-    7. Botões            16. Impressão
-    8. Filtros / busca   17. Logs
-    9. Listas            18. Relatórios
-   19. Dashboard         20. Notificações
-   21. Clientes (lista, histórico, formulário, autocomplete)
-   22. Scrollbar         23. Responsivo
-   ========================================================= */
-
 /* ---------- 1. TOKENS ---------- */
 :root {
   color-scheme: dark;
@@ -1956,3 +1930,273 @@ body.cli-modal-open, body.cli-form-open { overflow: hidden; }
   z-index: 99999 !important;
 }
 
+/* =========================================================
+   ORVIX — MELHORIAS DE UI/UX
+   Colar NO FINAL do style.css.
+   Mantém o tema escuro "Nexa" e as variáveis existentes.
+   ========================================================= */
+
+/* ---------- 1. LOGIN / CADASTRO ---------- */
+
+/* o gap do flex já separa label e campo */
+.auth-field label { margin-bottom: 0; }
+
+/* o <style> inline do index.html usa cores de tema claro (ilegíveis no escuro) */
+.auth-form .terms-check { color: var(--ink-soft); }
+.auth-form .terms-check input[type="checkbox"] { accent-color: var(--ac); }
+.auth-form .legal-note { color: var(--ink-faint); }
+
+.auth-form .legal-note a,
+.auth-form .terms-check a { color: var(--accent-ink); font-weight: 600; }
+
+/* ---------- 2. VALIDAÇÃO DE CAMPOS ---------- */
+.field :is(input, select, textarea):user-invalid,
+.auth-field :is(input, select):user-invalid,
+.cli-form-field :is(input, textarea):user-invalid {
+  border-color: var(--warn);
+}
+
+/* ---------- 3. SINO DE NOTIFICAÇÕES x TOPO DAS PÁGINAS ---------- */
+@media (min-width: 761px) {
+  /* reserva o espaço do sino (fixo no canto direito) */
+  .topbar,
+  #panel-dashboard .dashboard-header { padding-right: 62px; }
+}
+
+@media (max-width: 760px) {
+  .topbar > div:first-child,
+  #panel-dashboard .dashboard-header > div:first-child { padding-right: 54px; }
+
+  /* o título do Dashboard ficava embaixo do botão de menu */
+  #panel-dashboard .dashboard-header { padding-left: 56px; }
+}
+
+@media (max-width: 600px) {
+  #panel-dashboard .dashboard-actions { width: calc(100% + 56px); margin-left: -56px; }
+}
+
+/* ---------- 4. DASHBOARD: CLASSES GERADAS PELO JS ---------- */
+
+/* ranking de serviços (a barra é um <div> sem classe) */
+#panel-dashboard .dashboard-ranking-top strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dashboard-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#panel-dashboard .dashboard-ranking-top span {
+  flex-shrink: 0;
+  color: var(--dashboard-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-dashboard .dashboard-ranking-bar > div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ac), var(--ac2));
+  transition: width .6s cubic-bezier(.2, .8, .2, 1);
+}
+
+#panel-dashboard .dashboard-ranking-item > small { color: var(--dashboard-faint); font-size: 11px; }
+
+/* agendamentos recentes */
+#panel-dashboard .dashboard-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--dashboard-border);
+}
+
+#panel-dashboard .dashboard-recent-item:first-child { padding-top: 0; }
+#panel-dashboard .dashboard-recent-item:last-child { padding-bottom: 0; border-bottom: 0; }
+
+#panel-dashboard .dashboard-recent-main { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+
+#panel-dashboard .dashboard-recent-main strong {
+  overflow: hidden;
+  color: var(--dashboard-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#panel-dashboard .dashboard-recent-main span {
+  overflow: hidden;
+  color: var(--dashboard-muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#panel-dashboard .dashboard-recent-side { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; gap: 3px; text-align: right; }
+#panel-dashboard .dashboard-recent-side strong { color: var(--dashboard-text); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#panel-dashboard .dashboard-recent-side span { color: var(--dashboard-faint); font-size: 11px; }
+
+#panel-dashboard .dashboard-status { text-transform: capitalize; white-space: nowrap; }
+
+#panel-dashboard .status-em_andamento {
+  border-color: rgba(251, 191, 36, .16);
+  background: rgba(251, 191, 36, .09);
+  color: var(--dashboard-warning);
+}
+
+/* gráfico de movimentação: sem "card dentro de card" */
+#panel-dashboard .dashboard-section > #dashboard-grafico {
+  margin-top: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* o JS gera: span.mov-legenda (bolinha) + span (nome) + strong (total) */
+#panel-dashboard #dashboard-grafico .mov-resumo-item .mov-legenda { display: none; }
+
+#panel-dashboard #dashboard-grafico .mov-resumo-item > span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .035em;
+}
+
+#panel-dashboard #dashboard-grafico .mov-resumo-item > strong {
+  display: block;
+  color: var(--ink);
+  font-size: clamp(17px, 2vw, 25px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-dashboard #dashboard-grafico .mov-resumo-item:nth-child(1) > strong { color: #818cf8; }
+#panel-dashboard #dashboard-grafico .mov-resumo-item:nth-child(2) > strong { color: #fb7185; }
+#panel-dashboard #dashboard-grafico .mov-resumo-item:nth-child(3) > strong { color: #34d399; }
+
+/* no celular o SVG encolhia e os textos ficavam ilegíveis: agora rola na horizontal */
+@media (max-width: 700px) {
+  #panel-dashboard #dashboard-grafico .mov-svg { min-width: 640px; }
+}
+
+/* ---------- 5. LOGS: ÍCONE COLORIDO POR AÇÃO ---------- */
+.log-card-icon.criacao { background: rgba(16, 185, 129, .14); color: #34d399; }
+.log-card-icon.atualizacao { background: rgba(59, 130, 246, .14); color: #60a5fa; }
+.log-card-icon.exclusao { background: rgba(239, 68, 68, .14); color: #f87171; }
+.log-card-icon.login { background: rgba(34, 197, 94, .14); color: #4ade80; }
+.log-card-icon.logout { background: rgba(249, 115, 22, .14); color: #fb923c; }
+
+/* ---------- 6. AGENDA: "EM ANDAMENTO" SE DESTACA ---------- */
+.ticket.status-em_andamento { border-left-color: var(--amber); }
+.ticket.status-em_andamento .ticket-time small { color: var(--amber); -webkit-text-fill-color: var(--amber); }
+
+/* ---------- 7. MODAIS COMPRIDOS: AÇÕES SEMPRE VISÍVEIS ---------- */
+.modal form .modal-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: 22px -24px -24px;
+  padding: 16px 24px;
+  background: var(--canvas-2);
+}
+
+@media (max-width: 760px) {
+  .modal form .modal-actions {
+    margin: 22px -18px calc(-18px - env(safe-area-inset-bottom));
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------- 8. ESTADO "CARREGANDO" (classe aplicada pelo ui-melhorias.js) ---------- */
+.empty.is-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-style: solid;
+}
+
+.empty.is-loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--ac2);
+  border-radius: 50%;
+  animation: uiSpin .7s linear infinite;
+}
+
+@keyframes uiSpin { to { transform: rotate(360deg); } }
+
+/* ---------- 9. TOASTS (substituem o alert()) ---------- */
+.ui-toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.ui-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--ac2);
+  border-radius: var(--radius-m);
+  background: var(--canvas-2);
+  box-shadow: var(--shadow-3);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+  pointer-events: auto;
+  animation: toastIn .22s var(--ease) both;
+}
+
+.ui-toast.success { border-left-color: var(--good); }
+.ui-toast.warning { border-left-color: var(--amber); }
+.ui-toast.error { border-left-color: var(--warn); }
+.ui-toast.leaving { animation: toastOut .18s ease both; }
+
+.ui-toast-msg { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
+.ui-toast-close {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 18px;
+  line-height: 1;
+  transition: background-color var(--ease), color var(--ease);
+}
+
+.ui-toast-close:hover { background: var(--card-hover); color: var(--ink); }
+
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateX(16px); } }
+
+@media (max-width: 760px) {
+  .ui-toasts { right: 16px; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); width: auto; }
+}
