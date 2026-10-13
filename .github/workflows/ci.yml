@@ -1,0 +1,56 @@
+
+name: Verificações
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - atualizacoes
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validar:
+    name: validar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Executar lint, se configurado
+        run: npm run lint --if-present
+
+      - name: Executar testes, se configurados
+        run: npm test --if-present
+
+      - name: Verificar sintaxe JavaScript
+        shell: bash
+        run: |
+          set -e
+
+          for diretorio in server public/js; do
+            if [ -d "$diretorio" ]; then
+              while IFS= read -r -d '' arquivo; do
+                echo "Verificando: $arquivo"
+                node --check "$arquivo"
+              done < <(find "$diretorio" -type f -name '*.js' \
+                -not -path '*/node_modules/*' -print0)
+            fi
+          done
