@@ -1431,6 +1431,102 @@ aria-label="Abrir menu"
     </section>
 </div>
 
+
+<!-- ORVIX AI: BOTÃO FLUTUANTE E CHAT -->
+<link rel="stylesheet" href="/ia.css">
+
+<button
+  type="button"
+  id="orvix-ai-toggle"
+  class="orvix-ai-toggle"
+  aria-label="Abrir agente de inteligência artificial"
+  aria-controls="orvix-ai-panel"
+  aria-expanded="false"
+>
+  <span class="orvix-ai-toggle-icon" aria-hidden="true">✦</span>
+  <span>Orvix IA</span>
+</button>
+
+<section
+  id="orvix-ai-panel"
+  class="orvix-ai-panel"
+  aria-label="Assistente Orvix AI"
+  aria-hidden="true"
+>
+  <header class="orvix-ai-header">
+    <div class="orvix-ai-brand">
+      <div class="orvix-ai-logo" aria-hidden="true">✦</div>
+      <div class="orvix-ai-brand-info">
+        <strong>Orvix AI</strong>
+        <span><i></i> Assistente virtual</span>
+      </div>
+    </div>
+
+    <div class="orvix-ai-header-actions">
+      <button type="button" id="orvix-ai-new" title="Nova conversa" aria-label="Nova conversa">↻</button>
+      <button type="button" id="orvix-ai-close" title="Fechar" aria-label="Fechar assistente">×</button>
+    </div>
+  </header>
+
+  <div class="orvix-ai-messages" id="orvix-ai-messages" aria-live="polite">
+    <div class="orvix-ai-welcome" id="orvix-ai-welcome">
+      <div class="orvix-ai-welcome-icon">✦</div>
+      <p class="orvix-ai-eyebrow">SEU ASSISTENTE INTELIGENTE</p>
+      <h2>Olá! Como posso ajudar?</h2>
+      <p class="orvix-ai-welcome-description">
+        Tire dúvidas, organize tarefas e encontre ideias para sua empresa.
+      </p>
+
+      <div class="orvix-ai-suggestions">
+        <button type="button" data-orvix-prompt="Me ajude a organizar as prioridades da minha empresa.">
+          <span>↗</span>
+          <span><strong>Organizar prioridades</strong><small>Planeje suas tarefas</small></span>
+        </button>
+
+        <button type="button" data-orvix-prompt="Me dê ideias para melhorar o atendimento aos meus clientes.">
+          <span>◇</span>
+          <span><strong>Melhorar o atendimento</strong><small>Cuide melhor dos clientes</small></span>
+        </button>
+
+        <button type="button" data-orvix-prompt="Como posso organizar melhor as finanças da minha empresa?">
+          <span>＄</span>
+          <span><strong>Organizar as finanças</strong><small>Melhore seu planejamento</small></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="orvix-ai-typing" id="orvix-ai-typing" hidden>
+    <span></span><span></span><span></span>
+    <small>Orvix AI está pensando...</small>
+  </div>
+
+  <form class="orvix-ai-composer" id="orvix-ai-form">
+    <textarea
+      id="orvix-ai-input"
+      rows="1"
+      maxlength="2000"
+      placeholder="Escreva sua mensagem..."
+      aria-label="Sua mensagem"
+    ></textarea>
+
+    <div class="orvix-ai-composer-footer">
+      <small>Enter envia · Shift + Enter quebra a linha</small>
+      <button type="submit" id="orvix-ai-send" aria-label="Enviar mensagem">
+        <span aria-hidden="true">↑</span>
+      </button>
+    </div>
+  </form>
+
+  <footer class="orvix-ai-disclaimer">
+    A IA pode cometer erros. Confira informações importantes.
+  </footer>
+</section>
+
+<script src="ia.js" defer></script>
+<!-- FIM ORVIX AI -->
+
+
   <!-- =====================================================
        DASHBOARD
        ===================================================== -->
@@ -5416,6 +5512,8 @@ aria-label="Abrir menu"
 <script src="/js/recuperarSenha.js"></script>
 
 <script src="/js/configs.js"></script>
+
+<script src="/js/ia.js"></script>
 
 </body>
 

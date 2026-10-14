@@ -87,6 +87,8 @@ const notificacoesRouter =
   const publicAgendamentosRouter =
   require('./routes/publicAgendamentos');
 
+  const iaRouter = require('./routes/ia');
+
 // ============================================================
 // APP
 // ============================================================
@@ -337,6 +339,8 @@ app.use('/api/firebase-notific', firebaseNotificRoutes);
 app.use('/api/sessoes', require('./routes/sessoes'));
 
 app.use('/api/clientes', clientesRouter);
+
+app.use('/api/ia', iaRouter);
 
 // ============================================================
 // API — AGENDAMENTO PÚBLICO
