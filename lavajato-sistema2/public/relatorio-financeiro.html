@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020" id="meta-theme-color">
+  <title>Relatório Financeiro | Orvix</title>
+
+  <!-- Aplica o tema salvo ANTES da renderização (evita "flash" de tema) -->
+  <script>
+    try {
+      var temaInicial = localStorage.getItem('orvix-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', temaInicial === 'light' ? 'light' : 'dark');
+    } catch (e) {}
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Tema escuro (padrão) ===== */
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #121a2b;
+      --panel-2: #172137;
+      --border: #26334b;
+      --text: #f1f5f9;
+      --muted: #93a4bd;
+      --primary: #818cf8;
+      --primary-hover: #a5b4fc;
+      --on-primary: #10142a;
+      --green: #34d399;
+      --red: #fb7185;
+      --row-hover: rgba(129, 140, 248, .04);
+      --error-text: #fecdd3;
+      --error-border: #9f344c;
+      --success-text: #a7f3d0;
+      --success-border: #166b53;
+      --shadow: 0 20px 50px rgba(0, 0, 0, .18);
+    }
+
+    /* ===== Tema claro ===== */
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f4f6fb;
+      --panel: #ffffff;
+      --panel-2: #eef2f8;
+      --border: #dbe2ea;
+      --text: #111827;
+      --muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --on-primary: #ffffff;
+      --green: #047857;
+      --red: #be123c;
+      --row-hover: rgba(79, 70, 229, .05);
+      --error-text: #9f1239;
+      --error-border: #fda4af;
+      --success-text: #065f46;
+      --success-border: #6ee7b7;
+      --shadow: 0 20px 50px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      transition: background .2s ease, color .2s ease;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    button:disabled { opacity: .55; cursor: wait; }
+
+    .layout {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      color: white;
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .brand-name { font-size: 19px; font-weight: 800; }
+    .brand-caption { color: var(--muted); font-size: 12px; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .btn-primary { background: var(--primary); color: var(--on-primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--primary); }
+
+    /* Botão de alternar tema */
+    .btn-tema {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+
+    .btn-tema:hover { border-color: var(--primary); }
+
+    .page-heading { margin-bottom: 24px; }
+    .eyebrow { color: var(--primary); font-weight: 800; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+    h1 { margin: 7px 0; font-size: clamp(25px, 4vw, 34px); letter-spacing: -1px; }
+    .subtitle { color: var(--muted); margin: 0; }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 16px;
+      padding: 20px;
+      margin-bottom: 22px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .field { display: grid; gap: 7px; }
+    .field label { color: var(--muted); font-size: 12px; font-weight: 700; }
+
+    .field input {
+      min-height: 42px;
+      padding: 9px 12px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      outline: none;
+    }
+
+    .field input:focus { border-color: var(--primary); }
+
+    .period-info {
+      margin-left: auto;
+      padding-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .message {
+      display: none;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    .message.visible { display: block; }
+    .message.error { color: var(--error-text); border-color: var(--error-border); }
+    .message.success { color: var(--success-text); border-color: var(--success-border); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric::after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      content: "";
+      background: var(--primary);
+    }
+
+    .metric.revenue::after { background: var(--green); }
+    .metric.expenses::after { background: var(--red); }
+
+    .metric-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .metric-value { margin: 12px 0 8px; font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -.8px; overflow-wrap: anywhere; }
+    .metric-description { color: var(--muted); font-size: 12px; }
+
+    .report-section {
+      margin-bottom: 24px;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 { margin: 0; font-size: 16px; }
+    .section-header p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .count { padding: 5px 9px; background: var(--panel-2); color: var(--muted); border-radius: 8px; font-size: 12px; font-weight: 700; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 14px 22px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+    td { font-size: 13px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: var(--row-hover); }
+
+    .amount { text-align: right; font-weight: 800; }
+    .amount.positive { color: var(--green); }
+    .amount.negative { color: var(--red); }
+
+    .status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 7px;
+      background: var(--panel-2);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .empty { padding: 32px 20px; color: var(--muted); text-align: center; }
+    .report-footer { padding: 18px 0 8px; color: var(--muted); text-align: center; font-size: 11px; }
+    .loading { opacity: .6; pointer-events: none; }
+
+    @media (max-width: 800px) {
+      .layout { padding: 20px 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .metrics { grid-template-columns: 1fr; }
+      .period-info { margin-left: 0; }
+      .filters { align-items: stretch; }
+      .field { flex: 1 1 140px; }
+      .filters .btn { flex: 1 1 100%; }
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 14mm;
+    }
+
+    @media print {
+      /* O seletor cobre os dois temas para a impressão sempre sair clara */
+      :root,
+      :root[data-theme="light"],
+      :root[data-theme="dark"] {
+        color-scheme: light;
+        --bg: #fff;
+        --panel: #fff;
+        --panel-2: #f1f5f9;
+        --border: #dbe2ea;
+        --text: #111827;
+        --muted: #64748b;
+        --primary: #4f46e5;
+        --on-primary: #fff;
+        --green: #047857;
+        --red: #be123c;
+        --row-hover: transparent;
+        --shadow: none;
+      }
+
+      body { background: #fff; color: #111827; font-size: 10px; }
+      .layout { width: 100%; max-width: none; padding: 0; }
+      .no-print, .filters, .message, .btn-tema { display: none !important; }
+      .topbar { margin-bottom: 20px; }
+      .brand-mark { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      h1 { font-size: 24px; }
+      .metrics { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .metric { padding: 12px; break-inside: avoid; }
+      .metric-value { font-size: 19px; margin: 7px 0; }
+      .report-section { margin-bottom: 16px; break-inside: auto; }
+      .section-header { padding: 12px; }
+      th, td { padding: 8px 10px; font-size: 9px; }
+      .table-wrap { overflow: visible; }
+      table { width: 100%; }
+      .report-footer { padding-top: 12px; }
+      tr { break-inside: avoid; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="layout" id="report-root">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">O</div>
+        <div>
+          <div class="brand-name">Orvix</div>
+          <div class="brand-caption">Gestão financeira da empresa</div>
+        </div>
+      </div>
+
+      <div class="actions no-print">
+        <button class="btn btn-secondary" id="back-button" type="button">
+          ← Voltar ao sistema
+        </button>
+        <button class="btn btn-primary" id="pdf-button" type="button">
+          ↓ Exportar PDF
+        </button>
+        <button
+          type="button"
+          id="btn-tema"
+          class="btn-tema"
+          aria-label="Ativar tema claro"
+          title="Alternar tema claro/escuro"
+        >
+          <span id="icone-tema" aria-hidden="true">☀</span>
+          <span id="texto-tema">Modo claro</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="page-heading">
+      <div class="eyebrow">Relatórios</div>
+      <h1>Relatório financeiro</h1>
+      <p class="subtitle">Visão consolidada das receitas, despesas e do resultado do período.</p>
+    </section>
+
+    <section class="filters no-print" aria-label="Filtros do relatório">
+      <div class="field">
+        <label for="date-start">Data inicial</label>
+        <input id="date-start" type="date" value="2026-10-01">
+      </div>
+
+      <div class="field">
+        <label for="date-end">Data final</label>
+        <input id="date-end" type="date" value="2026-10-31">
+      </div>
+
+      <button class="btn btn-primary" id="refresh-button" type="button">
+        Atualizar relatório
+      </button>
+
+      <div class="period-info" id="period-label">
+        Período: 01/10/2026 a 31/10/2026
+      </div>
+    </section>
+
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+
+    <section class="metrics" aria-label="Resumo financeiro">
+      <article class="metric revenue">
+        <div class="metric-label">Total de receitas</div>
+        <div class="metric-value" id="total-revenue">R$ 0,00</div>
+        <div class="metric-description" id="revenue-count">0 movimentações</div>
+      </article>
+
+      <article class="metric expenses">
+        <div class="metric-label">Total de despesas</div>
+        <div class="metric-value" id="total-expenses">R$ 0,00</div>
+        <div class="metric-description" id="expenses-count">0 movimentações</div>
+      </article>
+
+      <article class="metric">
+        <div class="metric-label">Resultado do período</div>
+        <div class="metric-value" id="total-result">R$ 0,00</div>
+        <div class="metric-description">Receitas menos despesas</div>
+      </article>
+    </section>
+
+    <section class="report-section">
+      <div class="section-header">
+        <div>
+          <h2>Receitas</h2>
+          <p>Agendamentos não cancelados no período selecionado.</p>
+        </div>
+        <span class="count" id="revenue-badge">0 registros</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Status</th>
+              <th class="amount">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="revenue-rows">
+            <tr><td colspan="4" class="empty">Carregue o relatório para visualizar os dados.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="report-section">
+      <div class="section-header">
+        <div>
+          <h2>Despesas</h2>
+          <p>Despesas registradas pela empresa no período selecionado.</p>
+        </div>
+        <span class="count" id="expenses-badge">0 registros</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th class="amount">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="expenses-rows">
+            <tr><td colspan="4" class="empty">Carregue o relatório para visualizar os dados.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <div>Orvix · Relatório financeiro</div>
+      <div id="generated-at">Relatório aguardando carregamento.</div>
+    </footer>
+  </main>
+
+  <!-- Alternância de tema (o antigo theme-toggle.js foi removido para não duplicar o clique) -->
+  <script>
+    (() => {
+      'use strict';
+
+      const CHAVE_TEMA = 'orvix-theme';
+      const COR_BARRA = { dark: '#0b1020', light: '#f4f6fb' };
+
+      const botao = document.getElementById('btn-tema');
+      const icone = document.getElementById('icone-tema');
+      const texto = document.getElementById('texto-tema');
+      const metaCor = document.getElementById('meta-theme-color');
+
+      if (!botao) return;
+
+      function aplicarTema(tema) {
+        const claro = tema === 'light';
+
+        document.documentElement.setAttribute('data-theme', claro ? 'light' : 'dark');
+
+        icone.textContent = claro ? '☾' : '☀';
+        texto.textContent = claro ? 'Modo escuro' : 'Modo claro';
+
+        botao.setAttribute('aria-label', claro ? 'Ativar tema escuro' : 'Ativar tema claro');
+
+        if (metaCor) metaCor.setAttribute('content', claro ? COR_BARRA.light : COR_BARRA.dark);
+      }
+
+      function obterTemaSalvo() {
+        try {
+          return localStorage.getItem(CHAVE_TEMA) === 'light' ? 'light' : 'dark';
+        } catch {
+          return 'dark';
+        }
+      }
+
+      aplicarTema(obterTemaSalvo());
+
+      botao.addEventListener('click', () => {
+        const atual = document.documentElement.getAttribute('data-theme') || 'dark';
+        const novo = atual === 'light' ? 'dark' : 'light';
+
+        aplicarTema(novo);
+
+        try {
+          localStorage.setItem(CHAVE_TEMA, novo);
+        } catch {
+          console.warn('Não foi possível salvar a preferência de tema.');
+        }
+      });
+
+      // Sincroniza o tema entre abas abertas
+      window.addEventListener('storage', (evento) => {
+        if (evento.key === CHAVE_TEMA) {
+          aplicarTema(evento.newValue === 'light' ? 'light' : 'dark');
+        }
+      });
+    })();
+  </script>
+
+  <!-- Lógica do relatório -->
+  <script>
+    (() => {
+      'use strict';
+
+      const API_URL = '/api/relatorios/financeiro/completo';
+      const TOKEN_KEY = 'lavajato_auth_token';
+
+      const $ = (id) => document.getElementById(id);
+
+      const moeda = (valor) => Number(valor || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+
+      function formatarData(valor) {
+        if (!valor) return '—';
+
+        const texto = String(valor).slice(0, 10);
+        const partes = texto.split('-');
+
+        if (partes.length !== 3) return texto;
+
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+
+      function escapar(valor) {
+        return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[caractere]);
+      }
+
+      function mostrarMensagem(texto, tipo = '') {
+        const elemento = $('message');
+        elemento.textContent = texto;
+        elemento.className = `message visible ${tipo}`;
+      }
+
+      function limparMensagem() {
+        $('message').textContent = '';
+        $('message').className = 'message';
+      }
+
+      function renderizarVazio(elemento, colunas, mensagem) {
+        $(elemento).innerHTML =
+          `<tr><td colspan="${colunas}" class="empty">${escapar(mensagem)}</td></tr>`;
+      }
+
+      async function carregarRelatorio() {
+        limparMensagem();
+
+        const inicio = $('date-start').value;
+        const fim = $('date-end').value;
+
+        if (!inicio || !fim) {
+          mostrarMensagem('Informe a data inicial e a data final.', 'error');
+          return;
+        }
+
+        if (inicio > fim) {
+          mostrarMensagem('A data inicial não pode ser maior que a data final.', 'error');
+          return;
+        }
+
+        const botao = $('refresh-button');
+        botao.disabled = true;
+        botao.textContent = 'Carregando...';
+        document.body.classList.add('loading');
+
+        try {
+          const token = localStorage.getItem(TOKEN_KEY);
+
+          if (!token) {
+            mostrarMensagem(
+              'Sua sessão não foi encontrada. Entre no Orvix para acessar o relatório.',
+              'error'
+            );
+            return;
+          }
+
+          const params = new URLSearchParams({
+            data_inicio: inicio,
+            data_fim: fim
+          });
+
+          const resposta = await fetch(`${API_URL}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            cache: 'no-store'
+          });
+
+          const dados = await resposta.json().catch(() => ({}));
+
+          if (resposta.status === 401) {
+            mostrarMensagem('Sua sessão expirou. Entre novamente no Orvix.', 'error');
+            return;
+          }
+
+          if (!resposta.ok) {
+            throw new Error(
+              dados.erro || 'Não foi possível carregar o relatório.'
+            );
+          }
+
+          renderizarRelatorio(dados);
+          mostrarMensagem('Relatório atualizado com sucesso.', 'success');
+
+        } catch (erro) {
+          mostrarMensagem(
+            erro.message || 'Ocorreu um erro ao carregar o relatório.',
+            'error'
+          );
+        } finally {
+          botao.disabled = false;
+          botao.textContent = 'Atualizar relatório';
+          document.body.classList.remove('loading');
+        }
+      }
+
+      function renderizarRelatorio(dados) {
+        const resumo = dados.resumo || {};
+        const receitas = Array.isArray(dados.receitas) ? dados.receitas : [];
+        const despesas = Array.isArray(dados.despesas) ? dados.despesas : [];
+
+        $('total-revenue').textContent = moeda(resumo.total_receitas);
+        $('total-expenses').textContent = moeda(resumo.total_despesas);
+        $('total-result').textContent = moeda(resumo.resultado);
+
+        $('total-result').style.color =
+          Number(resumo.resultado || 0) < 0
+            ? 'var(--red)'
+            : 'var(--green)';
+
+        $('revenue-count').textContent =
+          `${receitas.length} ${receitas.length === 1 ? 'movimentação' : 'movimentações'}`;
+
+        $('expenses-count').textContent =
+          `${despesas.length} ${despesas.length === 1 ? 'movimentação' : 'movimentações'}`;
+
+        $('revenue-badge').textContent = `${receitas.length} registros`;
+        $('expenses-badge').textContent = `${despesas.length} registros`;
+
+        $('period-label').textContent =
+          `Período: ${formatarData(dados.periodo?.data_inicio)} a ${formatarData(dados.periodo?.data_fim)}`;
+
+        if (receitas.length) {
+          $('revenue-rows').innerHTML = receitas.map(item => `
+            <tr>
+              <td>${escapar(formatarData(item.data))}</td>
+              <td>${escapar(item.descricao || 'Receita')}</td>
+              <td><span class="status">${escapar(item.status || 'Não informado')}</span></td>
+              <td class="amount positive">${escapar(moeda(item.valor))}</td>
+            </tr>
+          `).join('');
+        } else {
+          renderizarVazio('revenue-rows', 4, 'Nenhuma receita encontrada no período.');
+        }
+
+        if (despesas.length) {
+          $('expenses-rows').innerHTML = despesas.map(item => `
+            <tr>
+              <td>${escapar(formatarData(item.data))}</td>
+              <td>${escapar(item.descricao || 'Despesa')}</td>
+              <td>${escapar(item.categoria || 'Outros')}</td>
+              <td class="amount negative">${escapar(moeda(item.valor))}</td>
+            </tr>
+          `).join('');
+        } else {
+          renderizarVazio('expenses-rows', 4, 'Nenhuma despesa encontrada no período.');
+        }
+
+        $('generated-at').textContent =
+          `Gerado em ${new Date().toLocaleString('pt-BR')}. Período de ${formatarData(dados.periodo?.data_inicio)} a ${formatarData(dados.periodo?.data_fim)}.`;
+      }
+
+      $('refresh-button').addEventListener('click', carregarRelatorio);
+
+      $('pdf-button').addEventListener('click', () => {
+        window.print();
+      });
+
+      $('back-button').addEventListener('click', () => {
+        window.location.href = '/';
+      });
+
+      $('date-start').addEventListener('change', limparMensagem);
+      $('date-end').addEventListener('change', limparMensagem);
+
+      carregarRelatorio();
+    })();
+  </script>
+</body>
+</html>
