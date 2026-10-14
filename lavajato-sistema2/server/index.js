@@ -89,6 +89,8 @@ const notificacoesRouter =
 
   const iaRouter = require('./routes/ia');
 
+  const contasFinanceirasRouter = require('./routes/contasFinanceiras');
+
 // ============================================================
 // APP
 // ============================================================
@@ -341,6 +343,9 @@ app.use('/api/sessoes', require('./routes/sessoes'));
 app.use('/api/clientes', clientesRouter);
 
 app.use('/api/ia', iaRouter);
+
+app.use('/api/contas-financeiras', contasFinanceirasRouter);
+
 
 // ============================================================
 // API — AGENDAMENTO PÚBLICO
