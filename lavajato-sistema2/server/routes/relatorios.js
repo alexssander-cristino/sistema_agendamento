@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
 const verificarAssinatura = require('../middleware/assinatura');
+const exigirPermissao = require('../middleware/permissao');
 
 const router = express.Router();
 
@@ -396,6 +397,160 @@ router.get('/servicos', async (req, res) => {
     });
   }
 });
+
+
+/**
+ * ============================================================
+ * GET /api/relatorios/financeiro/completo
+ * Relatório financeiro detalhado para exportação em PDF.
+ * ============================================================
+ */
+
+router.get(
+  '/financeiro/completo',
+  exigirPermissao('financeiro'),
+  async (req, res) => {
+    try {
+      const empresaId = obterEmpresaId(req);
+
+      if (!empresaId) {
+        return res.status(403).json({
+          erro: 'Empresa não identificada.'
+        });
+      }
+
+      const { data_inicio, data_fim } = req.query;
+
+      function dataValida(valor) {
+        if (
+          typeof valor !== 'string' ||
+          !/^\d{4}-\d{2}-\d{2}$/.test(valor)
+        ) {
+          return false;
+        }
+
+        const data = new Date(`${valor}T00:00:00.000Z`);
+
+        return (
+          !Number.isNaN(data.getTime()) &&
+          data.toISOString().slice(0, 10) === valor
+        );
+      }
+
+      if (
+        !dataValida(data_inicio) ||
+        !dataValida(data_fim)
+      ) {
+        return res.status(400).json({
+          erro: 'Informe datas válidas no formato AAAA-MM-DD.'
+        });
+      }
+
+      if (data_inicio > data_fim) {
+        return res.status(400).json({
+          erro: 'A data inicial não pode ser maior que a final.'
+        });
+      }
+
+      const [receitasResult, despesasResult] =
+        await Promise.all([
+          pool.query(
+            `
+            SELECT
+              id,
+              data,
+              status,
+              valor
+            FROM agendamentos
+            WHERE empresa_id = $1
+              AND data >= $2::date
+              AND data <= $3::date
+              AND LOWER(COALESCE(status, '')) NOT IN (
+                'cancelado',
+                'cancelada'
+              )
+            ORDER BY data ASC, id ASC
+            `,
+            [empresaId, data_inicio, data_fim]
+          ),
+
+          pool.query(
+            `
+            SELECT
+              id,
+              data,
+              descricao,
+              categoria,
+              valor,
+              observacoes
+            FROM despesas
+            WHERE empresa_id = $1
+              AND data >= $2::date
+              AND data <= $3::date
+            ORDER BY data ASC, id ASC
+            `,
+            [empresaId, data_inicio, data_fim]
+          )
+        ]);
+
+      const receitas = receitasResult.rows.map(item => ({
+        id: item.id,
+        data: item.data,
+        descricao: 'Receita de atendimento',
+        status: item.status || 'Não informado',
+        valor: Number(item.valor || 0)
+      }));
+
+      const despesas = despesasResult.rows.map(item => ({
+        id: item.id,
+        data: item.data,
+        descricao: item.descricao || 'Despesa',
+        categoria: item.categoria || 'Outros',
+        observacoes: item.observacoes || '',
+        valor: Number(item.valor || 0)
+      }));
+
+      const totalReceitas = receitas.reduce(
+        (total, item) => total + item.valor,
+        0
+      );
+
+      const totalDespesas = despesas.reduce(
+        (total, item) => total + item.valor,
+        0
+      );
+
+      return res.json({
+        periodo: {
+          data_inicio,
+          data_fim
+        },
+
+        resumo: {
+          total_receitas: totalReceitas,
+          total_despesas: totalDespesas,
+          resultado: totalReceitas - totalDespesas,
+          quantidade_receitas: receitas.length,
+          quantidade_despesas: despesas.length
+        },
+
+        receitas,
+        despesas
+      });
+
+    } catch (erro) {
+      console.error(
+        '[RELATORIOS] Erro no relatório financeiro completo:',
+        erro
+      );
+
+      return res.status(500).json({
+        erro: 'Não foi possível gerar o relatório financeiro.'
+      });
+    }
+  }
+);
+
 
 
 module.exports = router;
