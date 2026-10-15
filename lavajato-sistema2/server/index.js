@@ -93,6 +93,10 @@ const notificacoesRouter =
 
   const inteligenciaFinanceiraRouter = require('./routes/inteligenciaFinanceira');
 
+  const centralDecisoesRouter = require('./routes/centralDecisoes');
+
+  const inteligenciaClientesRouter = require('./routes/inteligenciaClientes');
+
 
 // ============================================================
 // APP
@@ -350,6 +354,10 @@ app.use('/api/ia', iaRouter);
 app.use('/api/contas-financeiras', contasFinanceirasRouter);
 
 app.use('/api/inteligencia-financeira', inteligenciaFinanceiraRouter);
+
+app.use('/api/central-decisoes', centralDecisoesRouter);
+
+app.use('/api/inteligencia-clientes', inteligenciaClientesRouter);
 
 // ============================================================
 // API — AGENDAMENTO PÚBLICO

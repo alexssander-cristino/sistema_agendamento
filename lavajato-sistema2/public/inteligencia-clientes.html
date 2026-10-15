@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Inteligência de clientes | Orvix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f3f5fa;--surface:#fff;--surface-2:#f5f6fb;--text:#171f33;--muted:#5f6b82;--line:#e0e5ef;--primary:#5a49e0;--primary-ink:#fff;--primary-soft:#ecebff;--good:#12795a;--good-bg:#e5f6ee;--warn:#8f6100;--warn-bg:#fff4dc;--danger:#c0303f;--danger-bg:#fdecee;--r:14px;--display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;--body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b0f1c;--surface:#121829;--surface-2:#182036;--text:#f1f4fb;--muted:#97a4bd;--line:#242e47;--primary:#9084ff;--primary-ink:#0b0f1c;--primary-soft:#26264a;--good:#3fd0a1;--good-bg:#12302a;--warn:#f2c15a;--warn-bg:#352a14;--danger:#ff7b86;--danger-bg:#38202a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.shell{max-width:1280px;margin:auto;padding:28px 24px 48px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+h1{font:700 clamp(26px,4vw,36px)/1.1 var(--display);letter-spacing:-.03em;margin:0 0 8px}
+.sub{margin:0;color:var(--muted);max-width:62ch}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:var(--surface);color:var(--text);font-weight:600;font-size:14px;transition:border-color .15s}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.sm{padding:6px 11px;font-size:13px}
+.toolbar{position:sticky;top:0;z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:12px;background:var(--bg)}
+.field{min-height:42px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px}
+.search{flex:1;min-width:220px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:hidden}
+.metric{padding:18px 20px;border-right:1px solid var(--line)}
+.metric:last-child{border:0}
+.metric-label{font-size:13px;color:var(--muted);font-weight:600}
+.metric-value{font:700 clamp(26px,3vw,32px)/1.1 var(--display);letter-spacing:-.03em;margin:8px 0 4px}
+.metric-note{font-size:12.5px;color:var(--muted)}
+.health{padding:16px 20px;margin-top:14px;display:grid;gap:10px}
+.health[hidden]{display:none}
+.health p{margin:0;font-size:14px}
+.hbar{display:flex;height:12px;border-radius:99px;overflow:hidden;gap:2px;background:var(--line)}
+.hbar i{display:block;height:100%;transition:width .4s}
+.hbar .a{background:var(--good)}.hbar .r{background:var(--danger)}.hbar .o{background:var(--muted);opacity:.45}
+.hleg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.hleg span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--c)}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:16px;margin-top:16px;align-items:start}
+.panel-pad{padding:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.panel h2{font:700 18px/1.2 var(--display);letter-spacing:-.02em;margin:0 0 4px}
+.panel-desc{font-size:13px;color:var(--muted);margin:0}
+.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;background:var(--surface-2);color:var(--muted);white-space:nowrap;border:1px solid var(--line)}
+.pill.high{background:var(--danger-bg);color:var(--danger);border-color:transparent}.pill.medium{background:var(--warn-bg);color:var(--warn);border-color:transparent}.pill.good{background:var(--good-bg);color:var(--good);border-color:transparent}
+.insights{display:grid;gap:10px}
+.insight{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:12px;background:var(--surface-2)}
+.insight:has(.dot.alto){border-left-color:var(--danger)}.insight:has(.dot.medio){border-left-color:var(--warn)}.insight:has(.dot.positivo){border-left-color:var(--good)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--primary);margin-top:6px;flex:0 0 auto}
+.dot.alto{background:var(--danger)}.dot.positivo{background:var(--good)}.dot.medio{background:var(--warn)}
+.insight h3{font-size:14.5px;margin:0 0 4px}
+.insight p{font-size:13.5px;color:var(--muted);margin:0}
+.segment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.segment{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface-2);cursor:pointer;transition:border-color .15s}
+.segment:hover,.segment.on{border-color:var(--primary)}
+.segment.on{background:var(--primary-soft)}
+.segment strong{display:block;font-size:14px;margin-bottom:4px}
+.segment span{font-size:13px;color:var(--muted);display:block}
+.segment button{margin-top:10px;padding:0;border:0;background:none;color:var(--primary);font-weight:700;font-size:13px}
+.table-panel{margin-top:16px;overflow:hidden}
+.table-panel .panel-head{padding:20px 20px 0}
+.tools{display:flex;gap:8px;align-items:center}
+.table-wrap{overflow:auto;max-height:640px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+th{position:sticky;top:0;color:var(--muted);font-weight:700;font-size:13px;background:var(--surface-2);white-space:nowrap;z-index:1}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--text)}
+th[aria-sort=ascending]:after{content:" ↑";color:var(--primary)}th[aria-sort=descending]:after{content:" ↓";color:var(--primary)}
+tbody tr:hover td{background:var(--surface-2)}
+td strong{font-weight:700}
+.customer-name{display:grid;grid-template-columns:36px 1fr;column-gap:12px;align-items:center}
+.customer-name>strong,.customer-name>span{grid-column:2}
+.customer-name>span{color:var(--muted);font-size:13px}
+.av{grid-column:1;grid-row:1/3;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary);font:700 13px var(--display);font-style:normal}
+.status{display:inline-flex;padding:4px 10px;border-radius:99px;background:var(--surface-2);font-size:12px;font-weight:700;border:1px solid var(--line)}
+.status.em_risco,.status.sem_retorno{background:var(--danger-bg);color:var(--danger);border-color:transparent}
+.status.frequente,.status.alto_valor{background:var(--good-bg);color:var(--good);border-color:transparent}
+.status.ativo,.status.novo{background:var(--primary-soft);color:var(--primary);border-color:transparent}
+.empty,.loading,.error{padding:30px 12px;text-align:center;color:var(--muted);font-size:14px}
+.error{color:var(--danger)}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12.5px;padding:14px 20px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media(max-width:600px){.shell{padding:18px 14px 40px}.actions{width:100%}.actions .btn{flex:1}.segment-grid{grid-template-columns:1fr}.toolbar>*{width:100%}.search{min-width:0}.panel-pad{padding:16px}.metric{padding:14px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.toolbar,.actions,.segment button,.tools{display:none}.table-wrap{max-height:none}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div>
+      <h1>Inteligência de clientes</h1>
+      <p class="sub">Veja quem volta, quem está se afastando e com quem vale falar hoje, com base no histórico de atendimentos.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="voltar" type="button">Voltar ao painel</button>
+      <button class="btn" id="tema" type="button" aria-label="Alternar tema">◐ Tema</button>
+      <button class="btn primary" id="atualizar" type="button">↻ Atualizar análise</button>
+    </div>
+  </header>
+
+  <section class="toolbar" aria-label="Filtros de clientes">
+    <input class="field search" id="busca" type="search" placeholder="Buscar por nome, telefone ou e-mail  (atalho: /)" autocomplete="off">
+    <select class="field" id="segmento" aria-label="Filtrar segmento">
+      <option value="todos">Todos os clientes</option>
+      <option value="ativos">Ativos recentes</option>
+      <option value="em_risco">Em risco (46 a 59 dias)</option>
+      <option value="sem_retorno">Sem retorno (60+ dias)</option>
+      <option value="alto_valor">Maior valor acumulado</option>
+      <option value="frequentes">Frequentes (4+ atendimentos)</option>
+      <option value="novos">Novos clientes</option>
+    </select>
+  </section>
+
+  <section class="panel metrics" aria-label="Indicadores de clientes">
+    <article class="metric"><div class="metric-label">Clientes cadastrados</div><div class="metric-value" id="m-total">—</div><div class="metric-note">Cadastros ativos nesta empresa</div></article>
+    <article class="metric"><div class="metric-label">Ativos recentes</div><div class="metric-value" id="m-ativos">—</div><div class="metric-note">Visita nos últimos 45 dias</div></article>
+    <article class="metric"><div class="metric-label">Precisam de atenção</div><div class="metric-value" id="m-risco">—</div><div class="metric-note">Sem visita há 46 dias ou mais</div></article>
+    <article class="metric"><div class="metric-label">Clientes frequentes</div><div class="metric-value" id="m-frequentes">—</div><div class="metric-note">Quatro ou mais atendimentos</div></article>
+  </section>
+
+  <section class="panel health" id="saude" hidden aria-label="Saúde da carteira">
+    <p id="saude-texto"></p>
+    <div class="hbar" aria-hidden="true"><i class="a" id="h-a"></i><i class="r" id="h-r"></i><i class="o" id="h-o"></i></div>
+    <div class="hleg"><span style="--c:var(--good)">Ativos recentes</span><span style="--c:var(--danger)">Precisam de atenção</span><span style="--c:var(--muted)">Sem histórico recente</span></div>
+  </section>
+
+  <section class="layout">
+    <article class="panel panel-pad">
+      <div class="panel-head"><div><h2>Recomendações</h2><p class="panel-desc">Sugestões geradas a partir dos dados cadastrados.</p></div><span class="pill">Baseado em regras</span></div>
+      <div class="insights" id="insights"><div class="loading">Carregando análise…</div></div>
+    </article>
+    <article class="panel panel-pad">
+      <div class="panel-head"><div><h2>Segmentos prioritários</h2><p class="panel-desc">Escolha um segmento para filtrar a lista.</p></div></div>
+      <div class="segment-grid">
+        <div class="segment"><strong>Maior valor acumulado</strong><span id="s-valor">Analisando…</span><button type="button" data-segmento="alto_valor">Ver clientes</button></div>
+        <div class="segment"><strong>Sem retorno</strong><span id="s-retorno">Analisando…</span><button type="button" data-segmento="sem_retorno">Ver clientes</button></div>
+        <div class="segment"><strong>Mais frequentes</strong><span id="s-frequentes">Analisando…</span><button type="button" data-segmento="frequentes">Ver clientes</button></div>
+        <div class="segment"><strong>Novos clientes</strong><span id="s-novos">Analisando…</span><button type="button" data-segmento="novos">Ver clientes</button></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel table-panel">
+    <div class="panel-head">
+      <div><h2 id="titulo-lista">Clientes analisados</h2><p class="panel-desc">O valor acumulado soma só atendimentos concluídos vinculados ao cadastro. Clique nos títulos para ordenar.</p></div>
+      <div class="tools"><span class="pill" id="qtd-lista">0 clientes</span><button class="btn sm" id="exportar" type="button">Exportar CSV</button></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Atendimentos</th><th>Valor acumulado</th><th>Última visita</th><th>Tempo sem visita</th><th>Perfil</th></tr></thead>
+        <tbody id="lista"><tr><td colspan="6" class="loading">Carregando clientes…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="footer"><span id="atualizado">Aguardando dados</span><span>Os dados são isolados por empresa.</span></div>
+  </section>
+</main>
+
+<script src="/js/inteligencia-clientes.js" defer></script>
+<script>
+/* Melhorias de interface que só leem o DOM: não dependem da API nem alteram a lógica do script principal. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const tbody = $('lista'), sel = $('segmento'), busca = $('busca');
+  let sortCol = -1, sortDir = 1, busy = false;
+
+  /* Saúde da carteira, calculada a partir dos indicadores já exibidos */
+  const n = id => { const v = parseInt(($(id).textContent || '').replace(/\D/g, ''), 10); return Number.isNaN(v) ? null : v; };
+  function health() {
+    const t = n('m-total'), a = n('m-ativos'), r = n('m-risco');
+    if (!t || a === null || r === null) { $('saude').hidden = true; return; }
+    const o = Math.max(t - a - r, 0), p = x => (x / t * 100) + '%';
+    $('h-a').style.width = p(a); $('h-r').style.width = p(r); $('h-o').style.width = p(o);
+    $('saude-texto').textContent = `${Math.round(a / t * 100)}% da carteira visitou nos últimos 45 dias. ${r ? `${r} ${r === 1 ? 'cliente precisa' : 'clientes precisam'} de um contato.` : 'Nenhum cliente precisa de contato agora.'}`;
+    $('saude').hidden = false;
+  }
+  const mo = new MutationObserver(health);
+  ['m-total', 'm-ativos', 'm-risco'].forEach(id => mo.observe($(id), { childList: true, characterData: true, subtree: true }));
+
+  /* Segmento ativo destacado nos cartões, que também são clicáveis */
+  const cards = [...document.querySelectorAll('.segment')];
+  const syncSeg = () => cards.forEach(c => c.classList.toggle('on', c.querySelector('button').dataset.segmento === sel.value));
+  cards.forEach(c => c.addEventListener('click', e => { if (!e.target.closest('button')) c.querySelector('button').click(); setTimeout(syncSeg, 0); }));
+  sel.addEventListener('change', syncSeg);
+  document.addEventListener('click', e => { if (e.target.closest('[data-segmento]')) setTimeout(syncSeg, 0); });
+
+  /* Ordenação por coluna */
+  const num = t => {
+    const d = t.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (d) return +new Date(`${d[3]}-${d[2]}-${d[1]}`);
+    const m = t.replace(/\./g, '').replace(',', '.').match(/-?\d+(\.\d+)?/);
+    return m ? +m[0] : null;
+  };
+  const cell = (tr, i) => tr.children[i] ? tr.children[i].textContent.trim() : '';
+  function sortRows() {
+    if (sortCol < 0) return;
+    const rows = [...tbody.querySelectorAll('tr')].filter(r => r.children.length > 1);
+    if (rows.length < 2) return;
+    busy = true;
+    rows.sort((a, b) => {
+      const x = cell(a, sortCol), y = cell(b, sortCol);
+      if (sortCol === 0) return x.localeCompare(y, 'pt-BR') * sortDir;
+      const nx = num(x), ny = num(y);
+      if (nx === null && ny === null) return 0;
+      if (nx === null) return 1; if (ny === null) return -1;
+      return (nx - ny) * sortDir;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+    busy = false;
+  }
+  document.querySelectorAll('thead th').forEach((th, i) => {
+    th.classList.add('sortable'); th.tabIndex = 0; th.setAttribute('role', 'button');
+    const go = () => {
+      sortDir = sortCol === i ? -sortDir : (i === 0 ? 1 : -1); sortCol = i;
+      document.querySelectorAll('thead th').forEach((x, j) => j === i ? x.setAttribute('aria-sort', sortDir === 1 ? 'ascending' : 'descending') : x.removeAttribute('aria-sort'));
+      sortRows();
+    };
+    th.addEventListener('click', go);
+    th.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+
+  /* Iniciais no lugar do avatar e reordenação após cada atualização da tabela */
+  function decorate() {
+    tbody.querySelectorAll('.customer-name').forEach(c => {
+      if (c.querySelector('.av')) return;
+      const name = (c.querySelector('strong') || c).textContent.trim();
+      const parts = name.split(/\s+/).filter(Boolean);
+      const av = document.createElement('i'); av.className = 'av'; av.setAttribute('aria-hidden', 'true');
+      av.textContent = ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+      c.prepend(av);
+    });
+  }
+  new MutationObserver(() => { if (busy) return; busy = true; decorate(); busy = false; sortRows(); }).observe(tbody, { childList: true });
+
+  /* Exportar a lista visível em CSV (separador ; e BOM para abrir bem no Excel) */
+  $('exportar').addEventListener('click', () => {
+    const rows = [...tbody.querySelectorAll('tr')].filter(r => r.children.length > 1);
+    if (!rows.length) return;
+    const q = s => `"${String(s).replace(/"/g, '""')}"`;
+    const heads = [...document.querySelectorAll('thead th')].map(h => h.textContent.replace(/[↑↓]/g, '').trim());
+    const out = [['Cliente', 'Contato', ...heads.slice(1)].map(q).join(';')];
+    rows.forEach(r => {
+      const c = r.children[0].querySelector('.customer-name');
+      const nome = c ? (c.querySelector('strong') || c).textContent.trim() : cell(r, 0);
+      const contato = c ? [...c.querySelectorAll('span')].map(s => s.textContent.trim()).join(' | ') : '';
+      out.push([nome, contato, ...[...r.children].slice(1).map(td => td.textContent.trim())].map(q).join(';'));
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + out.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = `clientes-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+
+  /* Atalho "/" para buscar */
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); busca.focus(); }
+  });
+  syncSeg();
+})();
+</script>
+</body>
+</html>
