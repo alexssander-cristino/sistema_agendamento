@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Central de decisões | Orvix</title>
+<script>
+try { if (localStorage.getItem('orvix-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (_) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0b0f1c;--panel:#121829;--raised:#182036;--text:#f1f4fb;--muted:#97a4bd;--line:#242e47;--accent:#9084ff;--accent-ink:#0b0f1c;--green:#3fd0a1;--yellow:#f2c15a;--red:#ff7b86;--r:14px;--display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;--body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+:root[data-theme=light]{color-scheme:light;--bg:#f3f5fa;--panel:#fff;--raised:#f5f6fb;--text:#171f33;--muted:#5f6b82;--line:#e0e5ef;--accent:#5a49e0;--accent-ink:#fff;--green:#12795a;--yellow:#8f6100;--red:#c0303f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shell{max-width:1240px;margin:auto;padding:28px 24px 48px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.top h1{font:700 clamp(26px,4vw,36px)/1.1 var(--display);letter-spacing:-.03em;margin:0 0 6px}
+.top p{margin:0;color:var(--muted);text-transform:capitalize-first}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 13px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;color:var(--text);transition:border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:22px 0}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:600;font-size:13.5px}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.dates{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+.dates input{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+.stamp{margin-left:auto;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.stale .dot{background:var(--yellow)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:0;overflow:hidden}
+.brief{padding:28px;display:flex;flex-direction:column;gap:18px}
+.brief h2{font:700 clamp(22px,3vw,30px)/1.2 var(--display);letter-spacing:-.025em;margin:0;max-width:30ch}
+.brief p{margin:0;color:var(--muted);max-width:62ch}
+.focus{border-left:4px solid var(--green);background:var(--raised);border-radius:10px;padding:14px 16px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.focus.alta{border-color:var(--red)}.focus.media{border-color:var(--yellow)}
+.focus strong{display:block;font-size:15px}.focus span{color:var(--muted);font-size:13.5px}
+.balance{padding:28px;border-left:1px solid var(--line);background:var(--raised);display:flex;flex-direction:column;gap:14px;justify-content:center}
+.balance h3{margin:0;font-size:14px;color:var(--muted);font-weight:600}
+.net{font:700 clamp(26px,3.4vw,34px)/1 var(--display);letter-spacing:-.03em}
+.net.neg{color:var(--red)}
+.open{margin:0;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.bar{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--line);gap:2px}
+.bar i{display:block;height:100%}
+.bar .in{background:var(--green)}.bar .out{background:var(--red)}
+.legend{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);gap:10px}
+.legend b{color:var(--text);display:block;font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:14px}
+.stat{padding:16px 18px;border-right:1px solid var(--line)}
+.stat:last-child{border:0}
+.stat small{color:var(--muted);font-size:13px;display:block}
+.stat b{font:700 22px/1.3 var(--display);letter-spacing:-.02em}
+.stat em{font-style:normal;font-size:12.5px;color:var(--muted);display:block}
+.stat.warn b{color:var(--red)}
+.cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:16px;margin-top:16px;align-items:start}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 20px 12px;flex-wrap:wrap}
+.head h2{margin:0;font:700 18px/1.2 var(--display);letter-spacing:-.02em}
+.head p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:none;border-radius:99px;padding:4px 11px;font-size:13px;cursor:pointer;color:var(--muted);font-weight:600}
+.chip[aria-pressed=true]{border-color:var(--accent);color:var(--text);background:var(--raised)}
+.body{padding:0 20px 18px}
+.dec{display:grid;grid-template-columns:4px 1fr auto;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.dec:first-child{border-top:0}
+.dec .pr{border-radius:4px;background:var(--green)}
+.dec.alta .pr{background:var(--red)}.dec.media .pr{background:var(--yellow)}
+.dec h3{margin:0 0 3px;font-size:15px}
+.dec p{margin:0;color:var(--muted);font-size:13.5px}
+.dec .meta{display:flex;gap:10px;align-items:center;margin-top:8px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.tag{font-weight:700;color:var(--text)}
+.dec .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;justify-content:center}
+.link{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12.5px;padding:2px;text-decoration:underline}
+.link:hover{color:var(--text)}
+.sm{padding:6px 11px;font-size:13px}
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl li{display:grid;grid-template-columns:48px 1fr auto;gap:12px;padding:11px 0;border-top:1px solid var(--line);align-items:start}
+.tl li:first-child{border-top:0}
+.tl time{font:700 15px var(--display);color:var(--muted)}
+.tl .past{opacity:.55}
+.tl .next time{color:var(--accent)}
+.tl .next{background:linear-gradient(90deg,transparent,transparent)}
+.tl strong{display:block;font-size:14.5px;overflow-wrap:anywhere}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.b{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);font-weight:600}
+.b.ok{color:var(--green);border-color:color-mix(in srgb,var(--green) 40%,var(--line))}
+.b.wait{color:var(--yellow);border-color:color-mix(in srgb,var(--yellow) 40%,var(--line))}
+.b.now{color:var(--accent);border-color:var(--accent)}
+.amt{font-weight:700;font-size:14px;white-space:nowrap}
+.fin{margin-top:16px}
+.tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--text);border-color:var(--accent)}
+.tabs span{background:var(--raised);border-radius:99px;padding:1px 7px;font-size:12px;margin-left:6px}
+.rows{padding:6px 20px 12px}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row strong{font-size:14.5px;overflow-wrap:anywhere}
+.row small{display:block;color:var(--muted);font-size:13px}
+.row .tp{font-size:12.5px;font-weight:700}
+.tp.r{color:var(--green)}.tp.p{color:var(--red)}
+.empty{padding:26px 10px;text-align:center;color:var(--muted);font-size:14px}
+.notice{padding:0 20px 16px;margin:0;color:var(--muted);font-size:12.5px}
+.sk{height:56px;border-radius:10px;background:linear-gradient(90deg,var(--raised),var(--line),var(--raised));background-size:200% 100%;animation:sh 1.3s linear infinite;margin:10px 0}
+@keyframes sh{to{background-position:-200% 0}}
+.err{margin:16px 0;padding:14px 16px;border:1px solid var(--red);border-radius:12px;color:var(--red);display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.foot{margin-top:24px;text-align:center;color:var(--muted);font-size:12.5px}
+@media(max-width:960px){.hero,.cols{grid-template-columns:1fr}.balance{border-left:0;border-top:1px solid var(--line)}.stats{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media(max-width:560px){.shell{padding:18px 14px 40px}.brief,.balance{padding:20px}.stamp{margin-left:0}.dec{grid-template-columns:4px 1fr}.dec .side{grid-column:2;flex-direction:row;align-items:center;justify-content:flex-start}.row{grid-template-columns:1fr auto}.row .tp{grid-column:1}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div>
+      <h1>Central de decisões</h1>
+      <p id="greeting">Carregando seu dia…</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="themeToggle" type="button">◐ Tema</button>
+      <button class="btn" id="refresh" type="button">↻ Atualizar</button>
+      <a class="btn primary" href="/">Voltar ao painel</a>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Período">
+      <button type="button" data-days="0" aria-pressed="false">Hoje</button>
+      <button type="button" data-days="7" aria-pressed="true">7 dias</button>
+      <button type="button" data-days="30" aria-pressed="false">30 dias</button>
+      <button type="button" data-days="-1" aria-pressed="false">Personalizado</button>
+    </div>
+    <div class="dates" id="dates" hidden>
+      <label>De <input id="dateStart" type="date"></label>
+      <label>até <input id="dateEnd" type="date"></label>
+      <button class="btn primary sm" id="applyDates" type="button">Aplicar</button>
+    </div>
+    <div class="stamp" id="stamp" aria-live="polite"><span class="dot"></span><span id="stampText">Aguardando dados</span></div>
+  </div>
+
+  <div id="errBox"></div>
+
+  <section class="panel hero" aria-label="Resumo do dia">
+    <div class="brief">
+      <h2 id="headline">Preparando o resumo…</h2>
+      <p id="summary"></p>
+      <div id="focus"></div>
+    </div>
+    <div class="balance">
+      <h3>Saldo do período (já recebido menos já pago)</h3>
+      <div class="net" id="net">—</div>
+      <div class="bar" aria-hidden="true"><i class="in" id="barIn" style="width:50%"></i><i class="out" id="barOut" style="width:50%"></i></div>
+      <div class="legend"><div>Entradas<b id="recv">—</b></div><div style="text-align:right">Saídas<b id="pay">—</b></div></div>
+      <p class="open" id="openLine"></p>
+    </div>
+  </section>
+
+  <section class="panel stats" aria-label="Indicadores">
+    <div class="stat"><small>Atendimentos hoje</small><b id="mAppointments">—</b><em id="mAppointmentsHint">&nbsp;</em></div>
+    <div class="stat" id="stOverdue"><small>Contas vencidas</small><b id="mOverdue">—</b><em id="mOverdueHint">&nbsp;</em></div>
+    <div class="stat"><small>Vencem hoje</small><b id="mDueToday">—</b><em id="mDueTodayHint">&nbsp;</em></div>
+    <div class="stat"><small>Agendado hoje</small><b id="mAgendaValue">—</b><em>valor dos atendimentos</em></div>
+  </section>
+
+  <div class="cols">
+    <section class="panel">
+      <div class="head">
+        <div><h2>O que merece sua atenção</h2><p>Ordenado por prioridade.</p></div>
+        <div class="chips" role="group" aria-label="Filtrar prioridade">
+          <button class="chip" data-f="todas" aria-pressed="true">Todas</button>
+          <button class="chip" data-f="alta" aria-pressed="false">Alta</button>
+          <button class="chip" data-f="media" aria-pressed="false">Acompanhar</button>
+        </div>
+      </div>
+      <div class="body" id="decisions"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+    </section>
+
+    <section class="panel">
+      <div class="head"><div><h2>Agenda de hoje</h2><p id="agendaSub">Por horário.</p></div><a class="btn sm" href="/">Abrir agenda</a></div>
+      <div class="body" id="agendaList"><div class="sk"></div><div class="sk"></div></div>
+    </section>
+  </div>
+
+  <section class="panel fin">
+    <div class="head"><div><h2>Financeiro para acompanhar</h2><p>Contas em aberto, da mais urgente para a mais distante.</p></div><a class="btn sm" href="/contas-financeiras.html">Abrir contas</a></div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-t="vencidas" aria-selected="true">Vencidas<span id="cV">0</span></button>
+      <button role="tab" data-t="hoje" aria-selected="false">Vencem hoje<span id="cH">0</span></button>
+      <button role="tab" data-t="proximas" aria-selected="false">Próximas<span id="cP">0</span></button>
+    </div>
+    <div class="rows" id="financeList"><div class="sk"></div><div class="sk"></div></div>
+    <p class="notice" id="accountsNotice"></p>
+  </section>
+
+  <div class="foot">A Central de decisões organiza informações existentes. Confira os registros antes de decidir sobre o financeiro.</div>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const token = () => { try { return localStorage.getItem('lavajato_auth_token') || ''; } catch (_) { return ''; } };
+  const dateISO = d => { const x = new Date(d.getTime() - d.getTimezoneOffset()*60000); return x.toISOString().slice(0,10); };
+  const money = n => Number(n || 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const dateBR = v => { if (!v) return 'sem data'; const [y,m,d] = String(v).slice(0,10).split('-'); return `${d}/${m}/${y}`; };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeHref = h => (typeof h === 'string' && h[0] === '/' && h[1] !== '/') ? h : '/';
+  const plural = (n, a, b) => n === 1 ? a : b;
+  const start = $('dateStart'), end = $('dateEnd');
+  const today = dateISO(new Date());
+  const DISMISS_KEY = 'orvix-central-dispensadas';
+  let data = null, filter = 'todas', tab = 'vencidas', loadId = 0, days = 7;
+
+  const store = {
+    get() { try { const o = JSON.parse(localStorage.getItem(DISMISS_KEY) || '{}'); return o.dia === today ? o.ids || [] : []; } catch (_) { return []; } },
+    set(ids) { try { localStorage.setItem(DISMISS_KEY, JSON.stringify({dia: today, ids})); } catch (_) {} }
+  };
+  const decId = d => d.id || `${d.titulo}|${d.acao || ''}`;
+
+  const g = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  $('greeting').textContent = g.charAt(0).toUpperCase() + g.slice(1);
+
+  function setRange(n) {
+    days = n;
+    document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.days === n)));
+    $('dates').hidden = n !== -1;
+    if (n >= 0) { start.value = today; end.value = dateISO(new Date(Date.now() + n*86400000)); load(); }
+  }
+
+  async function request() {
+    const headers = { 'Accept':'application/json' };
+    if (token()) headers.Authorization = `Bearer ${token()}`;
+    const res = await fetch(`/api/central-decisoes?de=${encodeURIComponent(start.value)}&ate=${encodeURIComponent(end.value)}`, { headers, credentials:'same-origin' });
+    let json = {};
+    try { json = await res.json(); } catch (_) {}
+    if (res.status === 401) throw new Error('Sua sessão expirou. Entre novamente para ver a central.');
+    if (!res.ok) throw new Error(json.erro || `Não foi possível carregar (erro ${res.status}).`);
+    return json;
+  }
+
+  function relDue(v) {
+    if (!v) return '';
+    const diff = Math.round((new Date(String(v).slice(0,10) + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
+    if (diff === 0) return 'vence hoje';
+    if (diff < 0) return `venceu há ${-diff} ${plural(-diff,'dia','dias')}`;
+    return `vence em ${diff} ${plural(diff,'dia','dias')}`;
+  }
+
+  function renderHero(i, decisoes) {
+    const at = i.atendimentos_hoje ?? 0, ov = i.contas_vencidas ?? 0, dt = i.contas_vencem_hoje ?? 0;
+    const urgent = decisoes.filter(d => d.prioridade === 'alta').length;
+    $('headline').textContent = urgent
+      ? `${urgent} ${plural(urgent,'item precisa','itens precisam')} de você hoje.`
+      : ov || dt ? 'Nada urgente, mas há contas para acompanhar.' : 'Tudo em ordem por aqui.';
+    const parts = [];
+    parts.push(at ? `${at} ${plural(at,'atendimento','atendimentos')} na agenda (${money(i.valor_agenda_hoje)})` : 'Nenhum atendimento na agenda de hoje');
+    if (ov) parts.push(`${ov} ${plural(ov,'conta vencida','contas vencidas')} somando ${money(i.valor_vencido)}`);
+    if (dt) parts.push(`${dt} ${plural(dt,'vence','vencem')} hoje (${money(i.valor_vencem_hoje)})`);
+    $('summary').textContent = parts.join('; ') + '.';
+    const top = decisoes.find(d => d.prioridade === 'alta') || decisoes.find(d => d.prioridade === 'media');
+    $('focus').innerHTML = top ? `<div class="focus ${esc(top.prioridade)}"><div><strong>${esc(top.titulo)}</strong><span>${esc(top.descricao)}</span></div><a class="btn primary sm" href="${esc(safeHref(top.acao))}">Resolver agora</a></div>` : '';
+    const rec = Number(i.entradas_realizadas || 0), pag = Number(i.saidas_realizadas || 0), tot = rec + pag;
+    const net = rec - pag;
+    $('net').textContent = money(net); $('net').classList.toggle('neg', net < 0);
+    $('recv').textContent = money(rec); $('pay').textContent = money(pag);
+    $('barIn').style.width = tot ? (rec / tot * 100) + '%' : '50%';
+    $('barOut').style.width = tot ? (pag / tot * 100) + '%' : '50%';
+    $('openLine').textContent = `Ainda em aberto: ${money(i.total_a_receber)} a receber · ${money(i.total_a_pagar)} a pagar`;
+  }
+
+  function renderStats(i) {
+    $('mAppointments').textContent = i.atendimentos_hoje ?? 0;
+    $('mAppointmentsHint').textContent = (i.atendimentos_hoje ?? 0) ? 'na agenda' : 'agenda livre';
+    $('mOverdue').textContent = i.contas_vencidas ?? 0;
+    $('mOverdueHint').textContent = money(i.valor_vencido);
+    $('stOverdue').classList.toggle('warn', (i.contas_vencidas ?? 0) > 0);
+    $('mDueToday').textContent = i.contas_vencem_hoje ?? 0;
+    $('mDueTodayHint').textContent = money(i.valor_vencem_hoje);
+    $('mAgendaValue').textContent = money(i.valor_agenda_hoje);
+  }
+
+  function renderDecisions() {
+    const all = (data && data.decisoes) || [];
+    const hidden = store.get();
+    const visible = all.filter(d => !hidden.includes(decId(d)) && (filter === 'todas' || d.prioridade === filter));
+    const order = {alta:0, media:1, baixa:2};
+    visible.sort((a,b) => (order[a.prioridade] ?? 3) - (order[b.prioridade] ?? 3));
+    const dismissed = all.filter(d => hidden.includes(decId(d))).length;
+    let html = visible.map(d => {
+      const label = d.prioridade === 'alta' ? 'Prioridade alta' : d.prioridade === 'media' ? 'Acompanhar' : 'Em ordem';
+      const val = Number(d.valor || 0) > 0 ? `<span class="tag">${money(d.valor)}</span>` : '';
+      return `<article class="dec ${esc(d.prioridade)}"><div class="pr"></div><div><h3>${esc(d.titulo)}</h3><p>${esc(d.descricao)}</p><div class="meta"><span>${label}</span>${val}</div></div><div class="side"><a class="btn sm" href="${esc(safeHref(d.acao))}">Resolver</a><button class="link" data-dismiss="${esc(decId(d))}" type="button">Dispensar hoje</button></div></article>`;
+    }).join('');
+    if (!html) html = `<div class="empty">${all.length && !dismissed ? 'Nenhuma recomendação nesta prioridade.' : all.length ? 'Você dispensou todas as recomendações de hoje.' : 'Nenhuma recomendação no momento. Bom trabalho!'}</div>`;
+    if (dismissed) html += `<div style="padding-top:10px;font-size:13px;color:var(--muted)">${dismissed} ${plural(dismissed,'dispensada','dispensadas')} hoje · <button class="link" data-restore type="button">Restaurar</button></div>`;
+    $('decisions').innerHTML = html;
+  }
+
+  function renderAgenda() {
+    const list = [...((data && data.agenda_hoje) || [])].sort((a,b) => String(a.hora || '99').localeCompare(String(b.hora || '99')));
+    const now = new Date().toTimeString().slice(0,5);
+    let nextMarked = false;
+    $('agendaSub').textContent = list.length ? `${list.length} ${plural(list.length,'atendimento','atendimentos')} · por horário` : 'Por horário.';
+    $('agendaList').innerHTML = list.length ? `<ol class="tl">${list.map(a => {
+      const h = a.hora ? String(a.hora).slice(0,5) : '';
+      const past = h && h < now;
+      const isNext = !past && h && !nextMarked; if (isNext) nextMarked = true;
+      const paid = /pag|quit/i.test(a.status_pagamento || '') && !/pend|n[aã]o/i.test(a.status_pagamento || '');
+      return `<li class="${past ? 'past' : ''} ${isNext ? 'next' : ''}"><time>${esc(h || '--:--')}</time><div><strong>${esc(a.cliente || 'Cliente')}</strong><div class="badges">${isNext ? '<span class="b now">Próximo</span>' : ''}<span class="b">${esc(a.status || 'Sem status')}</span><span class="b ${paid ? 'ok' : 'wait'}">${esc(a.status_pagamento ? 'Pagamento: ' + a.status_pagamento : 'Pagamento pendente')}</span></div></div><div class="amt">${money(a.valor)}</div></li>`;
+    }).join('')}</ol>` : '<div class="empty">Nenhum atendimento registrado para hoje.</div>';
+  }
+
+  function renderFinance() {
+    const sets = { vencidas: (data && data.contas_vencidas) || [], hoje: (data && data.contas_vencem_hoje) || [], proximas: (data && data.contas_proximas) || [] };
+    $('cV').textContent = sets.vencidas.length; $('cH').textContent = sets.hoje.length; $('cP').textContent = sets.proximas.length;
+    document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.t === tab)));
+    const items = [...sets[tab]].sort((a,b) => String(a.vencimento || '').localeCompare(String(b.vencimento || '')));
+    const msg = { vencidas: 'Nenhuma conta vencida. Tudo pago em dia.', hoje: 'Nada vence hoje.', proximas: 'Nenhuma conta próxima no período selecionado.' }[tab];
+    $('financeList').innerHTML = items.length ? items.map(c => `<div class="row"><div><strong>${esc(c.descricao || 'Conta')}</strong><small>${dateBR(c.vencimento)} · ${esc(relDue(c.vencimento))}</small></div><span class="tp ${c.tipo === 'pagar' ? 'p' : 'r'}">${c.tipo === 'pagar' ? 'A pagar' : 'A receber'}</span><span class="amt">${money(c.saldo_aberto)}</span></div>`).join('') : `<div class="empty">${msg}</div>`;
+    $('accountsNotice').textContent = data && data.disponibilidade_contas === false
+      ? 'O módulo de contas financeiras ainda não está disponível no banco. A agenda continua funcionando; instale a migration de Contas a Pagar e Receber para ativar os indicadores.'
+      : '';
+  }
+
+  function render() {
+    const i = data.indicadores || {};
+    renderHero(i, data.decisoes || []); renderStats(i);
+    renderDecisions(); renderAgenda(); renderFinance();
+  }
+
+  async function load() {
+    const id = ++loadId;
+    $('refresh').disabled = true;
+    $('errBox').innerHTML = '';
+    try {
+      const json = await request();
+      if (id !== loadId) return;
+      data = json; render();
+      $('stamp').classList.remove('stale');
+      $('stampText').textContent = `Atualizado às ${new Date().toTimeString().slice(0,5)}`;
+    } catch (e) {
+      if (id !== loadId) return;
+      $('errBox').innerHTML = `<div class="err" role="alert"><span>${esc(e.message)}</span><button class="btn sm" id="retry" type="button">Tentar de novo</button></div>`;
+      $('retry').addEventListener('click', load);
+      $('stamp').classList.add('stale');
+      $('stampText').textContent = data ? 'Mostrando dados anteriores' : 'Sem dados';
+      if (!data) {
+        $('headline').textContent = 'Não foi possível montar o resumo.';
+        $('summary').textContent = 'Verifique sua sessão e a rota /api/central-decisoes em server/index.js.';
+        ['decisions','agendaList','financeList'].forEach(k => $(k).innerHTML = '<div class="empty">Sem dados para exibir.</div>');
+      }
+    } finally { if (id === loadId) $('refresh').disabled = false; }
+  }
+
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setRange(+b.dataset.days)));
+  $('applyDates').addEventListener('click', () => {
+    if (!start.value || !end.value || start.value > end.value) { $('errBox').innerHTML = '<div class="err" role="alert">Informe um período válido: a data inicial não pode ser depois da final.</div>'; return; }
+    load();
+  });
+  $('refresh').addEventListener('click', load);
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    filter = c.dataset.f;
+    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+    if (data) renderDecisions();
+  }));
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-t]'); if (b && data) { tab = b.dataset.t; renderFinance(); } });
+  $('decisions').addEventListener('click', e => {
+    const d = e.target.closest('[data-dismiss]');
+    if (d) { store.set([...store.get(), d.dataset.dismiss]); renderDecisions(); }
+    if (e.target.closest('[data-restore]')) { store.set([]); renderDecisions(); }
+  });
+  $('themeToggle').addEventListener('click', () => {
+    const light = document.documentElement.dataset.theme !== 'light';
+    if (light) document.documentElement.dataset.theme = 'light'; else document.documentElement.removeAttribute('data-theme');
+    try { localStorage.setItem('orvix-theme', light ? 'light' : 'dark'); } catch (_) {}
+  });
+  setInterval(() => { if (!document.hidden) load(); }, 300000);
+  setRange(7);
+})();
+</script>
+</body>
+</html>
