@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Metas e desempenho | Orvix</title>
+<script>
+try { var t = localStorage.getItem('orvix-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (_) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f3f5fa;--card:#fff;--raised:#f5f6fb;--text:#171f33;--muted:#5f6b82;--border:#e0e5ef;--primary:#5a49e0;--primary-ink:#fff;--track:#e9e7f7;--success:#12795a;--warning:#8f6100;--danger:#c0303f;--r:14px;--display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;--body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0b0f1c;--card:#121829;--raised:#182036;--text:#f1f4fb;--muted:#97a4bd;--border:#242e47;--primary:#9084ff;--primary-ink:#0b0f1c;--track:#2a3150;--success:#3fd0a1;--warning:#f2c15a;--danger:#ff7b86}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b0f1c;--card:#121829;--raised:#182036;--text:#f1f4fb;--muted:#97a4bd;--border:#242e47;--primary:#9084ff;--primary-ink:#0b0f1c;--track:#2a3150;--success:#3fd0a1;--warning:#f2c15a;--danger:#ff7b86}
+*{box-sizing:border-box}
+body{margin:0;padding:28px 24px 56px;background:var(--bg);color:var(--text);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+main{max-width:1180px;margin:auto}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+h1,h2,p{margin-top:0}
+h1{margin-bottom:6px;font:700 clamp(26px,4vw,36px)/1.1 var(--display);letter-spacing:-.03em}
+h2{font:700 18px/1.2 var(--display);letter-spacing:-.02em;margin-bottom:6px}
+.muted,.description{color:var(--muted)}
+.description{margin-bottom:0}
+header,.toolbar,.card-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header{align-items:flex-start}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+input,button{font:inherit;border-radius:10px;padding:9px 12px;color:var(--text)}
+input{background:var(--card);border:1px solid var(--border);width:100%;min-width:0;min-height:42px}
+input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 22%,transparent)}
+button{cursor:pointer;border:1px solid var(--border);background:var(--card);font-weight:600;font-size:14px;transition:border-color .15s}
+button:hover{border-color:var(--primary)}
+button.primary{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+button:disabled{opacity:.6;cursor:wait}
+button.link{border:0;background:none;padding:2px;color:var(--primary);text-decoration:underline;font-size:13px}
+.toolbar{margin:22px 0 10px;justify-content:flex-start}
+.monthnav{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+.monthnav label{max-width:190px}
+.monthnav .step{min-height:42px;padding:0 14px;font-size:18px;line-height:1}
+.notice{min-height:22px;color:var(--muted);font-size:13px;margin-bottom:6px}
+.pace{display:grid;grid-template-columns:auto 1fr;gap:6px 24px;padding:18px 22px;margin:10px 0 14px;align-items:center}
+.pace[hidden]{display:none}
+.pace .big{font:700 22px/1.2 var(--display);letter-spacing:-.02em}
+.pace ul{margin:0;padding:0;list-style:none;display:grid;gap:4px;color:var(--muted);font-size:14px}
+.pace b{color:var(--text)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.goal{position:relative}
+.goal-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.goal-top .muted{font-size:13px;font-weight:600}
+.badge{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.badge:empty{display:none}
+.badge.good{color:var(--success);border-color:color-mix(in srgb,var(--success) 40%,var(--border))}
+.badge.warn{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 40%,var(--border))}
+.badge.bad{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,var(--border))}
+.metric{font:700 clamp(26px,3vw,34px)/1.1 var(--display);letter-spacing:-.03em;margin:12px 0 4px}
+.remaining{font-size:13px;color:var(--muted)}
+.track{position:relative;height:10px;background:var(--track);border-radius:99px;overflow:hidden;margin:16px 0 9px}
+.bar{height:100%;width:0;background:var(--primary);border-radius:inherit;transition:width .45s}
+.goal.done .bar{background:var(--success)}
+.tick{position:absolute;top:0;bottom:0;width:2px;background:var(--text);opacity:.55;left:0}
+.tick[hidden]{display:none}
+.percent{font-size:13px;font-weight:700}
+.section{margin-top:16px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+label{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.form-actions{margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.chart{display:flex;align-items:end;gap:10px;min-height:200px;overflow-x:auto;padding:16px 0 0;border-bottom:1px solid var(--border)}
+.chart-item{min-width:34px;flex:1;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:6px;height:180px;border-radius:8px;transition:background .15s}
+.chart-item:hover{background:var(--raised)}
+.chart-item.today .chart-bar{background:var(--success)}
+.chart-item.today .chart-label{color:var(--text);font-weight:700}
+.chart-value{font-size:11px;color:var(--muted);text-align:center}
+.chart-bar{width:min(100%,30px);min-height:2px;border-radius:6px 6px 2px 2px;background:var(--primary);transition:opacity .15s}
+.chart-item:hover .chart-bar{opacity:.8}
+.chart-label{font-size:11px;color:var(--muted);padding-bottom:4px}
+.table-wrap{overflow-x:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-size:13px;font-weight:700}
+tbody tr:hover td{background:var(--raised)}
+tbody tr:last-child td{border-bottom:0}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+@media(max-width:860px){.grid,.form-grid{grid-template-columns:1fr}.pace{grid-template-columns:1fr}}
+@media(max-width:560px){body{padding:18px 14px 40px}.card{padding:18px}.actions{width:100%}.actions button{flex:1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.actions,.toolbar,.form-actions,#form-metas{display:none}}
+
+html[data-admin-check="bloqueado"] body {
+  visibility: hidden;
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Metas e desempenho</h1>
+      <p class="description">Acompanhe os objetivos e os resultados da sua empresa, mês a mês.</p>
+    </div>
+    <div class="actions">
+      <button type="button" id="tema">◐ Tema</button>
+      <button type="button" onclick="location.href='/'">Voltar ao painel</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="monthnav">
+      <button type="button" class="step" id="mes-ant" aria-label="Mês anterior">‹</button>
+      <label>Mês de referência<input type="month" id="mes"></label>
+      <button type="button" class="step" id="mes-prox" aria-label="Próximo mês">›</button>
+      <button type="button" id="mes-atual">Mês atual</button>
+      <button type="button" id="atualizar">↻ Atualizar resultados</button>
+    </div>
+  </div>
+
+  <div id="aviso" class="notice" role="status" aria-live="polite"></div>
+
+  <section class="card pace" id="pace" hidden aria-label="Ritmo do mês">
+    <div class="big" id="pace-titulo"></div>
+    <ul id="pace-lista"></ul>
+  </section>
+
+  <section class="grid" aria-label="Progresso das metas">
+    <article class="card goal" id="g-faturamento">
+      <div class="goal-top"><span class="muted">Faturamento realizado</span><span class="badge" id="b-faturamento"></span></div>
+      <div class="metric" id="faturamento">R$ 0,00</div>
+      <div class="remaining" id="faturamento-falta">Defina sua meta mensal.</div>
+      <div class="track"><div class="bar" id="faturamento-bar"></div><span class="tick" id="t-faturamento" hidden></span></div>
+      <div class="percent" id="faturamento-percent">0% da meta</div>
+    </article>
+
+    <article class="card goal" id="g-atendimentos">
+      <div class="goal-top"><span class="muted">Atendimentos concluídos</span><span class="badge" id="b-atendimentos"></span></div>
+      <div class="metric" id="atendimentos">0</div>
+      <div class="remaining" id="atendimentos-falta">Defina sua meta mensal.</div>
+      <div class="track"><div class="bar" id="atendimentos-bar"></div><span class="tick" id="t-atendimentos" hidden></span></div>
+      <div class="percent" id="atendimentos-percent">0% da meta</div>
+    </article>
+
+    <article class="card goal" id="g-ticket">
+      <div class="goal-top"><span class="muted">Ticket médio realizado</span><span class="badge" id="b-ticket"></span></div>
+      <div class="metric" id="ticket">R$ 0,00</div>
+      <div class="remaining" id="ticket-falta">Defina seu ticket médio desejado.</div>
+      <div class="track"><div class="bar" id="ticket-bar"></div></div>
+      <div class="percent" id="ticket-percent">0% da meta</div>
+    </article>
+  </section>
+
+  <section class="card section">
+    <h2>Definir metas do mês</h2>
+    <p class="muted">As metas são salvas para a empresa e para o mês selecionado.</p>
+    <form id="form-metas">
+      <div class="form-grid">
+        <label>Meta de faturamento (R$)
+          <input id="meta-faturamento" type="number" min="0" max="999999999999" step="0.01" required>
+        </label>
+        <label>Meta de atendimentos
+          <input id="meta-atendimentos" type="number" min="0" step="1" required>
+        </label>
+        <label>Meta de ticket médio (R$)
+          <input id="meta-ticket" type="number" min="0" max="999999999999" step="0.01" required>
+          <button type="button" class="link" id="calc-ticket" style="justify-self:start">Calcular: faturamento ÷ atendimentos</button>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="primary" id="salvar" type="submit">Salvar metas</button>
+        <span id="form-aviso" class="notice" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="card section">
+    <h2>Evolução diária do faturamento</h2>
+    <p class="muted">Somente atendimentos concluídos e pagos entram neste cálculo.</p>
+    <div id="grafico-diario" class="chart"></div>
+  </section>
+
+  <section class="card section">
+    <h2>Desempenho dos últimos seis meses</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mês</th><th>Faturamento</th><th>Atendimentos</th><th>Ticket médio</th></tr></thead>
+        <tbody id="historico"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  let autorizado = false;
+
+  try {
+    const token = localStorage.getItem('lavajato_auth_token');
+
+    if (token) {
+      const partes = token.split('.');
+
+      if (partes.length === 3) {
+        const payloadBase64 = partes[1]
+          .replace(/-/g, '+')
+          .replace(/_/g, '/');
+
+        const payload = JSON.parse(
+          decodeURIComponent(
+            atob(payloadBase64)
+              .split('')
+              .map(c =>
+                '%' + c.charCodeAt(0)
+                  .toString(16)
+                  .padStart(2, '0')
+              )
+              .join('')
+          )
+        );
+
+        autorizado =
+          payload.perfil === 'administrador' &&
+          Boolean(payload.empresa_id) &&
+          typeof payload.exp === 'number' &&
+          payload.exp * 1000 > Date.now();
+      }
+    }
+  } catch (_) {
+    autorizado = false;
+  }
+
+  window.__orvixAdminPermitido = autorizado;
+
+  document.documentElement.dataset.adminCheck =
+    autorizado ? 'ok' : 'bloqueado';
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+
+  if (window.__orvixAdminPermitido !== true) {
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = '/js/metas-desempenho.js';
+
+  script.onerror = () => {
+    const aviso = document.getElementById('aviso');
+
+    if (aviso) {
+      aviso.textContent =
+        'Não foi possível carregar os dados de metas e desempenho.';
+    }
+  };
+
+  document.body.appendChild(script);
+})();
+</script>
+
+<script>
+/* Melhorias que só leem e ajustam o DOM; os dados e o salvamento continuam no script principal. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const money = n => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const parseMoney = s => { const v = parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')); return Number.isNaN(v) ? 0 : v; };
+  const pctOf = id => { const m = ($(id + '-percent').textContent || '').match(/[\d.,]+/); return m ? parseFloat(m[0].replace(/\./g, '').replace(',', '.')) : 0; };
+  const fire = el => { el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); };
+  const mes = $('mes');
+
+  /* Tema: segue o sistema, com escolha manual salva */
+  $('tema').addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    const next = dark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('orvix-theme', next); } catch (_) {}
+  });
+
+  /* Navegação entre meses */
+  const ym = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  function goMonth(v) { if (!v) return; mes.value = v; fire(mes); setTimeout(() => { const b = $('atualizar'); if (!b.disabled) b.click(); }, 0); }
+  function shift(n) {
+    const [y, m] = (mes.value || ym(new Date())).split('-').map(Number);
+    goMonth(ym(new Date(y, m - 1 + n, 1)));
+  }
+  $('mes-ant').addEventListener('click', () => shift(-1));
+  $('mes-prox').addEventListener('click', () => shift(1));
+  $('mes-atual').addEventListener('click', () => goMonth(ym(new Date())));
+
+  /* Atalho para calcular o ticket da meta */
+  $('calc-ticket').addEventListener('click', () => {
+    const f = parseFloat($('meta-faturamento').value), a = parseFloat($('meta-atendimentos').value);
+    if (f > 0 && a > 0) { $('meta-ticket').value = (f / a).toFixed(2); fire($('meta-ticket')); }
+    else $('form-aviso').textContent = 'Preencha a meta de faturamento e a de atendimentos primeiro.';
+  });
+
+  /* Fração do mês já decorrida: 0 (mês futuro) a 1 (mês passado ou concluído) */
+  function elapsed() {
+    const v = mes.value; if (!/^\d{4}-\d{2}$/.test(v)) return null;
+    const [y, m] = v.split('-').map(Number), now = new Date(), cur = now.getFullYear() * 12 + now.getMonth(), sel = y * 12 + m - 1;
+    const dim = new Date(y, m, 0).getDate();
+    if (sel < cur) return { f: 1, day: dim, dim };
+    if (sel > cur) return { f: 0, day: 0, dim };
+    return { f: now.getDate() / dim, day: now.getDate(), dim };
+  }
+
+  const setBadge = (id, text, cls) => { const b = $('b-' + id); b.textContent = text; b.className = 'badge ' + (cls || ''); };
+
+  function update() {
+    const e = elapsed(), pcts = { faturamento: pctOf('faturamento'), atendimentos: pctOf('atendimentos'), ticket: pctOf('ticket') };
+    ['faturamento', 'atendimentos'].forEach(id => {
+      const p = pcts[id], g = $('g-' + id), t = $('t-' + id);
+      g.classList.toggle('done', p >= 100);
+      if (e && e.f > 0 && e.f < 1) { t.hidden = false; t.style.left = `calc(${e.f * 100}% - 1px)`; t.title = `Esperado até hoje: ${Math.round(e.f * 100)}%`; } else t.hidden = true;
+      if (p >= 100) return setBadge(id, 'Meta batida', 'good');
+      if (!e || e.f === 0) return setBadge(id, '', '');
+      if (e.f === 1) return setBadge(id, 'Meta não atingida', 'bad');
+      const diff = p - e.f * 100;
+      diff >= 0 ? setBadge(id, 'No ritmo', 'good') : diff > -10 ? setBadge(id, 'Quase no ritmo', 'warn') : setBadge(id, 'Abaixo do ritmo', 'bad');
+    });
+    const pt = pcts.ticket;
+    pt >= 100 ? setBadge('ticket', 'Meta batida', 'good') : pt >= 90 ? setBadge('ticket', 'Perto da meta', 'warn') : pt > 0 ? setBadge('ticket', 'Abaixo da meta', 'bad') : setBadge('ticket', '', '');
+    $('g-ticket').classList.toggle('done', pt >= 100);
+
+    /* Leitura do mês e projeção (só no mês em andamento) */
+    const pace = $('pace');
+    if (!e || e.f <= 0 || e.f >= 1 || e.day < 2) { pace.hidden = true; return; }
+    const fat = parseMoney($('faturamento').textContent), atd = parseInt(($('atendimentos').textContent || '').replace(/\D/g, ''), 10) || 0;
+    const items = [];
+    if (fat > 0) { const pr = fat / e.f; items.push(`Faturamento: no ritmo atual o mês fecha em <b>${money(pr)}</b>${pcts.faturamento > 0 ? ` (${Math.round(pcts.faturamento / e.f)}% da meta)` : ''}.`); }
+    if (atd > 0) { const pr = Math.round(atd / e.f); items.push(`Atendimentos: projeção de <b>${pr}</b> até o fim do mês${pcts.atendimentos > 0 ? ` (${Math.round(pcts.atendimentos / e.f)}% da meta)` : ''}.`); }
+    items.push(`Esperado até hoje: <b>${Math.round(e.f * 100)}%</b> da meta (traço nas barras).`);
+    $('pace-titulo').textContent = `Dia ${e.day} de ${e.dim} · restam ${e.dim - e.day} ${e.dim - e.day === 1 ? 'dia' : 'dias'}`;
+    $('pace-lista').innerHTML = items.map(t => `<li>${t}</li>`).join('');
+    pace.hidden = false;
+  }
+
+  let raf = 0; const sched = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); };
+  const mo = new MutationObserver(sched);
+  ['faturamento', 'atendimentos', 'ticket'].forEach(id => {
+    mo.observe($(id), { childList: true, characterData: true, subtree: true });
+    mo.observe($(id + '-percent'), { childList: true, characterData: true, subtree: true });
+  });
+  mes.addEventListener('change', sched); mes.addEventListener('input', sched);
+
+  /* Gráfico diário: dicas ao passar o mouse e destaque do dia de hoje */
+  function decorateChart() {
+    const e = elapsed(), items = $('grafico-diario').querySelectorAll('.chart-item');
+    items.forEach(it => {
+      const l = (it.querySelector('.chart-label') || {}).textContent || '', v = (it.querySelector('.chart-value') || {}).textContent || '';
+      it.title = `${l.trim()}: ${v.trim() || 'sem faturamento'}`;
+      if (e && e.f > 0 && e.f < 1 && parseInt(l, 10) === e.day) it.classList.add('today');
+    });
+  }
+  new MutationObserver(decorateChart).observe($('grafico-diario'), { childList: true });
+  sched();
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+
+  if (window.__orvixAdminPermitido === true) {
+    return;
+  }
+
+  function mostrarAcessoRestrito() {
+    document.body.innerHTML = `
+      <main style="
+        max-width: 600px;
+        margin: 80px auto;
+        padding: 24px;
+        text-align: center;
+        font-family: system-ui, sans-serif;
+      ">
+        <h1>Acesso restrito</h1>
+
+        <p style="margin: 12px 0 20px; color: #5f6b82;">
+          A página Metas e desempenho está disponível
+          somente para administradores da empresa.
+        </p>
+
+        <a href="/" style="
+          color: #6d5ce8;
+          font-weight: 600;
+          text-decoration: none;
+        ">
+          Voltar ao painel
+        </a>
+      </main>
+    `;
+
+    document.body.style.visibility = 'visible';
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      mostrarAcessoRestrito,
+      { once: true }
+    );
+  } else {
+    mostrarAcessoRestrito();
+  }
+})();
+</script>
+</body>
+</html>

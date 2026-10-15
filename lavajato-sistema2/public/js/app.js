@@ -2424,236 +2424,493 @@ if (
   }
 
 
-  // ============================================================
-  // NOVO AGENDAMENTO
-  // ============================================================
 
-  const overlayAppointment =
-    $('overlay-appointment');
+/* =========================================================
+   MODAL DE AGENDAMENTO
+   Novo agendamento, edição e seleção de clientes
+   ========================================================= */
 
+const overlayAppointment = $('overlay-appointment');
 
-  $('btn-new-appointment')
-    ?.addEventListener(
-      'click',
-      async () => {
+let apClientSearchTimer = null;
+let apClientSearchRequest = 0;
 
-        editingAppointmentId =
-          null;
+const apClientInput = $('ap-client');
+const apClientIdInput = $('ap-client-id');
+const apClientPhoneInput = $('ap-phone');
+const apClientSuggestions = $('ap-client-suggestions');
+const apClientHint = $('ap-client-hint');
+const apAppointmentForm = $('form-appointment');
 
-        $('appointment-modal-title')
-          .textContent =
-          'Novo agendamento';
+/* =========================================================
+   REQUISIÇÕES
+   ========================================================= */
 
-        $('appointment-submit-btn')
-          .textContent =
-          'Agendar';
-
-        $('ap-date').value =
-          selectedDate;
-
-        $('ap-time').value =
-          '';
-
-        $('ap-client').value =
-          '';
-
-        $('ap-phone').value =
-          '';
-
-        $('ap-plate').value =
-          '';
-
-        $('ap-vehicle').value =
-          '';
-
-        const notes =
-          $('ap-notes');
-
-        if(notes){
-          notes.value =
-            '';
-        }
-
-        if(
-          state.services.length === 0
-        ){
-
-          await loadServices();
-        }
-
-        fillServiceSelect();
-        updatePriceFromService();
-
-        overlayAppointment
-          ?.classList
-          .add('active');
-
-        $('ap-client')
-          ?.focus();
-      }
-    );
-
-
-  $('btn-cancel-appointment')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        overlayAppointment
-          ?.classList
-          .remove('active');
-      }
-    );
-
-
-  overlayAppointment
-    ?.addEventListener(
-      'click',
-      e => {
-
-        if(
-          e.target ===
-          overlayAppointment
-        ){
-
-          overlayAppointment
-            .classList
-            .remove('active');
-        }
-      }
-    );
-
-
-  async function openEditAppointment(id){
-
-    const ap =
-      currentAgendaItems.find(
-        a =>
-          mesmoId(
-            a.id,
-            id
-          )
-      );
-
-    if(!ap){
-      return;
+async function requisicaoJSON(url, options = {}) {
+  const resposta = await fetch(url, {
+    credentials: 'same-origin',
+    ...options,
+    headers: {
+      Accept: 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {})
     }
+  });
 
-    editingAppointmentId =
-      id;
-
-    $('appointment-modal-title')
-      .textContent =
-      'Editar agendamento';
-
-    $('appointment-submit-btn')
-      .textContent =
-      'Salvar alterações';
-
-    if(
-      state.services.length === 0
-    ){
-
-      await loadServices();
-    }
-
-    fillServiceSelect();
-
-    $('ap-date').value =
-      ap.data;
-
-    $('ap-time').value =
-      ap.hora.slice(0,5);
-
-    $('ap-client').value =
-      ap.cliente;
-
-    $('ap-phone').value =
-      ap.telefone || '';
-
-    $('ap-plate').value =
-      ap.placa || '';
-
-    $('ap-vehicle').value =
-      ap.veiculo || '';
-
-    $('ap-service').value =
-      ap.servico_id;
-
-    $('ap-price').value =
-      ap.valor;
-
-    const notes =
-      $('ap-notes');
-
-    if(notes){
-      notes.value =
-        ap.observacoes || '';
-    }
-
-    overlayAppointment
-      ?.classList
-      .add('active');
+  if (resposta.status === 204) {
+    return null;
   }
 
+  const texto = await resposta.text();
+  let dados = {};
 
-  function fillServiceSelect(){
-
-    const sel =
-      $('ap-service');
-
-    if(!sel){
-      return;
+  if (texto) {
+    try {
+      dados = JSON.parse(texto);
+    } catch {
+      dados = { erro: texto };
     }
-
-    sel.innerHTML =
-      state.services
-        .map(
-          s =>
-            `<option value="${s.id}">` +
-            `${escapeHtml(s.nome)} — ${money(s.preco)}` +
-            `</option>`
-        )
-        .join('');
   }
 
+  if (!resposta.ok) {
+    throw new Error(
+      dados.erro ||
+      dados.message ||
+      `Erro na requisição (${resposta.status}).`
+    );
+  }
 
-  $('ap-service')
-    ?.addEventListener(
-      'change',
-      updatePriceFromService
+  return dados;
+}
+
+/* =========================================================
+   CLIENTES: SUGESTÕES E SELEÇÃO
+   ========================================================= */
+
+function fecharSugestoesClientes() {
+  if (!apClientSuggestions) return;
+
+  apClientSuggestions.hidden = true;
+  apClientSuggestions.replaceChildren();
+}
+
+function limparVinculoCliente() {
+  if (apClientIdInput) {
+    apClientIdInput.value = '';
+  }
+
+  if (apClientHint) {
+    apClientHint.textContent =
+      'Pesquise um cliente cadastrado ou digite um novo nome.';
+  }
+}
+
+function selecionarClienteAgendamento(cliente) {
+  if (!cliente || cliente.id == null) return;
+
+  const nome = cliente.cliente || cliente.nome || '';
+
+  apClientInput.value = nome;
+  apClientIdInput.value = String(cliente.id);
+
+  if (apClientPhoneInput) {
+    apClientPhoneInput.value = cliente.telefone || '';
+  }
+
+  if (apClientHint) {
+    apClientHint.textContent =
+      'Cliente cadastrado selecionado.';
+  }
+
+  fecharSugestoesClientes();
+}
+
+function renderizarSugestoesClientes(clientes) {
+  if (!apClientSuggestions) return;
+
+  apClientSuggestions.replaceChildren();
+
+  // A rota existente também pode devolver registros históricos
+  // sem cadastro. Somente clientes com ID podem ser selecionados.
+  const cadastrados = clientes.filter(
+    cliente => cliente.id !== null && cliente.id !== undefined
+  );
+
+  if (cadastrados.length === 0) {
+    const vazio = document.createElement('div');
+    vazio.className = 'ap-client-empty';
+    vazio.textContent = 'Nenhum cliente cadastrado encontrado.';
+
+    apClientSuggestions.appendChild(vazio);
+    apClientSuggestions.hidden = false;
+    return;
+  }
+
+  cadastrados.forEach(cliente => {
+    const botao = document.createElement('button');
+
+    botao.type = 'button';
+    botao.className = 'ap-client-option';
+    botao.setAttribute('role', 'option');
+
+    const nome = document.createElement('span');
+    nome.className = 'ap-client-option-name';
+    nome.textContent = cliente.cliente || cliente.nome || 'Sem nome';
+
+    const telefone = document.createElement('span');
+    telefone.className = 'ap-client-option-phone';
+    telefone.textContent = cliente.telefone || 'Sem telefone';
+
+    botao.append(nome, telefone);
+
+    // Impede que o blur feche a lista antes da seleção.
+    botao.addEventListener('mousedown', event => {
+      event.preventDefault();
+      selecionarClienteAgendamento(cliente);
+    });
+
+    apClientSuggestions.appendChild(botao);
+  });
+
+  apClientSuggestions.hidden = false;
+}
+
+async function buscarClientesAgendamento(termo) {
+  const numeroRequisicao = ++apClientSearchRequest;
+
+  if (!apClientSuggestions) return;
+
+  if (termo.length < 2) {
+    fecharSugestoesClientes();
+    return;
+  }
+
+  const carregando = document.createElement('div');
+  carregando.className = 'ap-client-empty';
+  carregando.textContent = 'Buscando clientes...';
+
+  apClientSuggestions.replaceChildren(carregando);
+  apClientSuggestions.hidden = false;
+
+  try {
+    const clientes = await requisicaoJSON(
+      `/api/clientes?busca=${encodeURIComponent(termo)}`
     );
 
+    // Descarta resultados de pesquisas anteriores.
+    if (numeroRequisicao !== apClientSearchRequest) return;
 
-  function updatePriceFromService(){
+    renderizarSugestoesClientes(
+      Array.isArray(clientes) ? clientes : []
+    );
+  } catch (erro) {
+    if (numeroRequisicao !== apClientSearchRequest) return;
 
-    const sel =
-      $('ap-service');
+    console.error('Erro ao pesquisar clientes:', erro);
 
-    if(!sel){
-      return;
+    apClientSuggestions.replaceChildren();
+
+    const mensagem = document.createElement('div');
+    mensagem.className = 'ap-client-empty';
+    mensagem.textContent = 'Erro ao carregar clientes. Tente novamente.';
+
+    apClientSuggestions.appendChild(mensagem);
+    apClientSuggestions.hidden = false;
+  }
+}
+
+function prepararClienteNovoAgendamento() {
+  if (apClientInput) apClientInput.value = '';
+  if (apClientIdInput) apClientIdInput.value = '';
+  if (apClientPhoneInput) apClientPhoneInput.value = '';
+
+  limparVinculoCliente();
+  fecharSugestoesClientes();
+
+  clearTimeout(apClientSearchTimer);
+  apClientSearchRequest++;
+}
+
+apClientInput?.addEventListener('input', () => {
+  // Alterar o texto invalida a seleção anterior.
+  limparVinculoCliente();
+
+  clearTimeout(apClientSearchTimer);
+
+  const termo = apClientInput.value.trim();
+
+  apClientSearchTimer = setTimeout(() => {
+    buscarClientesAgendamento(termo);
+  }, 250);
+});
+
+apClientInput?.addEventListener('focus', () => {
+  const termo = apClientInput.value.trim();
+
+  if (termo.length >= 2 && !apClientIdInput?.value) {
+    clearTimeout(apClientSearchTimer);
+
+    apClientSearchTimer = setTimeout(() => {
+      buscarClientesAgendamento(termo);
+    }, 100);
+  }
+});
+
+document.addEventListener('click', event => {
+  const campo = document.querySelector('.ap-client-search');
+
+  if (campo && !campo.contains(event.target)) {
+    fecharSugestoesClientes();
+  }
+});
+
+/* =========================================================
+   ABRIR MODAL
+   ========================================================= */
+
+async function prepararFormularioAgendamento() {
+  if (!state.services || state.services.length === 0) {
+    await loadServices();
+  }
+
+  fillServiceSelect();
+}
+
+$('btn-new-appointment')?.addEventListener('click', async () => {
+  editingAppointmentId = null;
+
+  $('appointment-modal-title').textContent = 'Novo agendamento';
+  $('appointment-submit-btn').textContent = 'Agendar';
+
+  apAppointmentForm?.reset();
+  prepararClienteNovoAgendamento();
+
+  $('ap-date').value = selectedDate || '';
+  $('ap-time').value = '';
+
+  try {
+    await prepararFormularioAgendamento();
+    updatePriceFromService();
+
+    overlayAppointment?.classList.add('active');
+    apClientInput?.focus();
+  } catch (erro) {
+    console.error('Erro ao preparar agendamento:', erro);
+    alert(erro.message || 'Não foi possível abrir o formulário.');
+  }
+});
+
+$('btn-cancel-appointment')?.addEventListener('click', () => {
+  overlayAppointment?.classList.remove('active');
+  fecharSugestoesClientes();
+});
+
+overlayAppointment?.addEventListener('click', event => {
+  if (event.target === overlayAppointment) {
+    overlayAppointment.classList.remove('active');
+    fecharSugestoesClientes();
+  }
+});
+
+/* =========================================================
+   EDITAR AGENDAMENTO
+   ========================================================= */
+
+async function openEditAppointment(id) {
+  const agendamento = (currentAgendaItems || []).find(
+    item => mesmoId(item.id, id)
+  );
+
+  if (!agendamento) {
+    alert('Agendamento não encontrado na agenda atual.');
+    return;
+  }
+
+  editingAppointmentId = agendamento.id;
+
+  $('appointment-modal-title').textContent = 'Editar agendamento';
+  $('appointment-submit-btn').textContent = 'Salvar alterações';
+
+  try {
+    await prepararFormularioAgendamento();
+
+    $('ap-date').value = String(agendamento.data || '').slice(0, 10);
+    $('ap-time').value = String(agendamento.hora || '').slice(0, 5);
+
+    apClientInput.value = agendamento.cliente || '';
+    apClientIdInput.value = agendamento.cliente_id
+      ? String(agendamento.cliente_id)
+      : '';
+
+    apClientPhoneInput.value = agendamento.telefone || '';
+
+    $('ap-plate').value = agendamento.placa || '';
+    $('ap-vehicle').value = agendamento.veiculo || '';
+    $('ap-service').value = String(agendamento.servico_id || '');
+    $('ap-price').value = agendamento.valor ?? 0;
+    $('ap-notes').value = agendamento.observacoes || '';
+
+    if (apClientHint) {
+      apClientHint.textContent = agendamento.cliente_id
+        ? 'Cliente cadastrado vinculado a este agendamento.'
+        : 'Agendamento antigo sem vínculo com cadastro.';
     }
 
-    const s =
-      state.services.find(
-        x =>
-          mesmoId(
-            x.id,
-            sel.value
-          )
-      );
+    fecharSugestoesClientes();
+    overlayAppointment?.classList.add('active');
+  } catch (erro) {
+    console.error('Erro ao abrir agendamento:', erro);
+    alert(erro.message || 'Não foi possível abrir o agendamento.');
+  }
+}
 
-    if(s){
+/* =========================================================
+   SERVIÇOS E PREÇO
+   ========================================================= */
 
-      const price =
-        $('ap-price');
+function fillServiceSelect() {
+  const select = $('ap-service');
 
-      if(price){
-        price.value =
-          s.preco;
-      }
+  if (!select) return;
+
+  select.replaceChildren();
+
+  if (!state.services || state.services.length === 0) {
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = 'Nenhum serviço disponível';
+    select.appendChild(option);
+    return;
+  }
+
+  state.services.forEach(servico => {
+    const option = document.createElement('option');
+
+    option.value = String(servico.id);
+    option.textContent =
+      `${servico.nome} — ${money(servico.preco)}`;
+
+    select.appendChild(option);
+  });
+}
+
+$('ap-service')?.addEventListener('change', updatePriceFromService);
+
+function updatePriceFromService() {
+  const select = $('ap-service');
+  if (!select) return;
+
+  const servico = (state.services || []).find(
+    item => mesmoId(item.id, select.value)
+  );
+
+  if (servico) {
+    $('ap-price').value = servico.preco ?? 0;
+  }
+}
+
+/* =========================================================
+   SALVAR NOVO AGENDAMENTO OU EDIÇÃO
+   ========================================================= */
+
+apAppointmentForm?.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const botaoSalvar = $('appointment-submit-btn');
+
+  if (botaoSalvar?.disabled) return;
+
+  const nomeCliente = apClientInput.value.trim();
+
+  if (!nomeCliente) {
+    alert('Informe o nome do cliente ou selecione um cadastro.');
+    apClientInput.focus();
+    return;
+  }
+
+  const clienteId = apClientIdInput.value.trim();
+
+  const valor = Number($('ap-price').value);
+
+  if (!Number.isFinite(valor) || valor < 0) {
+    alert('Informe um valor válido para o agendamento.');
+    $('ap-price').focus();
+    return;
+  }
+
+  const dados = {
+    cliente_id: clienteId || null,
+    cliente: nomeCliente,
+    telefone: apClientPhoneInput.value.trim() || null,
+    data: $('ap-date').value,
+    hora: $('ap-time').value,
+    placa: $('ap-plate').value.trim() || null,
+    veiculo: $('ap-vehicle').value.trim() || null,
+    servico_id: $('ap-service').value,
+    valor,
+    observacoes: $('ap-notes').value.trim() || null
+  };
+
+  if (!dados.data || !dados.hora || !dados.servico_id) {
+    alert('Preencha a data, o horário e o serviço.');
+    return;
+  }
+
+  const editando = editingAppointmentId !== null &&
+    editingAppointmentId !== undefined;
+
+  const url = editando
+    ? `/api/agendamentos/${encodeURIComponent(editingAppointmentId)}`
+    : '/api/agendamentos';
+
+  const metodo = editando ? 'PATCH' : 'POST';
+  const textoOriginal = botaoSalvar?.textContent;
+
+  try {
+    if (botaoSalvar) {
+      botaoSalvar.disabled = true;
+      botaoSalvar.textContent = editando ? 'Salvando...' : 'Agendando...';
+    }
+
+    await requisicaoJSON(url, {
+      method: metodo,
+      body: JSON.stringify(dados)
+    });
+
+    overlayAppointment?.classList.remove('active');
+    fecharSugestoesClientes();
+
+    alert(editando
+      ? 'Agendamento atualizado com sucesso.'
+      : 'Agendamento criado com sucesso.');
+
+    // A tela da agenda pode ouvir este evento para recarregar os dados.
+    document.dispatchEvent(
+      new CustomEvent('agendamentos:atualizado', {
+        detail: {
+          id: editingAppointmentId,
+          data: dados.data,
+          editando
+        }
+      })
+    );
+
+    // Recarrega a página para refletir a alteração na agenda.
+    // Se seu app já tiver uma função de atualização da agenda,
+    // substitua esta linha pela chamada dessa função.
+    window.location.reload();
+  } catch (erro) {
+    console.error('Erro ao salvar agendamento:', erro);
+    alert(erro.message || 'Não foi possível salvar o agendamento.');
+  } finally {
+    if (botaoSalvar) {
+      botaoSalvar.disabled = false;
+      botaoSalvar.textContent = textoOriginal ||
+        (editando ? 'Salvar alterações' : 'Agendar');
     }
   }
+});
+
 
 
   // ============================================================
@@ -2785,145 +3042,229 @@ if (
   }
 
 
+
+
   // ============================================================
   // FORMULÁRIO AGENDAMENTO
   // ============================================================
 
-  $('form-appointment')
-    ?.addEventListener(
-      'submit',
-      async e => {
+  let salvandoAgendamento = false;
 
-        e.preventDefault();
+  $('form-appointment')?.addEventListener('submit', async e => {
+    e.preventDefault();
 
-        const n =
-          getNicho();
+    // Impede envios simultâneos.
+    if (salvandoAgendamento) return;
 
-        const payload = {
+    const botaoSalvar = $('appointment-submit-btn');
 
-          data:
-            $('ap-date').value,
+    salvandoAgendamento = true;
 
-          hora:
-            $('ap-time').value,
+    if (botaoSalvar) {
+      botaoSalvar.disabled = true;
+    }
 
-          cliente:
-            $('ap-client')
-              .value.trim(),
+    try {
+      const n = getNicho();
 
-          telefone:
-            $('ap-phone')
-              .value.trim(),
+      const payload = {
+        data: $('ap-date').value,
+        hora: $('ap-time').value,
+        cliente: $('ap-client').value.trim(),
+        telefone: $('ap-phone').value.trim(),
 
-          placa:
-            n.extra1
-              ? $('ap-plate')
-                  .value.trim()
-              : '',
+        cliente_id: $('ap-client-id')?.value || null,
 
-          veiculo:
-            n.extra2
-              ? $('ap-vehicle')
-                  .value.trim()
-              : '',
+        placa: n.extra1
+          ? $('ap-plate').value.trim()
+          : '',
 
-          observacoes:
-            (
-              $('ap-notes')
-                ?.value || ''
-            ).trim(),
+        veiculo: n.extra2
+          ? $('ap-vehicle').value.trim()
+          : '',
 
-          servico_id:
-            $('ap-service').value,
+        observacoes: (
+          $('ap-notes')?.value || ''
+        ).trim(),
 
-          valor:
-            parseFloat(
-              $('ap-price').value
-            ) || 0
-        };
+        servico_id: $('ap-service').value,
 
-        const conflito =
-          await findConflict(
-            payload.data,
-            payload.hora,
-            payload.servico_id,
-            editingAppointmentId
-          );
+        valor: parseFloat($('ap-price').value) || 0
+      };
 
-        if(conflito){
+      const edicao = Boolean(editingAppointmentId);
 
-          const nomeServico =
-            conflito.servico_nome ||
-            serviceName(
-              conflito.servico_id
-            );
+      // --------------------------------------------------------
+      // FUNÇÃO DE GRAVAÇÃO
+      // --------------------------------------------------------
 
-          const seguir =
-            confirm(
-              `Esse horário conflita com o agendamento de ${conflito.cliente} às ${conflito.hora.slice(0,5)} (${nomeServico}).\n\nAgendar mesmo assim?`
-            );
-
-          if(!seguir){
-            return;
+      const salvar = async () => {
+        return api(
+          edicao
+            ? '/agendamentos/' + editingAppointmentId
+            : '/agendamentos',
+          {
+            method: edicao ? 'PATCH' : 'POST',
+            body: JSON.stringify(payload)
           }
+        );
+      };
+
+      // --------------------------------------------------------
+      // VERIFICAÇÃO PRÉVIA DE CONFLITO
+      // --------------------------------------------------------
+
+      const conflito = await findConflict(
+        payload.data,
+        payload.hora,
+        payload.servico_id,
+        editingAppointmentId
+      );
+
+      if (conflito) {
+        const nomeServico =
+          conflito.servico_nome ||
+          serviceName(conflito.servico_id);
+
+        const horaExistente = String(
+          conflito.hora || ''
+        ).slice(0, 5);
+
+        const duracaoExistente = Number(
+          conflito.duracao_min || 30
+        );
+
+        const inicio = horaExistente
+          .split(':')
+          .map(Number);
+
+        const fimMinutos =
+          inicio[0] * 60 +
+          inicio[1] +
+          duracaoExistente;
+
+        const horaFim =
+          String(Math.floor(fimMinutos / 60) % 24)
+            .padStart(2, '0') +
+          ':' +
+          String(fimMinutos % 60)
+            .padStart(2, '0');
+
+        const seguir = confirm(
+          `CONFLITO DE HORÁRIO\n\n` +
+          `Cliente: ${conflito.cliente || 'Não informado'}\n` +
+          `Serviço: ${nomeServico}\n` +
+          `Horário: ${horaExistente} às ${horaFim}\n\n` +
+          `O período desse agendamento se sobrepõe ao horário escolhido.\n\n` +
+          `Deseja agendar mesmo assim?`
+        );
+
+        if (!seguir) {
+          return;
         }
 
-        try{
-
-          if(editingAppointmentId){
-
-            await api(
-              '/agendamentos/' +
-              editingAppointmentId,
-              {
-                method:'PATCH',
-
-                body:
-                  JSON.stringify(
-                    payload
-                  )
-              }
-            );
-
-          }else{
-
-            await api(
-              '/agendamentos',
-              {
-                method:'POST',
-
-                body:
-                  JSON.stringify(
-                    payload
-                  )
-              }
-            );
-          }
-
-          overlayAppointment
-            ?.classList
-            .remove('active');
-
-          selectedDate =
-            payload.data;
-
-          if(dateInput){
-            dateInput.value =
-              selectedDate;
-          }
-
-          await refreshAgenda();
-          await refreshSideStats();
-
-        }catch(err){
-
-          alert(
-            'Não foi possível salvar: ' +
-            err.message
-          );
-        }
+        // O backend só permite a sobreposição
+        // quando existe confirmação explícita.
+        payload.forcar_conflito = true;
       }
-    );
+
+      // --------------------------------------------------------
+      // PRIMEIRA TENTATIVA DE GRAVAÇÃO
+      // --------------------------------------------------------
+
+      try {
+        await salvar();
+      } catch (err) {
+        /*
+         * Se o frontend não encontrou o conflito, mas o backend
+         * encontrou, solicita confirmação usando os dados
+         * retornados pela API.
+         */
+        const resposta = err.resposta || err.data || err.body;
+        const status = err.status || err.statusCode;
+        const codigo =
+          resposta?.codigo ||
+          err.codigo;
+
+        if (
+          status !== 409 &&
+          codigo !== 'CONFLITO_HORARIO'
+        ) {
+          throw err;
+        }
+
+        // Evita repetir a confirmação se já houve confirmação.
+        if (payload.forcar_conflito === true) {
+          throw err;
+        }
+
+        const conflitoApi = resposta?.conflito;
+
+        if (!conflitoApi) {
+          alert(
+            'O horário está ocupado, mas não foi possível ' +
+            'obter os detalhes do agendamento conflitante. ' +
+            'Atualize a agenda e tente novamente.'
+          );
+          return;
+        }
+
+        const nomeServico =
+          conflitoApi.servico_nome ||
+          serviceName(conflitoApi.servico_id);
+
+        const seguir = confirm(
+          `CONFLITO DE HORÁRIO\n\n` +
+          `Cliente: ${conflitoApi.cliente || 'Não informado'}\n` +
+          `Serviço: ${nomeServico}\n` +
+          `Horário: ${String(conflitoApi.hora).slice(0, 5)}\n\n` +
+          `${resposta?.erro || 'Esse período se sobrepõe a outro agendamento.'}\n\n` +
+          `Deseja continuar mesmo assim?`
+        );
+
+        if (!seguir) {
+          return;
+        }
+
+        // Segunda tentativa: agora com autorização explícita.
+        payload.forcar_conflito = true;
+
+        await salvar();
+      }
+
+      // --------------------------------------------------------
+      // SUCESSO
+      // --------------------------------------------------------
+
+      overlayAppointment?.classList.remove('active');
+
+      selectedDate = payload.data;
+
+      if (dateInput) {
+        dateInput.value = selectedDate;
+      }
+
+      await refreshAgenda();
+      await refreshSideStats();
+
+    } catch (err) {
+      console.error('Erro ao salvar agendamento:', err);
+
+      alert(
+        'Não foi possível salvar: ' +
+        (err.message || 'Erro inesperado.')
+      );
+
+    } finally {
+      salvandoAgendamento = false;
+
+      if (botaoSalvar) {
+        botaoSalvar.disabled = false;
+      }
+    }
+  });
+
+
 
 
   // ============================================================

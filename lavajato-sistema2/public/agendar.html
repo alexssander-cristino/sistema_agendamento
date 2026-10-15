@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -616,9 +615,76 @@
       font-weight: 750;
     }
 
-    .secondary-button:hover {
+    .secondary-button:hover:not(:disabled) {
       border-color: var(--primary);
       color: var(--primary);
+    }
+
+    /* ---------- Ações da tela de sucesso / cancelamento ---------- */
+    .success-screen .notice {
+      max-width: 420px;
+      margin: 0 auto 18px;
+      text-align: left;
+    }
+
+    .success-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cancellation-actions {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .danger-button {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid var(--danger);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 750;
+      transition: background .18s ease, color .18s ease, filter .18s ease;
+    }
+
+    .danger-button:hover:not(:disabled) {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .danger-button.solid {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .danger-button.solid:hover:not(:disabled) {
+      filter: brightness(.92);
+    }
+
+    .cancel-confirm {
+      padding: 15px;
+      border: 1px solid #f2c5ca;
+      border-radius: 12px;
+      background: var(--danger-soft);
+      text-align: left;
+    }
+
+    .cancel-confirm p {
+      margin: 0 0 12px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .cancel-confirm-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
 
     .hidden {
@@ -692,6 +758,10 @@
 
       .success-screen {
         padding: 30px 19px;
+      }
+
+      .cancel-confirm-buttons {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -972,9 +1042,36 @@
         <div class="success-summary" id="success-summary"></div>
         <p class="success-reference" id="success-reference"></p>
 
-        <button type="button" class="secondary-button" id="new-booking-button">
-          Fazer outro agendamento
-        </button>
+        <div
+          id="cancellation-result"
+          class="notice"
+          role="status"
+          aria-live="polite"
+        ></div>
+
+        <div class="success-actions">
+          <div id="cancellation-actions" class="cancellation-actions hidden">
+            <button type="button" class="danger-button" id="cancel-booking-button">
+              Cancelar este agendamento
+            </button>
+
+            <div class="cancel-confirm hidden" id="cancel-confirm">
+              <p>Tem certeza de que deseja cancelar este agendamento?</p>
+              <div class="cancel-confirm-buttons">
+                <button type="button" class="danger-button solid" id="cancel-confirm-yes">
+                  Sim, cancelar
+                </button>
+                <button type="button" class="secondary-button" id="cancel-confirm-no">
+                  Manter agendamento
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="secondary-button" id="new-booking-button">
+            Fazer outro agendamento
+          </button>
+        </div>
       </section>
     </section>
 
@@ -983,913 +1080,1200 @@
     </footer>
   </main>
 
-  <script>
-    'use strict';
+<script>
+'use strict';
 
-    const API_BASE = '/api/public/agendamentos';
+const API_BASE = '/api/public/agendamentos';
 
-    const partesCaminho = window.location.pathname
-      .split('/')
-      .filter(Boolean);
+const partesCaminho = window.location.pathname
+  .split('/')
+  .filter(Boolean);
 
-    const empresaSlug =
-      partesCaminho[0] === 'agendar'
-        ? partesCaminho[1]
-        : null;
+const empresaSlug =
+  partesCaminho[0] === 'agendar'
+    ? partesCaminho[1]
+    : null;
 
-    const SLUG_VALIDO = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SLUG_VALIDO = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const TOKEN_VALIDO = /^[a-f0-9]{64}$/i;
 
-    const el = {
-      brandLogo: document.getElementById('brand-logo'),
-      brandInitial: document.getElementById('brand-initial'),
-      brandName: document.getElementById('brand-name'),
-      brandDescription: document.getElementById('brand-description'),
-      pageTitle: document.getElementById('page-title'),
-      footerCompany: document.getElementById('footer-company'),
+const el = {
+  brandLogo: document.getElementById('brand-logo'),
+  brandInitial: document.getElementById('brand-initial'),
+  brandName: document.getElementById('brand-name'),
+  brandDescription: document.getElementById('brand-description'),
+  pageTitle: document.getElementById('page-title'),
+  footerCompany: document.getElementById('footer-company'),
 
-      form: document.getElementById('booking-form'),
-      bookingContent: document.getElementById('booking-content'),
-      notice: document.getElementById('notice'),
+  form: document.getElementById('booking-form'),
+  bookingContent: document.getElementById('booking-content'),
+  notice: document.getElementById('notice'),
 
-      service: document.getElementById('servico'),
-      servicesHint: document.getElementById('services-hint'),
-      serviceDetails: document.getElementById('service-details'),
-      serviceDetailsName: document.getElementById('service-details-name'),
-      serviceDetailsDescription: document.getElementById('service-details-description'),
-      servicePrice: document.getElementById('service-price'),
+  service: document.getElementById('servico'),
+  servicesHint: document.getElementById('services-hint'),
+  serviceDetails: document.getElementById('service-details'),
+  serviceDetailsName: document.getElementById('service-details-name'),
+  serviceDetailsDescription: document.getElementById('service-details-description'),
+  servicePrice: document.getElementById('service-price'),
 
-      date: document.getElementById('data'),
-      slots: document.getElementById('slots'),
-      slotsHint: document.getElementById('slots-hint'),
-      time: document.getElementById('hora'),
+  date: document.getElementById('data'),
+  slots: document.getElementById('slots'),
+  slotsHint: document.getElementById('slots-hint'),
+  time: document.getElementById('hora'),
 
-      summary: document.getElementById('booking-summary'),
-      summaryService: document.getElementById('summary-service'),
-      summaryDate: document.getElementById('summary-date'),
-      summaryTime: document.getElementById('summary-time'),
-      summaryPrice: document.getElementById('summary-price'),
-      summaryPriceLine: document.getElementById('summary-price-line'),
+  summary: document.getElementById('booking-summary'),
+  summaryService: document.getElementById('summary-service'),
+  summaryDate: document.getElementById('summary-date'),
+  summaryTime: document.getElementById('summary-time'),
+  summaryPrice: document.getElementById('summary-price'),
+  summaryPriceLine: document.getElementById('summary-price-line'),
 
-      submitButton: document.getElementById('submit-button'),
-      submitLabel: document.getElementById('submit-label'),
-      submitIcon: document.getElementById('submit-icon'),
+  submitButton: document.getElementById('submit-button'),
+  submitLabel: document.getElementById('submit-label'),
+  submitIcon: document.getElementById('submit-icon'),
 
-      successScreen: document.getElementById('success-screen'),
-      successTitle: document.getElementById('success-title'),
-      successMessage: document.getElementById('success-message'),
-      successSummary: document.getElementById('success-summary'),
-      successReference: document.getElementById('success-reference'),
-      newBookingButton: document.getElementById('new-booking-button')
-    };
+  successScreen: document.getElementById('success-screen'),
+  successTitle: document.getElementById('success-title'),
+  successMessage: document.getElementById('success-message'),
+  successSummary: document.getElementById('success-summary'),
+  successReference: document.getElementById('success-reference'),
+  newBookingButton: document.getElementById('new-booking-button'),
 
-    let empresa = null;
-    let servicos = [];
-    let horariosDisponiveis = [];
-    let horarioSelecionado = null;
-    let consultandoHorarios = false;
-    let enviandoAgendamento = false;
-    let consultaAtual = 0;
+  cancellationActions: document.getElementById('cancellation-actions'),
+  cancelBookingButton: document.getElementById('cancel-booking-button'),
+  cancelConfirm: document.getElementById('cancel-confirm'),
+  cancelConfirmYes: document.getElementById('cancel-confirm-yes'),
+  cancelConfirmNo: document.getElementById('cancel-confirm-no'),
+  cancellationResult: document.getElementById('cancellation-result')
+};
 
-    function escaparHTML(valor) {
-      return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      })[caractere]);
+let empresa = null;
+let servicos = [];
+let horariosDisponiveis = [];
+let horarioSelecionado = null;
+let consultandoHorarios = false;
+let enviandoAgendamento = false;
+let cancelandoAgendamento = false;
+let consultaAtual = 0;
+let empresaMostraValores = true;
+
+// O token permanece somente em memória nesta página.
+// Não o salve em localStorage, sessionStorage ou logs.
+let ultimoAgendamento = null;
+
+// ============================================================
+// UTILITÁRIOS
+// ============================================================
+
+function primeiroValor(objeto, chaves, padrao = '') {
+  for (const chave of chaves) {
+    if (
+      objeto &&
+      objeto[chave] !== undefined &&
+      objeto[chave] !== null
+    ) {
+      return objeto[chave];
     }
+  }
 
-    function mostrarAlerta(mensagem, tipo = 'error') {
-      el.notice.textContent = mensagem;
-      el.notice.className = `notice visible ${tipo}`;
-      el.notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  return padrao;
+}
+
+function obterListaServicos(dados) {
+  if (Array.isArray(dados)) return dados;
+
+  const listas = [
+    dados?.servicos,
+    dados?.services,
+    dados?.data?.servicos,
+    dados?.data?.services
+  ];
+
+  return listas.find(Array.isArray) || [];
+}
+
+function obterEmpresa(dados) {
+  if (dados?.empresa && typeof dados.empresa === 'object') {
+    return dados.empresa;
+  }
+
+  if (dados?.data?.empresa && typeof dados.data.empresa === 'object') {
+    return dados.data.empresa;
+  }
+
+  if (dados?.data && typeof dados.data === 'object') {
+    return dados.data;
+  }
+
+  return dados || {};
+}
+
+function obterIdServico(servico) {
+  return primeiroValor(servico, ['id', 'servico_id', 'id_servico'], '');
+}
+
+function obterNomeServico(servico) {
+  return primeiroValor(
+    servico,
+    ['nome', 'nome_servico', 'titulo'],
+    'Serviço'
+  );
+}
+
+function obterDescricaoServico(servico) {
+  return primeiroValor(
+    servico,
+    ['descricao', 'descrição', 'detalhes'],
+    ''
+  );
+}
+
+function obterPrecoServico(servico) {
+  return primeiroValor(
+    servico,
+    ['preco', 'valor', 'preco_venda', 'valor_servico'],
+    null
+  );
+}
+
+function obterServicoSelecionado() {
+  return servicos.find(
+    servico => String(obterIdServico(servico)) === String(el.service.value)
+  ) || null;
+}
+
+function converterNumero(valor) {
+  if (typeof valor === 'number') {
+    return Number.isFinite(valor) ? valor : null;
+  }
+
+  if (typeof valor !== 'string' || !valor.trim()) {
+    return null;
+  }
+
+  const texto = valor.trim();
+  const normalizado = texto.includes(',')
+    ? texto.replace(/\./g, '').replace(',', '.')
+    : texto;
+
+  const numero = Number(normalizado);
+
+  return Number.isFinite(numero) ? numero : null;
+}
+
+function formatarMoeda(valor) {
+  const numero = converterNumero(valor);
+
+  if (numero === null) return '';
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(numero);
+}
+
+function formatarData(data) {
+  if (!data) return '—';
+
+  const partes = String(data).slice(0, 10).split('-');
+
+  if (partes.length !== 3) return String(data);
+
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function obterDataLocal() {
+  const agora = new Date();
+
+  return [
+    agora.getFullYear(),
+    String(agora.getMonth() + 1).padStart(2, '0'),
+    String(agora.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function mostrarAlerta(mensagem, tipo = 'error') {
+  el.notice.textContent = mensagem;
+  el.notice.className = `notice visible ${tipo}`;
+
+  el.notice.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest'
+  });
+}
+
+function limparAlerta() {
+  el.notice.textContent = '';
+  el.notice.className = 'notice';
+}
+
+function mostrarResultadoCancelamento(mensagem, tipo) {
+  if (!el.cancellationResult) return;
+
+  el.cancellationResult.textContent = mensagem;
+  el.cancellationResult.className = `notice visible ${tipo}`;
+}
+
+function ocultarResultadoCancelamento() {
+  if (!el.cancellationResult) return;
+
+  el.cancellationResult.textContent = '';
+  el.cancellationResult.className = 'notice';
+}
+
+async function requisicao(url, opcoes = {}) {
+  const resposta = await fetch(url, {
+    ...opcoes,
+    headers: {
+      Accept: 'application/json',
+      ...(opcoes.body
+        ? { 'Content-Type': 'application/json' }
+        : {}),
+      ...(opcoes.headers || {})
     }
+  });
 
-    function limparAlerta() {
-      el.notice.textContent = '';
-      el.notice.className = 'notice';
+  const texto = await resposta.text();
+  let dados = {};
+
+  if (texto) {
+    try {
+      dados = JSON.parse(texto);
+    } catch {
+      throw new Error(
+        'O servidor retornou uma resposta inválida.'
+      );
     }
+  }
 
-    async function requisicao(url, opcoes = {}) {
-      const resposta = await fetch(url, {
-        ...opcoes,
-        headers: {
-          Accept: 'application/json',
-          ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
-          ...(opcoes.headers || {})
-        }
+  if (!resposta.ok) {
+    throw new Error(
+      dados.mensagem ||
+      dados.message ||
+      dados.erro ||
+      dados.error ||
+      `Não foi possível concluir a solicitação (${resposta.status}).`
+    );
+  }
+
+  return dados;
+}
+
+// ============================================================
+// IDENTIDADE DA EMPRESA
+// ============================================================
+
+function definirIdentidadeEmpresa(dados) {
+  const nome = primeiroValor(
+    dados,
+    ['nome', 'nome_exibicao', 'nome_empresa', 'razao_social'],
+    'Agendamento'
+  );
+
+  const logo = primeiroValor(
+    dados,
+    ['logo_url', 'logo', 'url_logo'],
+    ''
+  );
+
+  const corPrimaria = primeiroValor(
+    dados,
+    ['cor_primaria', 'corPrimaria', 'cor_principal'],
+    ''
+  );
+
+  const corDestaque = primeiroValor(
+    dados,
+    ['cor_destaque', 'corDestaque'],
+    ''
+  );
+
+  const mostrarValores = primeiroValor(
+    dados,
+    ['mostrar_valores', 'mostrarValores'],
+    true
+  );
+
+  el.brandName.textContent = nome;
+  el.brandDescription.textContent = 'Agendamento online';
+  el.pageTitle.textContent = `Agende com ${nome}`;
+  el.footerCompany.textContent = nome;
+  el.brandInitial.textContent =
+    String(nome).trim().charAt(0).toUpperCase() || 'A';
+
+  if (logo) {
+    try {
+      const url = new URL(logo, window.location.origin);
+
+      if (['http:', 'https:'].includes(url.protocol)) {
+        const imagem = document.createElement('img');
+
+        imagem.src = url.href;
+        imagem.alt = `Logo de ${nome}`;
+        imagem.referrerPolicy = 'no-referrer';
+
+        imagem.addEventListener('error', () => {
+          el.brandLogo.replaceChildren();
+          el.brandLogo.appendChild(el.brandInitial);
+        }, { once: true });
+
+        el.brandLogo.replaceChildren(imagem);
+      }
+    } catch {
+      // Mantém a inicial da empresa.
+    }
+  }
+
+  if (/^#[0-9a-f]{6}$/i.test(corPrimaria)) {
+    document.documentElement.style.setProperty(
+      '--primary',
+      corPrimaria
+    );
+  }
+
+  if (/^#[0-9a-f]{6}$/i.test(corDestaque)) {
+    document.documentElement.style.setProperty(
+      '--primary-hover',
+      corDestaque
+    );
+  }
+
+  return ![
+    false,
+    0,
+    'false'
+  ].includes(mostrarValores);
+}
+
+// ============================================================
+// SERVIÇOS
+// ============================================================
+
+function renderizarServicos() {
+  el.service.replaceChildren();
+
+  const opcaoInicial = document.createElement('option');
+  opcaoInicial.value = '';
+  opcaoInicial.textContent = servicos.length
+    ? 'Selecione um serviço'
+    : 'Nenhum serviço disponível';
+
+  el.service.appendChild(opcaoInicial);
+
+  for (const servico of servicos) {
+    const id = obterIdServico(servico);
+
+    if (id === '' || id === null) continue;
+
+    const opcao = document.createElement('option');
+    opcao.value = String(id);
+
+    const nome = obterNomeServico(servico);
+    const preco = empresaMostraValores
+      ? formatarMoeda(obterPrecoServico(servico))
+      : '';
+
+    opcao.textContent = preco ? `${nome} — ${preco}` : nome;
+
+    el.service.appendChild(opcao);
+  }
+
+  el.service.disabled = servicos.length === 0;
+
+  el.servicesHint.textContent = servicos.length
+    ? 'Selecione um serviço para continuar.'
+    : 'Esta empresa não possui serviços disponíveis para agendamento.';
+
+  atualizarDetalhesServico();
+}
+
+function atualizarDetalhesServico() {
+  const servico = obterServicoSelecionado();
+
+  el.serviceDetails.classList.toggle(
+    'visible',
+    Boolean(servico)
+  );
+
+  if (!servico) {
+    el.serviceDetailsName.textContent = '';
+    el.serviceDetailsDescription.textContent = '';
+    el.servicePrice.textContent = '';
+
+    atualizarResumo();
+    return;
+  }
+
+  el.serviceDetailsName.textContent = obterNomeServico(servico);
+  el.serviceDetailsDescription.textContent =
+    obterDescricaoServico(servico);
+
+  const preco = empresaMostraValores
+    ? formatarMoeda(obterPrecoServico(servico))
+    : '';
+
+  el.servicePrice.textContent = preco;
+
+  atualizarResumo();
+}
+
+// ============================================================
+// RESUMO E ETAPAS
+// ============================================================
+
+function atualizarProgresso(etapa) {
+  for (let numero = 1; numero <= 3; numero++) {
+    const item = document.getElementById(`progress-${numero}`);
+
+    item.classList.toggle('active', numero === etapa);
+    item.classList.toggle('done', numero < etapa);
+
+    item.querySelector('.progress-number').textContent =
+      numero < etapa ? '✓' : String(numero);
+  }
+}
+
+function atualizarResumo() {
+  const servico = obterServicoSelecionado();
+  const data = el.date.value;
+  const hora = el.time.value;
+
+  el.summary.classList.toggle(
+    'visible',
+    Boolean(servico && data && hora)
+  );
+
+  if (!servico || !data || !hora) {
+    atualizarProgresso(servico ? 2 : 1);
+    return;
+  }
+
+  el.summaryService.textContent = obterNomeServico(servico);
+  el.summaryDate.textContent = formatarData(data);
+  el.summaryTime.textContent = hora;
+
+  const preco = empresaMostraValores
+    ? formatarMoeda(obterPrecoServico(servico))
+    : '';
+
+  el.summaryPriceLine.classList.toggle(
+    'hidden',
+    !preco
+  );
+
+  el.summaryPrice.textContent = preco;
+
+  atualizarProgresso(3);
+}
+
+// ============================================================
+// HORÁRIOS
+// ============================================================
+
+function limparHorarios(mensagem, erro = false) {
+  horariosDisponiveis = [];
+  horarioSelecionado = null;
+  el.time.value = '';
+
+  el.slots.replaceChildren();
+
+  const aviso = document.createElement('div');
+  aviso.className = `slots-message${erro ? ' error' : ''}`;
+  aviso.textContent = mensagem;
+
+  el.slots.appendChild(aviso);
+
+  atualizarResumo();
+}
+
+function obterListaHorarios(dados) {
+  if (Array.isArray(dados)) return dados;
+
+  const listas = [
+    dados?.horarios,
+    dados?.horarios_disponiveis,
+    dados?.disponiveis,
+    dados?.slots,
+    dados?.data?.horarios,
+    dados?.data?.horarios_disponiveis,
+    dados?.data?.slots
+  ];
+
+  return listas.find(Array.isArray) || [];
+}
+
+function normalizarHorario(item) {
+  if (typeof item === 'string') return item;
+
+  if (item && typeof item === 'object') {
+    return primeiroValor(
+      item,
+      ['hora', 'horario', 'horário', 'time', 'inicio'],
+      ''
+    );
+  }
+
+  return '';
+}
+
+function renderizarHorarios(lista) {
+  el.slots.replaceChildren();
+
+  horariosDisponiveis = [
+    ...new Set(
+      lista
+        .map(normalizarHorario)
+        .filter(hora => /^\d{2}:\d{2}(?::\d{2})?$/.test(String(hora)))
+        .map(hora => String(hora).slice(0, 5))
+    )
+  ].sort();
+
+  if (!horariosDisponiveis.length) {
+    limparHorarios(
+      'Não há horários disponíveis para esta data. Experimente outro dia.'
+    );
+
+    return;
+  }
+
+  for (const horario of horariosDisponiveis) {
+    const botao = document.createElement('button');
+
+    botao.type = 'button';
+    botao.className = 'slot';
+    botao.textContent = horario;
+    botao.setAttribute('aria-pressed', 'false');
+
+    botao.addEventListener('click', () => {
+      horarioSelecionado = horario;
+      el.time.value = horario;
+
+      el.slots.querySelectorAll('.slot').forEach(slot => {
+        const selecionado = slot === botao;
+
+        slot.classList.toggle('selected', selecionado);
+        slot.setAttribute(
+          'aria-pressed',
+          String(selecionado)
+        );
       });
 
-      const texto = await resposta.text();
-      let dados = {};
-
-      if (texto) {
-        try {
-          dados = JSON.parse(texto);
-        } catch {
-          throw new Error('O servidor retornou uma resposta inválida.');
-        }
-      }
-
-      if (!resposta.ok) {
-        const mensagem =
-          dados.mensagem ||
-          dados.message ||
-          dados.erro ||
-          dados.error ||
-          `Não foi possível concluir a solicitação (${resposta.status}).`;
-
-        throw new Error(mensagem);
-      }
-
-      return dados;
-    }
-
-    function primeiroValor(objeto, chaves, padrao = '') {
-      for (const chave of chaves) {
-        if (
-          objeto &&
-          objeto[chave] !== undefined &&
-          objeto[chave] !== null
-        ) {
-          return objeto[chave];
-        }
-      }
-
-      return padrao;
-    }
-
-    function obterListaServicos(dados) {
-      if (Array.isArray(dados)) return dados;
-
-      const listas = [
-        dados?.servicos,
-        dados?.services,
-        dados?.data?.servicos,
-        dados?.data?.services
-      ];
-
-      return listas.find(Array.isArray) || [];
-    }
-
-    function obterEmpresa(dados) {
-      if (!dados || typeof dados !== 'object') return {};
-
-      if (dados.empresa && typeof dados.empresa === 'object') {
-        return dados.empresa;
-      }
-
-      if (dados.data?.empresa && typeof dados.data.empresa === 'object') {
-        return dados.data.empresa;
-      }
-
-      if (dados.data && typeof dados.data === 'object') {
-        return dados.data;
-      }
-
-      return dados;
-    }
-
-    function obterIdServico(servico) {
-      return primeiroValor(servico, ['id', 'servico_id', 'id_servico'], '');
-    }
-
-    function obterNomeServico(servico) {
-      return primeiroValor(servico, ['nome', 'nome_servico', 'titulo'], 'Serviço');
-    }
-
-    function obterDescricaoServico(servico) {
-      return primeiroValor(
-        servico,
-        ['descricao', 'descrição', 'detalhes'],
-        ''
-      );
-    }
-
-    function obterPrecoServico(servico) {
-      return primeiroValor(
-        servico,
-        ['preco', 'valor', 'preco_venda', 'valor_servico'],
-        null
-      );
-    }
-
-    function obterServicoSelecionado() {
-      const id = String(el.service.value);
-
-      return servicos.find(servico => String(obterIdServico(servico)) === id) || null;
-    }
-
-    function converterNumero(valor) {
-      if (typeof valor === 'number') {
-        return Number.isFinite(valor) ? valor : null;
-      }
-
-      if (typeof valor !== 'string' || !valor.trim()) {
-        return null;
-      }
-
-      const texto = valor.trim();
-      const normalizado = texto.includes(',')
-        ? texto.replace(/\./g, '').replace(',', '.')
-        : texto;
-
-      const numero = Number(normalizado);
-      return Number.isFinite(numero) ? numero : null;
-    }
-
-    function formatarMoeda(valor) {
-      const numero = converterNumero(valor);
-
-      if (numero === null) return '';
-
-      return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      }).format(numero);
-    }
-
-    function formatarData(data) {
-      if (!data) return '—';
-
-      const partes = String(data).split('-');
-
-      if (partes.length !== 3) return String(data);
-
-      return `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
-
-    function obterDataLocal() {
-      const agora = new Date();
-      const ano = agora.getFullYear();
-      const mes = String(agora.getMonth() + 1).padStart(2, '0');
-      const dia = String(agora.getDate()).padStart(2, '0');
-
-      return `${ano}-${mes}-${dia}`;
-    }
-
-    function definirIdentidadeEmpresa(dados) {
-      const nome = primeiroValor(
-        dados,
-        ['nome', 'nome_exibicao', 'nome_empresa', 'razao_social'],
-        'Agendamento'
-      );
-
-      const logo = primeiroValor(
-        dados,
-        ['logo_url', 'logo', 'url_logo'],
-        ''
-      );
-
-      const corPrimaria = primeiroValor(
-        dados,
-        ['cor_primaria', 'corPrimaria', 'cor_principal'],
-        ''
-      );
-
-      const corDestaque = primeiroValor(
-        dados,
-        ['cor_destaque', 'corDestaque'],
-        ''
-      );
-
-      const mostrarValores = primeiroValor(
-        dados,
-        ['mostrar_valores', 'mostrarValores'],
-        true
-      );
-
-      el.brandName.textContent = nome;
-      el.brandDescription.textContent = 'Agendamento online';
-      el.pageTitle.textContent = `Agende com ${nome}`;
-      el.footerCompany.textContent = nome;
-
-      el.brandInitial.textContent =
-        String(nome).trim().charAt(0).toUpperCase() || 'A';
-
-      if (logo) {
-        try {
-          const url = new URL(logo, window.location.origin);
-
-          if (url.protocol === 'http:' || url.protocol === 'https:') {
-            const imagem = document.createElement('img');
-            imagem.src = url.href;
-            imagem.alt = `Logo de ${nome}`;
-            imagem.referrerPolicy = 'no-referrer';
-
-            imagem.addEventListener('error', () => {
-              el.brandLogo.replaceChildren();
-              el.brandLogo.appendChild(el.brandInitial);
-            }, { once: true });
-
-            el.brandLogo.replaceChildren(imagem);
-          }
-        } catch {
-          // Mantém a inicial da empresa caso a URL da logo seja inválida.
-        }
-      }
-
-      if (typeof corPrimaria === 'string' &&
-          /^#[0-9a-fA-F]{6}$/.test(corPrimaria)) {
-        document.documentElement.style.setProperty('--primary', corPrimaria);
-      }
-
-      if (typeof corDestaque === 'string' &&
-          /^#[0-9a-fA-F]{6}$/.test(corDestaque)) {
-        document.documentElement.style.setProperty('--primary-hover', corDestaque);
-      }
-
-      return mostrarValores !== false &&
-        mostrarValores !== 0 &&
-        mostrarValores !== 'false';
-    }
-
-    function renderizarServicos(mostrarValores) {
-      el.service.replaceChildren();
-
-      const opcaoInicial = document.createElement('option');
-      opcaoInicial.value = '';
-      opcaoInicial.textContent = servicos.length
-        ? 'Selecione um serviço'
-        : 'Nenhum serviço disponível';
-      el.service.appendChild(opcaoInicial);
-
-      for (const servico of servicos) {
-        const id = obterIdServico(servico);
-
-        if (id === '' || id === null) continue;
-
-        const opcao = document.createElement('option');
-        opcao.value = String(id);
-
-        const nome = obterNomeServico(servico);
-        const preco = obterPrecoServico(servico);
-        const valor = mostrarValores ? formatarMoeda(preco) : '';
-
-        opcao.textContent = valor ? `${nome} — ${valor}` : nome;
-        el.service.appendChild(opcao);
-      }
-
-      el.service.disabled = servicos.length === 0;
-
-      el.servicesHint.textContent = servicos.length
-        ? 'Selecione um serviço para continuar.'
-        : 'Esta empresa não possui serviços disponíveis para agendamento.';
-
-      atualizarDetalhesServico(mostrarValores);
-    }
-
-    let empresaMostraValores = true;
-
-    function atualizarDetalhesServico(mostrarValores = empresaMostraValores) {
-      const servico = obterServicoSelecionado();
-
-      el.serviceDetails.classList.toggle('visible', Boolean(servico));
-
-      if (!servico) {
-        el.serviceDetailsName.textContent = '';
-        el.serviceDetailsDescription.textContent = '';
-        el.servicePrice.textContent = '';
-        atualizarResumo();
-        return;
-      }
-
-      el.serviceDetailsName.textContent = obterNomeServico(servico);
-      el.serviceDetailsDescription.textContent = obterDescricaoServico(servico);
-
-      const preco = obterPrecoServico(servico);
-      el.servicePrice.textContent =
-        mostrarValores && formatarMoeda(preco)
-          ? formatarMoeda(preco)
-          : '';
-
+      limparAlerta();
       atualizarResumo();
+    });
+
+    el.slots.appendChild(botao);
+  }
+
+  el.slotsHint.textContent =
+    `${horariosDisponiveis.length} horário(s) disponível(is).`;
+}
+
+async function carregarHorarios() {
+  const data = el.date.value;
+  const servicoId = el.service.value;
+  const requisicaoId = ++consultaAtual;
+
+  horarioSelecionado = null;
+  el.time.value = '';
+
+  if (!servicoId || !data) {
+    limparHorarios(
+      'Selecione um serviço e uma data primeiro.'
+    );
+
+    return;
+  }
+
+  if (!empresaSlug || !SLUG_VALIDO.test(empresaSlug)) {
+    limparHorarios(
+      'Não foi possível identificar a empresa.',
+      true
+    );
+
+    return;
+  }
+
+  consultandoHorarios = true;
+
+  el.slotsHint.textContent = 'Consultando disponibilidade...';
+  limparHorarios('Consultando horários disponíveis...');
+
+  try {
+    const query = new URLSearchParams({
+      data,
+      servico_id: servicoId
+    });
+
+    const dados = await requisicao(
+      `${API_BASE}/${encodeURIComponent(empresaSlug)}/horarios?${query}`
+    );
+
+    if (requisicaoId !== consultaAtual) return;
+
+    renderizarHorarios(obterListaHorarios(dados));
+  } catch (erro) {
+    if (requisicaoId !== consultaAtual) return;
+
+    limparHorarios(
+      erro.message || 'Não foi possível consultar os horários.',
+      true
+    );
+
+    el.slotsHint.textContent = 'Ocorreu um erro na consulta.';
+  } finally {
+    if (requisicaoId === consultaAtual) {
+      consultandoHorarios = false;
     }
+  }
 
-    function atualizarProgresso(etapa) {
-      for (let numero = 1; numero <= 3; numero++) {
-        const item = document.getElementById(`progress-${numero}`);
+  atualizarResumo();
+}
 
-        item.classList.toggle('active', numero === etapa);
-        item.classList.toggle('done', numero < etapa);
+// ============================================================
+// BOTÃO DE ENVIO
+// ============================================================
 
-        const numeroEl = item.querySelector('.progress-number');
+function definirEstadoBotao(carregando, texto) {
+  el.submitButton.disabled =
+    carregando || !empresa || servicos.length === 0;
 
-        numeroEl.textContent = numero < etapa ? '✓' : String(numero);
+  el.submitLabel.textContent = texto;
+  el.submitIcon.classList.toggle('hidden', carregando);
+
+  document.getElementById('button-spinner')?.remove();
+
+  if (carregando) {
+    const spinner = document.createElement('span');
+
+    spinner.className = 'loading-spinner';
+    spinner.id = 'button-spinner';
+
+    el.submitButton.insertBefore(
+      spinner,
+      el.submitLabel
+    );
+  }
+}
+
+// ============================================================
+// CONFIRMAÇÃO DO AGENDAMENTO
+// ============================================================
+
+function montarResumoSucesso(
+  nome,
+  servicoNome,
+  data,
+  hora,
+  telefone,
+  preco
+) {
+  const linhas = [
+    ['Cliente', nome],
+    ['Serviço', servicoNome],
+    ['Data', formatarData(data)],
+    ['Horário', hora],
+    ['Telefone', telefone]
+  ];
+
+  if (preco) {
+    linhas.push(['Valor', preco]);
+  }
+
+  el.successSummary.replaceChildren();
+
+  for (const [rotulo, valor] of linhas) {
+    const linha = document.createElement('div');
+    linha.className = 'summary-line';
+
+    const rotuloEl = document.createElement('span');
+    rotuloEl.textContent = rotulo;
+
+    const valorEl = document.createElement('span');
+    valorEl.textContent = valor;
+
+    linha.append(rotuloEl, valorEl);
+    el.successSummary.appendChild(linha);
+  }
+}
+
+async function enviarAgendamento(evento) {
+  evento.preventDefault();
+  limparAlerta();
+
+  if (enviandoAgendamento) return;
+
+  if (!empresa || !empresaSlug || !SLUG_VALIDO.test(empresaSlug)) {
+    mostrarAlerta(
+      'Não foi possível identificar a empresa.',
+      'error'
+    );
+
+    return;
+  }
+
+  const servico = obterServicoSelecionado();
+  const nome = document.getElementById('nome').value.trim();
+  const telefone = document.getElementById('telefone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const observacoes =
+    document.getElementById('observacoes').value.trim();
+
+  const data = el.date.value;
+  const hora = el.time.value;
+
+  if (!servico) {
+    mostrarAlerta('Selecione o serviço desejado.', 'error');
+    el.service.focus();
+    return;
+  }
+
+  if (!data) {
+    mostrarAlerta('Selecione a data do agendamento.', 'error');
+    el.date.focus();
+    return;
+  }
+
+  if (!hora || !horariosDisponiveis.includes(hora)) {
+    mostrarAlerta('Selecione um horário disponível.', 'error');
+    return;
+  }
+
+  if (!nome || nome.length > 150) {
+    mostrarAlerta(
+      'Informe seu nome, com até 150 caracteres.',
+      'error'
+    );
+
+    return;
+  }
+
+  if (!telefone || telefone.length > 30) {
+    mostrarAlerta(
+      'Informe um telefone válido, com até 30 caracteres.',
+      'error'
+    );
+
+    return;
+  }
+
+  if (email && !document.getElementById('email').checkValidity()) {
+    mostrarAlerta('Informe um e-mail válido.', 'error');
+    return;
+  }
+
+  if (
+    email.length > 254 ||
+    observacoes.length > 1000
+  ) {
+    mostrarAlerta(
+      'Um ou mais campos ultrapassam o tamanho permitido.',
+      'error'
+    );
+
+    return;
+  }
+
+  if (data < obterDataLocal()) {
+    mostrarAlerta(
+      'Não é possível agendar em uma data passada.',
+      'error'
+    );
+
+    return;
+  }
+
+  const payload = {
+    nome,
+    telefone,
+    servico_id: obterIdServico(servico),
+    data,
+    hora,
+    observacoes: observacoes || null
+  };
+
+  enviandoAgendamento = true;
+  definirEstadoBotao(true, 'Enviando agendamento...');
+
+  try {
+    const dados = await requisicao(
+      `${API_BASE}/${encodeURIComponent(empresaSlug)}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload)
       }
-    }
+    );
 
-    function atualizarResumo() {
-      const servico = obterServicoSelecionado();
-      const data = el.date.value;
-      const hora = el.time.value;
+    const agendamento = dados.agendamento || {};
 
-      el.summary.classList.toggle(
-        'visible',
-        Boolean(servico && data && hora)
-      );
+    const agendamentoId =
+      dados.agendamento_id ??
+      dados.id ??
+      agendamento.id;
 
-      if (!servico || !data || !hora) {
-        atualizarProgresso(servico ? 2 : 1);
-        return;
-      }
+    const token = dados.token_cancelamento;
 
-      el.summaryService.textContent = obterNomeServico(servico);
-      el.summaryDate.textContent = formatarData(data);
-      el.summaryTime.textContent = hora;
+    if (
+      agendamentoId === undefined ||
+      agendamentoId === null ||
+      !TOKEN_VALIDO.test(String(token || ''))
+    ) {
+      // A criação pode ter sido concluída mesmo que a resposta
+      // não contenha o token. Não envie outro POST automaticamente.
+      el.bookingContent.classList.add('hidden');
+      el.successScreen.classList.add('visible');
 
-      const preco = obterPrecoServico(servico);
-      const valorFormatado = empresaMostraValores
-        ? formatarMoeda(preco)
-        : '';
-
-      el.summaryPriceLine.classList.toggle('hidden', !valorFormatado);
-      el.summaryPrice.textContent = valorFormatado || '';
-
-      atualizarProgresso(3);
-    }
-
-    function limparHorarios(mensagem, erro = false) {
-      horariosDisponiveis = [];
-      horarioSelecionado = null;
-      el.time.value = '';
-      el.slots.replaceChildren();
-
-      const aviso = document.createElement('div');
-      aviso.className = `slots-message${erro ? ' error' : ''}`;
-      aviso.textContent = mensagem;
-      el.slots.appendChild(aviso);
-
-      atualizarResumo();
-    }
-
-    function normalizarHorario(item) {
-      if (typeof item === 'string') {
-        return item;
-      }
-
-      if (item && typeof item === 'object') {
-        return primeiroValor(
-          item,
-          ['hora', 'horario', 'horário', 'time', 'inicio'],
-          ''
-        );
-      }
-
-      return '';
-    }
-
-    function obterListaHorarios(dados) {
-      if (Array.isArray(dados)) return dados;
-
-      const listas = [
-        dados?.horarios,
-        dados?.horarios_disponiveis,
-        dados?.disponiveis,
-        dados?.slots,
-        dados?.data?.horarios,
-        dados?.data?.horarios_disponiveis,
-        dados?.data?.slots
-      ];
-
-      return listas.find(Array.isArray) || [];
-    }
-
-    function horarioValido(hora) {
-      return /^\d{2}:\d{2}(?::\d{2})?$/.test(String(hora));
-    }
-
-    function renderizarHorarios(lista) {
-      el.slots.replaceChildren();
-
-      const horariosUnicos = [...new Set(
-        lista
-          .map(normalizarHorario)
-          .filter(horarioValido)
-          .map(horario => horario.slice(0, 5))
-      )].sort();
-
-      horariosDisponiveis = horariosUnicos;
-
-      if (!horariosDisponiveis.length) {
-        limparHorarios(
-          'Não há horários disponíveis para esta data. Experimente outro dia.'
-        );
-        return;
-      }
-
-      for (const horario of horariosDisponiveis) {
-        const botao = document.createElement('button');
-
-        botao.type = 'button';
-        botao.className = 'slot';
-        botao.textContent = horario;
-        botao.setAttribute('aria-pressed', 'false');
-
-        botao.addEventListener('click', () => {
-          horarioSelecionado = horario;
-          el.time.value = horario;
-
-          el.slots.querySelectorAll('.slot').forEach(slot => {
-            const selecionado = slot === botao;
-
-            slot.classList.toggle('selected', selecionado);
-            slot.setAttribute('aria-pressed', String(selecionado));
-          });
-
-          limparAlerta();
-          atualizarResumo();
-        });
-
-        el.slots.appendChild(botao);
-      }
-
-      el.slotsHint.textContent =
-        'Selecione um dos horários disponíveis abaixo.';
-    }
-
-    async function carregarHorarios() {
-      const data = el.date.value;
-      const servicoId = el.service.value;
-      const requisicaoId = ++consultaAtual;
-
-      horarioSelecionado = null;
-      el.time.value = '';
-
-      if (!servicoId || !data) {
-        limparHorarios('Selecione um serviço e uma data primeiro.');
-        return;
-      }
-
-      if (!empresaSlug || !SLUG_VALIDO.test(empresaSlug)) {
-        limparHorarios('Não foi possível identificar a empresa.', true);
-        return;
-      }
-
-      consultandoHorarios = true;
-      el.slotsHint.textContent = 'Consultando disponibilidade...';
-      limparHorarios('Buscando horários disponíveis...');
-
-      const avisoCarregando = el.slots.querySelector('.slots-message');
-      if (avisoCarregando) {
-        avisoCarregando.innerHTML =
-          '<span class="loading-spinner" style="display:inline-block;border-color:#d8d5ff;border-top-color:var(--primary);vertical-align:middle"></span> Consultando horários...';
-      }
-
-      try {
-        const query = new URLSearchParams({
-          data,
-          servico_id: servicoId
-        });
-
-        const dados = await requisicao(
-          `${API_BASE}/${encodeURIComponent(empresaSlug)}/horarios?${query.toString()}`
-        );
-
-        if (requisicaoId !== consultaAtual) return;
-
-        const lista = obterListaHorarios(dados);
-        renderizarHorarios(lista);
-
-        if (horariosDisponiveis.length) {
-          el.slotsHint.textContent =
-            `${horariosDisponiveis.length} horário(s) disponível(is).`;
-        } else {
-          el.slotsHint.textContent =
-            'Escolha outra data para consultar a disponibilidade.';
-        }
-      } catch (erro) {
-        if (requisicaoId !== consultaAtual) return;
-
-        limparHorarios(
-          erro.message || 'Não foi possível consultar os horários.',
-          true
-        );
-
-        el.slotsHint.textContent = 'Ocorreu um erro na consulta.';
-      } finally {
-        if (requisicaoId === consultaAtual) {
-          consultandoHorarios = false;
-        }
-      }
-
-      atualizarResumo();
-    }
-
-    function definirEstadoBotao(carregando, texto) {
-      el.submitButton.disabled = carregando || !empresa || !servicos.length;
-
-      el.submitLabel.textContent = texto;
-      el.submitIcon.classList.toggle('hidden', carregando);
-
-      if (carregando) {
-        const spinner = document.createElement('span');
-        spinner.className = 'loading-spinner';
-        spinner.id = 'button-spinner';
-        el.submitButton.insertBefore(spinner, el.submitLabel);
-      } else {
-        document.getElementById('button-spinner')?.remove();
-      }
-    }
-
-    function validarSlug() {
-      if (!empresaSlug || !SLUG_VALIDO.test(empresaSlug)) {
-        mostrarAlerta(
-          'Link inválido. Acesse esta página pelo link de agendamento fornecido pela empresa.',
-          'error'
-        );
-
-        el.service.disabled = true;
-        el.date.disabled = true;
-        el.submitButton.disabled = true;
-        el.service.replaceChildren();
-
-        const opcao = document.createElement('option');
-        opcao.value = '';
-        opcao.textContent = 'Link de agendamento inválido';
-        el.service.appendChild(opcao);
-
-        limparHorarios('Não foi possível identificar a empresa.', true);
-        return false;
-      }
-
-      return true;
-    }
-
-    async function carregarEmpresa() {
-      const dados = await requisicao(
-        `${API_BASE}/${encodeURIComponent(empresaSlug)}`
-      );
-
-      empresa = obterEmpresa(dados);
-      empresaMostraValores = definirIdentidadeEmpresa(empresa);
-
-      servicos = obterListaServicos(dados);
-
-      // Algumas APIs retornam os serviços dentro do objeto da empresa.
-      if (!servicos.length) {
-        servicos = obterListaServicos(empresa);
-      }
-
-      renderizarServicos(empresaMostraValores);
-
-      if (!servicos.length) {
-        mostrarAlerta(
-          'Esta empresa não possui serviços ativos disponíveis para agendamento.',
-          'info'
-        );
-      }
-
-      el.date.disabled = servicos.length === 0;
-      el.date.min = obterDataLocal();
-
-      definirEstadoBotao(
-        false,
-        servicos.length ? 'Confirmar agendamento' : 'Agendamentos indisponíveis'
-      );
-    }
-
-    function montarResumoSucesso(nome, servico, data, hora, telefone) {
-      const linhas = [
-        ['Cliente', nome],
-        ['Serviço', servico],
-        ['Data', formatarData(data)],
-        ['Horário', hora],
-        ['Telefone', telefone]
-      ];
-
-      const preco = obterPrecoServico(obterServicoSelecionado());
-      const valor = empresaMostraValores ? formatarMoeda(preco) : '';
-
-      if (valor) linhas.push(['Valor', valor]);
+      el.successTitle.textContent = 'Verifique seu agendamento';
+      el.successMessage.textContent =
+        'O servidor não retornou os dados de cancelamento. Entre em contato com a empresa para confirmar o agendamento antes de tentar novamente.';
 
       el.successSummary.replaceChildren();
-
-      for (const [rotulo, valorLinha] of linhas) {
-        const linha = document.createElement('div');
-        linha.className = 'summary-line';
-
-        const rotuloEl = document.createElement('span');
-        rotuloEl.textContent = rotulo;
-
-        const valorEl = document.createElement('span');
-        valorEl.textContent = valorLinha;
-
-        linha.append(rotuloEl, valorEl);
-        el.successSummary.appendChild(linha);
-      }
-    }
-
-    function obterMensagemSucesso(dados) {
-      return primeiroValor(
-        dados,
-        ['mensagem', 'message'],
-        'Sua solicitação de agendamento foi enviada com sucesso.'
-      );
-    }
-
-    async function enviarAgendamento(evento) {
-      evento.preventDefault();
-      limparAlerta();
-
-      if (enviandoAgendamento) return;
-
-      if (!empresa || !empresaSlug || !SLUG_VALIDO.test(empresaSlug)) {
-        mostrarAlerta('Não foi possível identificar a empresa.', 'error');
-        return;
-      }
-
-      const servico = obterServicoSelecionado();
-      const nome = document.getElementById('nome').value.trim();
-      const telefone = document.getElementById('telefone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const observacoes = document.getElementById('observacoes').value.trim();
-      const data = el.date.value;
-      const hora = el.time.value;
-
-      if (!servico) {
-        mostrarAlerta('Selecione o serviço desejado.', 'error');
-        el.service.focus();
-        return;
-      }
-
-      if (!data) {
-        mostrarAlerta('Selecione a data do agendamento.', 'error');
-        el.date.focus();
-        return;
-      }
-
-      if (!hora || !horariosDisponiveis.includes(hora)) {
-        mostrarAlerta('Selecione um horário disponível.', 'error');
-        el.slots.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-
-      if (!nome || !telefone) {
-        mostrarAlerta('Preencha seu nome e telefone para continuar.', 'error');
-        return;
-      }
-
-      if (nome.length > 150 || telefone.length > 30 || email.length > 254 ||
-          observacoes.length > 1000) {
-        mostrarAlerta('Um ou mais campos ultrapassam o tamanho permitido.', 'error');
-        return;
-      }
-
-      if (email && !document.getElementById('email').checkValidity()) {
-        mostrarAlerta('Informe um endereço de e-mail válido.', 'error');
-        document.getElementById('email').focus();
-        return;
-      }
-
-      if (data < obterDataLocal()) {
-        mostrarAlerta('Não é possível agendar em uma data passada.', 'error');
-        return;
-      }
-
-      const servicoId = obterIdServico(servico);
-
-      if (servicoId === '' || servicoId === null) {
-        mostrarAlerta('O serviço selecionado é inválido.', 'error');
-        return;
-      }
-
-      const payload = {
-        nome,
-        telefone,
-        email: email || null,
-        servico_id: servicoId,
-        data,
-        hora,
-        observacoes: observacoes || null
-      };
-
-      enviandoAgendamento = true;
-      el.submitButton.disabled = true;
-      definirEstadoBotao(true, 'Enviando agendamento...');
-
-      try {
-        const dados = await requisicao(
-          `${API_BASE}/${encodeURIComponent(empresaSlug)}`,
-          {
-            method: 'POST',
-            body: JSON.stringify(payload)
-          }
-        );
-
-        el.bookingContent.classList.add('hidden');
-        el.successScreen.classList.add('visible');
-
-        el.successTitle.textContent = 'Solicitação enviada!';
-        el.successMessage.textContent = obterMensagemSucesso(dados);
-
-        montarResumoSucesso(
-          nome,
-          obterNomeServico(servico),
-          data,
-          hora,
-          telefone
-        );
-
-        const referencia = primeiroValor(
-          dados,
-          ['agendamento_id', 'id', 'id_agendamento', 'protocolo'],
-          ''
-        );
-
-        el.successReference.textContent = referencia
-          ? `Número do agendamento: ${referencia}`
+      el.successReference.textContent =
+        agendamentoId !== undefined && agendamentoId !== null
+          ? `Número do agendamento: ${agendamentoId}`
           : '';
 
-        el.successScreen.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      } catch (erro) {
-        mostrarAlerta(
-          erro.message || 'Não foi possível concluir o agendamento. Tente novamente.',
-          'error'
-        );
+      el.cancellationActions.classList.add('hidden');
 
-        definirEstadoBotao(false, 'Confirmar agendamento');
-      } finally {
-        enviandoAgendamento = false;
-
-        if (!el.successScreen.classList.contains('visible')) {
-          definirEstadoBotao(false, 'Confirmar agendamento');
-        }
-      }
+      return;
     }
 
-    function reiniciarFormulario() {
-      el.form.reset();
-      el.bookingContent.classList.remove('hidden');
-      el.successScreen.classList.remove('visible');
+    ultimoAgendamento = {
+      id: agendamentoId,
+      token,
+      slug: empresaSlug
+    };
 
-      horarioSelecionado = null;
-      horariosDisponiveis = [];
-      el.time.value = '';
+    resetarCancelamentoUI();
+    el.cancellationActions.classList.remove('hidden');
+    ocultarResultadoCancelamento();
 
-      el.date.min = obterDataLocal();
+    const preco = empresaMostraValores
+      ? formatarMoeda(obterPrecoServico(servico))
+      : '';
 
-      limparAlerta();
-      limparHorarios('Selecione um serviço e uma data primeiro.');
-      atualizarDetalhesServico();
-      atualizarResumo();
-      definirEstadoBotao(false, 'Confirmar agendamento');
+    montarResumoSucesso(
+      nome,
+      obterNomeServico(servico),
+      data,
+      hora,
+      telefone,
+      preco
+    );
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    el.successReference.textContent =
+      `Número do agendamento: ${agendamentoId}`;
 
-    el.service.addEventListener('change', async () => {
-      limparAlerta();
-      atualizarDetalhesServico();
+    el.successTitle.textContent = 'Solicitação enviada!';
+    el.successMessage.textContent =
+      dados.mensagem ||
+      'Seu agendamento foi realizado com sucesso. Confira os dados abaixo.';
 
-      if (el.date.value) {
-        await carregarHorarios();
-      } else {
-        limparHorarios('Selecione uma data para consultar os horários.');
-      }
+    el.bookingContent.classList.add('hidden');
+    el.successScreen.classList.add('visible');
+
+    el.successScreen.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
     });
+  } catch (erro) {
+    mostrarAlerta(
+      erro.message ||
+      'Não foi possível concluir o agendamento. Confira os dados e tente novamente.',
+      'error'
+    );
+  } finally {
+    enviandoAgendamento = false;
 
-    el.date.addEventListener('change', async () => {
-      limparAlerta();
-
-      if (el.date.value < obterDataLocal()) {
-        el.date.value = '';
-        limparHorarios('Selecione hoje ou uma data futura.');
-        mostrarAlerta('A data escolhida não pode estar no passado.', 'error');
-        return;
-      }
-
-      await carregarHorarios();
-    });
-
-    el.form.addEventListener('submit', enviarAgendamento);
-    el.newBookingButton.addEventListener('click', reiniciarFormulario);
-
-    async function iniciar() {
-      if (!validarSlug()) return;
-
-      definirEstadoBotao(true, 'Carregando informações...');
-
-      try {
-        await carregarEmpresa();
-      } catch (erro) {
-        mostrarAlerta(
-          erro.message ||
-          'Não foi possível carregar as informações desta empresa. Verifique o link e tente novamente.',
-          'error'
-        );
-
-        el.service.disabled = true;
-        el.date.disabled = true;
-        definirEstadoBotao(true, 'Agendamento indisponível');
-      }
+    if (!el.successScreen.classList.contains('visible')) {
+      definirEstadoBotao(
+        false,
+        'Confirmar agendamento'
+      );
     }
+  }
+}
 
-    iniciar();
-  </script>
+// ============================================================
+// CANCELAMENTO SEGURO
+// ============================================================
+
+function resetarCancelamentoUI() {
+  el.cancelConfirm.classList.add('hidden');
+  el.cancelBookingButton.classList.remove('hidden');
+  el.cancelConfirmYes.disabled = false;
+  el.cancelConfirmNo.disabled = false;
+  el.cancelConfirmYes.textContent = 'Sim, cancelar';
+}
+
+function abrirConfirmacaoCancelamento() {
+  if (!ultimoAgendamento || cancelandoAgendamento) return;
+
+  ocultarResultadoCancelamento();
+  el.cancelBookingButton.classList.add('hidden');
+  el.cancelConfirm.classList.remove('hidden');
+  el.cancelConfirmYes.focus();
+}
+
+function fecharConfirmacaoCancelamento() {
+  if (cancelandoAgendamento) return;
+
+  el.cancelConfirm.classList.add('hidden');
+  el.cancelBookingButton.classList.remove('hidden');
+  el.cancelBookingButton.focus();
+}
+
+async function cancelarUltimoAgendamento() {
+  if (cancelandoAgendamento || !ultimoAgendamento) return;
+
+  cancelandoAgendamento = true;
+  el.cancelConfirmYes.disabled = true;
+  el.cancelConfirmNo.disabled = true;
+  el.cancelConfirmYes.textContent = 'Cancelando...';
+  ocultarResultadoCancelamento();
+
+  try {
+    const { slug, token } = ultimoAgendamento;
+
+    const resultado = await requisicao(
+      `${API_BASE}/${encodeURIComponent(slug)}/cancelar/${encodeURIComponent(token)}`,
+      { method: 'POST' }
+    );
+
+    el.successTitle.textContent = 'Agendamento cancelado';
+    el.successMessage.textContent =
+      'O cancelamento foi confirmado. Você pode fazer um novo agendamento quando desejar.';
+
+    mostrarResultadoCancelamento(
+      resultado.mensagem || 'Agendamento cancelado com sucesso.',
+      'success'
+    );
+
+    el.cancellationActions.classList.add('hidden');
+
+    // Remove o token da memória da página.
+    ultimoAgendamento = null;
+
+    el.cancellationResult.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest'
+    });
+  } catch (erro) {
+    mostrarResultadoCancelamento(
+      erro.message ||
+      'Não foi possível cancelar o agendamento. Tente novamente.',
+      'error'
+    );
+
+    el.cancelConfirmYes.disabled = false;
+    el.cancelConfirmNo.disabled = false;
+    el.cancelConfirmYes.textContent = 'Tentar novamente';
+  } finally {
+    cancelandoAgendamento = false;
+  }
+}
+
+// ============================================================
+// REINICIAR FORMULÁRIO
+// ============================================================
+
+function reiniciarFormulario() {
+  // Não apaga o registro no banco: apenas reinicia a interface.
+  ultimoAgendamento = null;
+
+  el.form.reset();
+
+  el.bookingContent.classList.remove('hidden');
+  el.successScreen.classList.remove('visible');
+
+  el.cancellationActions.classList.add('hidden');
+  resetarCancelamentoUI();
+  ocultarResultadoCancelamento();
+  limparAlerta();
+
+  horariosDisponiveis = [];
+  horarioSelecionado = null;
+  el.time.value = '';
+
+  el.date.min = obterDataLocal();
+
+  limparHorarios(
+    'Selecione um serviço e uma data primeiro.'
+  );
+
+  atualizarDetalhesServico();
+  atualizarResumo();
+
+  definirEstadoBotao(
+    false,
+    'Confirmar agendamento'
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+// ============================================================
+// CARREGAR DADOS DA EMPRESA
+// ============================================================
+
+async function carregarEmpresa() {
+  const dados = await requisicao(
+    `${API_BASE}/${encodeURIComponent(empresaSlug)}`
+  );
+
+  empresa = obterEmpresa(dados);
+  empresaMostraValores = definirIdentidadeEmpresa(empresa);
+
+  servicos = obterListaServicos(dados);
+
+  if (!servicos.length) {
+    servicos = obterListaServicos(empresa);
+  }
+
+  renderizarServicos();
+
+  el.date.disabled = servicos.length === 0;
+  el.date.min = obterDataLocal();
+
+  definirEstadoBotao(
+    false,
+    servicos.length
+      ? 'Confirmar agendamento'
+      : 'Agendamentos indisponíveis'
+  );
+
+  if (!servicos.length) {
+    mostrarAlerta(
+      'Esta empresa não possui serviços ativos para agendamento.',
+      'info'
+    );
+  }
+}
+
+// ============================================================
+// EVENTOS
+// ============================================================
+
+el.service.addEventListener('change', async () => {
+  limparAlerta();
+  atualizarDetalhesServico();
+
+  if (el.date.value) {
+    await carregarHorarios();
+  } else {
+    limparHorarios(
+      'Selecione uma data para consultar os horários.'
+    );
+  }
+});
+
+el.date.addEventListener('change', async () => {
+  limparAlerta();
+
+  if (el.date.value < obterDataLocal()) {
+    el.date.value = '';
+
+    limparHorarios(
+      'Selecione hoje ou uma data futura.'
+    );
+
+    mostrarAlerta(
+      'A data escolhida não pode estar no passado.',
+      'error'
+    );
+
+    return;
+  }
+
+  await carregarHorarios();
+});
+
+el.form.addEventListener('submit', enviarAgendamento);
+
+el.newBookingButton.addEventListener(
+  'click',
+  reiniciarFormulario
+);
+
+el.cancelBookingButton.addEventListener(
+  'click',
+  abrirConfirmacaoCancelamento
+);
+
+el.cancelConfirmNo.addEventListener(
+  'click',
+  fecharConfirmacaoCancelamento
+);
+
+el.cancelConfirmYes.addEventListener(
+  'click',
+  cancelarUltimoAgendamento
+);
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+
+async function iniciar() {
+  if (!empresaSlug || !SLUG_VALIDO.test(empresaSlug)) {
+    mostrarAlerta(
+      'Link inválido. Acesse a página pelo endereço de agendamento da empresa.',
+      'error'
+    );
+
+    el.service.disabled = true;
+    el.date.disabled = true;
+    el.submitButton.disabled = true;
+
+    el.service.replaceChildren();
+
+    const opcao = document.createElement('option');
+    opcao.value = '';
+    opcao.textContent = 'Link de agendamento inválido';
+
+    el.service.appendChild(opcao);
+
+    limparHorarios(
+      'Não foi possível identificar a empresa.',
+      true
+    );
+
+    definirEstadoBotao(
+      true,
+      'Agendamento indisponível'
+    );
+
+    return;
+  }
+
+  definirEstadoBotao(
+    true,
+    'Carregando informações...'
+  );
+
+  try {
+    await carregarEmpresa();
+  } catch (erro) {
+    mostrarAlerta(
+      erro.message ||
+      'Não foi possível carregar os dados da empresa.',
+      'error'
+    );
+
+    el.service.disabled = true;
+    el.date.disabled = true;
+
+    definirEstadoBotao(
+      true,
+      'Agendamento indisponível'
+    );
+  }
+}
+
+iniciar();
+</script>
 </body>
 </html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Previsão financeira | Orvix</title>
+<script>
+try { var t = localStorage.getItem('orvix-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (_) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f3f5fa;--card:#fff;--raised:#f5f6fb;--text:#171f33;--muted:#5f6b82;--border:#e0e5ef;--primary:#5a49e0;--primary-ink:#fff;--green:#12795a;--red:#c0303f;--yellow:#8f6100;--r:14px;--display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;--body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0b0f1c;--card:#121829;--raised:#182036;--text:#f1f4fb;--muted:#97a4bd;--border:#242e47;--primary:#9084ff;--primary-ink:#0b0f1c;--green:#3fd0a1;--red:#ff7b86;--yellow:#f2c15a}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b0f1c;--card:#121829;--raised:#182036;--text:#f1f4fb;--muted:#97a4bd;--border:#242e47;--primary:#9084ff;--primary-ink:#0b0f1c;--green:#3fd0a1;--red:#ff7b86;--yellow:#f2c15a}
+*{box-sizing:border-box}
+body{margin:0;padding:28px 24px 56px;background:var(--bg);color:var(--text);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+main{max-width:1180px;margin:0 auto}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+h1{margin:0 0 6px;font:700 clamp(26px,4vw,36px)/1.1 var(--display);letter-spacing:-.03em}
+h2{font:700 18px/1.2 var(--display);letter-spacing:-.02em;margin:0 0 6px}
+h3{margin:0}
+p{color:var(--muted);margin:0}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.back{display:inline-block;margin-bottom:14px;color:var(--primary);text-decoration:none;font-weight:600;font-size:14px}
+.back:hover{text-decoration:underline}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button{border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);padding:9px 14px;font:600 14px var(--body);cursor:pointer;transition:border-color .15s}
+button:hover{border-color:var(--primary)}
+button.primary{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+button:disabled{opacity:.6;cursor:wait}
+.status{color:var(--muted);font-size:13px;margin:0 0 12px;min-height:20px}
+.resumo{display:flex;gap:14px;align-items:center;padding:16px 20px;margin-bottom:14px;border-left:4px solid var(--green)}
+.resumo[hidden]{display:none}
+.resumo.bad{border-left-color:var(--red)}
+.resumo strong{display:block;font:700 18px/1.3 var(--display);letter-spacing:-.02em}
+.resumo span{color:var(--muted);font-size:14px}
+.periodos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 16px;min-height:60px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;min-width:0}
+.periodos .card{border-top:3px solid var(--border)}
+.periodos .card:has(.saldo.positivo){border-top-color:var(--green)}
+.periodos .card:has(.saldo.negativo){border-top-color:var(--red)}
+.periodo-titulo{color:var(--muted);font-size:14px;font-weight:600;margin-bottom:14px}
+.saldo{font:700 clamp(24px,3vw,32px)/1.1 var(--display);letter-spacing:-.03em;overflow-wrap:anywhere;margin-bottom:16px}
+.linha{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--border);font-size:14px}
+.linha span:first-child{color:var(--muted)}
+.linha span:last-child{font-weight:700}
+.positivo{color:var(--green)}.negativo{color:var(--red)}
+.secao{margin-top:16px}
+.legenda{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:4px;font-weight:600}
+.grafico{display:flex;align-items:end;gap:5px;min-height:220px;padding:16px 0 30px;overflow-x:auto;border-bottom:1px solid var(--border)}
+.coluna{flex:1 0 14px;min-width:14px;display:flex;flex-direction:column;align-items:center;justify-content:end;height:190px;position:relative;border-radius:6px;transition:background .15s}
+.coluna:hover{background:var(--raised)}
+.barras{display:flex;gap:3px;align-items:end;height:160px;width:100%;justify-content:center}
+.barra{width:min(38%,12px);min-height:2px;border-radius:4px 4px 0 0;transition:opacity .15s}
+.coluna:hover .barra{opacity:.8}
+.entrada{background:var(--green)}.saida{background:var(--red)}
+.dia-label{position:absolute;top:166px;font-size:10px;color:var(--muted);white-space:nowrap}
+.alertas-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:26px 0 12px}
+.alertas-head h2{margin:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips[hidden]{display:none}
+.chip{border-radius:99px;padding:4px 12px;font-size:13px;color:var(--muted)}
+.chip[aria-pressed=true]{border-color:var(--primary);color:var(--text);background:var(--raised)}
+.alertas{display:grid;gap:10px}
+.alerta{border:1px solid var(--border);border-left:4px solid var(--yellow);border-radius:12px;padding:15px 18px;background:var(--card)}
+.alerta[hidden]{display:none}
+.alerta.risco{border-left-color:var(--red)}
+.alerta h3{font-size:15px;margin:0 0 5px}
+.alerta p{font-size:14px;margin:0;max-width:75ch}
+.aviso{border:1px dashed var(--border);border-radius:12px;padding:14px 16px;color:var(--muted);font-size:13px;line-height:1.6;margin-top:18px}
+.aviso:empty{display:none}
+@media(max-width:860px){.periodos{grid-template-columns:1fr}}
+@media(max-width:560px){body{padding:18px 14px 40px}.card{padding:18px}.actions{width:100%}.actions button{flex:1}.coluna:not(:nth-child(3n+1)) .dia-label{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.actions,.chips{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <header class="header">
+    <div>
+      <a class="back" href="/">← Voltar ao painel</a>
+      <h1>Previsão financeira</h1>
+      <p>Antecipe entradas, despesas e possíveis riscos de caixa.</p>
+    </div>
+    <div class="actions">
+      <button id="tema" type="button">◐ Tema</button>
+      <button class="primary" id="atualizar" type="button">↻ Atualizar previsão</button>
+    </div>
+  </header>
+
+  <div id="status" class="status" role="status" aria-live="polite">Carregando previsão...</div>
+  <div id="stamp" class="status" style="margin-top:-8px"></div>
+
+  <section id="resumo" class="card resumo" hidden aria-label="Resumo da previsão">
+    <div><strong id="resumo-titulo"></strong><span id="resumo-texto"></span></div>
+  </section>
+
+  <section id="periodos" class="periodos" aria-label="Previsões por período"></section>
+
+  <section class="card secao">
+    <h2>Entradas e saídas: próximos 30 dias</h2>
+    <div class="legenda">
+      <span class="positivo">■ Entradas previstas</span>
+      <span class="negativo">■ Saídas previstas</span>
+    </div>
+    <div id="grafico" class="grafico" aria-label="Gráfico de entradas e saídas"></div>
+  </section>
+
+  <div class="alertas-head">
+    <h2>Alertas financeiros</h2>
+    <div class="chips" id="chips" role="group" aria-label="Filtrar alertas" hidden>
+      <button class="chip" type="button" data-f="todos" aria-pressed="true">Todos</button>
+      <button class="chip" type="button" data-f="risco" aria-pressed="false">Risco</button>
+      <button class="chip" type="button" data-f="atencao" aria-pressed="false">Atenção</button>
+    </div>
+  </div>
+  <div id="alertas" class="alertas"></div>
+
+  <div id="observacao" class="aviso"></div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  let autorizado = false;
+
+  try {
+    const token = localStorage.getItem('lavajato_auth_token');
+
+    if (token) {
+      const partes = token.split('.');
+
+      if (partes.length === 3) {
+        const payloadBase64 = partes[1]
+          .replace(/-/g, '+')
+          .replace(/_/g, '/');
+
+        const payload = JSON.parse(
+          decodeURIComponent(
+            atob(payloadBase64)
+              .split('')
+              .map(c =>
+                '%' + c.charCodeAt(0)
+                  .toString(16)
+                  .padStart(2, '0')
+              )
+              .join('')
+          )
+        );
+
+        const expirado =
+          payload.exp &&
+          payload.exp * 1000 <= Date.now();
+
+        autorizado =
+          payload.perfil === 'administrador' &&
+          Boolean(payload.empresa_id) &&
+          !expirado;
+      }
+    }
+  } catch (erro) {
+    autorizado = false;
+  }
+
+  window.__orvixAdminPermitido = autorizado;
+
+  document.documentElement.dataset.adminCheck =
+    autorizado ? 'ok' : 'bloqueado';
+
+  if (!autorizado) {
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.innerHTML = `
+        <main style="
+          max-width:600px;
+          margin:80px auto;
+          padding:24px;
+          font-family:system-ui,sans-serif;
+          text-align:center;
+        ">
+          <h1>Acesso restrito</h1>
+          <p>
+            Esta página está disponível somente
+            para administradores da empresa.
+          </p>
+          <p>
+            <a href="/" style="color:#6d5ce8">
+              Voltar ao painel
+            </a>
+          </p>
+        </main>
+      `;
+
+      document.body.style.visibility = 'visible';
+    });
+  }
+})();
+</script>
+
+<style>
+  html[data-admin-check="bloqueado"] body {
+    visibility: hidden;
+  }
+</style>
+<script>
+if (window.__orvixAdminPermitido === true) {
+  const script = document.createElement('script');
+  script.src = '/js/previsao-financeira.js';
+  script.defer = true;
+  document.body.appendChild(script);
+}
+</script>
+
+
+<script>
+/* Melhorias que só leem e ajustam o DOM; os cálculos da previsão continuam no script principal. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const money = n => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const parseMoney = s => { const v = parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); return Number.isNaN(v) ? null : v; };
+
+  /* Tema: segue o sistema, com escolha manual salva */
+  $('tema').addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    const next = dark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('orvix-theme', next); } catch (_) {}
+  });
+
+  /* Resumo no topo, lido dos cartões de período */
+  function resumo() {
+    const cards = [...$('periodos').querySelectorAll('.card')].map(c => {
+      const s = c.querySelector('.saldo');
+      return { t: ((c.querySelector('.periodo-titulo') || {}).textContent || 'período').trim(), v: s ? parseMoney(s.textContent) : null, neg: !!(s && s.classList.contains('negativo')) };
+    }).filter(c => c.v !== null);
+    const box = $('resumo');
+    if (!cards.length) { box.hidden = true; return; }
+    cards.forEach(c => { if (c.v < 0) c.neg = true; });
+    const neg = cards.filter(c => c.neg), low = cards.reduce((a, b) => b.v < a.v ? b : a);
+    box.classList.toggle('bad', neg.length > 0);
+    $('resumo-titulo').textContent = neg.length
+      ? `Risco de caixa: saldo previsto negativo em ${neg.map(c => c.t.toLowerCase()).join(', ')}.`
+      : 'Caixa previsto positivo em todos os períodos.';
+    $('resumo-texto').textContent = `Menor saldo previsto: ${money(low.v)} (${low.t.toLowerCase()}).`;
+    box.hidden = false;
+  }
+  new MutationObserver(resumo).observe($('periodos'), { childList: true });
+
+  /* Dicas no gráfico: usa o texto do rótulo do dia e a altura relativa das barras */
+  function chart() {
+    $('grafico').querySelectorAll('.coluna').forEach(c => {
+      if (c.title) return;
+      const d = (c.querySelector('.dia-label') || {}).textContent;
+      const e = c.querySelector('.barra.entrada'), s = c.querySelector('.barra.saida');
+      if (d) c.title = `${d.trim()}${e ? ' · entrada prevista' : ''}${s ? ' · saída prevista' : ''}`;
+    });
+  }
+  new MutationObserver(chart).observe($('grafico'), { childList: true });
+
+  /* Alertas: contagem e filtro por gravidade */
+  let f = 'todos';
+  function applyAlerts() {
+    const items = [...$('alertas').querySelectorAll('.alerta')];
+    $('chips').hidden = items.length < 2;
+    items.forEach(a => { const risco = a.classList.contains('risco'); a.hidden = f === 'risco' ? !risco : f === 'atencao' ? risco : false; });
+    const r = items.filter(a => a.classList.contains('risco')).length;
+    document.querySelector('[data-f=risco]').textContent = `Risco (${r})`;
+    document.querySelector('[data-f=atencao]').textContent = `Atenção (${items.length - r})`;
+    document.querySelector('[data-f=todos]').textContent = `Todos (${items.length})`;
+  }
+  new MutationObserver(applyAlerts).observe($('alertas'), { childList: true });
+  $('chips').addEventListener('click', e => {
+    const b = e.target.closest('[data-f]'); if (!b) return;
+    f = b.dataset.f;
+    $('chips').querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    applyAlerts();
+  });
+
+  /* Horário da última atualização, anotado quando o botão volta a ficar disponível */
+  const btn = $('atualizar'); let was = btn.disabled;
+  new MutationObserver(() => {
+    if (was && !btn.disabled) $('stamp').textContent = `Atualizado às ${new Date().toTimeString().slice(0, 5)}`;
+    was = btn.disabled;
+  }).observe(btn, { attributes: true, attributeFilter: ['disabled'] });
+})();
+</script>
+</body>
+</html>

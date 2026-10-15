@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
@@ -10,13 +11,14 @@ router.use(autenticar);
 router.use(verificarAssinatura);
 
 // ============================================================
-// CONSULTA BASE
+// CONSULTAS BASE
 // ============================================================
 
 const SELECT_BASE = `
   SELECT
     a.*,
-    s.nome AS servico_nome
+    s.nome AS servico_nome,
+    s.duracao_min AS duracao_min
   FROM agendamentos a
   LEFT JOIN servicos s
     ON s.id = a.servico_id
@@ -24,71 +26,88 @@ const SELECT_BASE = `
 `;
 
 // ============================================================
-// UTILITÁRIOS
+// HELPERS
 // ============================================================
 
 function obterEmpresaId(req) {
-  return req.usuario?.empresa_id || null;
+  return req.usuario?.empresa_id ?? null;
 }
 
 function validarId(valor) {
   const id = Number(valor);
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
+  return Number.isInteger(id) && id > 0 ? id : null;
 }
 
 function normalizarTexto(valor) {
   if (valor === undefined || valor === null) {
-    return null;
+    return '';
   }
 
-  const texto = String(valor).trim();
-  return texto || null;
+  return String(valor).trim();
 }
 
-function validarData(data) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data || ''))) {
+function validarData(valor) {
+  if (typeof valor !== 'string') return false;
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
     return false;
   }
 
-  const [ano, mes, dia] = String(data).split('-').map(Number);
-  const dataTeste = new Date(Date.UTC(ano, mes - 1, dia));
+  const [ano, mes, dia] = valor.split('-').map(Number);
+  const data = new Date(Date.UTC(ano, mes - 1, dia));
 
   return (
-    dataTeste.getUTCFullYear() === ano &&
-    dataTeste.getUTCMonth() === mes - 1 &&
-    dataTeste.getUTCDate() === dia
+    data.getUTCFullYear() === ano &&
+    data.getUTCMonth() === mes - 1 &&
+    data.getUTCDate() === dia
   );
 }
 
-function validarHora(hora) {
-  return /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(
-    String(hora || '')
+function validarHora(valor) {
+  return (
+    typeof valor === 'string' &&
+    /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(valor)
+  );
+}
+
+function minutosDaHora(hora) {
+  const partes = String(hora).split(':');
+
+  return (
+    Number(partes[0]) * 60 +
+    Number(partes[1])
   );
 }
 
 function validarValor(valor) {
   if (valor === undefined || valor === null || valor === '') {
-    return true;
+    return null;
   }
 
   const numero = Number(valor);
-  return Number.isFinite(numero) && numero >= 0;
+
+  if (!Number.isFinite(numero) || numero < 0) {
+    return null;
+  }
+
+  return numero;
 }
 
 function validarStatus(status) {
   const permitidos = [
     'agendado',
-    'pendente',
     'confirmado',
     'em_andamento',
     'concluido',
-    'cancelado',
-    'não_compareceu',
-    'nao_compareceu'
+    'cancelado'
   ];
 
+  if (status === undefined || status === null || status === '') {
+    return true;
+  }
+
   return permitidos.includes(
-    String(status || '').trim().toLowerCase()
+    String(status).trim().toLowerCase()
   );
 }
 
@@ -96,38 +115,40 @@ function validarStatusPagamento(status) {
   const permitidos = [
     'pendente',
     'pago',
-    'cancelado',
-    'estornado',
-    'parcial'
+    'parcial',
+    'cancelado'
   ];
 
+  if (status === undefined || status === null || status === '') {
+    return true;
+  }
+
   return permitidos.includes(
-    String(status || '').trim().toLowerCase()
+    String(status).trim().toLowerCase()
   );
 }
 
-function validarTamanho(valor, maximo, nome) {
-  if (valor !== null && String(valor).length > maximo) {
-    return `${nome} deve ter no máximo ${maximo} caracteres.`;
-  }
-
-  return null;
+function validarTamanho(valor, maximo) {
+  return (
+    valor === undefined ||
+    valor === null ||
+    String(valor).length <= maximo
+  );
 }
 
-function validarCamposTexto(body, campos) {
-  for (const [nome, maximo] of campos) {
-    if (body[nome] === undefined || body[nome] === null) {
-      continue;
-    }
+function validarCamposTexto(body) {
+  const limites = {
+    cliente: 150,
+    telefone: 30,
+    veiculo: 100,
+    placa: 20,
+    observacoes: 1000,
+    forma_pagamento: 50
+  };
 
-    const erro = validarTamanho(
-      String(body[nome]),
-      maximo,
-      nome
-    );
-
-    if (erro) {
-      return erro;
+  for (const [campo, limite] of Object.entries(limites)) {
+    if (!validarTamanho(body[campo], limite)) {
+      return `O campo "${campo}" excede o limite de ${limite} caracteres.`;
     }
   }
 
@@ -135,13 +156,7 @@ function validarCamposTexto(body, campos) {
 }
 
 // ============================================================
-// RESOLVE CLIENTE
-//
-// Quando cliente_id é informado, o cadastro precisa pertencer
-// à empresa autenticada e estar ativo.
-//
-// Quando cliente_id não é informado, preserva compatibilidade
-// com agendamentos feitos com nome e telefone livres.
+// CLIENTES
 // ============================================================
 
 async function resolverCliente({
@@ -150,97 +165,66 @@ async function resolverCliente({
   telefone,
   empresaId
 }) {
-  const nomeInformado = normalizarTexto(cliente);
-  const telefoneInformado = normalizarTexto(telefone);
+  if (clienteId !== undefined && clienteId !== null && clienteId !== '') {
+    const id = validarId(clienteId);
 
-  const semClienteId =
-    clienteId === undefined ||
-    clienteId === null ||
-    String(clienteId).trim() === '';
-
-  if (semClienteId) {
-    if (!nomeInformado) {
-      return {
-        erro: 'Informe o cliente ou selecione um cadastro.'
-      };
+    if (!id) {
+      throw new Error('Cliente inválido.');
     }
 
-    const erroNome = validarTamanho(
-      nomeInformado,
-      150,
-      'Nome do cliente'
+    const resultado = await pool.query(
+      `
+        SELECT id, nome, telefone
+        FROM clientes
+        WHERE id = $1
+          AND empresa_id = $2
+        LIMIT 1
+      `,
+      [id, empresaId]
     );
 
-    if (erroNome) {
-      return { erro: erroNome };
+    if (!resultado.rows.length) {
+      throw new Error('Cliente não encontrado.');
     }
 
-    const erroTelefone = validarTamanho(
-      telefoneInformado,
-      30,
-      'Telefone'
-    );
-
-    if (erroTelefone) {
-      return { erro: erroTelefone };
-    }
+    const encontrado = resultado.rows[0];
 
     return {
-      cliente_id: null,
-      cliente: nomeInformado,
-      telefone: telefoneInformado
+      cliente_id: encontrado.id,
+      cliente: encontrado.nome,
+      telefone: telefone !== undefined
+        ? normalizarTexto(telefone)
+        : encontrado.telefone || ''
     };
   }
 
-  const id = validarId(clienteId);
+  const nome = normalizarTexto(cliente);
 
-  if (!id) {
-    return {
-      erro: 'Identificador de cliente inválido.'
-    };
+  if (!nome) {
+    throw new Error('Informe o nome do cliente.');
   }
-
-  const { rows } = await pool.query(
-    `
-      SELECT id, nome, telefone
-      FROM clientes
-      WHERE id = $1
-        AND empresa_id = $2
-        AND ativo = TRUE
-      LIMIT 1
-    `,
-    [id, empresaId]
-  );
-
-  if (!rows.length) {
-    return {
-      erro: 'Cliente não encontrado ou indisponível nesta empresa.'
-    };
-  }
-
-  const cadastro = rows[0];
 
   return {
-    cliente_id: cadastro.id,
-    cliente: cadastro.nome,
-    telefone: cadastro.telefone || null
+    cliente_id: null,
+    cliente: nome,
+    telefone: normalizarTexto(telefone)
   };
 }
 
 // ============================================================
-// VALIDA SERVIÇO
+// SERVIÇOS
 // ============================================================
 
 async function validarServico(servicoId, empresaId) {
   const id = validarId(servicoId);
 
   if (!id) {
-    return false;
+    throw new Error('Serviço inválido.');
   }
 
-  const { rows } = await pool.query(
+  const resultado = await pool.query(
     `
-      SELECT id
+      SELECT id, nome, preco, duracao_min
       FROM servicos
       WHERE id = $1
         AND empresa_id = $2
@@ -250,53 +234,133 @@ async function validarServico(servicoId, empresaId) {
     [id, empresaId]
   );
 
-  return rows.length > 0;
+  if (!resultado.rows.length) {
+    throw new Error('Serviço não encontrado ou inativo.');
+  }
+
+  const servico = resultado.rows[0];
+  const duracao = Number(servico.duracao_min);
+
+  return {
+    ...servico,
+    duracao_min:
+      Number.isFinite(duracao) && duracao > 0
+        ? duracao
+        : 30
+  };
+}
+
+// ============================================================
+// VERIFICAÇÃO DE CONFLITOS POR DURAÇÃO
+// ============================================================
+
+async function buscarConflitoHorario({
+  empresaId,
+  data,
+  hora,
+  servicoId,
+  ignorarId = null
+}) {
+  const servicoNovo = await validarServico(servicoId, empresaId);
+
+  const inicioNovo = minutosDaHora(hora);
+  const fimNovo = inicioNovo + servicoNovo.duracao_min;
+
+  /*
+   * Não permite agendamentos que ultrapassem o fim do dia.
+   */
+  if (fimNovo > 24 * 60) {
+    return {
+      erro: 'DURACAO_EXCEDE_DIA',
+      mensagem: 'O serviço termina depois da meia-noite. Escolha outro horário.'
+    };
+  }
+
+  /*
+   * Busca agendamentos do mesmo dia e da mesma empresa.
+   * A duração de cada agendamento vem do serviço associado.
+   * Serviços sem duração cadastrada usam 30 minutos.
+   */
+  const resultado = await pool.query(
+    `
+      SELECT
+        a.id,
+        a.cliente,
+        a.telefone,
+        a.data,
+        a.hora,
+        a.servico_id,
+        a.status,
+        s.nome AS servico_nome,
+        COALESCE(
+          NULLIF(s.duracao_min, 0),
+          30
+        ) AS duracao_min
+      FROM agendamentos a
+      LEFT JOIN servicos s
+        ON s.id = a.servico_id
+       AND s.empresa_id = a.empresa_id
+      WHERE a.empresa_id = $1
+        AND a.data = $2
+        AND LOWER(COALESCE(a.status, 'agendado')) <> 'cancelado'
+        AND ($3::integer IS NULL OR a.id <> $3)
+      ORDER BY a.hora ASC
+    `,
+    [empresaId, data, ignorarId]
+  );
+
+  for (const existente of resultado.rows) {
+    const inicioExistente = minutosDaHora(existente.hora);
+    const duracaoExistente = Number(existente.duracao_min) || 30;
+    const fimExistente = inicioExistente + duracaoExistente;
+
+    /*
+     * Existe conflito quando:
+     *
+     * início existente < fim novo
+     * E
+     * início novo < fim existente
+     *
+     * Assim, horários consecutivos são permitidos.
+     */
+    const existeSobreposicao =
+      inicioExistente < fimNovo &&
+      inicioNovo < fimExistente;
+
+    if (existeSobreposicao) {
+      return {
+        ...existente,
+        duracao_min: duracaoExistente,
+        inicio_minutos: inicioExistente,
+        fim_minutos: fimExistente,
+        novo_inicio_minutos: inicioNovo,
+        novo_fim_minutos: fimNovo
+      };
+    }
+  }
+
+  return null;
 }
 
 // ============================================================
 // GET /api/agendamentos
-//
-// Filtros:
-// ?data=AAAA-MM-DD
-// ?de=AAAA-MM-DD&ate=AAAA-MM-DD
-// ?busca=termo
-// ?cliente_id=123
+// LISTAR AGENDAMENTOS
 // ============================================================
 
 router.get('/', async (req, res) => {
-  const empresaId = obterEmpresaId(req);
-
-  const data = String(req.query.data || '').trim();
-  const de = String(req.query.de || '').trim();
-  const ate = String(req.query.ate || '').trim();
-  const busca = String(req.query.busca || '').trim();
-  const clienteIdInformado = req.query.cliente_id;
-
-  if (!empresaId) {
-    return res.status(403).json({
-      erro: 'Não existe uma empresa vinculada à sessão.'
-    });
-  }
-
   try {
-    const condicoes = ['a.empresa_id = $1'];
-    const valores = [empresaId];
+    const empresaId = obterEmpresaId(req);
 
-    if (
-      clienteIdInformado !== undefined &&
-      String(clienteIdInformado).trim() !== ''
-    ) {
-      const clienteId = validarId(clienteIdInformado);
-
-      if (!clienteId) {
-        return res.status(400).json({
-          erro: 'Identificador de cliente inválido.'
-        });
-      }
-
-      valores.push(clienteId);
-      condicoes.push(`a.cliente_id = $${valores.length}`);
+    if (!empresaId) {
+      return res.status(403).json({
+        erro: 'Empresa não identificada.'
+      });
     }
+
+    const { data, de, ate, busca } = req.query;
+
+    const condicoes = ['a.empresa_id = $1'];
+    const parametros = [empresaId];
 
     if (data) {
       if (!validarData(data)) {
@@ -305,200 +369,163 @@ router.get('/', async (req, res) => {
         });
       }
 
-      valores.push(data);
-      condicoes.push(`a.data = $${valores.length}`);
-    }
+      parametros.push(data);
+      condicoes.push(`a.data = $${parametros.length}`);
+    } else {
+      if (de) {
+        if (!validarData(de)) {
+          return res.status(400).json({
+            erro: 'Data inicial inválida.'
+          });
+        }
 
-    if (de || ate) {
-      if (!de || !ate || !validarData(de) || !validarData(ate)) {
-        return res.status(400).json({
-          erro: 'Informe um período válido.'
-        });
+        parametros.push(de);
+        condicoes.push(`a.data >= $${parametros.length}`);
       }
 
-      if (de > ate) {
-        return res.status(400).json({
-          erro: 'A data inicial não pode ser posterior à data final.'
-        });
+      if (ate) {
+        if (!validarData(ate)) {
+          return res.status(400).json({
+            erro: 'Data final inválida.'
+          });
+        }
+
+        parametros.push(ate);
+        condicoes.push(`a.data <= $${parametros.length}`);
       }
-
-      valores.push(de);
-      condicoes.push(`a.data >= $${valores.length}`);
-
-      valores.push(ate);
-      condicoes.push(`a.data <= $${valores.length}`);
     }
 
     if (busca) {
-      valores.push(`%${busca}%`);
-      const posicao = valores.length;
+      parametros.push(`%${normalizarTexto(busca)}%`);
 
-      condicoes.push(`(
-        a.cliente ILIKE $${posicao}
-        OR COALESCE(a.telefone, '') ILIKE $${posicao}
-        OR COALESCE(a.placa, '') ILIKE $${posicao}
-      )`);
+      condicoes.push(`
+        (
+          a.cliente ILIKE $${parametros.length}
+          OR a.telefone ILIKE $${parametros.length}
+          OR a.placa ILIKE $${parametros.length}
+          OR s.nome ILIKE $${parametros.length}
+        )
+      `);
     }
 
-    const ordenacao =
-      data || busca || clienteIdInformado
-        ? 'a.data DESC, a.hora DESC'
-        : 'a.data ASC, a.hora ASC';
-
-    const { rows } = await pool.query(
+    const resultado = await pool.query(
       `
         ${SELECT_BASE}
         WHERE ${condicoes.join(' AND ')}
-        ORDER BY ${ordenacao}
+        ORDER BY a.data ASC, a.hora ASC
       `,
-      valores
+      parametros
     );
 
-    return res.json(rows);
-  } catch (err) {
-    console.error('Erro ao carregar agendamentos:', err);
+    return res.json(resultado.rows);
+  } catch (erro) {
+    console.error('Erro ao listar agendamentos:', erro);
 
     return res.status(500).json({
-      erro: 'Não foi possível carregar os agendamentos.'
-    });
-  }
-});
-
-// ============================================================
-// GET /api/agendamentos/:id
-// ============================================================
-
-router.get('/:id', async (req, res) => {
-  const empresaId = obterEmpresaId(req);
-  const id = validarId(req.params.id);
-
-  if (!empresaId) {
-    return res.status(403).json({
-      erro: 'Não existe uma empresa vinculada à sessão.'
-    });
-  }
-
-  if (!id) {
-    return res.status(400).json({
-      erro: 'Identificador de agendamento inválido.'
-    });
-  }
-
-  try {
-    const { rows } = await pool.query(
-      `
-        ${SELECT_BASE}
-        WHERE a.id = $1
-          AND a.empresa_id = $2
-        LIMIT 1
-      `,
-      [id, empresaId]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({
-        erro: 'Agendamento não encontrado.'
-      });
-    }
-
-    return res.json(rows[0]);
-  } catch (err) {
-    console.error('Erro ao consultar agendamento:', err);
-
-    return res.status(500).json({
-      erro: 'Não foi possível consultar o agendamento.'
+      erro: 'Erro ao buscar agendamentos.'
     });
   }
 });
 
 // ============================================================
 // POST /api/agendamentos
+// CRIAR AGENDAMENTO
 // ============================================================
 
 router.post('/', async (req, res) => {
-  const empresaId = obterEmpresaId(req);
-
-  if (!empresaId) {
-    return res.status(403).json({
-      erro: 'Não existe uma empresa vinculada à sessão.'
-    });
-  }
-
-  const {
-    cliente_id,
-    cliente,
-    telefone,
-    veiculo,
-    placa,
-    servico_id,
-    data,
-    hora,
-    valor,
-    observacoes
-  } = req.body || {};
-
-  if (!data || !hora || !servico_id) {
-    return res.status(400).json({
-      erro: 'Informe cliente, serviço, data e hora.'
-    });
-  }
-
-  if (!validarData(data)) {
-    return res.status(400).json({
-      erro: 'Informe uma data válida.'
-    });
-  }
-
-  if (!validarHora(hora)) {
-    return res.status(400).json({
-      erro: 'Informe um horário válido.'
-    });
-  }
-
-  if (!validarValor(valor)) {
-    return res.status(400).json({
-      erro: 'Informe um valor válido.'
-    });
-  }
-
-  const erroTexto = validarCamposTexto(req.body || {}, [
-    ['veiculo', 120],
-    ['placa', 20],
-    ['observacoes', 5000]
-  ]);
-
-  if (erroTexto) {
-    return res.status(400).json({
-      erro: erroTexto
-    });
-  }
-
   try {
-    const dadosCliente = await resolverCliente({
+    const empresaId = obterEmpresaId(req);
+
+    if (!empresaId) {
+      return res.status(403).json({
+        erro: 'Empresa não identificada.'
+      });
+    }
+
+    const body = req.body || {};
+
+    const {
+      cliente_id,
+      cliente,
+      telefone,
+      veiculo,
+      placa,
+      servico_id,
+      data,
+      hora,
+      valor,
+      observacoes
+    } = body;
+
+    if (!validarData(data)) {
+      return res.status(400).json({
+        erro: 'Informe uma data válida.'
+      });
+    }
+
+    if (!validarHora(hora)) {
+      return res.status(400).json({
+        erro: 'Informe um horário válido.'
+      });
+    }
+
+    const valorFinal = validarValor(valor);
+
+    if (valorFinal === null) {
+      return res.status(400).json({
+        erro: 'Informe um valor válido.'
+      });
+    }
+
+    const erroCampos = validarCamposTexto(body);
+
+    if (erroCampos) {
+      return res.status(400).json({
+        erro: erroCampos
+      });
+    }
+
+    const clienteResolvido = await resolverCliente({
       clienteId: cliente_id,
       cliente,
       telefone,
       empresaId
     });
 
-    if (dadosCliente.erro) {
-      return res.status(400).json({
-        erro: dadosCliente.erro
-      });
-    }
-
-    const servicoValido = await validarServico(
+    const servico = await validarServico(
       servico_id,
       empresaId
     );
 
-    if (!servicoValido) {
-      return res.status(400).json({
-        erro: 'Serviço não encontrado para esta empresa.'
+    /*
+     * Verifica sobreposição considerando a duração do serviço.
+     * A confirmação explícita do usuário pode permitir continuar.
+     */
+    if (body.forcar_conflito !== true) {
+      const conflito = await buscarConflitoHorario({
+        empresaId,
+        data,
+        hora,
+        servicoId: servico.id
       });
+
+      if (conflito?.erro === 'DURACAO_EXCEDE_DIA') {
+        return res.status(400).json({
+          codigo: conflito.erro,
+          erro: conflito.mensagem
+        });
+      }
+
+      if (conflito) {
+        return res.status(409).json({
+          codigo: 'CONFLITO_HORARIO',
+          erro: 'O horário escolhido se sobrepõe a outro agendamento.',
+          conflito
+        });
+      }
     }
 
-    const { rows } = await pool.query(
+    const resultado = await pool.query(
       `
         INSERT INTO agendamentos (
           empresa_id,
@@ -520,72 +547,81 @@ router.post('/', async (req, res) => {
       `,
       [
         empresaId,
-        dadosCliente.cliente_id,
-        dadosCliente.cliente,
-        dadosCliente.telefone,
+        clienteResolvido.cliente_id,
+        clienteResolvido.cliente,
+        clienteResolvido.telefone,
         normalizarTexto(veiculo),
         normalizarTexto(placa),
-        Number(servico_id),
+        servico.id,
         data,
         hora,
-        valor === '' || valor == null ? 0 : Number(valor),
+        valorFinal,
         normalizarTexto(observacoes)
       ]
     );
 
-    const agendamento = rows[0];
+    const agendamento = resultado.rows[0];
 
     try {
       await criarNotificacao({
         empresaId,
         tipo: 'agendamento',
         titulo: 'Novo agendamento',
-        mensagem:
-          `Novo agendamento de ${agendamento.cliente}, ` +
-          `para ${agendamento.data} às ${agendamento.hora}.`,
-        link: '/'
+        mensagem: `Agendamento criado para ${agendamento.cliente}.`,
+        link: '/agenda'
       });
     } catch (erroNotificacao) {
       console.error(
-        'Agendamento criado, mas a notificação falhou:',
+        'Erro ao criar notificação do agendamento:',
         erroNotificacao
       );
     }
 
     return res.status(201).json(agendamento);
-  } catch (err) {
-    console.error('Erro ao criar agendamento:', err);
+  } catch (erro) {
+    if (
+      erro.message === 'Cliente inválido.' ||
+      erro.message === 'Cliente não encontrado.' ||
+      erro.message === 'Informe o nome do cliente.' ||
+      erro.message === 'Serviço inválido.' ||
+      erro.message === 'Serviço não encontrado ou inativo.'
+    ) {
+      return res.status(400).json({
+        erro: erro.message
+      });
+    }
+
+    console.error('Erro ao criar agendamento:', erro);
 
     return res.status(500).json({
-      erro: 'Não foi possível criar o agendamento.'
+      erro: 'Erro ao criar agendamento.'
     });
   }
 });
 
 // ============================================================
 // PATCH /api/agendamentos/:id
+// EDITAR AGENDAMENTO
 // ============================================================
 
 router.patch('/:id', async (req, res) => {
-  const empresaId = obterEmpresaId(req);
-  const id = validarId(req.params.id);
-
-  if (!empresaId) {
-    return res.status(403).json({
-      erro: 'Não existe uma empresa vinculada à sessão.'
-    });
-  }
-
-  if (!id) {
-    return res.status(400).json({
-      erro: 'Identificador de agendamento inválido.'
-    });
-  }
-
-  const body = req.body || {};
-
   try {
-    const existente = await pool.query(
+    const empresaId = obterEmpresaId(req);
+    const id = validarId(req.params.id);
+
+    if (!empresaId) {
+      return res.status(403).json({
+        erro: 'Empresa não identificada.'
+      });
+    }
+
+    if (!id) {
+      return res.status(400).json({
+        erro: 'ID do agendamento inválido.'
+      });
+    }
+
+    const existenteResult = await pool.query(
       `
         SELECT *
         FROM agendamentos
@@ -596,130 +632,143 @@ router.patch('/:id', async (req, res) => {
       [id, empresaId]
     );
 
-    if (!existente.rows.length) {
+    if (!existenteResult.rows.length) {
       return res.status(404).json({
         erro: 'Agendamento não encontrado.'
       });
     }
 
-    const atual = existente.rows[0];
+    const atual = existenteResult.rows[0];
+    const body = req.body || {};
 
-    if (
-      body.forma_pagamento !== undefined &&
-      body.forma_pagamento !== atual.forma_pagamento &&
-      body.status_pagamento === undefined &&
-      atual.status_pagamento === 'pago'
-    ) {
+    const novaData = body.data ?? atual.data;
+    const novaHora = body.hora ?? atual.hora;
+    const novoServicoId = body.servico_id ?? atual.servico_id;
+
+    if (!validarData(String(novaData).slice(0, 10))) {
       return res.status(400).json({
-        erro:
-          'Pagamento já confirmado. Desfaça a confirmação ' +
-          'antes de trocar a forma de pagamento.'
+        erro: 'Data inválida.'
       });
     }
 
-    if (body.data !== undefined && !validarData(body.data)) {
+    if (!validarHora(String(novaHora).slice(0, 8))) {
       return res.status(400).json({
-        erro: 'Informe uma data válida.'
+        erro: 'Horário inválido.'
       });
     }
 
-    if (body.hora !== undefined && !validarHora(body.hora)) {
+    const erroCampos = validarCamposTexto(body);
+
+    if (erroCampos) {
       return res.status(400).json({
-        erro: 'Informe um horário válido.'
+        erro: erroCampos
       });
     }
 
-    if (body.valor !== undefined && !validarValor(body.valor)) {
+    if (!validarStatus(body.status)) {
       return res.status(400).json({
-        erro: 'Informe um valor válido.'
+        erro: 'Status do agendamento inválido.'
       });
     }
 
-    if (
-      body.status !== undefined &&
-      !validarStatus(body.status)
-    ) {
-      return res.status(400).json({
-        erro: 'Status de agendamento inválido.'
-      });
-    }
-
-    if (
-      body.status_pagamento !== undefined &&
-      !validarStatusPagamento(body.status_pagamento)
-    ) {
+    if (!validarStatusPagamento(body.status_pagamento)) {
       return res.status(400).json({
         erro: 'Status de pagamento inválido.'
       });
     }
 
-    const erroTexto = validarCamposTexto(body, [
-      ['cliente', 150],
-      ['telefone', 30],
-      ['veiculo', 120],
-      ['placa', 20],
-      ['forma_pagamento', 50],
-      ['observacoes', 5000]
-    ]);
+    const servico = await validarServico(
+      novoServicoId,
+      empresaId
+    );
 
-    if (erroTexto) {
-      return res.status(400).json({
-        erro: erroTexto
+    /*
+     * Verifica conflito sempre que data, hora ou serviço mudar.
+     * O próprio agendamento é excluído da busca.
+     */
+    const alterouAgenda =
+      body.data !== undefined ||
+      body.hora !== undefined ||
+      body.servico_id !== undefined;
+
+    if (
+      alterouAgenda &&
+      body.forcar_conflito !== true
+    ) {
+      const conflito = await buscarConflitoHorario({
+        empresaId,
+        data: String(novaData).slice(0, 10),
+        hora: String(novaHora).slice(0, 8),
+        servicoId: servico.id,
+        ignorarId: id
+      });
+
+      if (conflito?.erro === 'DURACAO_EXCEDE_DIA') {
+        return res.status(400).json({
+          codigo: conflito.erro,
+          erro: conflito.mensagem
+        });
+      }
+
+      if (conflito) {
+        return res.status(409).json({
+          codigo: 'CONFLITO_HORARIO',
+          erro: 'O horário escolhido se sobrepõe a outro agendamento.',
+          conflito
+        });
+      }
+    }
+
+    let clienteResolvido = {
+      cliente_id: atual.cliente_id,
+      cliente: atual.cliente,
+      telefone: atual.telefone
+    };
+
+    if (
+      body.cliente_id !== undefined ||
+      body.cliente !== undefined ||
+      body.telefone !== undefined
+    ) {
+      clienteResolvido = await resolverCliente({
+        clienteId: body.cliente_id !== undefined
+          ? body.cliente_id
+          : atual.cliente_id,
+        cliente: body.cliente ?? atual.cliente,
+        telefone: body.telefone ?? atual.telefone,
+        empresaId
       });
     }
 
-    if (body.servico_id !== undefined) {
-      const servicoValido = await validarServico(
-        body.servico_id,
-        empresaId
-      );
+    const valorFinal = body.valor !== undefined
+      ? validarValor(body.valor)
+      : Number(atual.valor);
 
-      if (!servicoValido) {
-        return res.status(400).json({
-          erro: 'Serviço não encontrado para esta empresa.'
-        });
-      }
+    if (valorFinal === null || !Number.isFinite(valorFinal)) {
+      return res.status(400).json({
+        erro: 'Valor inválido.'
+      });
     }
 
-    const atualizacoes = { ...body };
+    const campos = {
+      cliente_id: clienteResolvido.cliente_id,
+      cliente: clienteResolvido.cliente,
+      telefone: clienteResolvido.telefone,
+      veiculo: body.veiculo ?? atual.veiculo,
+      placa: body.placa ?? atual.placa,
+      servico_id: servico.id,
+      data: String(novaData).slice(0, 10),
+      hora: String(novaHora).slice(0, 8),
+      valor: valorFinal,
+      observacoes: body.observacoes ?? atual.observacoes,
+      status: body.status ?? atual.status,
+      status_pagamento:
+        body.status_pagamento ?? atual.status_pagamento,
+      forma_pagamento:
+        body.forma_pagamento ?? atual.forma_pagamento
+    };
 
-    // Só altera o vínculo quando cliente_id estiver presente.
-    // Se não vier no corpo, preserva o vínculo existente.
-    if (body.cliente_id !== undefined) {
-      if (
-        body.cliente_id === null ||
-        String(body.cliente_id).trim() === ''
-      ) {
-        atualizacoes.cliente_id = null;
-
-        if (body.cliente === undefined) {
-          atualizacoes.cliente = atual.cliente;
-        }
-
-        if (body.telefone === undefined) {
-          atualizacoes.telefone = atual.telefone;
-        }
-      } else {
-        const dadosCliente = await resolverCliente({
-          clienteId: body.cliente_id,
-          cliente: body.cliente,
-          telefone: body.telefone,
-          empresaId
-        });
-
-        if (dadosCliente.erro) {
-          return res.status(400).json({
-            erro: dadosCliente.erro
-          });
-        }
-
-        atualizacoes.cliente_id = dadosCliente.cliente_id;
-        atualizacoes.cliente = dadosCliente.cliente;
-        atualizacoes.telefone = dadosCliente.telefone;
-      }
-    }
-
-    const camposPermitidos = [
+    const colunasPermitidas = [
       'cliente_id',
       'cliente',
       'telefone',
@@ -729,135 +778,120 @@ router.patch('/:id', async (req, res) => {
       'data',
       'hora',
       'valor',
+      'observacoes',
       'status',
       'status_pagamento',
-      'forma_pagamento',
-      'observacoes'
+      'forma_pagamento'
     ];
 
-    const sets = [];
-    const valores = [];
+    const atribuicoes = [];
+    const parametros = [];
 
-    for (const campo of camposPermitidos) {
-      if (atualizacoes[campo] === undefined) {
-        continue;
-      }
-
-      let valorCampo = atualizacoes[campo];
-
+    for (const coluna of colunasPermitidas) {
       if (
+        body[coluna] !== undefined ||
         [
+          'cliente_id',
           'cliente',
           'telefone',
-          'veiculo',
-          'placa',
-          'forma_pagamento',
-          'observacoes'
-        ].includes(campo)
+          'servico_id',
+          'data',
+          'hora',
+          'valor'
+        ].includes(coluna)
       ) {
-        valorCampo = normalizarTexto(valorCampo);
+        parametros.push(campos[coluna]);
+        atribuicoes.push(
+          `${coluna} = $${parametros.length}`
+        );
       }
-
-      if (campo === 'valor' && valorCampo !== null) {
-        valorCampo = Number(valorCampo);
-      }
-
-      if (campo === 'servico_id' && valorCampo !== null) {
-        valorCampo = Number(valorCampo);
-      }
-
-      if (campo === 'cliente_id' && valorCampo !== null) {
-        valorCampo = validarId(valorCampo);
-
-        if (!valorCampo) {
-          return res.status(400).json({
-            erro: 'Identificador de cliente inválido.'
-          });
-        }
-      }
-
-      sets.push(`${campo} = $${valores.length + 1}`);
-      valores.push(valorCampo);
     }
 
-    if (!sets.length) {
-      return res.status(400).json({
-        erro: 'Nenhum campo para atualizar.'
-      });
-    }
+    parametros.push(id);
+    const idParam = parametros.length;
 
-    valores.push(id);
-    valores.push(empresaId);
+    parametros.push(empresaId);
+    const empresaParam = parametros.length;
 
-    const { rows } = await pool.query(
+    const resultado = await pool.query(
       `
         UPDATE agendamentos
-        SET ${sets.join(', ')}
-        WHERE id = $${valores.length - 1}
-          AND empresa_id = $${valores.length}
+        SET ${atribuicoes.join(', ')}
+        WHERE id = $${idParam}
+          AND empresa_id = $${empresaParam}
         RETURNING *
       `,
-      valores
+      parametros
     );
 
-    if (!rows.length) {
-      return res.status(404).json({
-        erro: 'Agendamento não encontrado.'
+    return res.json(resultado.rows[0]);
+  } catch (erro) {
+    if (
+      erro.message === 'Cliente inválido.' ||
+      erro.message === 'Cliente não encontrado.' ||
+      erro.message === 'Informe o nome do cliente.' ||
+      erro.message === 'Serviço inválido.' ||
+      erro.message === 'Serviço não encontrado ou inativo.'
+    ) {
+      return res.status(400).json({
+        erro: erro.message
       });
     }
 
-    return res.json(rows[0]);
-  } catch (err) {
-    console.error('Erro ao atualizar agendamento:', err);
+    console.error('Erro ao atualizar agendamento:', erro);
 
     return res.status(500).json({
-      erro: 'Não foi possível atualizar o agendamento.'
+      erro: 'Erro ao atualizar agendamento.'
     });
   }
 });
 
 // ============================================================
 // DELETE /api/agendamentos/:id
+// EXCLUIR AGENDAMENTO
 // ============================================================
 
 router.delete('/:id', async (req, res) => {
-  const empresaId = obterEmpresaId(req);
-  const id = validarId(req.params.id);
-
-  if (!empresaId) {
-    return res.status(403).json({
-      erro: 'Não existe uma empresa vinculada à sessão.'
-    });
-  }
-
-  if (!id) {
-    return res.status(400).json({
-      erro: 'Identificador de agendamento inválido.'
-    });
-  }
-
   try {
+    const empresaId = obterEmpresaId(req);
+    const id = validarId(req.params.id);
+
+    if (!empresaId) {
+      return res.status(403).json({
+        erro: 'Empresa não identificada.'
+      });
+    }
+
+    if (!id) {
+      return res.status(400).json({
+        erro: 'ID do agendamento inválido.'
+      });
+    }
+
     const resultado = await pool.query(
       `
         DELETE FROM agendamentos
         WHERE id = $1
           AND empresa_id = $2
+        RETURNING id
       `,
       [id, empresaId]
     );
 
-    if (!resultado.rowCount) {
+    if (!resultado.rows.length) {
       return res.status(404).json({
         erro: 'Agendamento não encontrado.'
       });
     }
 
-    return res.status(204).end();
-  } catch (err) {
-    console.error('Erro ao excluir agendamento:', err);
+    return res.json({
+      mensagem: 'Agendamento excluído com sucesso.'
+    });
+  } catch (erro) {
+    console.error('Erro ao excluir agendamento:', erro);
 
     return res.status(500).json({
-      erro: 'Não foi possível remover o agendamento.'
+      erro: 'Erro ao excluir agendamento.'
     });
   }
 });
