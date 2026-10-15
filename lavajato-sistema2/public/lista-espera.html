@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Lista de espera | Orvix</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('orvix-theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<style>
+:root{--bg:#f4f5fa;--sf:#fff;--sf2:#f8f9fc;--tx:#1d2133;--mu:#6b7186;--bd:#e3e6ef;--pr:#6558d9;--ps:#eeecff;--ok:#1f8a5b;--okb:#e5f6ee;--wn:#b7791f;--wnb:#fdf3dc;--er:#d03a4d;--erb:#fde9ec;--sh:0 6px 24px rgba(25,30,55,.06)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0c0f1a;--sf:#161a29;--sf2:#1c2133;--tx:#eceffa;--mu:#9ba2b8;--bd:#2a2f45;--pr:#a79eff;--ps:#2a2650;--ok:#6fd6a6;--okb:#143326;--wn:#f0c36a;--wnb:#392d12;--er:#ff8493;--erb:#3d1b22;--sh:0 6px 24px rgba(0,0,0,.25)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Inter,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+h1{margin:0;font:700 clamp(24px,4vw,30px)/1.15 "Space Grotesk",Inter,sans-serif;letter-spacing:-.6px}
+h2{margin:0;font-size:16px}
+.wrap{max-width:1240px;margin:auto;padding:28px 20px 64px;padding-top:max(28px,env(safe-area-inset-top))}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.top p{margin:6px 0 0;color:var(--mu)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--sf);text-decoration:none;cursor:pointer;font-weight:600;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--pr)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.pri{background:var(--pr);border-color:var(--pr);color:#fff}
+[data-theme=dark] .btn.pri{color:#14102e}
+.btn.sm{min-height:34px;padding:5px 11px;font-size:13px}
+.btn.dg{color:var(--er)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{text-align:left;padding:16px 18px;border:1px solid var(--bd);border-radius:14px;background:var(--sf);box-shadow:var(--sh);cursor:pointer}
+.stat b{display:block;font-size:28px;line-height:1.1;letter-spacing:-.5px}
+.stat span{color:var(--mu)}
+.stat[aria-pressed=true]{border-color:var(--pr);background:var(--ps)}
+.cols{display:grid;grid-template-columns:minmax(290px,.8fr) minmax(0,1.7fr);gap:18px;align-items:start}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);overflow:hidden;min-width:0}
+.hd{padding:18px 20px;border-bottom:1px solid var(--bd)}
+.hd p{margin:4px 0 0;color:var(--mu)}
+form{display:grid;gap:14px;padding:20px}
+.fg{display:grid;gap:6px;min-width:0}
+.fg label{font-size:13px;font-weight:600}
+.in{width:100%;min-height:42px;padding:9px 12px;border:1px solid var(--bd);border-radius:9px;background:var(--sf2)}
+.in:focus{border-color:var(--pr);outline:0;box-shadow:0 0 0 3px var(--ps)}
+textarea.in{min-height:80px;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{color:var(--mu);font-size:12px}
+.slot{padding:16px 20px;background:var(--ps);border-bottom:1px solid var(--bd);display:grid;gap:12px}
+.slot h3{margin:0;font-size:15px}
+.slot p{margin:2px 0 0;color:var(--mu)}
+.slot .g3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:10px}
+.slot .in{background:var(--sf)}
+.tools{display:grid;grid-template-columns:1fr 190px;gap:10px;padding:14px 20px;border-bottom:1px solid var(--bd)}
+.it{padding:18px 20px;border-bottom:1px solid var(--bd)}
+.it:last-child{border-bottom:0}
+.it.best{box-shadow:inset 3px 0 0 var(--pr)}
+.it .t{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.nm{font-weight:700;font-size:15px;overflow-wrap:anywhere}
+.ph{color:var(--mu);margin-top:2px}
+.bd{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.s-aguardando{background:var(--ps);color:var(--pr)}
+.s-contatado{background:var(--wnb);color:var(--wn)}
+.s-confirmado,.s-convertido{background:var(--okb);color:var(--ok)}
+.s-desistiu{background:var(--erb);color:var(--er)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{padding:3px 8px;border:1px solid var(--bd);border-radius:7px;color:var(--mu);font-size:12px}
+.chip.hot{border-color:var(--pr);color:var(--pr);font-weight:700}
+.note{margin:10px 0 0;color:var(--mu);font-size:13px;overflow-wrap:anywhere}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.state{padding:44px 20px;text-align:center;color:var(--mu)}
+.state strong{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
+.sk{height:78px;margin:16px 20px;border-radius:10px;background:linear-gradient(90deg,var(--sf2),var(--bd),var(--sf2));background-size:200% 100%;animation:sk 1.3s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.foot{padding:12px 20px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;display:grid;gap:8px;width:max-content;max-width:92vw}
+.tt{padding:11px 16px;border-radius:10px;background:var(--tx);color:var(--bg);font-weight:600;box-shadow:var(--sh)}
+.tt.er{background:var(--er);color:#fff}
+@media(max-width:960px){.cols{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.wrap{padding:18px 12px 48px}.slot .g3,.tools{grid-template-columns:1fr}.row .btn{flex:1}.it{padding:16px 14px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div>
+      <h1>Lista de espera</h1>
+      <p>Quando abrir um horário, veja quem encaixa melhor e chame no WhatsApp.</p>
+    </div>
+    <div class="row">
+      <a class="btn" href="/index.html">Voltar ao painel</a>
+      <button class="btn" id="theme" type="button">Alternar tema</button>
+      <button class="btn pri" id="refresh" type="button">Atualizar</button>
+    </div>
+  </header>
+
+  <section class="stats" aria-label="Resumo">
+    <button class="stat" data-f="aguardando" aria-pressed="false"><b id="n-aguardando">–</b><span>Aguardando</span></button>
+    <button class="stat" data-f="contatado" aria-pressed="false"><b id="n-contatado">–</b><span>Contatados</span></button>
+    <button class="stat" data-f="confirmado" aria-pressed="false"><b id="n-confirmado">–</b><span>Confirmados</span></button>
+    <button class="stat" data-f="convertido" aria-pressed="false"><b id="n-convertido">–</b><span>Agendados</span></button>
+  </section>
+
+  <div class="cols">
+    <section class="card">
+      <div class="hd"><h2>Adicionar à lista</h2><p>Registre o que o cliente procura.</p></div>
+      <form id="form" novalidate>
+        <div class="fg"><label for="f-nome">Nome do cliente *</label>
+          <input class="in" id="f-nome" maxlength="150" autocomplete="name" required></div>
+        <div class="fg"><label for="f-tel">Telefone com DDD *</label>
+          <input class="in" id="f-tel" maxlength="16" inputmode="tel" autocomplete="tel" placeholder="(47) 99999-9999" required></div>
+        <div class="fg"><label for="f-srv">Serviço</label>
+          <select class="in" id="f-srv"><option value="">Qualquer serviço</option></select></div>
+        <div class="g2">
+          <div class="fg"><label for="f-data">Data desejada</label><input class="in" type="date" id="f-data"></div>
+          <div class="fg"><label for="f-per">Período</label>
+            <select class="in" id="f-per"><option value="qualquer">Qualquer</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option></select></div>
+        </div>
+        <div class="g2">
+          <div class="fg"><label for="f-ini">A partir de</label><input class="in" type="time" id="f-ini"></div>
+          <div class="fg"><label for="f-fim">Até</label><input class="in" type="time" id="f-fim"></div>
+        </div>
+        <div class="fg"><label for="f-obs">Observações</label>
+          <textarea class="in" id="f-obs" maxlength="1000" placeholder="Ex.: prefere sexta, só com a Ana"></textarea></div>
+        <button class="btn pri" id="save" type="submit">Adicionar à lista</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="hd"><h2>Fila de espera</h2><p>Em ordem de chegada. Com um horário livre, ordena por compatibilidade.</p></div>
+
+      <div class="slot">
+        <div><h3>Abriu um horário?</h3><p id="slot-msg">Informe o que ficou livre e veja quem encaixa.</p></div>
+        <div class="g3">
+          <div class="fg"><label for="s-srv">Serviço</label><select class="in" id="s-srv"><option value="">Qualquer serviço</option></select></div>
+          <div class="fg"><label for="s-data">Data</label><input class="in" type="date" id="s-data"></div>
+          <div class="fg"><label for="s-hora">Hora</label><input class="in" type="time" id="s-hora"></div>
+        </div>
+        <div class="row">
+          <button class="btn pri sm" id="s-go" type="button">Buscar compatíveis</button>
+          <button class="btn sm" id="s-clear" type="button" hidden>Limpar horário</button>
+        </div>
+      </div>
+
+      <div class="tools">
+        <input class="in" id="q" type="search" placeholder="Buscar nome ou telefone" aria-label="Buscar">
+        <select class="in" id="flt" aria-label="Filtrar por status">
+          <option value="">Todos os status</option><option value="aguardando">Aguardando</option><option value="contatado">Contatado</option><option value="confirmado">Confirmado</option><option value="convertido">Agendado</option><option value="desistiu">Desistiu</option>
+        </select>
+      </div>
+
+      <div id="list" aria-live="polite"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+      <div class="foot" id="foot">O contato é feito por você, pelo WhatsApp.</div>
+    </section>
+  </div>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+(()=>{
+'use strict';
+const TK='lavajato_auth_token',$=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const dig=s=>String(s||'').replace(/\D/g,'');
+const nome=i=>i.nome_exibicao||i.cliente||'Sem nome';
+const hhmm=s=>String(s||'').slice(0,5);
+const br=d=>{const p=String(d||'').slice(0,10).split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:''};
+const PER={manha:'Manhã',tarde:'Tarde',noite:'Noite'};
+const ST={aguardando:'Aguardando',contatado:'Contatado',confirmado:'Confirmado',convertido:'Agendado',desistiu:'Desistiu'};
+let all=[],hits=[],slot=null,first=true;
+
+const hoje=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+['f-data','s-data'].forEach(id=>$(id).min=hoje());
+
+function toast(m,err){const t=document.createElement('div');t.className='tt'+(err?' er':'');t.textContent=m;$('toast').appendChild(t);setTimeout(()=>t.remove(),3500)}
+
+async function api(path,opt={}){
+  const t=localStorage.getItem(TK);
+  if(!t){location.href='/index.html';throw new Error('Faça login para continuar.')}
+  const r=await fetch('/api'+path,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+t}});
+  let d=null;try{d=await r.json()}catch(e){}
+  if(r.status===401){localStorage.removeItem(TK);location.href='/index.html';throw new Error('Sessão expirada.')}
+  if(!r.ok)throw new Error(d?.erro||'Não foi possível concluir a ação.');
+  return d;
+}
+
+/* tema */
+$('theme').onclick=()=>{const l=document.documentElement.dataset.theme!=='light'?'light':'dark';document.documentElement.dataset.theme=l;try{localStorage.setItem('orvix-theme',l)}catch(e){}};
+
+/* telefone */
+$('f-tel').addEventListener('input',e=>{
+  let v=dig(e.target.value).slice(0,11);
+  v=v.length>10?v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3'):v.length>6?v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3'):v.length>2?v.replace(/(\d{2})(\d*)/,'($1) $2'):v;
+  e.target.value=v;
+});
+
+/* serviços */
+async function loadServices(){
+  try{
+    const s=await api('/servicos');
+    const opts=(Array.isArray(s)?s:[]).map(x=>`<option value="${esc(x.id)}">${esc(x.nome)}</option>`).join('');
+    ['f-srv','s-srv'].forEach(id=>$(id).insertAdjacentHTML('beforeend',opts));
+  }catch(e){}
+}
+
+/* carregar fila */
+async function load(){
+  try{
+    all=(await api('/lista-espera'))?.itens||[];
+    if(slot){
+      const p=new URLSearchParams();
+      if(slot.data)p.set('data',slot.data);
+      if(slot.hora)p.set('hora',slot.hora);
+      if(slot.srv)p.set('servico_id',slot.srv);
+      hits=(await api('/lista-espera?'+p))?.itens||[];
+    }else hits=[];
+    first=false;
+    render();
+  }catch(e){
+    $('list').innerHTML=`<div class="state"><strong>Não foi possível carregar a fila</strong>${esc(e.message)}<div style="margin-top:12px"><button class="btn sm" id="retry">Tentar de novo</button></div></div>`;
+    $('retry').onclick=load;
+  }
+}
+
+/* renderizar */
+function actions(i){
+  const b=(a,l,c='',s='')=>`<button class="btn sm ${c}" data-a="${a}" data-id="${esc(i.id)}" ${s?`data-s="${s}"`:''}>${l}</button>`;
+  let h='';
+  if(i.status==='aguardando')h=b('wa','Chamar no WhatsApp','pri')+b('st','Desistiu','dg','desistiu');
+  else if(i.status==='contatado')h=b('wa','Chamar de novo')+b('st','Confirmou','pri','confirmado')+b('st','Desistiu','dg','desistiu');
+  else if(i.status==='confirmado')h=b('st','Já agendei','pri','convertido')+b('st','Desistiu','dg','desistiu');
+  else h=b('st','Voltar para a fila','','aguardando');
+  return h+b('rm','Remover','dg');
+}
+
+function card(i,idx){
+  const d=Math.max(0,Math.floor((Date.now()-new Date(i.criado_em))/864e5));
+  const chips=[
+    i.servico_nome?esc(i.servico_nome):'Qualquer serviço',
+    i.data_desejada?'Para '+br(i.data_desejada):'Sem data definida',
+    PER[i.periodo_preferido]||'',
+    i.hora_inicio||i.hora_fim?`${hhmm(i.hora_inicio)||'…'} às ${hhmm(i.hora_fim)||'…'}`:'',
+    d===0?'Entrou hoje':`Há ${d} dia${d>1?'s':''} na fila`
+  ].filter(Boolean).map(c=>`<span class="chip">${c}</span>`).join('');
+  const best=slot&&idx===0;
+  const pts=slot&&i.pontuacao!=null?`<span class="chip hot">${best?'Melhor opção · ':''}${i.pontuacao} pontos</span>`:'';
+  return `<article class="it${best?' best':''}">
+    <div class="t"><div><div class="nm">${esc(nome(i))}</div><div class="ph">${esc(i.telefone||'Sem telefone')}</div></div>
+    <span class="bd s-${esc(i.status)}">${ST[i.status]||esc(i.status)}</span></div>
+    <div class="chips">${pts}${chips}</div>
+    ${i.observacoes?`<p class="note">${esc(i.observacoes)}</p>`:''}
+    <div class="acts">${actions(i)}</div></article>`;
+}
+
+function render(){
+  const c={};all.forEach(i=>c[i.status]=(c[i.status]||0)+1);
+  Object.keys(ST).forEach(k=>{const e=$('n-'+k);if(e)e.textContent=c[k]||0});
+
+  const f=$('flt').value,q=norm($('q').value),qd=dig($('q').value);
+  document.querySelectorAll('.stat').forEach(s=>s.setAttribute('aria-pressed',String(s.dataset.f===f)));
+
+  const base=slot?hits:all;
+  const list=base.filter(i=>(!f||i.status===f)&&(!q||norm(nome(i)).includes(q)||(qd&&dig(i.telefone).includes(qd))));
+
+  $('s-clear').hidden=!slot;
+  $('slot-msg').textContent=slot
+    ?`Compatíveis com ${[slot.data&&br(slot.data),slot.hora&&'às '+slot.hora].filter(Boolean).join(' ')||'o serviço escolhido'}: ${hits.length} ${hits.length===1?'pessoa':'pessoas'}.`
+    :'Informe o que ficou livre e veja quem encaixa.';
+
+  if(!list.length){
+    $('list').innerHTML=!all.length
+      ?`<div class="state"><strong>Ninguém na lista ainda</strong>Adicione o primeiro cliente no formulário ao lado.</div>`
+      :`<div class="state"><strong>Nada encontrado</strong>${slot?'Ninguém na fila combina com esse horário.':'Tente outro nome ou limpe o filtro.'}</div>`;
+  }else $('list').innerHTML=list.map(card).join('');
+  $('foot').textContent=`Mostrando ${list.length} de ${base.length}. O contato é feito por você, pelo WhatsApp.`;
+}
+
+/* ações dos cards */
+async function setStatus(id,st,msg){
+  await api(`/lista-espera/${encodeURIComponent(id)}/status`,{method:'PATCH',body:JSON.stringify({status:st})});
+  if(msg)toast(msg);
+  await load();
+}
+
+$('list').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-a]');if(!b)return;
+  const id=b.dataset.id,it=all.find(x=>String(x.id)===id);if(!it)return;
+  b.disabled=true;
+  try{
+    if(b.dataset.a==='wa'){
+      let n=dig(it.telefone);if(n.length<10){toast('Telefone inválido para WhatsApp.',1);b.disabled=false;return}
+      if(n.length<=11)n='55'+n;
+      const quando=slot&&(slot.data||slot.hora)?` para ${[slot.data&&br(slot.data),slot.hora&&'às '+slot.hora].filter(Boolean).join(' ')}`:'';
+      const txt=`Olá, ${nome(it).split(' ')[0]}! Surgiu um horário${quando}. Ainda tem interesse?`;
+      window.open(`https://wa.me/${n}?text=${encodeURIComponent(txt)}`,'_blank','noopener');
+      if(it.status==='aguardando')await setStatus(id,'contatado','Marcado como contatado.');else b.disabled=false;
+    }else if(b.dataset.a==='st'){
+      await setStatus(id,b.dataset.s,'Status atualizado.');
+    }else if(b.dataset.a==='rm'){
+      if(!confirm(`Remover ${nome(it)} da lista de espera?`)){b.disabled=false;return}
+      await api(`/lista-espera/${encodeURIComponent(id)}`,{method:'DELETE'});
+      toast('Removido da lista.');await load();
+    }
+  }catch(err){toast(err.message,1);b.disabled=false}
+});
+
+/* filtros */
+$('q').oninput=render;$('flt').onchange=render;
+document.querySelectorAll('.stat').forEach(s=>s.onclick=()=>{$('flt').value=$('flt').value===s.dataset.f?'':s.dataset.f;render()});
+$('refresh').onclick=async()=>{$('refresh').disabled=true;await load();$('refresh').disabled=false};
+
+/* horário livre */
+$('s-go').onclick=()=>{
+  const s={srv:$('s-srv').value,data:$('s-data').value,hora:$('s-hora').value};
+  if(!s.srv&&!s.data&&!s.hora){toast('Informe ao menos serviço, data ou hora.',1);return}
+  slot=s;load();
+};
+$('s-clear').onclick=()=>{slot=null;['s-srv','s-data','s-hora'].forEach(id=>$(id).value='');load()};
+
+/* adicionar */
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const v=id=>$(id).value.trim();
+  if(!v('f-nome')){toast('Informe o nome do cliente.',1);$('f-nome').focus();return}
+  if(dig(v('f-tel')).length<10){toast('Informe o telefone com DDD.',1);$('f-tel').focus();return}
+  if(v('f-ini')&&v('f-fim')&&v('f-ini')>=v('f-fim')){toast('O horário final deve ser depois do inicial.',1);return}
+  const btn=$('save');btn.disabled=true;btn.textContent='Adicionando…';
+  try{
+    await api('/lista-espera',{method:'POST',body:JSON.stringify({
+      cliente:v('f-nome'),telefone:v('f-tel'),servico_id:$('f-srv').value||null,
+      data_desejada:$('f-data').value||null,periodo_preferido:$('f-per').value,
+      hora_inicio:$('f-ini').value||null,hora_fim:$('f-fim').value||null,observacoes:v('f-obs')
+    })});
+    e.target.reset();toast('Cliente adicionado à lista.');await load();
+  }catch(err){toast(err.message,1)}
+  finally{btn.disabled=false;btn.textContent='Adicionar à lista'}
+});
+
+loadServices();load();
+})();
+</script>
+</body>
+</html>
