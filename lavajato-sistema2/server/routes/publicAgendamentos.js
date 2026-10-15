@@ -1,664 +1,1033 @@
+
 'use strict';
 
 const express = require('express');
+const crypto = require('crypto');
 const pool = require('../db');
 
 const router = express.Router();
 
 // ============================================================
-// VALIDAÇÕES PÚBLICAS
+// CONFIGURAÇÕES E HELPERS
 // ============================================================
 
+const STATUS_CANCELADOS = ['cancelado', 'cancelada'];
+
 function validarSlugPublico(slug) {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
-    String(slug || '')
+  return (
+    typeof slug === 'string' &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)
   );
 }
 
 function validarDataPublica(data) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data || ''))) {
+  if (
+    typeof data !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(data)
+  ) {
     return false;
   }
 
   const [ano, mes, dia] = data.split('-').map(Number);
-  const teste = new Date(Date.UTC(ano, mes - 1, dia));
+  const dataUTC = new Date(Date.UTC(ano, mes - 1, dia));
 
   return (
-    teste.getUTCFullYear() === ano &&
-    teste.getUTCMonth() === mes - 1 &&
-    teste.getUTCDate() === dia
+    dataUTC.getUTCFullYear() === ano &&
+    dataUTC.getUTCMonth() === mes - 1 &&
+    dataUTC.getUTCDate() === dia
   );
 }
 
 function validarIdPublico(valor) {
-  return /^[1-9]\d{0,18}$/.test(String(valor || ''));
+  return (
+    (typeof valor === 'string' || typeof valor === 'number') &&
+    /^[1-9]\d{0,18}$/.test(String(valor))
+  );
 }
 
 function paraMinutos(hora) {
-  const partes = String(hora).split(':').map(Number);
-  return partes[0] * 60 + partes[1];
+  if (typeof hora !== 'string') {
+    return null;
+  }
+
+  const partes = hora.split(':');
+  const horas = Number(partes[0]);
+  const minutos = Number(partes[1]);
+
+  if (
+    partes.length < 2 ||
+    !Number.isInteger(horas) ||
+    !Number.isInteger(minutos) ||
+    horas < 0 ||
+    horas > 23 ||
+    minutos < 0 ||
+    minutos > 59
+  ) {
+    return null;
+  }
+
+  return horas * 60 + minutos;
+}
+
+function formatarHora(minutos) {
+  const horas = Math.floor(minutos / 60);
+  const restante = minutos % 60;
+
+  return (
+    String(horas).padStart(2, '0') +
+    ':' +
+    String(restante).padStart(2, '0')
+  );
+}
+
+function normalizarHora(hora) {
+  if (typeof hora !== 'string') {
+    return null;
+  }
+
+  const resultado = hora.match(/^(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/);
+
+  if (!resultado) {
+    return null;
+  }
+
+  const horas = Number(resultado[1]);
+  const minutos = Number(resultado[2]);
+
+  if (horas > 23 || minutos > 59) {
+    return null;
+  }
+
+  return `${resultado[1]}:${resultado[2]}`;
+}
+
+function obterDataHoraLocal(timeZone) {
+  try {
+    const partes = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timeZone || 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23'
+    }).formatToParts(new Date());
+
+    const valores = {};
+
+    for (const parte of partes) {
+      if (parte.type !== 'literal') {
+        valores[parte.type] = parte.value;
+      }
+    }
+
+    return {
+      data: `${valores.year}-${valores.month}-${valores.day}`,
+      hora: `${valores.hour}:${valores.minute}`
+    };
+  } catch {
+    const agora = new Date();
+
+    return {
+      data: agora.toISOString().slice(0, 10),
+      hora: agora.toISOString().slice(11, 16)
+    };
+  }
+}
+
+function gerarTokenCancelamento() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function gerarHashToken(token) {
+  return crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
+}
+
+function validarTokenCancelamento(token) {
+  return (
+    typeof token === 'string' &&
+    /^[a-f0-9]{64}$/i.test(token)
+  );
+}
+
+function validarTexto(valor, maximo) {
+  return (
+    typeof valor === 'string' &&
+    valor.trim().length > 0 &&
+    valor.trim().length <= maximo
+  );
+}
+
+function mensagemErro(res, status, mensagem) {
+  return res.status(status).json({
+    sucesso: false,
+    mensagem
+  });
+}
+
+function estaCancelado(status) {
+  return STATUS_CANCELADOS.includes(
+    String(status || '').trim().toLowerCase()
+  );
 }
 
 // ============================================================
+// GET - DADOS PÚBLICOS DA EMPRESA E SERVIÇOS
 // GET /api/public/agendamentos/:slug
-// Carrega os dados públicos da empresa e seus serviços.
 // ============================================================
 
 router.get('/:slug', async (req, res) => {
-  const { slug } = req.params;
-
-  if (!validarSlugPublico(slug)) {
-    return res.status(400).json({
-      erro: 'Link de agendamento inválido.'
-    });
-  }
-
   try {
-    const resultado = await pool.query(
-      `SELECT
-         e.id,
-         COALESCE(
-           NULLIF(BTRIM(e.nome_exibicao), ''),
-           e.nome
-         ) AS nome,
-         e.logo_url,
-         e.cor_primaria,
-         e.cor_destaque,
-         e.cor_fundo,
-         e.mostrar_valores,
-         e.agenda_horario_inicio,
-         e.agenda_horario_fim,
-         e.agenda_intervalo,
-         e.fuso_horario
-       FROM empresas e
-       WHERE e.slug_agendamento = $1
-         AND e.ativo = TRUE
-       LIMIT 1`,
+    const { slug } = req.params;
+
+    if (!validarSlugPublico(slug)) {
+      return mensagemErro(
+        res,
+        400,
+        'Endereço de agendamento inválido.'
+      );
+    }
+
+    const empresaResult = await pool.query(
+      `
+      SELECT *
+      FROM empresas
+      WHERE slug_agendamento = $1
+        AND ativo = TRUE
+      LIMIT 1
+      `,
       [slug]
     );
 
-    if (!resultado.rows.length) {
-      return res.status(404).json({
-        erro: 'Empresa não encontrada ou indisponível.'
-      });
+    if (empresaResult.rows.length === 0) {
+      return mensagemErro(
+        res,
+        404,
+        'Página de agendamento não encontrada ou indisponível.'
+      );
     }
 
-    const empresa = resultado.rows[0];
+    const empresa = empresaResult.rows[0];
 
-    const servicosResultado = await pool.query(
-      `SELECT
-         s.id,
-         s.nome,
-         s.duracao_min,
-         CASE
-           WHEN $2::boolean = TRUE THEN s.preco
-           ELSE NULL
-         END AS preco
-       FROM servicos s
-       WHERE s.empresa_id = $1
-         AND s.ativo = TRUE
-       ORDER BY s.nome ASC`,
-      [empresa.id, empresa.mostrar_valores]
+    const servicosResult = await pool.query(
+      `
+      SELECT
+        id,
+        nome,
+        descricao,
+        duracao_min,
+        preco
+      FROM servicos
+      WHERE empresa_id = $1
+        AND ativo = TRUE
+      ORDER BY nome ASC
+      `,
+      [empresa.id]
     );
 
-    return res.status(200).json({
+    return res.json({
+      sucesso: true,
       empresa: {
         id: empresa.id,
         nome: empresa.nome,
-        logo_url: empresa.logo_url,
-        cor_primaria: empresa.cor_primaria,
-        cor_destaque: empresa.cor_destaque,
-        cor_fundo: empresa.cor_fundo,
-        mostrar_valores: empresa.mostrar_valores,
-        agenda_horario_inicio: empresa.agenda_horario_inicio,
-        agenda_horario_fim: empresa.agenda_horario_fim,
-        agenda_intervalo: empresa.agenda_intervalo,
-        fuso_horario: empresa.fuso_horario
+        slug_agendamento: empresa.slug_agendamento,
+        logo: empresa.logo_url || empresa.logo || null,
+        cor_primaria: empresa.cor_primaria || null,
+        cor_destaque: empresa.cor_destaque || null,
+        cor_fundo: empresa.cor_fundo || null,
+        agenda_horario_inicio:
+          empresa.agenda_horario_inicio || '08:00',
+        agenda_horario_fim:
+          empresa.agenda_horario_fim || '18:00',
+        agenda_intervalo:
+          Number(empresa.agenda_intervalo) || 30,
+        fuso_horario:
+          empresa.fuso_horario || 'America/Sao_Paulo'
       },
-      servicos: servicosResultado.rows
+      servicos: servicosResult.rows
     });
-  } catch (err) {
+  } catch (erro) {
     console.error(
-      'Erro ao carregar dados públicos de agendamento:',
-      err.message
+      '[AGENDAMENTO PUBLICO] Erro ao carregar página:',
+      erro
     );
 
-    return res.status(500).json({
-      erro: 'Não foi possível carregar os dados para agendamento.'
-    });
+    return mensagemErro(
+      res,
+      500,
+      'Não foi possível carregar a página de agendamento.'
+    );
   }
 });
 
 // ============================================================
+// GET - HORÁRIOS DISPONÍVEIS
 // GET /api/public/agendamentos/:slug/horarios
-// Consulta horários disponíveis para um serviço em uma data.
 // ============================================================
 
 router.get('/:slug/horarios', async (req, res) => {
-  const { slug } = req.params;
-  const data = String(req.query.data || '');
-  const servicoId = String(req.query.servico_id || '');
-
-  if (!validarSlugPublico(slug)) {
-    return res.status(400).json({
-      erro: 'Link de agendamento inválido.'
-    });
-  }
-
-  if (!validarDataPublica(data)) {
-    return res.status(400).json({
-      erro: 'Informe uma data válida no formato AAAA-MM-DD.'
-    });
-  }
-
-  if (!validarIdPublico(servicoId)) {
-    return res.status(400).json({
-      erro: 'Informe um serviço válido.'
-    });
-  }
-
   try {
+    const { slug } = req.params;
+    const { data, servico_id } = req.query;
+
+    if (!validarSlugPublico(slug)) {
+      return mensagemErro(
+        res,
+        400,
+        'Endereço de agendamento inválido.'
+      );
+    }
+
+    if (!validarDataPublica(data)) {
+      return mensagemErro(
+        res,
+        400,
+        'Informe uma data válida no formato AAAA-MM-DD.'
+      );
+    }
+
+    if (!validarIdPublico(servico_id)) {
+      return mensagemErro(
+        res,
+        400,
+        'Selecione um serviço válido.'
+      );
+    }
+
     const empresaResult = await pool.query(
-      `SELECT
-         id,
-         agenda_horario_inicio,
-         agenda_horario_fim,
-         agenda_intervalo,
-         fuso_horario
-       FROM empresas
-       WHERE slug_agendamento = $1
-         AND ativo = TRUE
-       LIMIT 1`,
+      `
+      SELECT *
+      FROM empresas
+      WHERE slug_agendamento = $1
+        AND ativo = TRUE
+      LIMIT 1
+      `,
       [slug]
     );
 
-    if (!empresaResult.rows.length) {
-      return res.status(404).json({
-        erro: 'Empresa não encontrada ou indisponível.'
-      });
+    if (empresaResult.rows.length === 0) {
+      return mensagemErro(
+        res,
+        404,
+        'Página de agendamento não encontrada.'
+      );
     }
 
     const empresa = empresaResult.rows[0];
-    const empresaId = empresa.id;
 
     const servicoResult = await pool.query(
-      `SELECT id, duracao_min
-       FROM servicos
-       WHERE id = $1
-         AND empresa_id = $2
-         AND ativo = TRUE
-       LIMIT 1`,
-      [servicoId, empresaId]
+      `
+      SELECT id, nome, duracao_min, preco
+      FROM servicos
+      WHERE id = $1
+        AND empresa_id = $2
+        AND ativo = TRUE
+      LIMIT 1
+      `,
+      [servico_id, empresa.id]
     );
 
-    if (!servicoResult.rows.length) {
-      return res.status(404).json({
-        erro: 'Serviço não encontrado ou indisponível.'
-      });
+    if (servicoResult.rows.length === 0) {
+      return mensagemErro(
+        res,
+        404,
+        'Serviço não encontrado ou indisponível.'
+      );
     }
 
-    const duracao = Number(servicoResult.rows[0].duracao_min);
-    const intervalo = Number(empresa.agenda_intervalo);
+    const servico = servicoResult.rows[0];
+
+    const duracao = Number(servico.duracao_min);
+    const inicio = paraMinutos(
+      String(empresa.agenda_horario_inicio || '08:00').slice(0, 5)
+    );
+    const fim = paraMinutos(
+      String(empresa.agenda_horario_fim || '18:00').slice(0, 5)
+    );
+    const intervalo = Number(empresa.agenda_intervalo) || 30;
 
     if (
-      !Number.isFinite(duracao) ||
+      !Number.isInteger(duracao) ||
       duracao <= 0 ||
-      !Number.isFinite(intervalo) ||
+      inicio === null ||
+      fim === null ||
+      fim <= inicio ||
+      !Number.isInteger(intervalo) ||
       intervalo <= 0
     ) {
-      return res.status(422).json({
-        erro: 'A empresa precisa configurar a duração e o intervalo dos agendamentos.'
-      });
-    }
-
-    const inicio = String(empresa.agenda_horario_inicio || '');
-    const fim = String(empresa.agenda_horario_fim || '');
-
-    if (!inicio || !fim || inicio >= fim) {
-      return res.status(422).json({
-        erro: 'O horário de funcionamento da empresa está inválido.'
-      });
-    }
-
-    const inicioMinutos = paraMinutos(inicio);
-    const fimMinutos = paraMinutos(fim);
-
-    const ocupadosResult = await pool.query(
-      `SELECT
-         a.hora,
-         COALESCE(s.duracao_min, $3::integer) AS duracao_min
-       FROM agendamentos a
-       LEFT JOIN servicos s
-         ON s.id = a.servico_id
-        AND s.empresa_id = a.empresa_id
-       WHERE a.empresa_id = $1
-         AND a.data = $2::date
-         AND LOWER(BTRIM(a.status)) NOT IN (
-           'cancelado',
-           'cancelada'
-         )
-       ORDER BY a.hora`,
-      [empresaId, data, intervalo]
-    );
-
-    const ocupados = ocupadosResult.rows.map((item) => {
-      const inicioOcupado = paraMinutos(
-        String(item.hora).slice(0, 8)
+      console.error(
+        '[AGENDAMENTO PUBLICO] Configuração de horário inválida:',
+        empresa.id
       );
 
-      const duracaoOcupada = Number(item.duracao_min);
-
-      return {
-        inicio: inicioOcupado,
-        fim: inicioOcupado + (
-          Number.isFinite(duracaoOcupada) && duracaoOcupada > 0
-            ? duracaoOcupada
-            : intervalo
-        )
-      };
-    });
-
-    const hojeResult = await pool.query(
-      `SELECT
-         (CURRENT_TIMESTAMP AT TIME ZONE $1)::date::text AS hoje,
-         TO_CHAR(
-           CURRENT_TIMESTAMP AT TIME ZONE $1,
-           'HH24:MI'
-         ) AS hora_atual`,
-      [empresa.fuso_horario || 'America/Sao_Paulo']
-    );
-
-    const hoje = hojeResult.rows[0].hoje;
-    const minutosAgora = paraMinutos(
-      hojeResult.rows[0].hora_atual
-    );
-
-    if (data < hoje) {
-      return res.json({
-        data,
-        servico_id: servicoId,
-        horarios: []
-      });
+      return mensagemErro(
+        res,
+        500,
+        'Os horários desta empresa estão configurados incorretamente.'
+      );
     }
+
+    const horariosResult = await pool.query(
+      `
+      SELECT
+        a.id,
+        a.hora,
+        COALESCE(s.duracao_min, 30) AS duracao_min
+      FROM agendamentos a
+      LEFT JOIN servicos s
+        ON s.id = a.servico_id
+       AND s.empresa_id = a.empresa_id
+      WHERE a.empresa_id = $1
+        AND a.data = $2::date
+        AND LOWER(BTRIM(COALESCE(a.status, '')))
+            NOT IN ('cancelado', 'cancelada')
+      `,
+      [empresa.id, data]
+    );
+
+    const ocupados = horariosResult.rows
+      .map((agendamento) => {
+        const inicioOcupado = paraMinutos(
+          String(agendamento.hora).slice(0, 5)
+        );
+
+        if (inicioOcupado === null) {
+          return null;
+        }
+
+        return {
+          inicio: inicioOcupado,
+          fim:
+            inicioOcupado +
+            Math.max(1, Number(agendamento.duracao_min) || 30)
+        };
+      })
+      .filter(Boolean);
+
+    const agoraLocal = obterDataHoraLocal(
+      empresa.fuso_horario || 'America/Sao_Paulo'
+    );
 
     const horarios = [];
 
     for (
-      let minuto = inicioMinutos;
-      minuto + duracao <= fimMinutos;
+      let minuto = inicio;
+      minuto + duracao <= fim;
       minuto += intervalo
     ) {
-      if (data === hoje && minuto <= minutosAgora) {
+      const final = minuto + duracao;
+
+      if (
+        data === agoraLocal.data &&
+        minuto <= paraMinutos(agoraLocal.hora)
+      ) {
         continue;
       }
 
-      const conflito = ocupados.some((ocupado) =>
+      const conflito = ocupados.some((ocupado) => (
         minuto < ocupado.fim &&
-        minuto + duracao > ocupado.inicio
-      );
+        final > ocupado.inicio
+      ));
 
-      if (conflito) {
-        continue;
+      if (!conflito) {
+        horarios.push(formatarHora(minuto));
       }
-
-      const horas = String(
-        Math.floor(minuto / 60)
-      ).padStart(2, '0');
-
-      const minutos = String(
-        minuto % 60
-      ).padStart(2, '0');
-
-      horarios.push(`${horas}:${minutos}`);
     }
 
     return res.json({
+      sucesso: true,
       data,
-      servico_id: servicoId,
+      servico_id: servico.id,
       duracao_min: duracao,
       horarios
     });
-  } catch (err) {
+  } catch (erro) {
     console.error(
-      'Erro ao consultar horários públicos:',
-      err.message
+      '[AGENDAMENTO PUBLICO] Erro ao consultar horários:',
+      erro
     );
 
-    return res.status(500).json({
-      erro: 'Não foi possível consultar os horários disponíveis.'
-    });
+    return mensagemErro(
+      res,
+      500,
+      'Não foi possível consultar os horários disponíveis.'
+    );
   }
 });
 
 // ============================================================
+// POST - CRIAR AGENDAMENTO PÚBLICO
 // POST /api/public/agendamentos/:slug
-// Cria um agendamento sem exigir login.
-// Aceita "nome" (formulário público) e "cliente" (compatibilidade).
 // ============================================================
 
 router.post('/:slug', async (req, res) => {
-  const { slug } = req.params;
-
-  const {
-    nome,
-    cliente: clienteRecebido,
-    telefone,
-    servico_id,
-    data,
-    hora,
-    observacoes
-  } = req.body || {};
-
-  if (!validarSlugPublico(slug)) {
-    return res.status(400).json({
-      erro: 'Link de agendamento inválido.'
-    });
-  }
-
-  // O formulário público envia "nome".
-  // Mantemos "cliente" como alternativa para compatibilidade.
-  const nomeCliente = String(
-    nome ?? clienteRecebido ?? ''
-  ).trim();
-
-  const telefoneCliente = String(telefone || '').trim();
-  const observacoesCliente = String(observacoes || '').trim();
-  const servicoId = String(servico_id || '');
-  const dataReserva = String(data || '');
-  const horaReserva = String(hora || '');
-
-  if (!nomeCliente || nomeCliente.length > 150) {
-    return res.status(400).json({
-      erro: 'Informe um nome válido de até 150 caracteres.'
-    });
-  }
-
-  if (!telefoneCliente || telefoneCliente.length > 30) {
-    return res.status(400).json({
-      erro: 'Informe um telefone válido de até 30 caracteres.'
-    });
-  }
-
-  if (observacoesCliente.length > 1000) {
-    return res.status(400).json({
-      erro: 'As observações devem ter no máximo 1000 caracteres.'
-    });
-  }
-
-  if (!validarIdPublico(servicoId)) {
-    return res.status(400).json({
-      erro: 'Selecione um serviço válido.'
-    });
-  }
-
-  if (!validarDataPublica(dataReserva)) {
-    return res.status(400).json({
-      erro: 'Informe uma data válida.'
-    });
-  }
-
-  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(horaReserva)) {
-    return res.status(400).json({
-      erro: 'Informe um horário válido no formato HH:MM.'
-    });
-  }
-
-  let client;
+  const conexao = await pool.connect();
 
   try {
-    client = await pool.connect();
+    const { slug } = req.params;
 
-    await client.query('BEGIN');
+    const nome = String(
+      req.body?.nome ?? req.body?.cliente ?? ''
+    ).trim();
 
-    // Resolve o slug para o ID interno da empresa.
-    const empresaResult = await client.query(
-      `SELECT
-         id,
-         agenda_horario_inicio,
-         agenda_horario_fim,
-         agenda_intervalo,
-         fuso_horario
-       FROM empresas
-       WHERE slug_agendamento = $1
-         AND ativo = TRUE
-       LIMIT 1`,
+    const telefone = String(
+      req.body?.telefone ?? ''
+    ).trim();
+
+    const servico_id = req.body?.servico_id;
+    const data = req.body?.data;
+    const horaRecebida = req.body?.hora;
+
+    const hora = normalizarHora(
+      typeof horaRecebida === 'string'
+        ? horaRecebida
+        : ''
+    );
+
+    const observacoes = String(
+      req.body?.observacoes ?? ''
+    ).trim();
+
+    if (!validarSlugPublico(slug)) {
+      return mensagemErro(
+        res,
+        400,
+        'Endereço de agendamento inválido.'
+      );
+    }
+
+    if (!validarTexto(nome, 150)) {
+      return mensagemErro(
+        res,
+        400,
+        'Informe seu nome, com até 150 caracteres.'
+      );
+    }
+
+    if (!validarTexto(telefone, 30)) {
+      return mensagemErro(
+        res,
+        400,
+        'Informe um telefone válido.'
+      );
+    }
+
+    if (!validarIdPublico(servico_id)) {
+      return mensagemErro(
+        res,
+        400,
+        'Selecione um serviço válido.'
+      );
+    }
+
+    if (!validarDataPublica(data)) {
+      return mensagemErro(
+        res,
+        400,
+        'Informe uma data válida.'
+      );
+    }
+
+    if (!hora) {
+      return mensagemErro(
+        res,
+        400,
+        'Informe um horário válido.'
+      );
+    }
+
+    if (observacoes.length > 1000) {
+      return mensagemErro(
+        res,
+        400,
+        'As observações devem ter até 1000 caracteres.'
+      );
+    }
+
+    await conexao.query('BEGIN');
+
+    const empresaResult = await conexao.query(
+      `
+      SELECT *
+      FROM empresas
+      WHERE slug_agendamento = $1
+        AND ativo = TRUE
+      LIMIT 1
+      `,
       [slug]
     );
 
-    if (!empresaResult.rows.length) {
-      await client.query('ROLLBACK');
+    if (empresaResult.rows.length === 0) {
+      await conexao.query('ROLLBACK');
 
-      return res.status(404).json({
-        erro: 'Empresa não encontrada ou indisponível.'
-      });
+      return mensagemErro(
+        res,
+        404,
+        'Página de agendamento não encontrada.'
+      );
     }
 
     const empresa = empresaResult.rows[0];
-    const empresaId = empresa.id;
 
-    // Serializa reservas da mesma empresa e data.
-    // O bloqueio permanece até COMMIT ou ROLLBACK.
-    await client.query(
-      `SELECT pg_advisory_xact_lock(
-         hashtext($1),
-         hashtext($2)
-       )`,
-      [String(empresaId), dataReserva]
+    // Serializa as operações de agendamento da empresa no dia.
+    await conexao.query(
+      `
+      SELECT pg_advisory_xact_lock(
+        hashtext($1),
+        hashtext($2)
+      )
+      `,
+      [String(empresa.id), data]
     );
 
-    const servicoResult = await client.query(
-      `SELECT id, nome, preco, duracao_min
-       FROM servicos
-       WHERE id = $1
-         AND empresa_id = $2
-         AND ativo = TRUE
-       LIMIT 1`,
-      [servicoId, empresaId]
+    const servicoResult = await conexao.query(
+      `
+      SELECT id, nome, duracao_min, preco
+      FROM servicos
+      WHERE id = $1
+        AND empresa_id = $2
+        AND ativo = TRUE
+      LIMIT 1
+      `,
+      [servico_id, empresa.id]
     );
 
-    if (!servicoResult.rows.length) {
-      await client.query('ROLLBACK');
+    if (servicoResult.rows.length === 0) {
+      await conexao.query('ROLLBACK');
 
-      return res.status(400).json({
-        erro: 'Serviço não encontrado ou indisponível.'
-      });
+      return mensagemErro(
+        res,
+        404,
+        'Serviço não encontrado ou indisponível.'
+      );
     }
 
     const servico = servicoResult.rows[0];
+
+    const inicio = paraMinutos(
+      String(empresa.agenda_horario_inicio || '08:00').slice(0, 5)
+    );
+
+    const fim = paraMinutos(
+      String(empresa.agenda_horario_fim || '18:00').slice(0, 5)
+    );
+
+    const intervalo = Number(empresa.agenda_intervalo) || 30;
     const duracao = Number(servico.duracao_min);
-    const intervalo = Number(empresa.agenda_intervalo);
+    const minutoEscolhido = paraMinutos(hora);
 
     if (
-      !Number.isFinite(duracao) ||
+      !Number.isInteger(duracao) ||
       duracao <= 0 ||
-      !Number.isFinite(intervalo) ||
+      inicio === null ||
+      fim === null ||
+      fim <= inicio ||
+      !Number.isInteger(intervalo) ||
       intervalo <= 0
     ) {
-      await client.query('ROLLBACK');
+      await conexao.query('ROLLBACK');
 
-      return res.status(422).json({
-        erro: 'A empresa possui configurações de agendamento inválidas.'
-      });
+      return mensagemErro(
+        res,
+        500,
+        'Os horários desta empresa estão configurados incorretamente.'
+      );
     }
 
-    const inicioExpediente = paraMinutos(
-      empresa.agenda_horario_inicio
-    );
-
-    const fimExpediente = paraMinutos(
-      empresa.agenda_horario_fim
-    );
-
-    const inicioReserva = paraMinutos(horaReserva);
-    const fimReserva = inicioReserva + duracao;
-
     if (
-      inicioReserva < inicioExpediente ||
-      fimReserva > fimExpediente ||
-      (inicioReserva - inicioExpediente) % intervalo !== 0
+      minutoEscolhido < inicio ||
+      minutoEscolhido + duracao > fim
     ) {
-      await client.query('ROLLBACK');
+      await conexao.query('ROLLBACK');
 
-      return res.status(409).json({
-        erro: 'O horário solicitado não está disponível.'
-      });
+      return mensagemErro(
+        res,
+        400,
+        'O horário escolhido está fora do expediente.'
+      );
     }
 
-    const dataHoraResult = await client.query(
-      `SELECT
-         (CURRENT_TIMESTAMP AT TIME ZONE $1)::date::text AS hoje,
-         TO_CHAR(
-           CURRENT_TIMESTAMP AT TIME ZONE $1,
-           'HH24:MI'
-         ) AS hora_atual`,
-      [empresa.fuso_horario || 'America/Sao_Paulo']
+    if ((minutoEscolhido - inicio) % intervalo !== 0) {
+      await conexao.query('ROLLBACK');
+
+      return mensagemErro(
+        res,
+        400,
+        'O horário escolhido não corresponde aos intervalos disponíveis.'
+      );
+    }
+
+    const agoraLocal = obterDataHoraLocal(
+      empresa.fuso_horario || 'America/Sao_Paulo'
     );
 
-    const agora = dataHoraResult.rows[0];
-
     if (
-      dataReserva < agora.hoje ||
+      data < agoraLocal.data ||
       (
-        dataReserva === agora.hoje &&
-        inicioReserva <= paraMinutos(agora.hora_atual)
+        data === agoraLocal.data &&
+        minutoEscolhido <= paraMinutos(agoraLocal.hora)
       )
     ) {
-      await client.query('ROLLBACK');
+      await conexao.query('ROLLBACK');
 
-      return res.status(409).json({
-        erro: 'Não é possível reservar um horário no passado.'
-      });
+      return mensagemErro(
+        res,
+        400,
+        'Não é possível agendar para uma data ou horário passado.'
+      );
     }
 
-    const conflitos = await client.query(
-      `SELECT
-         a.id,
-         a.hora,
-         COALESCE(s.duracao_min, $3::integer) AS duracao_min
-       FROM agendamentos a
-       LEFT JOIN servicos s
-         ON s.id = a.servico_id
-        AND s.empresa_id = a.empresa_id
-       WHERE a.empresa_id = $1
-         AND a.data = $2::date
-         AND LOWER(BTRIM(a.status)) NOT IN (
-           'cancelado',
-           'cancelada'
-         )
-       FOR UPDATE OF a`,
-      [empresaId, dataReserva, intervalo]
+    // Verifica conflitos considerando a duração de cada serviço.
+    const conflitosResult = await conexao.query(
+      `
+      SELECT
+        a.id,
+        a.hora,
+        COALESCE(s.duracao_min, 30) AS duracao_min
+      FROM agendamentos a
+      LEFT JOIN servicos s
+        ON s.id = a.servico_id
+       AND s.empresa_id = a.empresa_id
+      WHERE a.empresa_id = $1
+        AND a.data = $2::date
+        AND LOWER(BTRIM(COALESCE(a.status, '')))
+            NOT IN ('cancelado', 'cancelada')
+      FOR UPDATE OF a
+      `,
+      [empresa.id, data]
     );
 
-    const temConflito = conflitos.rows.some((agendamento) => {
+    const conflito = conflitosResult.rows.some((agendamento) => {
       const inicioExistente = paraMinutos(
-        String(agendamento.hora).slice(0, 8)
+        String(agendamento.hora).slice(0, 5)
       );
 
-      const duracaoExistente = Number(agendamento.duracao_min);
+      if (inicioExistente === null) {
+        return false;
+      }
 
-      const fimExistente = inicioExistente + (
-        Number.isFinite(duracaoExistente) && duracaoExistente > 0
-          ? duracaoExistente
-          : intervalo
-      );
+      const fimExistente =
+        inicioExistente +
+        Math.max(1, Number(agendamento.duracao_min) || 30);
 
       return (
-        inicioReserva < fimExistente &&
-        fimReserva > inicioExistente
+        minutoEscolhido < fimExistente &&
+        minutoEscolhido + duracao > inicioExistente
       );
     });
 
-    if (temConflito) {
-      await client.query('ROLLBACK');
+    if (conflito) {
+      await conexao.query('ROLLBACK');
 
-      return res.status(409).json({
-        erro: 'Esse horário acabou de ficar indisponível. Escolha outro.'
-      });
+      return mensagemErro(
+        res,
+        409,
+        'Esse horário acabou de ficar indisponível. Escolha outro horário.'
+      );
     }
 
-    const insercao = await client.query(
-      `INSERT INTO agendamentos (
-         empresa_id,
-         cliente_id,
-         cliente,
-         telefone,
-         servico_id,
-         data,
-         hora,
-         valor,
-         status,
-         status_pagamento,
-         observacoes
-       )
-       VALUES (
-         $1, NULL, $2, $3, $4, $5::date, $6::time,
-         $7, 'agendado', 'pendente', $8
-       )
-       RETURNING
-         id,
-         cliente,
-         servico_id,
-         data,
-         hora,
-         valor,
-         status`,
+    // O token original só será enviado ao cliente.
+    // No banco, será armazenado exclusivamente o hash.
+    const tokenCancelamento = gerarTokenCancelamento();
+    const tokenCancelamentoHash = gerarHashToken(
+      tokenCancelamento
+    );
+
+    const agendamentoResult = await conexao.query(
+      `
+      INSERT INTO agendamentos (
+        empresa_id,
+        cliente_id,
+        cliente,
+        telefone,
+        servico_id,
+        data,
+        hora,
+        valor,
+        status,
+        status_pagamento,
+        observacoes,
+        token_cancelamento_hash
+      )
+      VALUES (
+        $1, NULL, $2, $3, $4, $5::date, $6::time,
+        $7, 'agendado', 'pendente', $8, $9
+      )
+      RETURNING
+        id,
+        cliente,
+        telefone,
+        servico_id,
+        data,
+        hora,
+        valor,
+        status
+      `,
       [
-        empresaId,
-        nomeCliente,
-        telefoneCliente,
+        empresa.id,
+        nome,
+        telefone,
         servico.id,
-        dataReserva,
-        horaReserva,
+        data,
+        hora,
         servico.preco,
-        observacoesCliente || null
+        observacoes || null,
+        tokenCancelamentoHash
       ]
     );
 
-    await client.query('COMMIT');
+    const agendamento = agendamentoResult.rows[0];
 
-    const reserva = insercao.rows[0];
+    await conexao.query('COMMIT');
 
-    // Retorna o ID tanto na raiz quanto dentro de "agendamento".
-    // O formulário consegue exibir o número da reserva.
     return res.status(201).json({
-      mensagem: 'Agendamento registrado com sucesso.',
-      id: reserva.id,
-      agendamento_id: reserva.id,
+      sucesso: true,
+      mensagem: 'Agendamento realizado com sucesso.',
+      id: agendamento.id,
+      agendamento_id: agendamento.id,
+      token_cancelamento: tokenCancelamento,
       agendamento: {
-        id: reserva.id,
-        cliente: reserva.cliente,
-        servico_id: reserva.servico_id,
+        id: agendamento.id,
+        cliente: agendamento.cliente,
+        telefone: agendamento.telefone,
+        servico_id: agendamento.servico_id,
         servico_nome: servico.nome,
-        data: reserva.data,
-        hora: reserva.hora,
-        valor: reserva.valor,
-        status: reserva.status
+        data: agendamento.data,
+        hora: String(agendamento.hora).slice(0, 5),
+        valor: agendamento.valor,
+        status: agendamento.status
       }
     });
-  } catch (err) {
-    if (client) {
-      try {
-        await client.query('ROLLBACK');
-      } catch (erroRollback) {
-        console.error(
-          'Erro ao desfazer transação:',
-          erroRollback.message
-        );
-      }
+  } catch (erro) {
+    try {
+      await conexao.query('ROLLBACK');
+    } catch (erroRollback) {
+      console.error(
+        '[AGENDAMENTO PUBLICO] Erro no rollback:',
+        erroRollback
+      );
     }
 
     console.error(
-      'Erro ao criar agendamento público:',
-      err.message
+      '[AGENDAMENTO PUBLICO] Erro ao criar agendamento:',
+      erro
     );
 
-    return res.status(500).json({
-      erro: 'Não foi possível registrar o agendamento.'
-    });
+    return mensagemErro(
+      res,
+      500,
+      'Não foi possível realizar o agendamento.'
+    );
   } finally {
-    if (client) {
-      client.release();
+    conexao.release();
+  }
+});
+
+// ============================================================
+// POST - CANCELAR AGENDAMENTO COM TOKEN
+// POST /api/public/agendamentos/:slug/cancelar/:token
+// ============================================================
+
+router.post('/:slug/cancelar/:token', async (req, res) => {
+  const conexao = await pool.connect();
+
+  try {
+    const { slug, token } = req.params;
+
+    if (!validarSlugPublico(slug)) {
+      return mensagemErro(
+        res,
+        400,
+        'Endereço de agendamento inválido.'
+      );
     }
+
+    if (!validarTokenCancelamento(token)) {
+      return mensagemErro(
+        res,
+        400,
+        'Token de cancelamento inválido.'
+      );
+    }
+
+    const tokenHash = gerarHashToken(token);
+
+    await conexao.query('BEGIN');
+
+    const empresaResult = await conexao.query(
+      `
+      SELECT id
+      FROM empresas
+      WHERE slug_agendamento = $1
+        AND ativo = TRUE
+      LIMIT 1
+      `,
+      [slug]
+    );
+
+    if (empresaResult.rows.length === 0) {
+      await conexao.query('ROLLBACK');
+
+      return mensagemErro(
+        res,
+        404,
+        'Agendamento não encontrado ou indisponível.'
+      );
+    }
+
+    const empresaId = empresaResult.rows[0].id;
+
+    // Primeiro localiza o agendamento pelo hash secreto.
+    // O ID público, isoladamente, nunca autoriza o cancelamento.
+    const buscaResult = await conexao.query(
+      `
+      SELECT id, data
+      FROM agendamentos
+      WHERE empresa_id = $1
+        AND token_cancelamento_hash = $2
+      LIMIT 1
+      `,
+      [empresaId, tokenHash]
+    );
+
+    if (buscaResult.rows.length === 0) {
+      await conexao.query('ROLLBACK');
+
+      return mensagemErro(
+        res,
+        404,
+        'Token inválido ou agendamento não encontrado.'
+      );
+    }
+
+    const agendamentoEncontrado = buscaResult.rows[0];
+    const dataAgendamento = String(
+      agendamentoEncontrado.data
+    ).slice(0, 10);
+
+    // Usa o mesmo bloqueio da criação para evitar concorrência.
+    await conexao.query(
+      `
+      SELECT pg_advisory_xact_lock(
+        hashtext($1),
+        hashtext($2)
+      )
+      `,
+      [String(empresaId), dataAgendamento]
+    );
+
+    // Revalida e bloqueia a linha antes de atualizar.
+    const agendamentoResult = await conexao.query(
+      `
+      SELECT
+        id,
+        cliente,
+        servico_id,
+        data,
+        hora,
+        valor,
+        status
+      FROM agendamentos
+      WHERE id = $1
+        AND empresa_id = $2
+        AND token_cancelamento_hash = $3
+      FOR UPDATE
+      `,
+      [
+        agendamentoEncontrado.id,
+        empresaId,
+        tokenHash
+      ]
+    );
+
+    if (agendamentoResult.rows.length === 0) {
+      await conexao.query('ROLLBACK');
+
+      return mensagemErro(
+        res,
+        404,
+        'Token inválido ou agendamento não encontrado.'
+      );
+    }
+
+    const agendamento = agendamentoResult.rows[0];
+
+    if (estaCancelado(agendamento.status)) {
+      await conexao.query('ROLLBACK');
+
+      return mensagemErro(
+        res,
+        409,
+        'Este agendamento já foi cancelado.'
+      );
+    }
+
+    const cancelamentoResult = await conexao.query(
+      `
+      UPDATE agendamentos
+      SET status = 'cancelado'
+      WHERE id = $1
+        AND empresa_id = $2
+        AND token_cancelamento_hash = $3
+      RETURNING id, status
+      `,
+      [
+        agendamento.id,
+        empresaId,
+        tokenHash
+      ]
+    );
+
+    if (cancelamentoResult.rows.length === 0) {
+      await conexao.query('ROLLBACK');
+
+      return mensagemErro(
+        res,
+        409,
+        'Não foi possível cancelar este agendamento.'
+      );
+    }
+
+    await conexao.query('COMMIT');
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Agendamento cancelado com sucesso.',
+      agendamento: {
+        id: agendamento.id,
+        cliente: agendamento.cliente,
+        servico_id: agendamento.servico_id,
+        data: String(agendamento.data).slice(0, 10),
+        hora: String(agendamento.hora).slice(0, 5),
+        valor: agendamento.valor,
+        status: 'cancelado'
+      }
+    });
+  } catch (erro) {
+    try {
+      await conexao.query('ROLLBACK');
+    } catch (erroRollback) {
+      console.error(
+        '[CANCELAMENTO PUBLICO] Erro no rollback:',
+        erroRollback
+      );
+    }
+
+    console.error(
+      '[CANCELAMENTO PUBLICO] Erro ao cancelar agendamento:',
+      erro
+    );
+
+    return mensagemErro(
+      res,
+      500,
+      'Não foi possível cancelar o agendamento.'
+    );
+  } finally {
+    conexao.release();
   }
 });
 

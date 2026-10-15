@@ -97,6 +97,17 @@ const notificacoesRouter =
 
   const inteligenciaClientesRouter = require('./routes/inteligenciaClientes');
 
+  const centralAlertasRouter = require('./routes/centralAlertas');
+
+  const metasDesempenhoRouter =
+    require('./routes/metasDesempenho');
+
+  const previsaoFinanceiraRouter =
+  require('./routes/previsaoFinanceira');
+
+  const recuperacaoClientesRouter =
+  require('./routes/recuperacaoClientes');
+  
 
 // ============================================================
 // APP
@@ -358,6 +369,24 @@ app.use('/api/inteligencia-financeira', inteligenciaFinanceiraRouter);
 app.use('/api/central-decisoes', centralDecisoesRouter);
 
 app.use('/api/inteligencia-clientes', inteligenciaClientesRouter);
+
+app.use('/api/central-alertas', centralAlertasRouter);
+
+
+app.use(
+  '/api/metas-desempenho',
+  metasDesempenhoRouter
+);
+
+app.use(
+  '/api/previsao-financeira',
+  previsaoFinanceiraRouter
+);
+
+app.use(
+  '/api/recuperacao-clientes',
+  recuperacaoClientesRouter
+);
 
 // ============================================================
 // API — AGENDAMENTO PÚBLICO

@@ -1,6 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+  
+<script>
+(() => {
+  'use strict';
+
+  let autorizado = false;
+
+  try {
+    const token = localStorage.getItem('lavajato_auth_token');
+
+    if (token) {
+      const partes = token.split('.');
+
+      if (partes.length === 3) {
+        const payloadBase64 = partes[1]
+          .replace(/-/g, '+')
+          .replace(/_/g, '/');
+
+        const payload = JSON.parse(
+          decodeURIComponent(
+            atob(payloadBase64)
+              .split('')
+              .map(caractere =>
+                '%' +
+                caractere.charCodeAt(0)
+                  .toString(16)
+                  .padStart(2, '0')
+              )
+              .join('')
+          )
+        );
+
+        autorizado =
+          payload.perfil === 'administrador' &&
+          Boolean(payload.empresa_id) &&
+          typeof payload.exp === 'number' &&
+          payload.exp * 1000 > Date.now();
+      }
+    }
+  } catch (_) {
+    autorizado = false;
+  }
+
+  window.__orvixAdminPermitido = autorizado;
+
+  document.documentElement.dataset.adminCheck =
+    autorizado ? 'ok' : 'bloqueado';
+})();
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minha assinatura | Orvix</title>
@@ -1109,6 +1160,12 @@
       .modal-planos-footer { flex-direction: column-reverse; }
       .btn-modal-secundario, .btn-modal-principal { width: 100%; }
     }
+
+    
+html[data-admin-check="bloqueado"] body {
+  visibility: hidden;
+}
+
   </style>
 </head>
 
@@ -1417,6 +1474,7 @@
       </section>
     </div>
   </main>
+  
 
 <script>
 (() => {
@@ -2953,6 +3011,61 @@
   iniciar();
 })();
 </script>
+
+
+<script>
+(() => {
+  'use strict';
+
+  if (window.__orvixAdminPermitido === true) {
+    return;
+  }
+
+  function mostrarAcessoRestrito() {
+    document.body.innerHTML = `
+      <main style="
+        max-width: 600px;
+        margin: 80px auto;
+        padding: 24px;
+        text-align: center;
+        font-family: system-ui, sans-serif;
+      ">
+        <h1>Acesso restrito</h1>
+
+        <p style="
+          margin: 12px 0 20px;
+          color: #64748b;
+          line-height: 1.6;
+        ">
+          A página Minha assinatura está disponível
+          somente para administradores da empresa.
+        </p>
+
+        <a href="/" style="
+          color: #2563eb;
+          font-weight: 600;
+          text-decoration: none;
+        ">
+          Voltar ao painel
+        </a>
+      </main>
+    `;
+
+    document.body.style.visibility = 'visible';
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      mostrarAcessoRestrito,
+      { once: true }
+    );
+  } else {
+    mostrarAcessoRestrito();
+  }
+})();
+</script>
+
 
 </body>
 </html>

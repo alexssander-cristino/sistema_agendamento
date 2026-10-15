@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Central de alertas | Orvix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f3f5fa;--surface:#fff;--raised:#f5f6fb;--text:#171f33;--muted:#5f6b82;--border:#e0e5ef;--primary:#5a49e0;--primary-ink:#fff;--primary-soft:#ecebff;--danger:#c0303f;--warning:#8f6100;--success:#12795a;--r:14px;--display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;--body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b0f1c;--surface:#121829;--raised:#182036;--text:#f1f4fb;--muted:#97a4bd;--border:#242e47;--primary:#9084ff;--primary-ink:#0b0f1c;--primary-soft:#26264a;--danger:#ff7b86;--warning:#f2c15a;--success:#3fd0a1}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}button,a,select{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+p{margin:0}.muted{color:var(--muted)}
+.layout{max-width:1180px;margin:auto;padding:28px 24px 56px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:22px}
+h1{margin:0 0 6px;font:700 clamp(26px,4vw,36px)/1.1 var(--display);letter-spacing:-.03em}
+h2{margin:0;font:700 18px/1.2 var(--display);letter-spacing:-.02em}
+.topbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);text-decoration:none;cursor:pointer;font-weight:600;font-size:14px;transition:border-color .15s}
+.btn:hover{border-color:var(--primary)}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn:disabled{opacity:.55;cursor:wait}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.summary-card{padding:18px 20px;border-right:1px solid var(--border);cursor:pointer;position:relative;transition:background .15s;min-width:0}
+.summary-card:last-child{border:0}
+.summary-card:hover{background:var(--raised)}
+.summary-card.on{background:var(--primary-soft)}
+.summary-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--c,var(--primary));opacity:0;transition:opacity .15s}
+.summary-card.on:before{opacity:1}
+.summary-card.high{--c:var(--danger)}.summary-card.medium{--c:var(--warning)}.summary-card.low{--c:var(--success)}
+.summary-label{color:var(--muted);font-size:13px;font-weight:600;margin-bottom:8px}
+.summary-value{font:700 clamp(26px,3vw,32px)/1.1 var(--display);letter-spacing:-.03em}
+.summary-card.high .summary-value{color:var(--danger)}.summary-card.medium .summary-value{color:var(--warning)}.summary-card.low .summary-value{color:var(--success)}
+.pbar{display:flex;height:8px;gap:2px;margin:14px 0 22px;border-radius:99px;overflow:hidden;background:var(--border)}
+.pbar[hidden]{display:none}
+.pbar i{display:block;height:100%;transition:width .4s}
+.pbar .h{background:var(--danger)}.pbar .m{background:var(--warning)}.pbar .l{background:var(--success)}
+.panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 22px 6px}
+.filters{display:grid;grid-template-columns:minmax(180px,1.6fr) repeat(2,minmax(150px,1fr)) auto;gap:10px;padding:14px 22px 16px;border-bottom:1px solid var(--border)}
+.field{width:100%;min-width:0;min-height:42px;padding:9px 12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;outline:none}
+.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+#clearFilters[hidden]{display:none}
+.dismissbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 22px;background:var(--raised);border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
+.dismissbar[hidden]{display:none}
+.link{background:none;border:0;padding:2px;color:var(--primary);font-weight:700;font-size:13px;cursor:pointer;text-decoration:underline}
+.link.quiet{color:var(--muted);font-weight:600}
+.link.quiet:hover{color:var(--text)}
+#alertList{display:grid}
+.alert{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:start;gap:15px;padding:18px 22px 18px 19px;border-bottom:1px solid var(--border);border-left:3px solid transparent;transition:background .15s}
+.alert[hidden]{display:none}
+.alert:hover{background:var(--raised)}
+.alert:last-child{border-bottom:0}
+.alert[data-priority="alta"]{border-left-color:var(--danger)}
+.alert[data-priority="media"]{border-left-color:var(--warning)}
+.alert[data-priority="baixa"]{border-left-color:var(--success)}
+.alert-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--primary-soft);color:var(--primary);font-size:19px;font-weight:700}
+.alert[data-priority="alta"] .alert-icon{background:color-mix(in srgb,var(--danger) 14%,transparent);color:var(--danger)}
+.alert[data-priority="media"] .alert-icon{background:color-mix(in srgb,var(--warning) 14%,transparent);color:var(--warning)}
+.alert[data-priority="baixa"] .alert-icon{background:color-mix(in srgb,var(--success) 14%,transparent);color:var(--success)}
+.alert-title{margin:1px 0 5px;font-size:15.5px;font-weight:700}
+.alert-description{color:var(--muted);line-height:1.55;overflow-wrap:anywhere;max-width:70ch}
+.alert-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:700}
+.pill.high{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--border))}
+.pill.medium{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 35%,var(--border))}
+.pill.low{color:var(--success);border-color:color-mix(in srgb,var(--success) 35%,var(--border))}
+.alert-action{align-self:center;white-space:nowrap;text-decoration:none;font-weight:700;font-size:14px;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--primary);transition:border-color .15s,background .15s}
+.alert-action:hover{border-color:var(--primary);background:var(--primary-soft)}
+.state{padding:52px 20px;text-align:center;color:var(--muted);line-height:1.7}
+.state strong{display:block;margin-bottom:6px;color:var(--text);font:700 18px var(--display)}
+.panel-footer{padding:14px 22px;border-top:1px solid var(--border);color:var(--muted);font-size:12.5px}
+@media(max-width:860px){.summary{grid-template-columns:1fr 1fr}.summary-card:nth-child(2){border-right:0}.summary-card:nth-child(-n+2){border-bottom:1px solid var(--border)}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}}
+@media(max-width:540px){.layout{padding:20px 14px 36px}.topbar-actions{width:100%}.topbar-actions .btn{flex:1}.summary-card{padding:14px}.filters{grid-template-columns:1fr;padding:12px 14px}.filters input{grid-column:auto}.panel-header,.dismissbar,.panel-footer{padding-left:14px;padding-right:14px}.alert{grid-template-columns:36px minmax(0,1fr);gap:11px;padding:16px 14px 16px 11px}.alert-icon{width:36px;height:36px}.alert-action{grid-column:2;justify-self:start}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.topbar-actions,.filters,.alert-action,.dismissbar,.pbar{display:none}.alert:hover{background:none}}
+</style>
+</head>
+<body>
+<main class="layout">
+  <header class="topbar">
+    <div>
+      <h1>Central de alertas</h1>
+      <p class="muted">Situações que pedem sua atenção, com o caminho direto para resolver cada uma.</p>
+    </div>
+    <div class="topbar-actions">
+      <a class="btn" href="/index.html">Voltar ao painel</a>
+      <button class="btn" id="themeButton" type="button">◐ Tema</button>
+      <button class="btn btn-primary" id="refreshButton" type="button">↻ Atualizar alertas</button>
+    </div>
+  </header>
+
+  <section class="panel summary" aria-label="Resumo dos alertas. Clique para filtrar por prioridade.">
+    <article class="summary-card total on" role="button" tabindex="0" data-p="">
+      <div class="summary-label">Total de alertas</div>
+      <div class="summary-value" id="totalCount">—</div>
+    </article>
+    <article class="summary-card high" role="button" tabindex="0" data-p="alta">
+      <div class="summary-label">Alta prioridade</div>
+      <div class="summary-value" id="highCount">—</div>
+    </article>
+    <article class="summary-card medium" role="button" tabindex="0" data-p="media">
+      <div class="summary-label">Média prioridade</div>
+      <div class="summary-value" id="mediumCount">—</div>
+    </article>
+    <article class="summary-card low" role="button" tabindex="0" data-p="baixa">
+      <div class="summary-label">Baixa prioridade</div>
+      <div class="summary-value" id="lowCount">—</div>
+    </article>
+  </section>
+  <div class="pbar" id="pbar" hidden aria-hidden="true"><i class="h" id="pb-h"></i><i class="m" id="pb-m"></i><i class="l" id="pb-l"></i></div>
+
+  <section class="panel" style="margin-top:0">
+    <div class="panel-header">
+      <div>
+        <h2>Alertas identificados</h2>
+        <p class="muted" id="resultCount" style="margin-top:4px">Carregando alertas...</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input class="field" id="searchInput" type="search" placeholder="Buscar por título ou descrição  (atalho: /)" aria-label="Buscar alertas" autocomplete="off">
+      <select class="field" id="categoryFilter" aria-label="Filtrar categoria">
+        <option value="">Todas as categorias</option>
+        <option value="agendamentos">Agendamentos</option>
+        <option value="pagamentos">Pagamentos</option>
+        <option value="financeiro">Financeiro</option>
+        <option value="clientes">Clientes</option>
+        <option value="inconsistencias">Inconsistências</option>
+      </select>
+      <select class="field" id="priorityFilter" aria-label="Filtrar prioridade">
+        <option value="">Todas as prioridades</option>
+        <option value="alta">Alta</option>
+        <option value="media">Média</option>
+        <option value="baixa">Baixa</option>
+      </select>
+      <button class="btn" id="clearFilters" type="button" hidden>Limpar filtros</button>
+    </div>
+
+    <div class="dismissbar" id="dismissBar" hidden>
+      <span id="dismissText"></span>
+      <span><button class="link" id="toggleDismissed" type="button">Mostrar dispensados</button> · <button class="link quiet" id="restoreAll" type="button">Restaurar todos</button></span>
+    </div>
+
+    <div id="alertList" aria-live="polite">
+      <div class="state">
+        <strong>Carregando alertas</strong>
+        Aguarde enquanto buscamos os registros da empresa.
+      </div>
+    </div>
+
+    <footer class="panel-footer" id="lastUpdated">Os alertas são calculados a partir dos registros disponíveis.</footer>
+  </section>
+
+  
+</main>
+
+<script src="/js/central-alertas.js" defer></script>
+<script>
+/* Melhorias que só leem e ajustam o DOM; a busca e os dados continuam no script principal. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const list = $('alertList'), prio = $('priorityFilter'), cat = $('categoryFilter'), search = $('searchInput');
+  const KEY = 'orvix-alertas-dispensados', BASE = 'Central de alertas | Orvix';
+  const today = (() => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); })();
+  let showHidden = false;
+
+  const store = {
+    get() { try { const o = JSON.parse(localStorage.getItem(KEY) || '{}'); return o.dia === today ? o.ids || [] : []; } catch (_) { return []; } },
+    set(ids) { try { localStorage.setItem(KEY, JSON.stringify({ dia: today, ids })); } catch (_) {} }
+  };
+  const fire = el => { el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); };
+  const count = id => { const v = parseInt(($(id).textContent || '').replace(/\D/g, ''), 10); return Number.isNaN(v) ? null : v; };
+
+  /* Cartões de resumo filtram por prioridade */
+  const cards = [...document.querySelectorAll('.summary-card')];
+  const syncCards = () => cards.forEach(c => c.classList.toggle('on', c.dataset.p === prio.value));
+  cards.forEach(c => {
+    const go = () => { prio.value = c.dataset.p; fire(prio); syncCards(); syncClear(); };
+    c.addEventListener('click', go);
+    c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+
+  /* Barra de proporção e título da aba com o número de alertas de alta prioridade */
+  function counts() {
+    const h = count('highCount'), m = count('mediumCount'), l = count('lowCount');
+    if (h === null || m === null || l === null || h + m + l === 0) { $('pbar').hidden = true; }
+    else { const t = h + m + l; $('pb-h').style.width = h / t * 100 + '%'; $('pb-m').style.width = m / t * 100 + '%'; $('pb-l').style.width = l / t * 100 + '%'; $('pbar').hidden = false; }
+    document.title = (h ? `(${h}) ` : '') + BASE;
+  }
+  const mo = new MutationObserver(counts);
+  ['highCount', 'mediumCount', 'lowCount'].forEach(id => mo.observe($(id), { childList: true, characterData: true, subtree: true }));
+
+  /* Limpar filtros */
+  function syncClear() { $('clearFilters').hidden = !(search.value || cat.value || prio.value); syncCards(); }
+  [search, cat, prio].forEach(el => { el.addEventListener('input', syncClear); el.addEventListener('change', syncClear); });
+  $('clearFilters').addEventListener('click', () => { search.value = ''; cat.value = ''; prio.value = ''; [search, cat, prio].forEach(fire); syncClear(); });
+
+  /* Dispensar alerta por hoje */
+  const keyOf = a => ((a.querySelector('.alert-title') || {}).textContent || '').trim() + '|' + ((a.querySelector('.alert-action') || {}).getAttribute?.('href') || '');
+  function applyDismiss() {
+    const ids = store.get(), alerts = [...list.querySelectorAll('.alert')];
+    let n = 0;
+    alerts.forEach(a => { const d = ids.includes(keyOf(a)); if (d) n++; a.hidden = d && !showHidden; });
+    const bar = $('dismissBar');
+    bar.hidden = n === 0;
+    $('dismissText').textContent = n === alerts.length && !showHidden ? 'Você dispensou todos os alertas de hoje.' : `${n} ${n === 1 ? 'alerta dispensado' : 'alertas dispensados'} hoje.`;
+    $('toggleDismissed').textContent = showHidden ? 'Ocultar dispensados' : 'Mostrar dispensados';
+  }
+  function decorate() {
+    list.querySelectorAll('.alert').forEach(a => {
+      if (a.dataset.ok) return; a.dataset.ok = '1';
+      const holder = a.querySelector('.alert-meta') || a.children[1] || a;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'link quiet'; b.textContent = 'Dispensar hoje';
+      b.addEventListener('click', () => { store.set([...new Set([...store.get(), keyOf(a)])]); applyDismiss(); });
+      holder.appendChild(b);
+    });
+    applyDismiss();
+  }
+  new MutationObserver(decorate).observe(list, { childList: true });
+  $('toggleDismissed').addEventListener('click', () => { showHidden = !showHidden; applyDismiss(); });
+  $('restoreAll').addEventListener('click', () => { store.set([]); showHidden = false; applyDismiss(); });
+
+  /* Atalho "/" e atualização automática a cada 5 minutos com a aba visível */
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); search.focus(); }
+  });
+  setInterval(() => { const b = $('refreshButton'); if (!document.hidden && !b.disabled) b.click(); }, 300000);
+  syncClear();
+})();
+</script>
+</body>
+</html>
