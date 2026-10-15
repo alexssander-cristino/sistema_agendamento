@@ -108,6 +108,8 @@ const notificacoesRouter =
   const recuperacaoClientesRouter =
   require('./routes/recuperacaoClientes');
   
+  const listaEsperaRouter =
+  require('./routes/listaEspera');
 
 // ============================================================
 // APP
@@ -387,6 +389,12 @@ app.use(
   '/api/recuperacao-clientes',
   recuperacaoClientesRouter
 );
+
+app.use(
+  '/api/lista-espera',
+  listaEsperaRouter
+);
+
 
 // ============================================================
 // API — AGENDAMENTO PÚBLICO

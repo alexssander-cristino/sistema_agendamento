@@ -2593,9 +2593,9 @@ async function buscarClientesAgendamento(termo) {
   apClientSuggestions.hidden = false;
 
   try {
-    const clientes = await requisicaoJSON(
-      `/api/clientes?busca=${encodeURIComponent(termo)}`
-    );
+const clientes = await api(
+  '/clientes?busca=' + encodeURIComponent(termo)
+);
 
     // Descarta resultados de pesquisas anteriores.
     if (numeroRequisicao !== apClientSearchRequest) return;
@@ -2632,6 +2632,9 @@ function prepararClienteNovoAgendamento() {
 }
 
 apClientInput?.addEventListener('input', () => {
+
+    waitlistSelecionadoId = null;
+  if ($('ap-waitlist')) $('ap-waitlist').value = '';
   // Alterar o texto invalida a seleção anterior.
   limparVinculoCliente();
 
@@ -2665,6 +2668,87 @@ document.addEventListener('click', event => {
 });
 
 /* =========================================================
+   LISTA DE ESPERA NO AGENDAMENTO
+   ========================================================= */
+
+let waitlistItens = [];
+let waitlistSelecionadoId = null;
+
+function esconderListaEsperaAgendamento() {
+  waitlistSelecionadoId = null;
+  const campo = $('ap-waitlist-field');
+  const select = $('ap-waitlist');
+  if (select) select.value = '';
+  if (campo) campo.style.display = 'none';
+}
+
+async function carregarListaEsperaAgendamento() {
+  const campo = $('ap-waitlist-field');
+  const select = $('ap-waitlist');
+  if (!campo || !select) return;
+
+  waitlistSelecionadoId = null;
+  select.replaceChildren(
+    new Option('Selecionar da lista de espera (opcional)', '')
+  );
+
+  try {
+    const resposta = await api('/lista-espera');
+    waitlistItens = (resposta?.itens || []).filter(
+      item => !['convertido', 'desistiu'].includes(item.status)
+    );
+  } catch (erro) {
+    console.warn('Não foi possível carregar a lista de espera:', erro);
+    waitlistItens = [];
+  }
+
+  waitlistItens.forEach(item => {
+    const nome = item.nome_exibicao || item.cliente || 'Sem nome';
+    select.appendChild(
+      new Option(`${nome} — ${item.telefone || 'sem telefone'}`, String(item.id))
+    );
+  });
+
+  campo.style.display = waitlistItens.length ? '' : 'none';
+}
+
+$('ap-waitlist')?.addEventListener('change', () => {
+  const item = waitlistItens.find(
+    i => String(i.id) === $('ap-waitlist').value
+  );
+
+  waitlistSelecionadoId = item ? item.id : null;
+  if (!item) return;
+
+  apClientInput.value = item.nome_exibicao || item.cliente || '';
+  apClientPhoneInput.value = item.telefone || '';
+
+  if (item.cliente_id) {
+    apClientIdInput.value = String(item.cliente_id);
+    if (apClientHint) apClientHint.textContent = 'Cliente cadastrado selecionado.';
+  } else {
+    limparVinculoCliente();
+  }
+
+  fecharSugestoesClientes();
+
+  const data = String(item.data_desejada || '').slice(0, 10);
+  if (data && data >= todayISO()) $('ap-date').value = data;
+
+  if (item.hora_inicio) {
+    $('ap-time').value = String(item.hora_inicio).slice(0, 5);
+  }
+
+  const servicoId = String(item.servico_id || '');
+  if (servicoId && [...$('ap-service').options].some(o => o.value === servicoId)) {
+    $('ap-service').value = servicoId;
+    updatePriceFromService();
+  }
+
+  $('ap-notes').value = item.observacoes || '';
+});
+
+/* =========================================================
    ABRIR MODAL
    ========================================================= */
 
@@ -2694,6 +2778,7 @@ $('btn-new-appointment')?.addEventListener('click', async () => {
 
     overlayAppointment?.classList.add('active');
     apClientInput?.focus();
+    carregarListaEsperaAgendamento();
   } catch (erro) {
     console.error('Erro ao preparar agendamento:', erro);
     alert(erro.message || 'Não foi possível abrir o formulário.');
@@ -2727,6 +2812,7 @@ async function openEditAppointment(id) {
   }
 
   editingAppointmentId = agendamento.id;
+    esconderListaEsperaAgendamento();
 
   $('appointment-modal-title').textContent = 'Editar agendamento';
   $('appointment-submit-btn').textContent = 'Salvar alterações';
@@ -3230,6 +3316,23 @@ apAppointmentForm?.addEventListener('submit', async event => {
         payload.forcar_conflito = true;
 
         await salvar();
+      }
+
+            // Marca a pessoa da lista de espera como convertida
+      if (!edicao && waitlistSelecionadoId) {
+        try {
+          await api(
+            `/lista-espera/${encodeURIComponent(waitlistSelecionadoId)}/status`,
+            {
+              method: 'PATCH',
+              body: JSON.stringify({ status: 'convertido' })
+            }
+          );
+        } catch (e) {
+          console.warn('Não foi possível atualizar a lista de espera:', e);
+        }
+
+        waitlistSelecionadoId = null;
       }
 
       // --------------------------------------------------------
@@ -3906,6 +4009,7 @@ apAppointmentForm?.addEventListener('submit', async event => {
 
     window.print();
   }
+
 
 
   // ============================================================
