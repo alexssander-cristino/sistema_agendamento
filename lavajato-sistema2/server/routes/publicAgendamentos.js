@@ -85,7 +85,9 @@ function normalizarHora(hora) {
     return null;
   }
 
-  const resultado = hora.match(/^(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/);
+  const resultado = hora.match(
+    /^(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/
+  );
 
   if (!resultado) {
     return null;
@@ -217,7 +219,6 @@ router.get('/:slug', async (req, res) => {
       SELECT
         id,
         nome,
-        descricao,
         duracao_min,
         preco
       FROM servicos
@@ -320,7 +321,11 @@ router.get('/:slug/horarios', async (req, res) => {
 
     const servicoResult = await pool.query(
       `
-      SELECT id, nome, duracao_min, preco
+      SELECT
+        id,
+        nome,
+        duracao_min,
+        preco
       FROM servicos
       WHERE id = $1
         AND empresa_id = $2
@@ -339,15 +344,22 @@ router.get('/:slug/horarios', async (req, res) => {
     }
 
     const servico = servicoResult.rows[0];
-
     const duracao = Number(servico.duracao_min);
+
     const inicio = paraMinutos(
-      String(empresa.agenda_horario_inicio || '08:00').slice(0, 5)
+      String(
+        empresa.agenda_horario_inicio || '08:00'
+      ).slice(0, 5)
     );
+
     const fim = paraMinutos(
-      String(empresa.agenda_horario_fim || '18:00').slice(0, 5)
+      String(
+        empresa.agenda_horario_fim || '18:00'
+      ).slice(0, 5)
     );
-    const intervalo = Number(empresa.agenda_intervalo) || 30;
+
+    const intervalo =
+      Number(empresa.agenda_intervalo) || 30;
 
     if (
       !Number.isInteger(duracao) ||
@@ -402,7 +414,10 @@ router.get('/:slug/horarios', async (req, res) => {
           inicio: inicioOcupado,
           fim:
             inicioOcupado +
-            Math.max(1, Number(agendamento.duracao_min) || 30)
+            Math.max(
+              1,
+              Number(agendamento.duracao_min) || 30
+            )
         };
       })
       .filter(Boolean);
@@ -572,7 +587,7 @@ router.post('/:slug', async (req, res) => {
 
     const empresa = empresaResult.rows[0];
 
-    // Serializa as operações de agendamento da empresa no dia.
+    // Serializa operações de agendamento da empresa no dia.
     await conexao.query(
       `
       SELECT pg_advisory_xact_lock(
@@ -585,7 +600,11 @@ router.post('/:slug', async (req, res) => {
 
     const servicoResult = await conexao.query(
       `
-      SELECT id, nome, duracao_min, preco
+      SELECT
+        id,
+        nome,
+        duracao_min,
+        preco
       FROM servicos
       WHERE id = $1
         AND empresa_id = $2
@@ -608,14 +627,20 @@ router.post('/:slug', async (req, res) => {
     const servico = servicoResult.rows[0];
 
     const inicio = paraMinutos(
-      String(empresa.agenda_horario_inicio || '08:00').slice(0, 5)
+      String(
+        empresa.agenda_horario_inicio || '08:00'
+      ).slice(0, 5)
     );
 
     const fim = paraMinutos(
-      String(empresa.agenda_horario_fim || '18:00').slice(0, 5)
+      String(
+        empresa.agenda_horario_fim || '18:00'
+      ).slice(0, 5)
     );
 
-    const intervalo = Number(empresa.agenda_intervalo) || 30;
+    const intervalo =
+      Number(empresa.agenda_intervalo) || 30;
+
     const duracao = Number(servico.duracao_min);
     const minutoEscolhido = paraMinutos(hora);
 
@@ -680,7 +705,7 @@ router.post('/:slug', async (req, res) => {
       );
     }
 
-    // Verifica conflitos considerando a duração de cada serviço.
+    // Verifica conflitos considerando a duração dos serviços.
     const conflitosResult = await conexao.query(
       `
       SELECT
@@ -700,24 +725,29 @@ router.post('/:slug', async (req, res) => {
       [empresa.id, data]
     );
 
-    const conflito = conflitosResult.rows.some((agendamento) => {
-      const inicioExistente = paraMinutos(
-        String(agendamento.hora).slice(0, 5)
-      );
+    const conflito = conflitosResult.rows.some(
+      (agendamento) => {
+        const inicioExistente = paraMinutos(
+          String(agendamento.hora).slice(0, 5)
+        );
 
-      if (inicioExistente === null) {
-        return false;
+        if (inicioExistente === null) {
+          return false;
+        }
+
+        const fimExistente =
+          inicioExistente +
+          Math.max(
+            1,
+            Number(agendamento.duracao_min) || 30
+          );
+
+        return (
+          minutoEscolhido < fimExistente &&
+          minutoEscolhido + duracao > inicioExistente
+        );
       }
-
-      const fimExistente =
-        inicioExistente +
-        Math.max(1, Number(agendamento.duracao_min) || 30);
-
-      return (
-        minutoEscolhido < fimExistente &&
-        minutoEscolhido + duracao > inicioExistente
-      );
-    });
+    );
 
     if (conflito) {
       await conexao.query('ROLLBACK');
@@ -729,9 +759,10 @@ router.post('/:slug', async (req, res) => {
       );
     }
 
-    // O token original só será enviado ao cliente.
-    // No banco, será armazenado exclusivamente o hash.
+    // O token original será enviado ao cliente.
+    // No banco será armazenado somente seu hash.
     const tokenCancelamento = gerarTokenCancelamento();
+
     const tokenCancelamentoHash = gerarHashToken(
       tokenCancelamento
     );
@@ -781,6 +812,33 @@ router.post('/:slug', async (req, res) => {
 
     const agendamento = agendamentoResult.rows[0];
 
+    // ========================================================
+    // CRIAR NOTIFICAÇÃO DE NOVO AGENDAMENTO
+    // Vinculada à empresa e visível aos usuários dela.
+    // ========================================================
+
+    await conexao.query(
+      `
+      INSERT INTO notificacoes (
+        empresa_id,
+        usuario_id,
+        tipo,
+        titulo,
+        mensagem,
+        link
+      )
+      VALUES ($1, NULL, $2, $3, $4, $5)
+      `,
+      [
+        empresa.id,
+        'agendamento',
+        'Novo agendamento',
+        `${nome} agendou ${servico.nome} para ${String(data).slice(0, 10)} às ${hora}.`,
+        null
+      ]
+    );
+
+    // Agendamento e notificação são confirmados juntos.
     await conexao.query('COMMIT');
 
     return res.status(201).json({
@@ -880,8 +938,7 @@ router.post('/:slug/cancelar/:token', async (req, res) => {
 
     const empresaId = empresaResult.rows[0].id;
 
-    // Primeiro localiza o agendamento pelo hash secreto.
-    // O ID público, isoladamente, nunca autoriza o cancelamento.
+    // O ID público, isoladamente, não autoriza cancelamento.
     const buscaResult = await conexao.query(
       `
       SELECT id, data
@@ -904,6 +961,7 @@ router.post('/:slug/cancelar/:token', async (req, res) => {
     }
 
     const agendamentoEncontrado = buscaResult.rows[0];
+
     const dataAgendamento = String(
       agendamentoEncontrado.data
     ).slice(0, 10);
