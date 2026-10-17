@@ -1,0 +1,995 @@
+
+import 'package:flutter/material.dart';
+
+import '../../core/network/api_client.dart';
+import '../../core/theme/orvix_theme_controller.dart';
+import '../dashboard/dashboard_page.dart';
+import '../subscription/planos_page.dart';
+import 'auth_service.dart';
+import 'cadastro_page.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
+
+  bool _mostrarSenha = false;
+  bool _carregando = false;
+  String? _erro;
+
+  static const Color _fundo = Color(0xFF090D19);
+  static const Color _painel = Color(0xFF11182A);
+  static const Color _borda = Color(0xFF263149);
+  static const Color _roxo = Color(0xFF8B5CF6);
+  static const Color _ciano = Color(0xFF22D3EE);
+  static const Color _texto = Color(0xFFF4F6FC);
+  static const Color _textoSecundario = Color(0xFF9BA8C0);
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _senhaController.dispose();
+    super.dispose();
+  }
+
+  // ============================================================
+  // LOGIN E VERIFICAÇÃO DA ASSINATURA
+  // ============================================================
+
+  Future<void> _entrar() async {
+    FocusScope.of(context).unfocus();
+
+    if (_carregando) return;
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _carregando = true;
+      _erro = null;
+    });
+
+    try {
+      final resultado = await AuthService.login(
+        email: _emailController.text.trim(),
+        senha: _senhaController.text,
+      );
+
+      if (!mounted) return;
+
+      final usuario = resultado['usuario'];
+
+      if (usuario is! Map) {
+        await AuthService.logout();
+
+        if (!mounted) return;
+
+        setState(() {
+          _erro = 'O servidor não retornou os dados do usuário.';
+        });
+
+        return;
+      }
+
+      final perfil = usuario['perfil']?.toString() ?? '';
+
+      // Conta de desenvolvedor não entra pelo aplicativo comum.
+      if (perfil == 'dev') {
+        await AuthService.logout();
+
+        if (!mounted) return;
+
+        setState(() {
+          _erro =
+              'Esta é uma conta de desenvolvedor. '
+              'Entre pelo painel DEV do Orvix.';
+        });
+
+        return;
+      }
+
+      // Impede acesso de contas desativadas.
+      if (usuario['ativo'] == false) {
+        await AuthService.logout();
+
+        if (!mounted) return;
+
+        setState(() {
+          _erro =
+              'Esta conta está desativada. '
+              'Entre em contato com o administrador da empresa.';
+        });
+
+        return;
+      }
+
+      // Consulta a assinatura no backend.
+      // Não libera o dashboard se essa consulta falhar.
+      final resposta = await ApiClient.get(
+        '/mercado-pago/minha-assinatura',
+      );
+
+      if (!mounted) return;
+
+      final assinatura = resposta['assinatura'];
+
+      final status = assinatura is Map
+          ? assinatura['status']?.toString().toLowerCase()
+          : null;
+
+      final assinaturaAtiva = status == 'ativa';
+
+      // Usuário sem assinatura ativa vai para a seleção de planos.
+      final Widget paginaDestino = assinaturaAtiva
+          ? const DashboardPage()
+          : const PlanosPage();
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => paginaDestino,
+        ),
+        (route) => false,
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _erro = _mensagemErro(e);
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _erro =
+            'Não foi possível verificar seu acesso. '
+            'Verifique sua conexão e tente novamente.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _carregando = false);
+      }
+    }
+  }
+
+  // ============================================================
+  // MENSAGENS DE ERRO
+  // ============================================================
+
+  String _mensagemErro(ApiException erro) {
+    final mensagem = erro.message.trim();
+
+    if (erro.statusCode == 401) {
+      return 'E-mail ou senha incorretos. '
+          'Seus dados de acesso podem ter expirado.';
+    }
+
+    if (erro.statusCode == 403) {
+      return mensagem.isNotEmpty
+          ? mensagem
+          : 'Seu acesso não está autorizado.';
+    }
+
+    if (erro.statusCode == 429) {
+      return mensagem.isNotEmpty
+          ? mensagem
+          : 'Muitas tentativas. Aguarde antes de tentar novamente.';
+    }
+
+    if (erro.statusCode != null && erro.statusCode! >= 500) {
+      return 'O servidor apresentou um erro. '
+          'Tente novamente em instantes.';
+    }
+
+    return mensagem.isNotEmpty
+        ? mensagem
+        : 'Não foi possível realizar o login.';
+  }
+
+  // ============================================================
+  // ABRIR CADASTRO
+  // ============================================================
+
+  void _abrirCadastro() {
+    if (_carregando) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const CadastroPage(),
+      ),
+    );
+  }
+
+  // ============================================================
+  // TEMA
+  // ============================================================
+
+  Widget _botaoTema() {
+    final theme = OrvixThemeController.instance;
+
+    return AnimatedBuilder(
+      animation: theme,
+      builder: (context, _) {
+        return IconButton(
+          tooltip: theme.isDark
+              ? 'Ativar tema claro'
+              : 'Ativar tema escuro',
+          onPressed: theme.toggleTheme,
+          icon: Icon(
+            theme.isDark
+                ? Icons.light_mode_rounded
+                : Icons.dark_mode_rounded,
+            color: _texto,
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _fundo,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final largura = constraints.maxWidth;
+          final desktop = largura >= 900;
+
+          return Stack(
+            children: [
+              const Positioned(
+                top: -150,
+                left: -120,
+                child: _Glow(
+                  cor: _roxo,
+                  tamanho: 340,
+                ),
+              ),
+              const Positioned(
+                bottom: -180,
+                right: -100,
+                child: _Glow(
+                  cor: _ciano,
+                  tamanho: 360,
+                ),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: SafeArea(
+                  child: _botaoTema(),
+                ),
+              ),
+              SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: largura < 420 ? 20 : 32,
+                      vertical: 28,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: desktop ? 1040 : 460,
+                      ),
+                      child: desktop
+                          ? _layoutDesktop()
+                          : _layoutMobile(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // LAYOUT MOBILE
+  // ============================================================
+
+  Widget _layoutMobile() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _logo(),
+        const SizedBox(height: 34),
+        _cartaoLogin(),
+        const SizedBox(height: 26),
+        _rodape(),
+      ],
+    );
+  }
+
+  // ============================================================
+  // LAYOUT DESKTOP
+  // ============================================================
+
+  Widget _layoutDesktop() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 52),
+            child: _apresentacao(),
+          ),
+        ),
+        SizedBox(
+          width: 420,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _cartaoLogin(),
+              const SizedBox(height: 22),
+              _rodape(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // LOGO
+  // ============================================================
+
+  Widget _logo() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                _roxo,
+                Color(0xFF5B4BE7),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _roxo.withValues(alpha: 0.25),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.bolt_rounded,
+            color: Colors.white,
+            size: 29,
+          ),
+        ),
+        const SizedBox(width: 13),
+        const Text(
+          'orvix',
+          style: TextStyle(
+            color: _texto,
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // APRESENTAÇÃO
+  // ============================================================
+
+  Widget _apresentacao() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _logo(),
+        const SizedBox(height: 64),
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 13,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: _roxo.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: _roxo.withValues(alpha: 0.28),
+            ),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: _ciano,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'GESTÃO MAIS INTELIGENTE',
+                style: TextStyle(
+                  color: Color(0xFFD9D5FF),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 25),
+        const Text(
+          'Sua empresa.\nSeu controle.\nSeu próximo nível.',
+          style: TextStyle(
+            color: _texto,
+            fontSize: 43,
+            height: 1.16,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1.7,
+          ),
+        ),
+        const SizedBox(height: 22),
+        const Text(
+          'Organize sua operação, acompanhe os resultados '
+          'e tenha as informações da sua empresa em um '
+          'só lugar.',
+          style: TextStyle(
+            color: _textoSecundario,
+            fontSize: 16,
+            height: 1.8,
+          ),
+        ),
+        const SizedBox(height: 34),
+        _beneficio(
+          Icons.calendar_month_rounded,
+          'Organização',
+          'Acompanhe seus agendamentos e clientes.',
+        ),
+        const SizedBox(height: 20),
+        _beneficio(
+          Icons.query_stats_rounded,
+          'Visão financeira',
+          'Consulte receitas, despesas e resultados.',
+        ),
+        const SizedBox(height: 20),
+        _beneficio(
+          Icons.shield_outlined,
+          'Acesso protegido',
+          'Entre com suas credenciais de usuário.',
+        ),
+      ],
+    );
+  }
+
+  Widget _beneficio(
+    IconData icone,
+    String titulo,
+    String descricao,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.045),
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(color: _borda),
+          ),
+          child: Icon(
+            icone,
+            color: _ciano,
+            size: 21,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                titulo,
+                style: const TextStyle(
+                  color: _texto,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                descricao,
+                style: const TextStyle(
+                  color: _textoSecundario,
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // CARTÃO DE LOGIN
+  // ============================================================
+
+  Widget _cartaoLogin() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: _painel.withValues(alpha: 0.96),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _borda),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.20),
+            blurRadius: 50,
+            offset: const Offset(0, 20),
+          ),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (MediaQuery.sizeOf(context).width < 900) ...[
+              _logo(),
+              const SizedBox(height: 30),
+            ],
+            const Text(
+              'Bem-vindo de volta',
+              style: TextStyle(
+                color: _texto,
+                fontSize: 25,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.6,
+              ),
+            ),
+            const SizedBox(height: 9),
+            const Text(
+              'Entre na sua conta para continuar.',
+              style: TextStyle(
+                color: _textoSecundario,
+                fontSize: 13,
+                height: 1.6,
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            const _Label('E-mail'),
+            const SizedBox(height: 9),
+            TextFormField(
+              controller: _emailController,
+              enabled: !_carregando,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              autocorrect: false,
+              autofillHints: const [
+                AutofillHints.username,
+              ],
+              style: const TextStyle(
+                color: _texto,
+                fontSize: 14,
+              ),
+              decoration: _decoracao(
+                hint: 'voce@empresa.com.br',
+                icone: Icons.mail_outline_rounded,
+              ),
+              validator: (valor) {
+                final email = valor?.trim() ?? '';
+
+                if (email.isEmpty) {
+                  return 'Informe seu e-mail.';
+                }
+
+                if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                    .hasMatch(email)) {
+                  return 'Informe um e-mail válido.';
+                }
+
+                return null;
+              },
+              onChanged: (_) {
+                if (_erro != null) {
+                  setState(() => _erro = null);
+                }
+              },
+            ),
+
+            const SizedBox(height: 22),
+            const _Label('Senha'),
+            const SizedBox(height: 9),
+            TextFormField(
+              controller: _senhaController,
+              enabled: !_carregando,
+              obscureText: !_mostrarSenha,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [
+                AutofillHints.password,
+              ],
+              style: const TextStyle(
+                color: _texto,
+                fontSize: 14,
+              ),
+              decoration: _decoracao(
+                hint: 'Digite sua senha',
+                icone: Icons.lock_outline_rounded,
+                sufixo: IconButton(
+                  tooltip: _mostrarSenha
+                      ? 'Ocultar senha'
+                      : 'Mostrar senha',
+                  onPressed: _carregando
+                      ? null
+                      : () {
+                          setState(() {
+                            _mostrarSenha = !_mostrarSenha;
+                          });
+                        },
+                  icon: Icon(
+                    _mostrarSenha
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: _textoSecundario,
+                    size: 20,
+                  ),
+                ),
+              ),
+              validator: (valor) {
+                if (valor == null || valor.isEmpty) {
+                  return 'Informe sua senha.';
+                }
+
+                return null;
+              },
+              onChanged: (_) {
+                if (_erro != null) {
+                  setState(() => _erro = null);
+                }
+              },
+              onFieldSubmitted: (_) {
+                if (!_carregando) _entrar();
+              },
+            ),
+
+            const SizedBox(height: 18),
+
+            if (_erro != null) ...[
+              _avisoErro(_erro!),
+              const SizedBox(height: 18),
+            ],
+
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _carregando ? null : _entrar,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _roxo,
+                  disabledBackgroundColor:
+                      _roxo.withValues(alpha: 0.55),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                ),
+                child: _carregando
+                    ? const SizedBox(
+                        width: 23,
+                        height: 23,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.3,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Entrar na minha conta',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 19,
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: _borda,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'ORVIX',
+                    style: TextStyle(
+                      color: _textoSecundario,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: _borda,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 18),
+            const Center(
+              child: Text(
+                'Acesse com as credenciais da sua empresa.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: _textoSecundario,
+                  fontSize: 12,
+                  height: 1.6,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 18),
+            Center(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Text(
+                    'Ainda não tem uma conta?',
+                    style: TextStyle(
+                      color: _textoSecundario,
+                      fontSize: 12,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed:
+                        _carregando ? null : _abrirCadastro,
+                    style: TextButton.styleFrom(
+                      foregroundColor: _ciano,
+                    ),
+                    child: const Text(
+                      'Criar conta',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // DECORAÇÃO DOS CAMPOS
+  // ============================================================
+
+  InputDecoration _decoracao({
+    required String hint,
+    required IconData icone,
+    Widget? sufixo,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Color(0xFF68758E),
+        fontSize: 13,
+      ),
+      prefixIcon: Icon(
+        icone,
+        color: _textoSecundario,
+        size: 20,
+      ),
+      suffixIcon: sufixo,
+      filled: true,
+      fillColor: const Color(0xFF0B1120),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 17,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _borda),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _borda),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: _roxo,
+          width: 1.5,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: Color(0xFFF87171),
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: Color(0xFFF87171),
+          width: 1.3,
+        ),
+      ),
+      errorStyle: const TextStyle(
+        fontSize: 11,
+        height: 1.5,
+      ),
+    );
+  }
+
+  // ============================================================
+  // AVISO DE ERRO
+  // ============================================================
+
+  Widget _avisoErro(String mensagem) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEF4444).withValues(alpha: 0.09),
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(
+          color: const Color(0xFFEF4444).withValues(alpha: 0.35),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: Color(0xFFF87171),
+            size: 19,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              mensagem,
+              style: const TextStyle(
+                color: Color(0xFFFCA5A5),
+                fontSize: 12,
+                height: 1.6,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // RODAPÉ
+  // ============================================================
+
+  Widget _rodape() {
+    return const Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.lock_outline_rounded,
+              size: 13,
+              color: _textoSecundario,
+            ),
+            SizedBox(width: 7),
+            Text(
+              'Acesso protegido',
+              style: TextStyle(
+                color: _textoSecundario,
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Text(
+          'Orvix © 2026 · Gestão para sua empresa',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color(0xFF66728A),
+            fontSize: 11,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// LABEL DOS CAMPOS
+// ============================================================
+
+class _Label extends StatelessWidget {
+  final String texto;
+
+  const _Label(this.texto);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      texto,
+      style: const TextStyle(
+        color: Color(0xFFDCE3F2),
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+// ============================================================
+// EFEITO DE LUZ DO FUNDO
+// ============================================================
+
+class _Glow extends StatelessWidget {
+  final Color cor;
+  final double tamanho;
+
+  const _Glow({
+    required this.cor,
+    required this.tamanho,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: tamanho,
+        height: tamanho,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: cor.withValues(alpha: 0.055),
+        ),
+      ),
+    );
+  }
+}

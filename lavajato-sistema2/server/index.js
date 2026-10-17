@@ -138,7 +138,7 @@ app.set(
 
 
 // ============================================================
-// CORS
+// CORS — ORVIX WEB + FLUTTER WEB
 // ============================================================
 
 const allowedOrigins = [
@@ -148,40 +148,31 @@ const allowedOrigins = [
   'https://sistemaagendamento-lavajato-sistema.vercel.app'
 ].filter(Boolean);
 
-
 app.use(
   cors({
     origin: (origin, callback) => {
-
-      // Requisições sem Origin.
-      //
-      // Exemplos:
-      // - algumas chamadas internas
-      // - ferramentas de servidor
-      // - health checks
-      //
+      // Permite ferramentas e chamadas sem cabeçalho Origin.
       if (!origin) {
-        return callback(
-          null,
-          true
-        );
+        return callback(null, true);
       }
 
-
-      if (
-        allowedOrigins.includes(origin)
-      ) {
-        return callback(
-          null,
-          true
-        );
+      // Origens fixas configuradas para o Orvix.
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
 
+      // Portas dinâmicas utilizadas pelo Flutter Web local.
+      const flutterWebLocal =
+        /^http:\/\/localhost:\d+$/.test(origin) ||
+        /^http:\/\/127\.0\.0\.1:\d+$/.test(origin);
 
+      if (flutterWebLocal) {
+        return callback(null, true);
+      }
+
+      // Bloqueia origens não autorizadas.
       return callback(
-        new Error(
-          'Origem não permitida pelo CORS.'
-        )
+        new Error('Origem não permitida pelo CORS.')
       );
     },
 
@@ -200,7 +191,6 @@ app.use(
     ],
 
     credentials: true,
-
     optionsSuccessStatus: 204
   })
 );

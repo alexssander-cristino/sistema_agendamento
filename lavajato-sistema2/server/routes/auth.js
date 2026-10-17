@@ -30,13 +30,13 @@ const {
   enviarAlertaSeguranca
 } = require('../services/firebaseNotific');
 
-const router = express.Router();
-
 const {
   criarSessao,
   revogarSessao,
   revogarTodasSessoes
 } = require('../services/sessoes');
+
+const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -48,9 +48,25 @@ const TEMPO_RECUPERACAO_MINUTOS = 30;
 const TEMPO_JWT_DIAS = 7;
 const COOKIE_TOKEN = 'token';
 
-// ============================================================
-// PERMISSÕES DO ADMINISTRADOR / DEV
-// ============================================================
+const NICHOS_VALIDOS = [
+  'lavajato',
+  'barbearia',
+  'clinica',
+  'pet',
+  'oficina',
+  'personal',
+  'personalizados',
+  'moveis',
+  'grafica',
+  'confeccao',
+  'eletronicos',
+  'construcao',
+  'fotografia',
+  'eventos',
+  'limpeza',
+  'tecnologia',
+  'generico'
+];
 
 const PERMISSOES_ADMINISTRADOR = [
   'agenda',
@@ -64,7 +80,7 @@ const PERMISSOES_ADMINISTRADOR = [
 ];
 
 // ============================================================
-// CONFIGURAÇÕES DO COOKIE
+// COOKIE
 // ============================================================
 
 function obterOpcoesCookieToken() {
@@ -79,10 +95,6 @@ function obterOpcoesCookieToken() {
   };
 }
 
-// ============================================================
-// DEFINIR COOKIE DO TOKEN
-// ============================================================
-
 function definirCookieToken(res, token) {
   res.cookie(
     COOKIE_TOKEN,
@@ -90,10 +102,6 @@ function definirCookieToken(res, token) {
     obterOpcoesCookieToken()
   );
 }
-
-// ============================================================
-// LIMPAR COOKIE DO TOKEN
-// ============================================================
 
 function limparCookieToken(res) {
   const opcoes = obterOpcoesCookieToken();
@@ -114,7 +122,7 @@ if (!JWT_SECRET) {
 }
 
 // ============================================================
-// BUSCAR PERMISSÕES DO USUÁRIO
+// PERMISSÕES
 // ============================================================
 
 async function obterPermissoesUsuario(usuario) {
@@ -125,11 +133,11 @@ async function obterPermissoesUsuario(usuario) {
     return PERMISSOES_ADMINISTRADOR;
   }
 
-  return await buscarCodigosPermissoesUsuario(usuario.id);
+  return buscarCodigosPermissoesUsuario(usuario.id);
 }
 
 // ============================================================
-// NORMALIZAR E-MAIL
+// NORMALIZAÇÃO
 // ============================================================
 
 function normalizarEmail(email) {
@@ -138,17 +146,19 @@ function normalizarEmail(email) {
     .toLowerCase();
 }
 
+function normalizarNicho(nicho) {
+  return String(nicho || '')
+    .trim()
+    .toLowerCase();
+}
+
 // ============================================================
-// GERAR TOKEN DE RECUPERAÇÃO
+// RECUPERAÇÃO DE SENHA
 // ============================================================
 
 function gerarTokenRecuperacao() {
   return crypto.randomBytes(32).toString('hex');
 }
-
-// ============================================================
-// GERAR HASH DO TOKEN
-// ============================================================
 
 function gerarHashToken(token) {
   return crypto
@@ -156,10 +166,6 @@ function gerarHashToken(token) {
     .update(token)
     .digest('hex');
 }
-
-// ============================================================
-// URL BASE DA APLICAÇÃO
-// ============================================================
 
 function obterUrlAplicacao() {
   const url = String(process.env.APP_URL || '').trim();
@@ -172,7 +178,7 @@ function obterUrlAplicacao() {
 }
 
 // ============================================================
-// GERAR JWT
+// JWT
 // ============================================================
 
 function gerarTokenJwt(usuario, sessaoId) {
@@ -201,7 +207,7 @@ function gerarTokenJwt(usuario, sessaoId) {
 }
 
 // ============================================================
-// NOTIFICAR NOVO CADASTRO
+// NOTIFICAÇÃO DE NOVO CADASTRO
 // ============================================================
 
 function notificarNovoCadastro() {
@@ -210,8 +216,6 @@ function notificarNovoCadastro() {
     corpo: 'Uma nova empresa foi cadastrada na plataforma.',
     link: '/admin/logs'
   }).catch((erro) => {
-    // A falha no Firebase não pode interromper o cadastro.
-    // Não registrar tokens, senhas ou credenciais nos logs.
     console.error(
       '[ORVIX SEGURANÇA] Falha ao notificar novo cadastro:',
       erro?.codigoDiagnostico ||
@@ -224,8 +228,6 @@ function notificarNovoCadastro() {
 // ============================================================
 // POST /api/auth/cadastro
 // ============================================================
-// Cria uma nova empresa e seu primeiro administrador.
-// ============================================================
 
 router.post('/cadastro', async (req, res) => {
   const {
@@ -234,28 +236,86 @@ router.post('/cadastro', async (req, res) => {
     telefone,
     nome,
     email,
-    senha
+    senha,
+    nicho
   } = req.body || {};
 
   // ----------------------------------------------------------
-  // VALIDAR CAMPOS
+  // CAMPOS OBRIGATÓRIOS
   // ----------------------------------------------------------
 
-  if (!empresa || !email_empresa || !nome || !email || !senha) {
+  if (
+    !empresa ||
+    !email_empresa ||
+    !nome ||
+    !email ||
+    !senha
+  ) {
     return res.status(400).json({
-      erro: 'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
+      erro:
+        'Informe empresa, e-mail da empresa, nome, e-mail e senha.'
     });
   }
 
-  const emailEmpresaNormalizado = normalizarEmail(email_empresa);
-  const emailUsuarioNormalizado = normalizarEmail(email);
-
   const nomeEmpresa = String(empresa).trim();
+  const emailEmpresaNormalizado = normalizarEmail(email_empresa);
   const nomeUsuario = String(nome).trim();
+  const emailUsuarioNormalizado = normalizarEmail(email);
   const senhaString = String(senha);
+  const nichoNormalizado = normalizarNicho(nicho);
 
   // ----------------------------------------------------------
-  // VALIDAR E-MAIL
+  // TAMANHOS
+  // ----------------------------------------------------------
+
+  if (nomeEmpresa.length > 150) {
+    return res.status(400).json({
+      erro: 'O nome da empresa deve ter até 150 caracteres.'
+    });
+  }
+
+  if (nomeUsuario.length > 150) {
+    return res.status(400).json({
+      erro: 'O nome do usuário deve ter até 150 caracteres.'
+    });
+  }
+
+  if (
+    emailEmpresaNormalizado.length > 254 ||
+    emailUsuarioNormalizado.length > 254
+  ) {
+    return res.status(400).json({
+      erro: 'O e-mail informado é muito longo.'
+    });
+  }
+
+  if (
+    telefone != null &&
+    String(telefone).trim().length > 30
+  ) {
+    return res.status(400).json({
+      erro: 'O telefone deve ter até 30 caracteres.'
+    });
+  }
+
+  // ----------------------------------------------------------
+  // NOMES
+  // ----------------------------------------------------------
+
+  if (!nomeEmpresa) {
+    return res.status(400).json({
+      erro: 'Informe o nome da empresa.'
+    });
+  }
+
+  if (!nomeUsuario) {
+    return res.status(400).json({
+      erro: 'Informe o nome do usuário.'
+    });
+  }
+
+  // ----------------------------------------------------------
+  // E-MAILS
   // ----------------------------------------------------------
 
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -273,7 +333,7 @@ router.post('/cadastro', async (req, res) => {
   }
 
   // ----------------------------------------------------------
-  // VALIDAR SENHA
+  // SENHA
   // ----------------------------------------------------------
 
   if (senhaString.length < 6) {
@@ -283,31 +343,27 @@ router.post('/cadastro', async (req, res) => {
   }
 
   // ----------------------------------------------------------
-  // VALIDAR NOMES
+  // NICHO
   // ----------------------------------------------------------
 
-  if (!nomeEmpresa) {
+  if (!NICHOS_VALIDOS.includes(nichoNormalizado)) {
     return res.status(400).json({
-      erro: 'Informe o nome da empresa.'
-    });
-  }
-
-  if (!nomeUsuario) {
-    return res.status(400).json({
-      erro: 'Informe o nome do usuário.'
+      erro: 'Selecione um tipo de negócio válido.'
     });
   }
 
   // ----------------------------------------------------------
-  // CONEXÃO
+  // TRANSAÇÃO
   // ----------------------------------------------------------
 
   let client;
+  let transacaoAberta = false;
 
   try {
     client = await pool.connect();
 
     await client.query('BEGIN');
+    transacaoAberta = true;
 
     // --------------------------------------------------------
     // VERIFICAR EMPRESA EXISTENTE
@@ -325,6 +381,7 @@ router.post('/cadastro', async (req, res) => {
 
     if (empresaExistente.rows.length > 0) {
       await client.query('ROLLBACK');
+      transacaoAberta = false;
 
       return res.status(409).json({
         erro: 'Já existe uma empresa cadastrada com esse e-mail.'
@@ -347,6 +404,7 @@ router.post('/cadastro', async (req, res) => {
 
     if (usuarioExistente.rows.length > 0) {
       await client.query('ROLLBACK');
+      transacaoAberta = false;
 
       return res.status(409).json({
         erro: 'Já existe um usuário cadastrado com esse e-mail.'
@@ -363,33 +421,36 @@ router.post('/cadastro', async (req, res) => {
         nome,
         email,
         telefone,
+        nicho,
         conta_teste
       )
-      VALUES ($1, $2, $3, FALSE)
+      VALUES ($1, $2, $3, $4, FALSE)
       RETURNING
         id,
         nome,
         email,
         telefone,
+        nicho,
         conta_teste
       `,
       [
         nomeEmpresa,
         emailEmpresaNormalizado,
-        telefone ? String(telefone).trim() : null
+        telefone ? String(telefone).trim() : null,
+        nichoNormalizado
       ]
     );
 
     const novaEmpresa = empresaResult.rows[0];
 
     // --------------------------------------------------------
-    // CRIAR SENHA CRIPTOGRAFADA
+    // CRIPTOGRAFAR SENHA
     // --------------------------------------------------------
 
     const senhaHash = await bcrypt.hash(senhaString, 12);
 
     // --------------------------------------------------------
-    // CRIAR ADMINISTRADOR DA EMPRESA
+    // CRIAR ADMINISTRADOR
     // --------------------------------------------------------
 
     const usuarioResult = await client.query(
@@ -421,58 +482,62 @@ router.post('/cadastro', async (req, res) => {
     const usuario = usuarioResult.rows[0];
 
     // --------------------------------------------------------
-    // CONFIRMAR TRANSAÇÃO
+    // CRIAR SESSÃO NA MESMA CONEXÃO
+    //
+    // Evita solicitar outra conexão ao pool enquanto esta
+    // transação está ocupando uma conexão.
+    // --------------------------------------------------------
+
+    const sessao = await criarSessao(req, usuario, client);
+
+    // --------------------------------------------------------
+    // CONFIRMAR CADASTRO E SESSÃO
     // --------------------------------------------------------
 
     await client.query('COMMIT');
+    transacaoAberta = false;
+
+    // Liberar a conexão antes das operações pós-cadastro.
+    client.release();
+    client = null;
 
     // --------------------------------------------------------
-    // ALERTA DE SEGURANÇA: NOVO CADASTRO
-    // --------------------------------------------------------
-    //
-    // Executado somente depois do COMMIT.
-    // Não envia senha, hash, JWT ou e-mail na notificação.
-    // O serviço Firebase deve direcionar o alerta somente
-    // aos dispositivos ativos dos usuários com perfil "dev".
-    //
-    // A notificação é assíncrona e não bloqueia a resposta.
-    // --------------------------------------------------------
-
-    notificarNovoCadastro();
-
-    // --------------------------------------------------------
-    // AUDITORIA DO CADASTRO
-    // --------------------------------------------------------
-
-    await registrarAuditoria(req, {
-      acao: 'criacao',
-      entidade: 'empresa',
-      entidadeId: novaEmpresa.id,
-      detalhes: {
-        origem: 'cadastro',
-        nome_empresa: novaEmpresa.nome,
-        usuario_id: usuario.id
-      }
-    });
-
-    // --------------------------------------------------------
-    // PERMISSÕES
+    // GERAR TOKEN
     // --------------------------------------------------------
 
     const permissoes = PERMISSOES_ADMINISTRADOR;
-
-    // --------------------------------------------------------
-    // GERAR JWT
-    // --------------------------------------------------------
-
-    const sessao = await criarSessao(req, usuario);
     const token = gerarTokenJwt(usuario, sessao.id);
 
+    definirCookieToken(res, token);
+
     // --------------------------------------------------------
-    // SALVAR JWT NO COOKIE HTTPONLY
+    // AUDITORIA
     // --------------------------------------------------------
 
-    definirCookieToken(res, token);
+    try {
+      await registrarAuditoria(req, {
+        acao: 'criacao',
+        entidade: 'empresa',
+        entidadeId: novaEmpresa.id,
+        detalhes: {
+          origem: 'cadastro',
+          nome_empresa: novaEmpresa.nome,
+          usuario_id: usuario.id,
+          nicho: novaEmpresa.nicho
+        }
+      });
+    } catch (erroAuditoria) {
+      console.error(
+        'Falha na auditoria do cadastro:',
+        erroAuditoria?.message || erroAuditoria
+      );
+    }
+
+    // --------------------------------------------------------
+    // NOTIFICAÇÃO
+    // --------------------------------------------------------
+
+    notificarNovoCadastro();
 
     // --------------------------------------------------------
     // RESPOSTA
@@ -494,19 +559,34 @@ router.post('/cadastro', async (req, res) => {
         nome: novaEmpresa.nome,
         email: novaEmpresa.email,
         telefone: novaEmpresa.telefone,
+        nicho: novaEmpresa.nicho,
         conta_teste: novaEmpresa.conta_teste
       }
     });
   } catch (err) {
-    if (client) {
+    if (client && transacaoAberta) {
       try {
         await client.query('ROLLBACK');
-      } catch (_) {
-        // A transação pode já ter sido confirmada.
+        transacaoAberta = false;
+      } catch (erroRollback) {
+        console.error(
+          'Erro ao reverter cadastro:',
+          erroRollback?.message || erroRollback
+        );
       }
     }
 
-    console.error('Erro no cadastro:', err?.message || err);
+    console.error(
+      'Erro no cadastro:',
+      err?.message || err
+    );
+
+    if (err?.code === '23505') {
+      return res.status(409).json({
+        erro:
+          'Já existe um cadastro com um e-mail ou dado que precisa ser único.'
+      });
+    }
 
     return res.status(500).json({
       erro: 'Não foi possível realizar o cadastro.'
@@ -525,10 +605,6 @@ router.post('/cadastro', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, senha } = req.body || {};
 
-  // ----------------------------------------------------------
-  // VALIDAR CAMPOS
-  // ----------------------------------------------------------
-
   if (!email || !senha) {
     return res.status(400).json({
       erro: 'Informe e-mail e senha.'
@@ -538,10 +614,6 @@ router.post('/login', async (req, res) => {
   const emailNormalizado = normalizarEmail(email);
 
   try {
-    // --------------------------------------------------------
-    // BUSCAR USUÁRIO
-    // --------------------------------------------------------
-
     const { rows } = await pool.query(
       `
       SELECT
@@ -555,6 +627,7 @@ router.post('/login', async (req, res) => {
         e.nome AS empresa_nome,
         e.email AS empresa_email,
         e.telefone AS empresa_telefone,
+        e.nicho AS empresa_nicho,
         e.conta_teste AS empresa_conta_teste
       FROM usuarios u
       LEFT JOIN empresas e
@@ -564,10 +637,6 @@ router.post('/login', async (req, res) => {
       `,
       [emailNormalizado]
     );
-
-    // --------------------------------------------------------
-    // USUÁRIO NÃO ENCONTRADO
-    // --------------------------------------------------------
 
     if (rows.length === 0) {
       const tentativas = req.rateLimit?.used || 1;
@@ -583,28 +652,16 @@ router.post('/login', async (req, res) => {
 
     const usuario = rows[0];
 
-    // --------------------------------------------------------
-    // USUÁRIO DESATIVADO
-    // --------------------------------------------------------
-
     if (!usuario.ativo) {
       return res.status(403).json({
         erro: 'Este usuário está desativado.'
       });
     }
 
-    // --------------------------------------------------------
-    // VERIFICAR SENHA
-    // --------------------------------------------------------
-
     const senhaValida = await bcrypt.compare(
       String(senha),
       usuario.senha
     );
-
-    // --------------------------------------------------------
-    // SENHA INCORRETA
-    // --------------------------------------------------------
 
     if (!senhaValida) {
       const tentativas = req.rateLimit?.used || 1;
@@ -618,41 +675,31 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // --------------------------------------------------------
-    // PERMISSÕES
-    // --------------------------------------------------------
-
     const permissoes = await obterPermissoesUsuario(usuario);
 
-    // --------------------------------------------------------
-    // GERAR JWT
-    // --------------------------------------------------------
+    // Passar req como primeiro argumento para que a sessão
+    // possa registrar corretamente os dados da requisição.
+    const sessao = await criarSessao(req, usuario);
 
-   const sessao = await criarSessao(req, usuario);
-   const token = gerarTokenJwt(usuario, sessao.id);
-
-    // --------------------------------------------------------
-    // SALVAR JWT NO COOKIE HTTPONLY
-    // --------------------------------------------------------
+    const token = gerarTokenJwt(usuario, sessao.id);
 
     definirCookieToken(res, token);
 
-    // --------------------------------------------------------
-    // AUDITORIA DO LOGIN
-    // --------------------------------------------------------
-
-    await registrarAuditoria(req, {
-      acao: 'login',
-      entidade: 'usuario',
-      entidadeId: usuario.id,
-      detalhes: {
-        origem: 'login'
-      }
-    });
-
-    // --------------------------------------------------------
-    // RESPOSTA
-    // --------------------------------------------------------
+    try {
+      await registrarAuditoria(req, {
+        acao: 'login',
+        entidade: 'usuario',
+        entidadeId: usuario.id,
+        detalhes: {
+          origem: 'login'
+        }
+      });
+    } catch (erroAuditoria) {
+      console.error(
+        'Falha na auditoria do login:',
+        erroAuditoria?.message || erroAuditoria
+      );
+    }
 
     return res.json({
       mensagem: 'Login realizado com sucesso.',
@@ -673,11 +720,15 @@ router.post('/login', async (req, res) => {
               nome: usuario.empresa_nome,
               email: usuario.empresa_email,
               telefone: usuario.empresa_telefone,
+              nicho: usuario.empresa_nicho,
               conta_teste: usuario.empresa_conta_teste
             }
     });
   } catch (err) {
-    console.error('Erro no login:', err?.message || err);
+    console.error(
+      'Erro no login:',
+      err?.message || err
+    );
 
     return res.status(500).json({
       erro: 'Não foi possível realizar o login.'
@@ -690,11 +741,19 @@ router.post('/login', async (req, res) => {
 // ============================================================
 
 router.post('/logout', autenticar, async (req, res) => {
- try {
-  await revogarSessao(pool, req.usuario.id, req.sessaoId, 'logout');
-} catch (erro) {
-  console.error('Erro ao revogar sessão no logout:', erro?.message || erro);
-}
+  try {
+    await revogarSessao(
+      pool,
+      req.usuario.id,
+      req.sessaoId,
+      'logout'
+    );
+  } catch (erro) {
+    console.error(
+      'Erro ao revogar sessão no logout:',
+      erro?.message || erro
+    );
+  }
 
   limparCookieToken(res);
 
@@ -723,10 +782,6 @@ router.post(
     }
 
     try {
-      // ------------------------------------------------------
-      // PROCURAR USUÁRIO
-      // ------------------------------------------------------
-
       const resultado = await pool.query(
         `
         SELECT
@@ -748,24 +803,12 @@ router.post(
 
       const usuario = resultado.rows[0];
 
-      // ------------------------------------------------------
-      // USUÁRIO DESATIVADO
-      // ------------------------------------------------------
-
       if (!usuario.ativo) {
         return res.json(respostaPadrao);
       }
 
-      // ------------------------------------------------------
-      // GERAR TOKEN
-      // ------------------------------------------------------
-
       const token = gerarTokenRecuperacao();
       const tokenHash = gerarHashToken(token);
-
-      // ------------------------------------------------------
-      // REMOVER TOKENS ANTERIORES NÃO UTILIZADOS
-      // ------------------------------------------------------
 
       await pool.query(
         `
@@ -776,17 +819,9 @@ router.post(
         [usuario.id]
       );
 
-      // ------------------------------------------------------
-      // EXPIRAÇÃO
-      // ------------------------------------------------------
-
       const expiraEm = new Date(
         Date.now() + TEMPO_RECUPERACAO_MINUTOS * 60 * 1000
       );
-
-      // ------------------------------------------------------
-      // SALVAR TOKEN HASH
-      // ------------------------------------------------------
 
       await pool.query(
         `
@@ -800,28 +835,16 @@ router.post(
         [usuario.id, tokenHash, expiraEm]
       );
 
-      // ------------------------------------------------------
-      // LINK
-      // ------------------------------------------------------
-
       const appUrl = obterUrlAplicacao();
 
       const link =
         `${appUrl}/recuperar-senha.html?token=${encodeURIComponent(token)}`;
-
-      // ------------------------------------------------------
-      // ENVIAR E-MAIL
-      // ------------------------------------------------------
 
       await enviarEmailRecuperacaoSenha({
         para: usuario.email,
         nome: usuario.nome,
         link
       });
-
-      // ------------------------------------------------------
-      // AUDITORIA
-      // ------------------------------------------------------
 
       if (usuario.empresa_id) {
         const usuarioAuditoriaAnterior = req.usuario;
@@ -856,14 +879,14 @@ router.post(
       );
 
       return res.json(respostaPadrao);
-} catch (err) {
-  console.error(
-    'Erro ao solicitar recuperação de senha:',
-    err?.message || err
-  );
+    } catch (err) {
+      console.error(
+        'Erro ao solicitar recuperação de senha:',
+        err?.message || err
+      );
 
-  return res.json(respostaPadrao);
-}
+      return res.json(respostaPadrao);
+    }
   }
 );
 
@@ -874,29 +897,17 @@ router.post(
 router.post('/redefinir-senha', async (req, res) => {
   const { token, senha } = req.body || {};
 
-  // ----------------------------------------------------------
-  // VALIDAR CAMPOS
-  // ----------------------------------------------------------
-
   if (!token || !senha) {
     return res.status(400).json({
       erro: 'Informe o token e a nova senha.'
     });
   }
 
-  // ----------------------------------------------------------
-  // VALIDAR SENHA
-  // ----------------------------------------------------------
-
   if (String(senha).length < 6) {
     return res.status(400).json({
       erro: 'A senha deve possuir pelo menos 6 caracteres.'
     });
   }
-
-  // ----------------------------------------------------------
-  // VALIDAR FORMATO DO TOKEN
-  // ----------------------------------------------------------
 
   const tokenNormalizado = String(token).trim();
 
@@ -909,15 +920,13 @@ router.post('/redefinir-senha', async (req, res) => {
   const tokenHash = gerarHashToken(tokenNormalizado);
 
   let client;
+  let transacaoAberta = false;
 
   try {
     client = await pool.connect();
 
     await client.query('BEGIN');
-
-    // --------------------------------------------------------
-    // BUSCAR TOKEN VÁLIDO
-    // --------------------------------------------------------
+    transacaoAberta = true;
 
     const resultado = await client.query(
       `
@@ -941,12 +950,9 @@ router.post('/redefinir-senha', async (req, res) => {
       [tokenHash]
     );
 
-    // --------------------------------------------------------
-    // TOKEN INVÁLIDO
-    // --------------------------------------------------------
-
     if (resultado.rows.length === 0) {
       await client.query('ROLLBACK');
+      transacaoAberta = false;
 
       return res.status(400).json({
         erro: 'Token de recuperação inválido ou expirado.'
@@ -955,30 +961,19 @@ router.post('/redefinir-senha', async (req, res) => {
 
     const recuperacao = resultado.rows[0];
 
-    // --------------------------------------------------------
-    // USUÁRIO DESATIVADO
-    // --------------------------------------------------------
-
     if (!recuperacao.ativo) {
       await client.query('ROLLBACK');
+      transacaoAberta = false;
 
       return res.status(403).json({
         erro: 'Este usuário está desativado.'
       });
     }
 
-    // --------------------------------------------------------
-    // GERAR HASH DA NOVA SENHA
-    // --------------------------------------------------------
-
     const novaSenhaHash = await bcrypt.hash(
       String(senha),
       12
     );
-
-    // --------------------------------------------------------
-    // ATUALIZAR SENHA
-    // --------------------------------------------------------
 
     await client.query(
       `
@@ -989,13 +984,13 @@ router.post('/redefinir-senha', async (req, res) => {
       [novaSenhaHash, recuperacao.usuario_id]
     );
 
-    await revogarTodasSessoes(client, recuperacao.usuario_id, {
-  motivo: 'senha_redefinida'
-});
-
-    // --------------------------------------------------------
-    // INVALIDAR TOKENS DE RECUPERAÇÃO PENDENTES
-    // --------------------------------------------------------
+    await revogarTodasSessoes(
+      client,
+      recuperacao.usuario_id,
+      {
+        motivo: 'senha_redefinida'
+      }
+    );
 
     await client.query(
       `
@@ -1007,15 +1002,8 @@ router.post('/redefinir-senha', async (req, res) => {
       [recuperacao.usuario_id]
     );
 
-    // --------------------------------------------------------
-    // CONFIRMAR TRANSAÇÃO
-    // --------------------------------------------------------
-
     await client.query('COMMIT');
-
-    // --------------------------------------------------------
-    // AUDITORIA DA ALTERAÇÃO DE SENHA
-    // --------------------------------------------------------
+    transacaoAberta = false;
 
     if (recuperacao.empresa_id) {
       const usuarioAnterior = req.usuario;
@@ -1038,6 +1026,11 @@ router.post('/redefinir-senha', async (req, res) => {
             senha_alterada: true
           }
         });
+      } catch (erroAuditoria) {
+        console.error(
+          'Falha na auditoria da redefinição de senha:',
+          erroAuditoria?.message || erroAuditoria
+        );
       } finally {
         req.usuario = usuarioAnterior;
       }
@@ -1055,11 +1048,15 @@ router.post('/redefinir-senha', async (req, res) => {
         'Senha redefinida com sucesso. Você já pode entrar novamente.'
     });
   } catch (err) {
-    if (client) {
+    if (client && transacaoAberta) {
       try {
         await client.query('ROLLBACK');
-      } catch (_) {
-        // A transação pode já ter sido encerrada.
+        transacaoAberta = false;
+      } catch (erroRollback) {
+        console.error(
+          'Erro ao reverter redefinição de senha:',
+          erroRollback?.message || erroRollback
+        );
       }
     }
 
@@ -1096,6 +1093,7 @@ router.get('/me', autenticar, async (req, res) => {
         e.nome AS empresa_nome,
         e.email AS empresa_email,
         e.telefone AS empresa_telefone,
+        e.nicho AS empresa_nicho,
         e.conta_teste AS empresa_conta_teste
       FROM usuarios u
       LEFT JOIN empresas e
@@ -1121,10 +1119,6 @@ router.get('/me', autenticar, async (req, res) => {
       ]
     );
 
-    // --------------------------------------------------------
-    // USUÁRIO NÃO ENCONTRADO
-    // --------------------------------------------------------
-
     if (rows.length === 0) {
       return res.status(404).json({
         erro: 'Usuário não encontrado.'
@@ -1133,25 +1127,13 @@ router.get('/me', autenticar, async (req, res) => {
 
     const usuario = rows[0];
 
-    // --------------------------------------------------------
-    // USUÁRIO DESATIVADO
-    // --------------------------------------------------------
-
     if (!usuario.ativo) {
       return res.status(403).json({
         erro: 'Este usuário está desativado.'
       });
     }
 
-    // --------------------------------------------------------
-    // PERMISSÕES
-    // --------------------------------------------------------
-
     const permissoes = await obterPermissoesUsuario(usuario);
-
-    // --------------------------------------------------------
-    // RESPOSTA
-    // --------------------------------------------------------
 
     return res.json({
       usuario: {
@@ -1170,6 +1152,7 @@ router.get('/me', autenticar, async (req, res) => {
               nome: usuario.empresa_nome,
               email: usuario.empresa_email,
               telefone: usuario.empresa_telefone,
+              nicho: usuario.empresa_nicho,
               conta_teste: usuario.empresa_conta_teste
             }
     });
@@ -1186,7 +1169,7 @@ router.get('/me', autenticar, async (req, res) => {
 });
 
 // ============================================================
-// EXPORTAR ROUTER
+// EXPORTAR ROTAS
 // ============================================================
 
 module.exports = router;
