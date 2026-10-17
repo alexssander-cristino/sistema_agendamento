@@ -47,7 +47,9 @@ function normalizarTexto(valor) {
 }
 
 function validarData(valor) {
-  if (typeof valor !== 'string') return false;
+  if (typeof valor !== 'string') {
+    return false;
+  }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
     return false;
@@ -93,23 +95,52 @@ function validarValor(valor) {
   return numero;
 }
 
+// ============================================================
+// STATUS DO AGENDAMENTO
+// ============================================================
+
+/**
+ * O banco aceita somente:
+ * agendado, em_andamento, concluido e cancelado.
+ *
+ * Compatibilidade:
+ * "confirmado" é convertido para "agendado".
+ *
+ * Isso evita a violação da restrição
+ * agendamentos_status_check no PostgreSQL.
+ */
+function normalizarStatusAgendamento(status) {
+  const valor = String(status ?? '')
+    .trim()
+    .toLowerCase();
+
+  const equivalencias = {
+    confirmado: 'agendado'
+  };
+
+  return equivalencias[valor] || valor;
+}
+
 function validarStatus(status) {
+  if (status === undefined || status === null || status === '') {
+    return true;
+  }
+
   const permitidos = [
     'agendado',
-    'confirmado',
     'em_andamento',
     'concluido',
     'cancelado'
   ];
 
-  if (status === undefined || status === null || status === '') {
-    return true;
-  }
-
   return permitidos.includes(
-    String(status).trim().toLowerCase()
+    normalizarStatusAgendamento(status)
   );
 }
+
+// ============================================================
+// STATUS DO PAGAMENTO
+// ============================================================
 
 function validarStatusPagamento(status) {
   const permitidos = [
@@ -127,6 +158,10 @@ function validarStatusPagamento(status) {
     String(status).trim().toLowerCase()
   );
 }
+
+// ============================================================
+// VALIDAÇÃO DE CAMPOS
+// ============================================================
 
 function validarTamanho(valor, maximo) {
   return (
@@ -165,7 +200,11 @@ async function resolverCliente({
   telefone,
   empresaId
 }) {
-  if (clienteId !== undefined && clienteId !== null && clienteId !== '') {
+  if (
+    clienteId !== undefined &&
+    clienteId !== null &&
+    clienteId !== ''
+  ) {
     const id = validarId(clienteId);
 
     if (!id) {
@@ -261,26 +300,23 @@ async function buscarConflitoHorario({
   servicoId,
   ignorarId = null
 }) {
-  const servicoNovo = await validarServico(servicoId, empresaId);
+  const servicoNovo = await validarServico(
+    servicoId,
+    empresaId
+  );
 
   const inicioNovo = minutosDaHora(hora);
   const fimNovo = inicioNovo + servicoNovo.duracao_min;
 
-  /*
-   * Não permite agendamentos que ultrapassem o fim do dia.
-   */
+  // Não permite que o serviço ultrapasse o fim do dia.
   if (fimNovo > 24 * 60) {
     return {
       erro: 'DURACAO_EXCEDE_DIA',
-      mensagem: 'O serviço termina depois da meia-noite. Escolha outro horário.'
+      mensagem:
+        'O serviço termina depois da meia-noite. Escolha outro horário.'
     };
   }
 
-  /*
-   * Busca agendamentos do mesmo dia e da mesma empresa.
-   * A duração de cada agendamento vem do serviço associado.
-   * Serviços sem duração cadastrada usam 30 minutos.
-   */
   const resultado = await pool.query(
     `
       SELECT
@@ -311,18 +347,13 @@ async function buscarConflitoHorario({
 
   for (const existente of resultado.rows) {
     const inicioExistente = minutosDaHora(existente.hora);
-    const duracaoExistente = Number(existente.duracao_min) || 30;
-    const fimExistente = inicioExistente + duracaoExistente;
+    const duracaoExistente =
+      Number(existente.duracao_min) || 30;
 
-    /*
-     * Existe conflito quando:
-     *
-     * início existente < fim novo
-     * E
-     * início novo < fim existente
-     *
-     * Assim, horários consecutivos são permitidos.
-     */
+    const fimExistente =
+      inicioExistente + duracaoExistente;
+
+    // Existe conflito se os intervalos de horário se sobrepõem.
     const existeSobreposicao =
       inicioExistente < fimNovo &&
       inicioNovo < fimExistente;
@@ -340,6 +371,30 @@ async function buscarConflitoHorario({
   }
 
   return null;
+}
+
+// ============================================================
+// TRATAMENTO DE ERROS DE VALIDAÇÃO
+// ============================================================
+
+function tratarErroValidacao(res, erro) {
+  const errosConhecidos = [
+    'Cliente inválido.',
+    'Cliente não encontrado.',
+    'Informe o nome do cliente.',
+    'Serviço inválido.',
+    'Serviço não encontrado ou inativo.'
+  ];
+
+  if (errosConhecidos.includes(erro.message)) {
+    res.status(400).json({
+      erro: erro.message
+    });
+
+    return true;
+  }
+
+  return false;
 }
 
 // ============================================================
@@ -396,7 +451,9 @@ router.get('/', async (req, res) => {
     }
 
     if (busca) {
-      parametros.push(`%${normalizarTexto(busca)}%`);
+      parametros.push(
+        `%${normalizarTexto(busca)}%`
+      );
 
       condicoes.push(`
         (
@@ -485,6 +542,13 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Valida o status, caso tenha sido informado.
+    if (!validarStatus(body.status)) {
+      return res.status(400).json({
+        erro: 'Status do agendamento inválido.'
+      });
+    }
+
     const clienteResolvido = await resolverCliente({
       clienteId: cliente_id,
       cliente,
@@ -497,10 +561,7 @@ router.post('/', async (req, res) => {
       empresaId
     );
 
-    /*
-     * Verifica sobreposição considerando a duração do serviço.
-     * A confirmação explícita do usuário pode permitir continuar.
-     */
+    // Verifica sobreposição considerando a duração do serviço.
     if (body.forcar_conflito !== true) {
       const conflito = await buscarConflitoHorario({
         empresaId,
@@ -519,45 +580,72 @@ router.post('/', async (req, res) => {
       if (conflito) {
         return res.status(409).json({
           codigo: 'CONFLITO_HORARIO',
-          erro: 'O horário escolhido se sobrepõe a outro agendamento.',
+          erro:
+            'O horário escolhido se sobrepõe a outro agendamento.',
           conflito
         });
       }
     }
 
+    /*
+     * O banco define o status padrão do novo agendamento.
+     * Se o cliente enviar um status, normalizamos antes de salvar.
+     */
+    const statusInicial =
+      body.status !== undefined &&
+      body.status !== null &&
+      body.status !== ''
+        ? normalizarStatusAgendamento(body.status)
+        : null;
+
+    const colunas = [
+      'empresa_id',
+      'cliente_id',
+      'cliente',
+      'telefone',
+      'veiculo',
+      'placa',
+      'servico_id',
+      'data',
+      'hora',
+      'valor',
+      'observacoes'
+    ];
+
+    const valores = [
+      empresaId,
+      clienteResolvido.cliente_id,
+      clienteResolvido.cliente,
+      clienteResolvido.telefone,
+      normalizarTexto(veiculo),
+      normalizarTexto(placa),
+      servico.id,
+      data,
+      hora,
+      valorFinal,
+      normalizarTexto(observacoes)
+    ];
+
+    if (statusInicial !== null) {
+      colunas.push('status');
+      valores.push(statusInicial);
+    }
+
+    const placeholders = valores
+      .map((_, indice) => `$${indice + 1}`)
+      .join(', ');
+
     const resultado = await pool.query(
       `
         INSERT INTO agendamentos (
-          empresa_id,
-          cliente_id,
-          cliente,
-          telefone,
-          veiculo,
-          placa,
-          servico_id,
-          data,
-          hora,
-          valor,
-          observacoes
+          ${colunas.join(', ')}
         )
         VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+          ${placeholders}
         )
         RETURNING *
       `,
-      [
-        empresaId,
-        clienteResolvido.cliente_id,
-        clienteResolvido.cliente,
-        clienteResolvido.telefone,
-        normalizarTexto(veiculo),
-        normalizarTexto(placa),
-        servico.id,
-        data,
-        hora,
-        valorFinal,
-        normalizarTexto(observacoes)
-      ]
+      valores
     );
 
     const agendamento = resultado.rows[0];
@@ -567,7 +655,8 @@ router.post('/', async (req, res) => {
         empresaId,
         tipo: 'agendamento',
         titulo: 'Novo agendamento',
-        mensagem: `Agendamento criado para ${agendamento.cliente}.`,
+        mensagem:
+          `Agendamento criado para ${agendamento.cliente}.`,
         link: '/agenda'
       });
     } catch (erroNotificacao) {
@@ -579,16 +668,8 @@ router.post('/', async (req, res) => {
 
     return res.status(201).json(agendamento);
   } catch (erro) {
-    if (
-      erro.message === 'Cliente inválido.' ||
-      erro.message === 'Cliente não encontrado.' ||
-      erro.message === 'Informe o nome do cliente.' ||
-      erro.message === 'Serviço inválido.' ||
-      erro.message === 'Serviço não encontrado ou inativo.'
-    ) {
-      return res.status(400).json({
-        erro: erro.message
-      });
+    if (tratarErroValidacao(res, erro)) {
+      return;
     }
 
     console.error('Erro ao criar agendamento:', erro);
@@ -643,7 +724,8 @@ router.patch('/:id', async (req, res) => {
 
     const novaData = body.data ?? atual.data;
     const novaHora = body.hora ?? atual.hora;
-    const novoServicoId = body.servico_id ?? atual.servico_id;
+    const novoServicoId =
+      body.servico_id ?? atual.servico_id;
 
     if (!validarData(String(novaData).slice(0, 10))) {
       return res.status(400).json({
@@ -683,7 +765,7 @@ router.patch('/:id', async (req, res) => {
     );
 
     /*
-     * Verifica conflito sempre que data, hora ou serviço mudar.
+     * Verifica conflitos quando data, hora ou serviço mudar.
      * O próprio agendamento é excluído da busca.
      */
     const alterouAgenda =
@@ -713,7 +795,8 @@ router.patch('/:id', async (req, res) => {
       if (conflito) {
         return res.status(409).json({
           codigo: 'CONFLITO_HORARIO',
-          erro: 'O horário escolhido se sobrepõe a outro agendamento.',
+          erro:
+            'O horário escolhido se sobrepõe a outro agendamento.',
           conflito
         });
       }
@@ -744,11 +827,30 @@ router.patch('/:id', async (req, res) => {
       ? validarValor(body.valor)
       : Number(atual.valor);
 
-    if (valorFinal === null || !Number.isFinite(valorFinal)) {
+    if (
+      valorFinal === null ||
+      !Number.isFinite(valorFinal)
+    ) {
       return res.status(400).json({
         erro: 'Valor inválido.'
       });
     }
+
+    /*
+     * Normaliza o status antes do UPDATE.
+     *
+     * Exemplo:
+     * confirmado -> agendado
+     *
+     * Assim, nenhum UPDATE envia "confirmado"
+     * para a restrição agendamentos_status_check.
+     */
+    const statusFinal =
+      body.status !== undefined &&
+      body.status !== null &&
+      body.status !== ''
+        ? normalizarStatusAgendamento(body.status)
+        : atual.status;
 
     const campos = {
       cliente_id: clienteResolvido.cliente_id,
@@ -761,7 +863,7 @@ router.patch('/:id', async (req, res) => {
       hora: String(novaHora).slice(0, 8),
       valor: valorFinal,
       observacoes: body.observacoes ?? atual.observacoes,
-      status: body.status ?? atual.status,
+      status: statusFinal,
       status_pagamento:
         body.status_pagamento ?? atual.status_pagamento,
       forma_pagamento:
@@ -784,23 +886,26 @@ router.patch('/:id', async (req, res) => {
       'forma_pagamento'
     ];
 
+    const camposSempreAtualizados = [
+      'cliente_id',
+      'cliente',
+      'telefone',
+      'servico_id',
+      'data',
+      'hora',
+      'valor'
+    ];
+
     const atribuicoes = [];
     const parametros = [];
 
     for (const coluna of colunasPermitidas) {
       if (
         body[coluna] !== undefined ||
-        [
-          'cliente_id',
-          'cliente',
-          'telefone',
-          'servico_id',
-          'data',
-          'hora',
-          'valor'
-        ].includes(coluna)
+        camposSempreAtualizados.includes(coluna)
       ) {
         parametros.push(campos[coluna]);
+
         atribuicoes.push(
           `${coluna} = $${parametros.length}`
         );
@@ -824,18 +929,16 @@ router.patch('/:id', async (req, res) => {
       parametros
     );
 
+    if (!resultado.rows.length) {
+      return res.status(404).json({
+        erro: 'Agendamento não encontrado.'
+      });
+    }
+
     return res.json(resultado.rows[0]);
   } catch (erro) {
-    if (
-      erro.message === 'Cliente inválido.' ||
-      erro.message === 'Cliente não encontrado.' ||
-      erro.message === 'Informe o nome do cliente.' ||
-      erro.message === 'Serviço inválido.' ||
-      erro.message === 'Serviço não encontrado ou inativo.'
-    ) {
-      return res.status(400).json({
-        erro: erro.message
-      });
+    if (tratarErroValidacao(res, erro)) {
+      return;
     }
 
     console.error('Erro ao atualizar agendamento:', erro);
