@@ -82,6 +82,10 @@ class ApiClient {
         return http
             .post(uri, headers: headers, body: encodedBody)
             .timeout(_timeout);
+      case 'PUT':
+        return http
+            .put(uri, headers: headers, body: encodedBody)
+            .timeout(_timeout);
       case 'PATCH':
         return http
             .patch(uri, headers: headers, body: encodedBody)
@@ -139,6 +143,20 @@ class ApiClient {
   }) async {
     final response = await _send(
       method: 'POST',
+      path: path,
+      body: payload,
+      authenticated: authenticated,
+    );
+    return _parseResponse(response);
+  }
+
+  static Future<Map<String, dynamic>> put(
+    String path,
+    Map<String, dynamic> payload, {
+    bool authenticated = true,
+  }) async {
+    final response = await _send(
+      method: 'PUT',
       path: path,
       body: payload,
       authenticated: authenticated,
