@@ -4,6 +4,9 @@ import '../../core/network/api_client.dart';
 import '../auth/auth_service.dart';
 import '../auth/login_page.dart';
 import '../agenda/agenda_page.dart';
+import '../clientes/clientes_page.dart';
+import '../financeiro/financeiro_page.dart';
+import '../servicos/servicos_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -210,31 +213,50 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-void _mostrarModulo(String nome) {
-  if (nome == 'Agenda') {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const AgendaPage(),
-      ),
+  // ============================================================
+  // NAVEGAÇÃO ENTRE MÓDULOS
+  // ============================================================
+
+  Future<void> _abrirPagina(Widget pagina) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => pagina),
     );
-    return;
+
+    // Ao voltar, atualiza os números do painel.
+    if (mounted) _carregarDashboard();
   }
 
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(
-          'O módulo $nome será conectado na próxima etapa.',
+  void _mostrarModulo(String nome) {
+    switch (nome) {
+      case 'Agenda':
+        _abrirPagina(const AgendaPage());
+        return;
+      case 'Clientes':
+        _abrirPagina(const ClientesPage());
+        return;
+      case 'Serviços':
+        _abrirPagina(const ServicosPage());
+        return;
+      case 'Financeiro':
+        _abrirPagina(const FinanceiroPage());
+        return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            'O módulo $nome será conectado na próxima etapa.',
+          ),
+          backgroundColor: _surface2,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
-        backgroundColor: _surface2,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
-    );
-}
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
