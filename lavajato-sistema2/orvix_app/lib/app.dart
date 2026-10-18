@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'core/network/api_client.dart';
@@ -7,6 +6,7 @@ import 'features/auth/auth_service.dart';
 import 'features/auth/login_page.dart';
 import 'features/dashboard/dashboard_page.dart';
 import 'features/subscription/planos_page.dart';
+import 'notification_service.dart';
 
 class OrvixApp extends StatefulWidget {
   const OrvixApp({super.key});
@@ -19,10 +19,42 @@ class _OrvixAppState extends State<OrvixApp> {
   final OrvixThemeController _theme =
       OrvixThemeController.instance;
 
+  final GlobalKey<NavigatorState> _navKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
     _theme.load();
+
+    NotificationService.pendingRoute.addListener(_onPushTap);
+
+    // Se o app foi aberto por uma notificação, a rota já pode estar pendente.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onPushTap());
+  }
+
+  @override
+  void dispose() {
+    NotificationService.pendingRoute.removeListener(_onPushTap);
+    super.dispose();
+  }
+
+  /// Chamado quando o usuário toca numa notificação.
+  void _onPushTap() {
+    final route = NotificationService.pendingRoute.value;
+    if (route == null) return;
+
+    NotificationService.pendingRoute.value = null;
+
+    // Volta para a tela inicial do app (dashboard, se houver sessão ativa).
+    _navKey.currentState?.popUntil((r) => r.isFirst);
+
+    // Quando você tiver telas específicas, decida aqui pela rota recebida
+    // no push. Exemplo:
+    //   if (route == '/agenda') {
+    //     _navKey.currentState?.push(
+    //       MaterialPageRoute(builder: (_) => const AgendaPage()),
+    //     );
+    //   }
   }
 
   @override
@@ -33,6 +65,7 @@ class _OrvixAppState extends State<OrvixApp> {
       animation: _theme,
       builder: (context, _) {
         return MaterialApp(
+          navigatorKey: _navKey,
           title: 'Orvix',
           debugShowCheckedModeBanner: false,
           themeMode: _theme.themeMode,
