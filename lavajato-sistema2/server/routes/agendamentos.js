@@ -1,9 +1,9 @@
-
 const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
 const verificarAssinatura = require('../middleware/assinatura');
 const { criarNotificacao } = require('../services/notificacoes');
+const { enviarPushParaEmpresa } = require('../services/push');
 
 const router = express.Router();
 
@@ -663,6 +663,28 @@ router.post('/', async (req, res) => {
       console.error(
         'Erro ao criar notificação do agendamento:',
         erroNotificacao
+      );
+    }
+
+    // ----------------------------------------------------------
+    // PUSH NO CELULAR
+    // ----------------------------------------------------------
+    // O await é proposital: na Vercel a função pode ser encerrada
+    // logo depois da resposta. Se o push falhar, o agendamento já
+    // foi salvo e a resposta segue normalmente.
+    try {
+      await enviarPushParaEmpresa({
+        empresaId,
+        title: 'Novo agendamento',
+        body: `Agendamento criado para ${agendamento.cliente}.`,
+        route: '/agenda'
+        // Descomente para não avisar quem cadastrou:
+        // excluirUsuarioId: req.usuario?.id
+      });
+    } catch (erroPush) {
+      console.error(
+        'Erro ao enviar push do agendamento:',
+        erroPush
       );
     }
 

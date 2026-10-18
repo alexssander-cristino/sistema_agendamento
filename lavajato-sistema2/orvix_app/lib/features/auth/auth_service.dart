@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:orvix_app/core/push/push_registration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/push/push_registration.dart';
 
 class AuthService {
   static const String _usuarioKey = 'orvix_usuario';
@@ -26,6 +29,9 @@ class AuthService {
     );
 
     await _salvarSessao(data);
+
+    // Registra este aparelho para receber notificações push.
+    unawaited(PushRegistration.registrar());
 
     return data;
   }
@@ -58,6 +64,9 @@ class AuthService {
     );
 
     await _salvarSessao(data);
+
+    // Registra este aparelho para receber notificações push.
+    unawaited(PushRegistration.registrar());
 
     return data;
   }
@@ -144,6 +153,9 @@ class AuthService {
         await prefs.remove(_empresaKey);
       }
 
+      // Sessão restaurada: garante que o aparelho continua registrado.
+      unawaited(PushRegistration.registrar());
+
       return true;
     } on ApiException catch (e) {
       if (e.statusCode == 401 ||
@@ -214,6 +226,10 @@ class AuthService {
   // ============================================================
 
   static Future<void> logout() async {
+    // Remove este aparelho da lista de push ANTES de limpar o token de login,
+    // porque a API precisa saber quem está pedindo a remoção.
+    await PushRegistration.remover();
+
     try {
       // Tenta encerrar a sessão no backend.
       await ApiClient.post('/auth/logout', {});

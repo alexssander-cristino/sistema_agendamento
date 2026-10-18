@@ -111,6 +111,8 @@ const notificacoesRouter =
   const listaEsperaRouter =
   require('./routes/listaEspera');
 
+  const dispositivosRoutes = require('./routes/dispositivos');
+
 // ============================================================
 // APP
 // ============================================================
@@ -384,6 +386,8 @@ app.use(
   '/api/lista-espera',
   listaEsperaRouter
 );
+
+app.use('/api/dispositivos', dispositivosRoutes);
 
 
 // ============================================================
