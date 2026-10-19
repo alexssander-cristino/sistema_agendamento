@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
-        android:label="orvix_app"
+        android:label="Orvix One"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
@@ -34,7 +34,8 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="orvix_default" />
+            android:value="orvix_default"
+            android:resource="@drawable/ic_notification" />
     </application>
 
     <queries>

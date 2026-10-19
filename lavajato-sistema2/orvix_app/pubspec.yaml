@@ -30,9 +30,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/orvix_icon.png"
+  image_path: "assets/icon/orvix_icon.jpeg"
   adaptive_icon_background: "#B39DDB"
-  adaptive_icon_foreground: "assets/icon/orvix_icon.png"
+  adaptive_icon_foreground: "assets/icon/orvix_icon.jpeg"
 
 flutter:
   uses-material-design: true
