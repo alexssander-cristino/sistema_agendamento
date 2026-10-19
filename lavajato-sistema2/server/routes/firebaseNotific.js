@@ -1,194 +1,57 @@
-
 'use strict';
 
 const express = require('express');
 const pool = require('../db');
 const autenticar = require('../middleware/auth');
-
-const {
-  enviarParaDesenvolvedores
-} = require('../services/firebaseNotific');
-
+const { enviarParaDesenvolvedores } = require('../services/firebaseNotific');
 const router = express.Router();
 
-// Identifica a versão publicada durante os testes.
-const PUSH_VERSION = 'push-debug-2026-10-09-v3';
-
-// ============================================================
-// IDENTIFICAÇÃO DA VERSÃO
-// ============================================================
-
-router.use((req, res, next) => {
-  res.setHeader('X-Orvix-Push-Version', PUSH_VERSION);
-  next();
-});
-
-// ============================================================
-// AUTENTICAÇÃO
-// ============================================================
-
+router.use((req, res, next) => { res.setHeader('X-Orvix-Push-Version', 'unified-push-2026-10'); next(); });
 router.use(autenticar);
 
-// ============================================================
-// PERMISSÃO DE DESENVOLVEDOR
-// ============================================================
-
 function exigirDesenvolvedor(req, res, next) {
-  if (req.usuario?.perfil !== 'dev') {
-    return res.status(403).json({
-      sucesso: false,
-      erro: 'Acesso permitido somente ao desenvolvedor.'
-    });
-  }
-
-  next();
+  if (req.usuario?.perfil !== 'dev') return res.status(403).json({ sucesso: false, erro: 'Acesso permitido somente ao desenvolvedor.' });
+  return next();
 }
-
-// ============================================================
-// REGISTRAR TOKEN DO DISPOSITIVO
-// POST /api/firebase-notific/token
-// ============================================================
 
 router.post('/token', async (req, res) => {
   try {
     const token = String(req.body?.token || '').trim();
-
-    if (!token) {
-      return res.status(400).json({
-        sucesso: false,
-        erro: 'O token do dispositivo é obrigatório.'
-      });
-    }
-
-    if (token.length > 8192) {
-      return res.status(400).json({
-        sucesso: false,
-        erro: 'O token informado é inválido.'
-      });
-    }
-
     const usuarioId = req.usuario?.id;
-
-    if (!usuarioId) {
-      return res.status(401).json({
-        sucesso: false,
-        erro: 'Não foi possível identificar o usuário autenticado.'
-      });
-    }
-
+    if (!token || token.length > 8192) return res.status(400).json({ sucesso: false, erro: 'Token ausente ou inválido.' });
+    if (!usuarioId) return res.status(401).json({ sucesso: false, erro: 'Usuário não identificado.' });
     await pool.query(
-      `INSERT INTO notificacoes_tokens
-         (usuario_id, token, ativo)
+      `INSERT INTO public.notificacoes_tokens (usuario_id, token, ativo)
        VALUES ($1, $2, TRUE)
-       ON CONFLICT (token)
-       DO UPDATE SET
-         usuario_id = EXCLUDED.usuario_id,
-         ativo = TRUE`,
+       ON CONFLICT (token) DO UPDATE SET usuario_id = EXCLUDED.usuario_id, ativo = TRUE`,
       [usuarioId, token]
     );
-
-    return res.status(200).json({
-      sucesso: true,
-      mensagem: 'Token registrado com sucesso.'
-    });
+    return res.json({ sucesso: true, mensagem: 'Token registrado.' });
   } catch (erro) {
-    console.error('[ORVIX PUSH] Erro ao registrar token:', {
-      codigo: erro?.code || null,
-      mensagem: String(erro?.message || 'Erro desconhecido').slice(0, 250)
-    });
-
-    return res.status(500).json({
-      sucesso: false,
-      erro: 'Não foi possível registrar o token do dispositivo.'
-    });
+    console.error('[ORVIX PUSH] Registro web falhou:', erro.code || '', erro.message);
+    return res.status(500).json({ sucesso: false, erro: 'Não foi possível registrar o token web.' });
   }
 });
-
-// ============================================================
-// REMOVER / DESATIVAR TOKEN DO DISPOSITIVO
-// DELETE /api/firebase-notific/token
-// ============================================================
 
 router.delete('/token', async (req, res) => {
   try {
     const token = String(req.body?.token || '').trim();
-    const usuarioId = req.usuario?.id;
-
-    if (!token) {
-      return res.status(400).json({
-        sucesso: false,
-        erro: 'O token do dispositivo é obrigatório.'
-      });
-    }
-
-    if (!usuarioId) {
-      return res.status(401).json({
-        sucesso: false,
-        erro: 'Não foi possível identificar o usuário autenticado.'
-      });
-    }
-
-    await pool.query(
-      `UPDATE notificacoes_tokens
-       SET ativo = FALSE
-       WHERE token = $1
-         AND usuario_id = $2`,
-      [token, usuarioId]
-    );
-
-    return res.status(200).json({
-      sucesso: true,
-      mensagem: 'Token desativado com sucesso.'
-    });
+    if (!token) return res.status(400).json({ sucesso: false, erro: 'Token ausente.' });
+    await pool.query('UPDATE public.notificacoes_tokens SET ativo = FALSE WHERE token = $1 AND usuario_id = $2', [token, req.usuario.id]);
+    return res.json({ sucesso: true });
   } catch (erro) {
-    console.error('[ORVIX PUSH] Erro ao remover token:', {
-      codigo: erro?.code || null,
-      mensagem: String(erro?.message || 'Erro desconhecido').slice(0, 250)
-    });
-
-    return res.status(500).json({
-      sucesso: false,
-      erro: 'Não foi possível desativar o token do dispositivo.'
-    });
+    console.error('[ORVIX PUSH] Remoção web falhou:', erro.message);
+    return res.status(500).json({ sucesso: false, erro: 'Não foi possível desativar o token.' });
   }
 });
-
-// ============================================================
-// TESTAR NOTIFICAÇÕES
-// POST /api/firebase-notific/teste
-// ============================================================
 
 router.post('/teste', exigirDesenvolvedor, async (req, res) => {
   try {
     const resultado = await enviarParaDesenvolvedores();
-
-    return res.status(200).json({
-      sucesso: true,
-      mensagem: 'Teste de notificação concluído.',
-      resultado
-    });
+    return res.status(resultado.sucesso ? 200 : 503).json({ sucesso: resultado.sucesso, mensagem: 'Resultado do teste push.', resultado });
   } catch (erro) {
-    const causa = erro?.causaOriginal || erro;
-
-    const diagnostico = String(
-      causa?.message ||
-      erro?.message ||
-      erro?.codigoDiagnostico ||
-      erro?.code ||
-      'ERRO_DESCONHECIDO'
-    ).slice(0, 300);
-
-    console.error('[ORVIX PUSH] Falha no teste:', {
-      diagnostico: erro?.codigoDiagnostico || null,
-      codigo: causa?.code || null,
-      mensagem: diagnostico
-    });
-
-    return res.status(500).json({
-      sucesso: false,
-      erro: 'Não foi possível enviar a notificação.',
-      diagnostico
-    });
+    console.error('[ORVIX PUSH] Teste falhou:', erro.codigoDiagnostico || erro.code || '', erro.message);
+    return res.status(500).json({ sucesso: false, erro: 'Não foi possível enviar a notificação.', diagnostico: erro.codigoDiagnostico || erro.code || 'ERRO_PUSH' });
   }
 });
 
