@@ -2,130 +2,118 @@
   'use strict';
 
   const firebaseConfig = {
-  apiKey: "AIzaSyAudiu_ENQbQjElInkvbKkGqAzwTuzekBA",
-  authDomain: "orvix-notificacoes.firebaseapp.com",
-  projectId: "orvix-notificacoes",
-  storageBucket: "orvix-notificacoes.firebasestorage.app",
-  messagingSenderId: "454025108283",
-  appId: "1:454025108283:web:6755e120e86e4c2b7f751e"
+    apiKey: 'AIzaSyAudiu_ENQbQjElInkvbKkGqAzwTuzekBA',
+    authDomain: 'orvix-notificacoes.firebaseapp.com',
+    projectId: 'orvix-notificacoes',
+    storageBucket: 'orvix-notificacoes.firebasestorage.app',
+    messagingSenderId: '454025108283',
+    appId: '1:454025108283:web:6755e120e86e4c2b7f751e'
   };
-
   const VAPID_KEY = 'BN95juUQcL75Pl9GMQuPBAfU9-cGaqocFgfyjaora9KqhHkkuWxKNoyudVHHzll-Y5wUrzZ4ZGJI2ZAmgqfgXOw';
-
   let messaging = null;
+  let serviceWorkerRegistration = null;
 
-  function inicializarFirebase() {
-    if (!window.firebase) {
-      throw new Error('SDK do Firebase não foi carregado.');
-    }
-
-    const app = firebase.apps.length
-      ? firebase.app()
-      : firebase.initializeApp(firebaseConfig);
-
+  function iniciarFirebase() {
+    if (!window.firebase) throw new Error('Bibliotecas Firebase não foram carregadas.');
+    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
     messaging = firebase.messaging(app);
   }
 
   async function ativarNotificacoes() {
-    try {
-      if (!('serviceWorker' in navigator)) {
-        throw new Error('Este navegador não oferece suporte a Service Workers.');
-      }
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+      throw new Error('Este navegador não oferece suporte a notificações push.');
+    }
+    if (!window.isSecureContext) throw new Error('As notificações exigem HTTPS.');
+    if (!messaging) iniciarFirebase();
 
-      if (!('Notification' in window)) {
-        throw new Error('Este navegador não oferece suporte a notificações.');
-      }
+    const permissao = await Notification.requestPermission();
+    if (permissao !== 'granted') throw new Error('Permissão de notificações não concedida.');
 
-      if (!window.isSecureContext) {
-        throw new Error('As notificações exigem HTTPS ou localhost.');
-      }
+    serviceWorkerRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    await navigator.serviceWorker.ready;
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration });
+    if (!token) throw new Error('O Firebase não retornou um token para este navegador.');
 
-      if (!messaging) {
-        inicializarFirebase();
-      }
+    const resposta = await fetch('/api/firebase-notific/token', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+    const dados = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) {
+      if (resposta.status === 401) throw new Error('Entre na sua conta do Orvix e tente ativar novamente.');
+      throw new Error(dados.erro || 'Não foi possível registrar este navegador no Orvix.');
+    }
+    return { sucesso: true, mensagem: 'Notificações ativadas neste navegador.' };
+  }
 
-      const permissao = await Notification.requestPermission();
-
-      if (permissao !== 'granted') {
-        throw new Error('A permissão para notificações não foi concedida.');
-      }
-
-      const registro = await navigator.serviceWorker.register(
-        '/firebase-messaging-sw.js'
-      );
-
-      await navigator.serviceWorker.ready;
-
-      const token = await messaging.getToken({
-        vapidKey: VAPID_KEY,
-        serviceWorkerRegistration: registro
-      });
-
-      if (!token) {
-        throw new Error('O Firebase não retornou um token para o dispositivo.');
-      }
-
-      const resposta = await fetch('/api/firebase-notific/token', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+  async function desativarNotificacoes() {
+    if (!messaging) iniciarFirebase();
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: serviceWorkerRegistration || undefined });
+    if (token) {
+      await fetch('/api/firebase-notific/token', {
+        method: 'DELETE', credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ token })
       });
-
-      const dados = await resposta.json().catch(() => ({}));
-
-      if (!resposta.ok) {
-        throw new Error(
-          dados.erro || 'Não foi possível registrar o dispositivo.'
-        );
-      }
-
-      console.log('[Orvix Push] Dispositivo registrado.');
-
-      return {
-        sucesso: true,
-        mensagem: 'Notificações ativadas neste dispositivo.'
-      };
-    } catch (erro) {
-      console.error('[Orvix Push]', erro);
-
-      throw erro;
+      await messaging.deleteToken();
     }
+    return { sucesso: true, mensagem: 'Notificações desativadas neste navegador.' };
   }
 
   function configurarRecebimento() {
-    if (!messaging) {
-      inicializarFirebase();
-    }
-
-    messaging.onMessage((payload) => {
-      const titulo = payload.notification?.title || 'Orvix';
-      const mensagem =
-        payload.notification?.body || 'Você recebeu uma notificação.';
-
-      console.log('[Orvix Push] Notificação recebida:', payload);
-
-      // O navegador pode não exibir notificações enquanto
-      // o aplicativo está aberto. Aqui usamos a API nativa.
+    if (!messaging) iniciarFirebase();
+    messaging.onMessage(function (payload) {
+      const titulo = payload.notification?.title || payload.data?.title || 'Orvix';
+      const corpo = payload.notification?.body || payload.data?.body || 'Você recebeu uma nova notificação.';
+      // Em primeiro plano o service worker não exibe automaticamente; mostramos apenas uma vez.
       if (Notification.permission === 'granted') {
-        new Notification(titulo, {
-          body: mensagem,
-          icon: '/favicon.ico'
-        });
+        try { new Notification(titulo, { body: corpo, icon: '/favicon.ico', tag: payload.data?.route || 'orvix-notification' }); }
+        catch (e) { console.warn('[Orvix Push] Não foi possível exibir a notificação em primeiro plano.', e); }
       }
     });
   }
 
-  try {
-    inicializarFirebase();
-    configurarRecebimento();
-  } catch (erro) {
-    console.error('[Orvix Push] Falha na inicialização:', erro.message);
+  function criarBotaoAtivacao() {
+    if (!document.body || document.getElementById('orvix-push-ativar')) return;
+    const botao = document.createElement('button');
+    botao.id = 'orvix-push-ativar';
+    botao.type = 'button';
+    botao.textContent = 'Ativar notificações';
+    botao.title = 'Receba alertas do Orvix neste navegador';
+    Object.assign(botao.style, {
+      position: 'fixed', right: '18px', bottom: '18px', zIndex: '9999',
+      border: '0', borderRadius: '12px', padding: '12px 16px',
+      background: '#6554c0', color: '#fff', fontWeight: '600',
+      fontSize: '13px', boxShadow: '0 6px 22px rgba(0,0,0,.18)', cursor: 'pointer'
+    });
+    botao.addEventListener('click', async function () {
+      const textoOriginal = botao.textContent;
+      botao.disabled = true;
+      botao.textContent = 'Ativando...';
+      try {
+        const resultado = await ativarNotificacoes();
+        botao.textContent = 'Notificações ativadas';
+        botao.title = resultado.mensagem;
+        window.setTimeout(() => { botao.remove(); }, 3500);
+      } catch (erro) {
+        botao.textContent = textoOriginal;
+        alert(erro.message || 'Não foi possível ativar as notificações.');
+      } finally {
+        botao.disabled = false;
+      }
+    });
+    document.body.appendChild(botao);
   }
 
-  window.OrvixFirebaseNotific = {
-    ativarNotificacoes
-  };
+  window.OrvixFirebaseNotific = { ativarNotificacoes, desativarNotificacoes };
+  try {
+    iniciarFirebase();
+    configurarRecebimento();
+  } catch (erro) {
+    console.error('[Orvix Push] Falha na inicialização:', erro.message || erro);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', criarBotaoAtivacao, { once: true });
+  else criarBotaoAtivacao();
 })();
