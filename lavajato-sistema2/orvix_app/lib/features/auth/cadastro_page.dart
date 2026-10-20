@@ -1,5 +1,6 @@
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/network/api_client.dart';
 import '../subscription/planos_page.dart';
@@ -29,7 +30,19 @@ class _CadastroPageState extends State<CadastroPage> {
   bool _mostrarConfirmacao = false;
   bool _carregando = false;
 
+  // Aceite dos termos
+  bool _aceitouTermos = false;
+  bool _erroTermos = false;
+
   String? _erro;
+
+  // TROQUE pelas URLs reais dos seus documentos.
+  static const String _urlTermos = 'https://orvix.com.br/termos-de-uso';
+  static const String _urlPrivacidade =
+      'https://orvix.com.br/politica-de-privacidade';
+
+  late final TapGestureRecognizer _termosTap;
+  late final TapGestureRecognizer _privacidadeTap;
 
   static const Color _fundo = Color(0xFF090D19);
   static const Color _painel = Color(0xFF11182A);
@@ -129,7 +142,20 @@ class _CadastroPageState extends State<CadastroPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    _termosTap = TapGestureRecognizer()
+      ..onTap = () => _abrirLink'https://sistemaagendamento-lavajato-sistema.vercel.app/termos.html';
+
+    _privacidadeTap = TapGestureRecognizer()
+      ..onTap = () => _abrirLink'https://sistemaagendamento-lavajato-sistema.vercel.app/politica-de-privacidade.html';
+  }
+
+  @override
   void dispose() {
+    _termosTap.dispose();
+    _privacidadeTap.dispose();
     _empresaController.dispose();
     _emailEmpresaController.dispose();
     _telefoneController.dispose();
@@ -141,6 +167,31 @@ class _CadastroPageState extends State<CadastroPage> {
   }
 
   // ============================================================
+  // LINKS DOS DOCUMENTOS
+  // ============================================================
+
+  Future<void> _abrirLink(String url) async {
+    bool ok = false;
+
+    try {
+      ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {
+      ok = false;
+    }
+
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível abrir o link.'),
+        ),
+      );
+    }
+  }
+
+  // ============================================================
   // CADASTRO
   // ============================================================
 
@@ -149,7 +200,13 @@ class _CadastroPageState extends State<CadastroPage> {
 
     if (_carregando) return;
 
-    if (!_formKey.currentState!.validate()) {
+    final formValido = _formKey.currentState!.validate();
+
+    if (!_aceitouTermos) {
+      setState(() => _erroTermos = true);
+    }
+
+    if (!formValido || !_aceitouTermos) {
       return;
     }
 
@@ -459,6 +516,113 @@ class _CadastroPageState extends State<CadastroPage> {
   }
 
   // ============================================================
+  // CHECKBOX DE TERMOS E PRIVACIDADE
+  // ============================================================
+
+  void _alternarTermos() {
+    if (_carregando) return;
+
+    setState(() {
+      _aceitouTermos = !_aceitouTermos;
+      if (_aceitouTermos) _erroTermos = false;
+      _erro = null;
+    });
+  }
+
+  Widget _campoTermos() {
+    const estiloLink = TextStyle(
+      color: _ciano,
+      fontWeight: FontWeight.w700,
+      decoration: TextDecoration.underline,
+      decorationColor: _ciano,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Checkbox(
+                value: _aceitouTermos,
+                activeColor: _roxo,
+                checkColor: Colors.white,
+                side: BorderSide(
+                  color: _erroTermos
+                      ? const Color(0xFFF87171)
+                      : _textoSecundario,
+                  width: 1.5,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                onChanged: _carregando
+                    ? null
+                    : (valor) {
+                        setState(() {
+                          _aceitouTermos = valor ?? false;
+                          if (_aceitouTermos) _erroTermos = false;
+                          _erro = null;
+                        });
+                      },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _alternarTermos,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text.rich(
+                    TextSpan(
+                      style: const TextStyle(
+                        color: _textoSecundario,
+                        fontSize: 12,
+                        height: 1.6,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Li e aceito os '),
+                        TextSpan(
+                          text: 'Termos de Uso',
+                          recognizer: _termosTap,
+                          style: estiloLink,
+                        ),
+                        const TextSpan(text: ' e a '),
+                        TextSpan(
+                          text: 'Política de Privacidade',
+                          recognizer: _privacidadeTap,
+                          style: estiloLink,
+                        ),
+                        const TextSpan(text: ' do Orvix.'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (_erroTermos)
+          const Padding(
+            padding: EdgeInsets.only(top: 6, left: 34),
+            child: Text(
+              'Você precisa aceitar os termos para criar a conta.',
+              style: TextStyle(
+                color: Color(0xFFF87171),
+                fontSize: 11,
+                height: 1.5,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ============================================================
   // TÍTULO DAS SEÇÕES
   // ============================================================
 
@@ -761,6 +925,8 @@ class _CadastroPageState extends State<CadastroPage> {
               ),
             ),
           ),
+          const SizedBox(height: 22),
+          _campoTermos(),
           const SizedBox(height: 25),
           _mensagemErro(),
           if (_erro != null) const SizedBox(height: 17),
