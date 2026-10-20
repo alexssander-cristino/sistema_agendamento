@@ -1,2072 +1,716 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
-  
 <script>
 (() => {
   'use strict';
-
   let autorizado = false;
-
   try {
     const token = localStorage.getItem('lavajato_auth_token');
-
     if (token) {
       const partes = token.split('.');
-
       if (partes.length === 3) {
-        const payloadBase64 = partes[1]
-          .replace(/-/g, '+')
-          .replace(/_/g, '/');
-
-        const payload = JSON.parse(
-          decodeURIComponent(
-            atob(payloadBase64)
-              .split('')
-              .map(caractere =>
-                '%' +
-                caractere.charCodeAt(0)
-                  .toString(16)
-                  .padStart(2, '0')
-              )
-              .join('')
-          )
-        );
-
-        autorizado =
-          payload.perfil === 'administrador' &&
-          Boolean(payload.empresa_id) &&
-          typeof payload.exp === 'number' &&
-          payload.exp * 1000 > Date.now();
+        const b64 = partes[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(decodeURIComponent(
+          atob(b64).split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')
+        ));
+        autorizado = payload.perfil === 'administrador' && Boolean(payload.empresa_id) &&
+          typeof payload.exp === 'number' && payload.exp * 1000 > Date.now();
       }
     }
-  } catch (_) {
-    autorizado = false;
-  }
-
+  } catch (_) { autorizado = false; }
   window.__orvixAdminPermitido = autorizado;
-
-  document.documentElement.dataset.adminCheck =
-    autorizado ? 'ok' : 'bloqueado';
+  document.documentElement.dataset.adminCheck = autorizado ? 'ok' : 'bloqueado';
 })();
 </script>
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minha assinatura | Orvix</title>
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
-
-  <script src="https://sdk.mercadopago.com/js/v2"></script>
-
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --primary-light: #60a5fa;
-      --bg: #f4f7fb;
-      --bg-dark: #0b1220;
-      --card: rgba(255, 255, 255, .92);
-      --card-solid: #ffffff;
-      --text: #0f172a;
-      --text-soft: #334155;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --border-light: #eef2f7;
-      --success: #15803d;
-      --success-bg: #ecfdf3;
-      --danger: #dc2626;
-      --danger-bg: #fef2f2;
-      --shadow-sm: 0 4px 14px rgba(15, 23, 42, .05);
-      --shadow: 0 18px 50px rgba(15, 23, 42, .08);
-      --shadow-lg: 0 30px 80px rgba(15, 23, 42, .13);
-      --radius: 22px;
-    }
-
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, .13), transparent 32%),
-        radial-gradient(circle at 85% 15%, rgba(96, 165, 250, .10), transparent 28%),
-        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px);
-      background-size: 42px 42px;
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,.5), transparent 75%);
-      opacity: .35;
-      z-index: -1;
-    }
-
-    button, input, select { font: inherit; }
-    button { cursor: pointer; }
-    button, input, select { outline: none; }
-
-    .page { min-height: 100vh; padding: 34px 20px 70px; }
-
-    .container { width: 100%; max-width: 1080px; margin: 0 auto; }
-
-    /* HEADER */
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 30px;
-    }
-
-    .brand { display: flex; align-items: center; gap: 12px; }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      color: #fff;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      box-shadow: 0 10px 24px rgba(37, 99, 235, .28);
-      font-size: 20px;
-      font-weight: 900;
-    }
-
-    .brand-text strong {
-      display: block;
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: -.02em;
-    }
-
-    .brand-text span {
-      display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .secure-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 9px 13px;
-      border: 1px solid #dbeafe;
-      border-radius: 999px;
-      color: #1d4ed8;
-      background: rgba(239, 246, 255, .85);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .secure-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, .12);
-    }
-
-    /* HERO */
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      padding: 42px;
-      margin-bottom: 22px;
-      border: 1px solid rgba(255,255,255,.8);
-      border-radius: 28px;
-      color: #fff;
-      background: linear-gradient(135deg, #0f172a 0%, #172554 48%, #1d4ed8 100%);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      top: -150px;
-      right: -60px;
-      border-radius: 50%;
-      background: rgba(96, 165, 250, .18);
-      filter: blur(2px);
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 180px;
-      height: 180px;
-      bottom: -100px;
-      left: 30%;
-      border-radius: 50%;
-      background: rgba(255,255,255,.06);
-    }
-
-    .hero-content { position: relative; z-index: 2; max-width: 760px; }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 14px;
-      padding: 7px 11px;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 999px;
-      color: #bfdbfe;
-      background: rgba(255,255,255,.07);
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #60a5fa;
-      box-shadow: 0 0 0 5px rgba(96,165,250,.12);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(30px, 5vw, 46px);
-      line-height: 1.05;
-      letter-spacing: -.045em;
-    }
-
-    .hero-subtitle {
-      max-width: 680px;
-      margin: 15px 0 0;
-      color: #cbd5e1;
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    .hero-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-
-    .hero-point {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 11px;
-      border-radius: 10px;
-      color: #e2e8f0;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.08);
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .hero-point::before { content: "✓"; color: #60a5fa; font-weight: 900; }
-
-    /* ALERTAS */
-
-    .alert {
-      display: none;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 18px;
-      padding: 15px 17px;
-      border-radius: 15px;
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.5;
-      animation: alertIn .25s ease;
-    }
-
-    .alert.show { display: flex; }
-
-    .alert-icon {
-      flex: 0 0 30px;
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      font-weight: 900;
-    }
-
-    .alert-error {
-      color: #991b1b;
-      background: linear-gradient(135deg, #fff7f7, #fef2f2);
-      border: 1px solid #fecaca;
-    }
-
-    .alert-error .alert-icon { color: #b91c1c; background: #fee2e2; }
-
-    .alert-success {
-      color: #166534;
-      background: linear-gradient(135deg, #f4fff8, #ecfdf3);
-      border: 1px solid #bbf7d0;
-    }
-
-    .alert-success .alert-icon { color: #15803d; background: #dcfce7; }
-
-    @keyframes alertIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* CARD */
-
-    .card {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(226,232,240,.85);
-      border-radius: 24px;
-      background: rgba(255,255,255,.88);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 25px 28px;
-      border-bottom: 1px solid var(--border-light);
-      background: rgba(255,255,255,.72);
-    }
-
-    .card-heading { display: flex; align-items: center; gap: 14px; }
-
-    .card-icon {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      border-radius: 13px;
-      color: #2563eb;
-      background: #eff6ff;
-      border: 1px solid #dbeafe;
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    .card-title { margin: 0; font-size: 18px; letter-spacing: -.025em; }
-
-    .card-description { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-
-    .card-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 11px;
-      border-radius: 999px;
-      color: #166534;
-      background: #f0fdf4;
-      border: 1px solid #dcfce7;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .card-status::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #22c55e;
-    }
-
-    .body { padding: 28px; }
-
-    /* EMPRESA */
-
-    .company-info {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 30px;
-      padding: 17px 18px;
-      overflow: hidden;
-      border: 1px solid #dbeafe;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #f8fbff, #eff6ff);
-    }
-
-    .company-info::after {
-      content: "";
-      position: absolute;
-      width: 110px;
-      height: 110px;
-      right: -45px;
-      top: -50px;
-      border-radius: 50%;
-      background: rgba(37,99,235,.06);
-    }
-
-    .company-avatar {
-      width: 43px;
-      height: 43px;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      border-radius: 13px;
-      color: #fff;
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      box-shadow: 0 8px 18px rgba(37,99,235,.20);
-      font-size: 16px;
-      font-weight: 900;
-    }
-
-    .company-label {
-      margin-bottom: 3px;
-      color: #64748b;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .company-name { position: relative; z-index: 2; font-size: 15px; font-weight: 800; }
-
-    /* TÍTULOS */
-
-    .section-heading {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 16px;
-    }
-
-    .section-heading h3 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
-
-    .section-heading span { color: var(--muted); font-size: 12px; }
-
-    /* PLANOS */
-
-    .plans {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 18px;
-    }
-
-    .plan {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 310px;
-      padding: 24px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
-    }
-
-    .plan::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #2563eb, #60a5fa);
-      opacity: 0;
-      transition: opacity .25s ease;
-    }
-
-    .plan:hover {
-      transform: translateY(-5px);
-      border-color: #bfdbfe;
-      box-shadow: 0 20px 45px rgba(37,99,235,.11);
-    }
-
-    .plan:hover::before { opacity: 1; }
-
-    .plan-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-
-    .plan-badge {
-      display: inline-flex;
-      padding: 6px 9px;
-      border-radius: 8px;
-      color: #1d4ed8;
-      background: #eff6ff;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-    }
-
-    .plan-name { margin-top: 16px; font-size: 21px; font-weight: 850; letter-spacing: -.035em; }
-
-    .plan-description {
-      min-height: 48px;
-      margin-top: 9px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .plan-divider { height: 1px; margin: 18px 0; background: var(--border-light); }
-
-    .plan-price-label {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-    }
-
-    .plan-price { margin-top: 4px; font-size: 31px; font-weight: 900; letter-spacing: -.045em; }
-
-    .plan-price small { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
-
-    .plan-period { margin-top: 4px; color: var(--muted); font-size: 12px; }
-
-    .plan-button {
-      width: 100%;
-      min-height: 46px;
-      margin-top: auto;
-      padding: 0 16px;
-      border: 0;
-      border-radius: 12px;
-      color: #fff;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      box-shadow: 0 9px 20px rgba(37,99,235,.18);
-      font-size: 13px;
-      font-weight: 800;
-      transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
-    }
-
-    .plan-button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.04);
-      box-shadow: 0 13px 26px rgba(37,99,235,.25);
-    }
-
-    .plan-button:active { transform: translateY(0); }
-
-    /* PAGAMENTO */
-
-    .payment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-
-    .payment-header-icon {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      color: #2563eb;
-      background: #eff6ff;
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    .payment-header strong { font-size: 15px; }
-
-    .payment-header span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
-
-    .selected-plan {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 24px;
-      padding: 20px;
-      overflow: hidden;
-      border: 1px solid #bfdbfe;
-      border-radius: 17px;
-      background: linear-gradient(135deg, #eff6ff, #f8fbff);
-    }
-
-    .selected-plan::after {
-      content: "";
-      position: absolute;
-      width: 140px;
-      height: 140px;
-      right: -65px;
-      top: -65px;
-      border-radius: 50%;
-      background: rgba(37,99,235,.07);
-    }
-
-    .selected-label {
-      color: #64748b;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .selected-name { margin-top: 5px; font-size: 19px; font-weight: 900; letter-spacing: -.025em; }
-
-    .selected-period { margin-top: 4px; color: var(--muted); font-size: 12px; }
-
-    .selected-price {
-      position: relative;
-      z-index: 2;
-      font-size: 25px;
-      font-weight: 900;
-      letter-spacing: -.04em;
-      white-space: nowrap;
-    }
-
-    .selected-price small {
-      display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 600;
-      text-align: right;
-      letter-spacing: 0;
-    }
-
-    .form-shell {
-      padding: 22px;
-      border: 1px solid var(--border-light);
-      border-radius: 18px;
-      background: #fbfdff;
-    }
-
-    .form-group { margin-bottom: 18px; }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      color: #334155;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    input, select {
-      width: 100%;
-      min-height: 46px;
-      padding: 0 13px;
-      border: 1px solid #dbe2ea;
-      border-radius: 11px;
-      color: var(--text);
-      background: #fff;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-
-    input::placeholder { color: #94a3b8; }
-
-    input:hover, select:hover { border-color: #cbd5e1; }
-
-    input:focus, select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.09);
-    }
-
-    .mp-field {
-      min-height: 46px;
-      padding: 0 12px;
-      display: flex;
-      align-items: center;
-      border: 1px solid #dbe2ea;
-      border-radius: 11px;
-      background: #fff;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-
-    .mp-field:focus-within {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.09);
-    }
-
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-    .security-box {
-      display: flex;
-      align-items: flex-start;
-      gap: 11px;
-      margin-top: 18px;
-      padding: 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 13px;
-      background: #f8fafc;
-    }
-
-    .security-icon {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      border-radius: 9px;
-      color: #2563eb;
-      background: #eff6ff;
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .security-text { color: var(--muted); font-size: 11px; line-height: 1.6; }
-
-    .security-text strong { display: block; margin-bottom: 2px; color: #334155; font-size: 11px; }
-
-    .actions { display: flex; gap: 11px; margin-top: 23px; }
-
-    .btn {
-      min-height: 47px;
-      padding: 0 18px;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 800;
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-    }
-
-    .btn-primary {
-      flex: 1;
-      color: #fff;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      box-shadow: 0 10px 22px rgba(37,99,235,.18);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 28px rgba(37,99,235,.24);
-    }
-
-    .btn-secondary { color: #334155; background: #fff; border-color: #e2e8f0; }
-
-    .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
-
-    .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-
-    .mp-loading { margin-top: 10px; color: var(--muted); font-size: 11px; text-align: center; }
-
-    /* ASSINATURA EXISTENTE */
-
-    .subscription-state {
-      padding: 30px;
-      border: 1px solid #dcfce7;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #f7fff9, #ecfdf3);
-    }
-
-    .subscription-state-icon {
-      width: 54px;
-      height: 54px;
-      display: grid;
-      place-items: center;
-      margin-bottom: 18px;
-      border-radius: 16px;
-      color: #15803d;
-      background: #dcfce7;
-      font-size: 24px;
-      font-weight: 900;
-    }
-
-    .subscription-state h3 { margin: 0; font-size: 23px; letter-spacing: -.035em; }
-
-    .subscription-state p {
-      max-width: 650px;
-      margin: 8px 0 0;
-      color: #64748b;
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .subscription-details {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 22px;
-    }
-
-    .subscription-detail {
-      padding: 15px;
-      border: 1px solid #dcfce7;
-      border-radius: 13px;
-      background: rgba(255,255,255,.72);
-    }
-
-    .subscription-detail-label {
-      color: #64748b;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-    }
-
-    .subscription-detail-value { margin-top: 5px; color: #0f172a; font-size: 14px; font-weight: 800; }
-
-    .subscription-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      color: #166534;
-      background: #dcfce7;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    /* SUCESSO */
-
-    .success-state { padding: 42px 25px; text-align: center; }
-
-    .success-icon {
-      width: 76px;
-      height: 76px;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 20px;
-      border-radius: 24px;
-      color: #15803d;
-      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-      box-shadow: 0 16px 35px rgba(22,101,52,.12);
-      font-size: 35px;
-      font-weight: 900;
-      animation: successPop .4s ease;
-    }
-
-    @keyframes successPop {
-      from { opacity: 0; transform: scale(.75); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .success-state h3 { margin: 0; font-size: 25px; letter-spacing: -.04em; }
-
-    .success-state p {
-      max-width: 570px;
-      margin: 10px auto 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    .success-plan {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      margin-top: 20px;
-      padding: 9px 13px;
-      border: 1px solid #bbf7d0;
-      border-radius: 999px;
-      color: #166534;
-      background: #f0fdf4;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    /* LOADING / EMPTY */
-
-    .loading { padding: 45px 20px; text-align: center; color: var(--muted); font-size: 13px; }
-
-    .loading::before {
-      content: "";
-      display: block;
-      width: 28px;
-      height: 28px;
-      margin: 0 auto 12px;
-      border: 3px solid #dbeafe;
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .empty {
-      grid-column: 1 / -1;
-      padding: 42px 20px;
-      text-align: center;
-      color: var(--muted);
-      border: 1px dashed #cbd5e1;
-      border-radius: 16px;
-      background: rgba(248,250,252,.8);
-    }
-
-    .empty::before {
-      content: "—";
-      display: grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      margin: 0 auto 12px;
-      border-radius: 12px;
-      color: #64748b;
-      background: #e2e8f0;
-      font-weight: 900;
-    }
-
-    .hidden { display: none !important; }
-
-    /* RESPONSIVE */
-
-    @media (max-width: 760px) {
-      .page { padding: 18px 14px 45px; }
-      .topbar { margin-bottom: 18px; }
-      .secure-badge { display: none; }
-      .hero { padding: 29px 23px; border-radius: 22px; margin-bottom: 15px; }
-      .hero-subtitle { font-size: 13px; }
-      .hero-points { display: none; }
-      .card { border-radius: 20px; }
-      .card-header { padding: 20px; }
-      .body { padding: 20px; }
-      .card-status { display: none; }
-      .company-info { margin-bottom: 23px; }
-      .plans { grid-template-columns: 1fr; }
-      .plan { min-height: 285px; }
-      .selected-plan { align-items: flex-start; flex-direction: column; }
-      .selected-price { text-align: left; }
-      .selected-price small { text-align: left; }
-      .form-shell { padding: 16px; }
-      .subscription-details { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 560px) {
-      .brand-text span { display: none; }
-      .brand-icon { width: 40px; height: 40px; }
-      h1 { font-size: 31px; }
-      .grid { grid-template-columns: 1fr; gap: 0; }
-      .actions { flex-direction: column-reverse; }
-      .btn { width: 100%; }
-      .subscription-state { padding: 24px 18px; }
-      .success-state { padding: 35px 15px; }
-    }
-
-    /* AÇÕES DA ASSINATURA */
-
-    .subscription-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .subscription-actions button {
-      min-height: 44px;
-      padding: 12px 18px;
-      border: 0;
-      border-radius: 10px;
-      cursor: pointer;
-      font: inherit;
-      font-weight: 600;
-      transition: opacity 0.2s ease;
-    }
-
-    .subscription-actions button:disabled { opacity: 0.55; cursor: not-allowed; }
-
-    .btn-primary { background: #2563eb; color: #fff; }
-
-    .btn-danger { background: #dc2626; color: #fff; }
-
-    @media (max-width: 560px) {
-      .subscription-actions { flex-direction: column; }
-      .subscription-actions button { width: 100%; }
-    }
-
-    #subscription-action-message {
-      margin-top: 12px;
-      font-size: 14px;
-      white-space: pre-line;
-    }
-
-    #subscription-action-message.success { color: #15803d; }
-
-    #subscription-action-message.error { color: #dc2626; }
-
-    /* MODAL DE TROCA DE PLANO */
-
-    .modal-planos.hidden { display: none !important; }
-
-    .modal-planos {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-planos-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(10, 15, 30, 0.72);
-      backdrop-filter: blur(5px);
-    }
-
-    .modal-planos-conteudo {
-      position: relative;
-      z-index: 1;
-      width: min(760px, 100%);
-      max-height: min(85vh, 800px);
-      overflow-y: auto;
-      padding: 26px;
-      border: 1px solid var(--border, #e5e7eb);
-      border-radius: 20px;
-      background: var(--card-bg, #ffffff);
-      color: var(--text, #172033);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-    }
-
-    .modal-planos-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .modal-planos-header h2 { margin: 0 0 8px; font-size: 1.45rem; }
-
-    .modal-planos-header p { margin: 0; color: var(--muted, #64748b); line-height: 1.5; }
-
-    .modal-planos-fechar {
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      width: 38px;
-      height: 38px;
-      border: 1px solid var(--border, #e5e7eb);
-      border-radius: 10px;
-      background: transparent;
-      color: inherit;
-      font-size: 1.7rem;
-      cursor: pointer;
-    }
-
-    .lista-planos-troca {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-
-    .card-plano-troca {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px;
-      border: 1px solid var(--border, #e5e7eb);
-      border-radius: 16px;
-      background: var(--card-bg, #ffffff);
-      cursor: pointer;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
-
-    .card-plano-troca:hover {
-      transform: translateY(-2px);
-      border-color: var(--primary, #635bff);
-    }
-
-    .card-plano-troca.selecionado {
-      border: 2px solid var(--primary, #635bff);
-      padding: 19px;
-      box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.10);
-    }
-
-    .card-plano-troca.atual { opacity: 0.7; cursor: default; }
-
-    .card-plano-troca input[type="radio"] {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      accent-color: var(--primary, #635bff);
-      width: 18px;
-      height: 18px;
-      min-height: 0;
-      padding: 0;
-    }
-
-    .card-plano-troca-nome { padding-right: 26px; font-size: 1.1rem; font-weight: 700; }
-
-    .card-plano-troca-descricao {
-      min-height: 40px;
-      color: var(--muted, #64748b);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .card-plano-troca-preco { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.04em; }
-
-    .card-plano-troca-periodo { margin-top: -8px; color: var(--muted, #64748b); font-size: 0.85rem; }
-
-    .card-plano-troca-selo {
-      align-self: flex-start;
-      padding: 5px 9px;
-      border-radius: 20px;
-      background: var(--badge-bg, #f1f5f9);
-      color: var(--muted, #475569);
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .mensagem-modal-planos { margin-top: 16px; font-size: 0.9rem; line-height: 1.5; }
-
-    .mensagem-modal-planos:empty { display: none; }
-
-    .mensagem-modal-planos.erro { color: #dc2626; }
-
-    .mensagem-modal-planos.sucesso { color: #16a34a; }
-
-    .modal-planos-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 24px;
-      padding-top: 18px;
-      border-top: 1px solid var(--border, #e5e7eb);
-    }
-
-    .btn-modal-secundario, .btn-modal-principal {
-      min-height: 44px;
-      padding: 11px 18px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .btn-modal-secundario {
-      border: 1px solid var(--border, #e5e7eb);
-      background: transparent;
-      color: inherit;
-    }
-
-    .btn-modal-principal {
-      border: 0;
-      background: var(--primary, #635bff);
-      color: #ffffff;
-    }
-
-    .btn-modal-principal:disabled, .btn-modal-secundario:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    @media (max-width: 520px) {
-      .modal-planos { padding: 10px; }
-      .modal-planos-conteudo { padding: 18px; max-height: 92vh; border-radius: 16px; }
-      .lista-planos-troca { grid-template-columns: 1fr; }
-      .modal-planos-footer { flex-direction: column-reverse; }
-      .btn-modal-secundario, .btn-modal-principal { width: 100%; }
-    }
-
-    
-html[data-admin-check="bloqueado"] body {
-  visibility: hidden;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha assinatura | Orvix</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<style>
+:root{--primary:#2563eb;--primary-dark:#1d4ed8;--text:#0f172a;--text-soft:#334155;--muted:#64748b;--border:#e2e8f0;--border-light:#eef2f7;--shadow:0 18px 50px rgba(15,23,42,.08);--shadow-lg:0 30px 80px rgba(15,23,42,.13)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(37,99,235,.13),transparent 32%),radial-gradient(circle at 85% 15%,rgba(96,165,250,.10),transparent 28%),linear-gradient(180deg,#f8fafc,#f1f5f9)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.35) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 75%);opacity:.35;z-index:-1}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid rgba(37,99,235,.45);outline-offset:2px}
+input:focus-visible,select:focus-visible{outline:none}
+[hidden]{display:none!important}
+.hidden{display:none!important}
+.page{min-height:100vh;padding:34px 20px 70px}
+.container{width:100%;max-width:1080px;margin:0 auto}
+
+/* topo */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:30px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 10px 24px rgba(37,99,235,.28);font-size:20px;font-weight:900}
+.brand-text strong{display:block;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.brand-text span{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.back-link{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid var(--border);border-radius:999px;color:var(--text-soft);background:rgba(255,255,255,.8);font-size:13px;font-weight:700;text-decoration:none}
+.back-link:hover{border-color:#bfdbfe;color:var(--primary)}
+.secure-badge{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border:1px solid #dbeafe;border-radius:999px;color:#1d4ed8;background:rgba(239,246,255,.85);font-size:12px;font-weight:700}
+.secure-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:42px;margin-bottom:22px;border:1px solid rgba(255,255,255,.8);border-radius:28px;color:#fff;background:linear-gradient(135deg,#0f172a,#172554 48%,#1d4ed8);box-shadow:var(--shadow-lg);transition:padding .25s ease}
+.hero::before{content:"";position:absolute;width:300px;height:300px;top:-150px;right:-60px;border-radius:50%;background:rgba(96,165,250,.18)}
+.hero::after{content:"";position:absolute;width:180px;height:180px;bottom:-100px;left:30%;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero.compact{padding:30px 34px}
+.hero.compact .hero-points{display:none}
+.hero-content{position:relative;z-index:2;max-width:760px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:7px 11px;border:1px solid rgba(255,255,255,.16);border-radius:999px;color:#bfdbfe;background:rgba(255,255,255,.07);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:#60a5fa;box-shadow:0 0 0 5px rgba(96,165,250,.12)}
+h1{margin:0;font-size:clamp(30px,5vw,46px);line-height:1.05;letter-spacing:-.045em}
+.hero-subtitle{max-width:680px;margin:15px 0 0;color:#cbd5e1;font-size:15px;line-height:1.7}
+.hero-points{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.hero-point{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:10px;color:#e2e8f0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600}
+.hero-point::before{content:"✓";color:#60a5fa;font-weight:900}
+
+/* alertas */
+.alert{display:none;align-items:flex-start;gap:12px;margin-bottom:18px;padding:15px 17px;border-radius:15px;font-size:13px;font-weight:600;line-height:1.5;animation:alertIn .25s ease}
+.alert.show{display:flex}
+.alert-icon{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border-radius:9px;font-weight:900}
+.alert-error{color:#991b1b;background:linear-gradient(135deg,#fff7f7,#fef2f2);border:1px solid #fecaca}
+.alert-error .alert-icon{color:#b91c1c;background:#fee2e2}
+.alert-success{color:#166534;background:linear-gradient(135deg,#f4fff8,#ecfdf3);border:1px solid #bbf7d0}
+.alert-success .alert-icon{color:#15803d;background:#dcfce7}
+@keyframes alertIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* card */
+.card{position:relative;overflow:hidden;border:1px solid rgba(226,232,240,.85);border-radius:24px;background:rgba(255,255,255,.88);box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:25px 28px;border-bottom:1px solid var(--border-light);background:rgba(255,255,255,.72)}
+.card-heading{display:flex;align-items:center;gap:14px}
+.card-icon{width:44px;height:44px;display:grid;place-items:center;flex-shrink:0;border-radius:13px;color:#2563eb;background:#eff6ff;border:1px solid #dbeafe;font-size:18px;font-weight:900}
+.card-title{margin:0;font-size:18px;letter-spacing:-.025em}
+.card-description{margin:4px 0 0;color:var(--muted);font-size:13px}
+.card-status{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:999px;color:#166534;background:#f0fdf4;border:1px solid #dcfce7;font-size:11px;font-weight:800}
+.card-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e}
+.body{padding:28px}
+
+/* empresa */
+.company-info{position:relative;display:flex;align-items:center;gap:15px;margin-bottom:30px;padding:17px 18px;overflow:hidden;border:1px solid #dbeafe;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#eff6ff)}
+.company-avatar{width:43px;height:43px;display:grid;place-items:center;flex-shrink:0;border-radius:13px;color:#fff;background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 8px 18px rgba(37,99,235,.2);font-size:16px;font-weight:900}
+.company-label{margin-bottom:3px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.company-name{font-size:15px;font-weight:800}
+
+/* planos */
+.section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:16px}
+.section-heading h3{margin:0;font-size:17px;letter-spacing:-.02em}
+.section-heading span{color:var(--muted);font-size:12px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.plan{position:relative;display:flex;flex-direction:column;min-height:310px;padding:24px;overflow:hidden;border:1px solid var(--border);border-radius:20px;background:linear-gradient(180deg,#fff,#fbfdff);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.plan::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2563eb,#60a5fa);opacity:0;transition:opacity .25s ease}
+.plan:hover,.plan:focus-within{transform:translateY(-5px);border-color:#bfdbfe;box-shadow:0 20px 45px rgba(37,99,235,.11)}
+.plan:hover::before,.plan:focus-within::before{opacity:1}
+.plan-badge{display:inline-flex;padding:6px 9px;border-radius:8px;color:#1d4ed8;background:#eff6ff;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.plan-name{margin-top:16px;font-size:21px;font-weight:850;letter-spacing:-.035em}
+.plan-description{min-height:48px;margin-top:9px;color:var(--muted);font-size:13px;line-height:1.65}
+.plan-divider{height:1px;margin:18px 0;background:var(--border-light)}
+.plan-price-label{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.plan-price{margin-top:4px;font-size:31px;font-weight:900;letter-spacing:-.045em}
+.plan-price small{color:var(--muted);font-size:12px;font-weight:600;letter-spacing:0}
+.plan-period{margin:4px 0 18px;color:var(--muted);font-size:12px}
+.plan-button{width:100%;min-height:46px;margin-top:auto;padding:0 16px;border:0;border-radius:12px;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 9px 20px rgba(37,99,235,.18);font-size:13px;font-weight:800;transition:transform .2s,box-shadow .2s,filter .2s}
+.plan-button:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 13px 26px rgba(37,99,235,.25)}
+
+/* pagamento */
+.payment-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.payment-header-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;color:#2563eb;background:#eff6ff;font-size:14px;font-weight:900}
+.payment-header strong{font-size:15px}
+.payment-header span{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+.selected-plan{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px;padding:20px;overflow:hidden;border:1px solid #bfdbfe;border-radius:17px;background:linear-gradient(135deg,#eff6ff,#f8fbff)}
+.selected-label{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.selected-name{margin-top:5px;font-size:19px;font-weight:900;letter-spacing:-.025em}
+.selected-period{margin-top:4px;color:var(--muted);font-size:12px}
+.selected-price{font-size:25px;font-weight:900;letter-spacing:-.04em;white-space:nowrap}
+.selected-price small{display:block;margin-top:2px;color:var(--muted);font-size:10px;font-weight:600;text-align:right;letter-spacing:0}
+.form-shell{padding:22px;border:1px solid var(--border-light);border-radius:18px;background:#fbfdff}
+.form-group{margin-bottom:18px}
+label{display:block;margin-bottom:7px;color:var(--text-soft);font-size:12px;font-weight:800}
+input,select{width:100%;min-height:46px;padding:0 13px;border:1px solid #dbe2ea;border-radius:11px;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s}
+input::placeholder{color:#94a3b8}
+input:hover,select:hover{border-color:#cbd5e1}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.09)}
+.mp-field{min-height:46px;padding:0 12px;display:flex;align-items:center;border:1px solid #dbe2ea;border-radius:11px;background:#fff;transition:border-color .2s,box-shadow .2s}
+.mp-field:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.09)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.security-box{display:flex;align-items:flex-start;gap:11px;margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:13px;background:#f8fafc}
+.security-icon{width:30px;height:30px;display:grid;place-items:center;flex-shrink:0;border-radius:9px;color:#2563eb;background:#eff6ff;font-size:13px;font-weight:900}
+.security-text{color:var(--muted);font-size:11px;line-height:1.6}
+.security-text strong{display:block;margin-bottom:2px;color:var(--text-soft)}
+.actions{display:flex;gap:11px;margin-top:23px}
+.btn{min-height:47px;padding:0 18px;border:1px solid transparent;border-radius:12px;font-size:13px;font-weight:800;transition:transform .2s,box-shadow .2s,background .2s}
+.btn-primary{flex:1;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 10px 22px rgba(37,99,235,.18)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(37,99,235,.24)}
+.btn-secondary{color:var(--text-soft);background:#fff;border-color:var(--border)}
+.btn-secondary:hover{background:#f8fafc;border-color:#cbd5e1}
+.btn-danger{color:#b91c1c;background:#fff;border-color:#fecaca}
+.btn-danger:hover{background:#fef2f2}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.mp-loading{margin-top:10px;color:var(--muted);font-size:11px;text-align:center}
+
+/* assinatura existente */
+.subscription-state{padding:30px;border:1px solid #dcfce7;border-radius:20px;background:linear-gradient(135deg,#f7fff9,#ecfdf3)}
+.subscription-state-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:18px;border-radius:16px;color:#15803d;background:#dcfce7;font-size:24px;font-weight:900}
+.subscription-state h3{margin:0;font-size:23px;letter-spacing:-.035em}
+.subscription-state p{max-width:650px;margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.65}
+.subscription-details{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.subscription-detail{padding:15px;border:1px solid #dcfce7;border-radius:13px;background:rgba(255,255,255,.72)}
+.subscription-detail-label{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.subscription-detail-value{margin-top:5px;font-size:14px;font-weight:800}
+.cap{text-transform:capitalize}
+.subscription-status{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;color:#166534;background:#dcfce7;font-size:11px;font-weight:800}
+.subscription-status.is-warn{color:#92400e;background:#fef3c7}
+.subscription-status.is-bad{color:#991b1b;background:#fee2e2}
+.subscription-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.subscription-actions .btn{flex:0 0 auto;min-height:46px;padding:0 20px}
+#subscription-action-message{min-height:1.4em;margin-top:12px;font-size:14px;white-space:pre-line}
+#subscription-action-message.success{color:#15803d}
+#subscription-action-message.error{color:#dc2626}
+
+/* sucesso */
+.success-state{padding:42px 25px;text-align:center}
+.success-icon{width:76px;height:76px;display:grid;place-items:center;margin:0 auto 20px;border-radius:24px;color:#15803d;background:linear-gradient(135deg,#dcfce7,#bbf7d0);box-shadow:0 16px 35px rgba(22,101,52,.12);font-size:35px;font-weight:900;animation:pop .4s ease}
+@keyframes pop{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}
+.success-state h3{margin:0;font-size:25px;letter-spacing:-.04em}
+.success-state p{max-width:570px;margin:10px auto 0;color:var(--muted);font-size:13px;line-height:1.7}
+.success-plan{display:inline-flex;align-items:center;gap:7px;margin-top:20px;padding:9px 13px;border:1px solid #bbf7d0;border-radius:999px;color:#166534;background:#f0fdf4;font-size:12px;font-weight:800}
+
+/* loading / vazio */
+.loading{padding:45px 20px;text-align:center;color:var(--muted);font-size:13px}
+.loading::before{content:"";display:block;width:28px;height:28px;margin:0 auto 12px;border:3px solid #dbeafe;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{grid-column:1/-1;padding:42px 20px;text-align:center;color:var(--muted);border:1px dashed #cbd5e1;border-radius:16px;background:rgba(248,250,252,.8)}
+
+/* modal de troca */
+.modal-planos{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-planos.hidden{display:none!important}
+.modal-planos-overlay{position:absolute;inset:0;background:rgba(10,15,30,.72);backdrop-filter:blur(5px)}
+.modal-planos-conteudo{position:relative;z-index:1;width:min(760px,100%);max-height:min(85vh,800px);overflow-y:auto;padding:26px;border:1px solid var(--border);border-radius:20px;background:#fff;color:var(--text);box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.modal-planos-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
+.modal-planos-header h2{margin:0 0 8px;font-size:1.45rem}
+.modal-planos-header p{margin:0;color:var(--muted);line-height:1.5}
+.modal-planos-fechar{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px;border:1px solid var(--border);border-radius:10px;background:transparent;color:inherit;font-size:1.7rem}
+.lista-planos-troca{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.card-plano-troca{position:relative;display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid var(--border);border-radius:16px;background:#fff;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s}
+.card-plano-troca:hover{transform:translateY(-2px);border-color:var(--primary)}
+.card-plano-troca:focus-within{border-color:var(--primary)}
+.card-plano-troca.selecionado{border:2px solid var(--primary);padding:19px;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.card-plano-troca input[type=radio]{position:absolute;top:20px;right:20px;accent-color:var(--primary);width:18px;height:18px;min-height:0;padding:0}
+.card-plano-troca-nome{padding-right:26px;font-size:1.1rem;font-weight:700}
+.card-plano-troca-descricao{min-height:40px;color:var(--muted);font-size:.9rem;line-height:1.5}
+.card-plano-troca-preco{font-size:1.55rem;font-weight:800;letter-spacing:-.04em}
+.card-plano-troca-periodo{margin-top:-8px;color:var(--muted);font-size:.85rem}
+.card-plano-troca-selo{align-self:flex-start;padding:5px 9px;border-radius:20px;background:#f1f5f9;color:#475569;font-size:.75rem;font-weight:700}
+.mensagem-modal-planos{margin-top:16px;font-size:.9rem;line-height:1.5}
+.mensagem-modal-planos:empty{display:none}
+.mensagem-modal-planos.erro{color:#dc2626}
+.mensagem-modal-planos.sucesso{color:#16a34a}
+.modal-planos-footer{display:flex;justify-content:flex-end;gap:12px;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+.btn-modal-secundario,.btn-modal-principal{min-height:44px;padding:11px 18px;border-radius:10px;font-weight:700}
+.btn-modal-secundario{border:1px solid var(--border);background:transparent;color:inherit}
+.btn-modal-principal{border:0;background:var(--primary);color:#fff}
+.btn-modal-principal:disabled,.btn-modal-secundario:disabled{opacity:.45;cursor:not-allowed}
+
+html[data-admin-check="bloqueado"] body{visibility:hidden}
+
+@media (max-width:760px){
+  .page{padding:18px 14px 45px}
+  .topbar{margin-bottom:18px}
+  .secure-badge{display:none}
+  .hero{padding:29px 23px;border-radius:22px;margin-bottom:15px}
+  .hero.compact{padding:24px 20px}
+  .hero-subtitle{font-size:13px}
+  .hero-points,.card-status{display:none}
+  .card{border-radius:20px}
+  .card-header,.body{padding:20px}
+  .company-info{margin-bottom:23px}
+  .plans{grid-template-columns:1fr}
+  .plan{min-height:285px}
+  .selected-plan{align-items:flex-start;flex-direction:column}
+  .selected-price small{text-align:left}
+  .form-shell{padding:16px}
+  .subscription-details{grid-template-columns:1fr}
 }
-
-  </style>
+@media (max-width:560px){
+  .brand-text span{display:none}
+  .brand-icon{width:40px;height:40px}
+  h1{font-size:31px}
+  .grid{grid-template-columns:1fr;gap:0}
+  .actions{flex-direction:column-reverse}
+  .btn,.subscription-actions .btn{width:100%}
+  .subscription-state{padding:24px 18px}
+  .success-state{padding:35px 15px}
+  .modal-planos{padding:10px}
+  .modal-planos-conteudo{padding:18px;max-height:92vh;border-radius:16px}
+  .lista-planos-troca{grid-template-columns:1fr}
+  .modal-planos-footer{flex-direction:column-reverse}
+  .btn-modal-secundario,.btn-modal-principal{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
 </head>
 
 <body>
+<main class="page">
+<div class="container">
 
-  <main class="page">
-    <div class="container">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">O</div>
+      <div class="brand-text"><strong>Orvix</strong><span>Gestão inteligente para seu negócio</span></div>
+    </div>
+    <div class="topbar-right">
+      <a class="back-link" href="/">← Voltar ao painel</a>
+      <div class="secure-badge"><span class="secure-dot"></span>Ambiente seguro</div>
+    </div>
+  </div>
 
-      <!-- TOPO -->
-      <div class="topbar">
-        <div class="brand">
-          <div class="brand-icon">O</div>
-          <div class="brand-text">
-            <strong>Orvix</strong>
-            <span>Gestão inteligente para seu negócio</span>
-          </div>
-        </div>
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="eyebrow">Orvix SaaS</div>
+      <h1 id="hero-title">Escolha o plano ideal<br>para o seu negócio.</h1>
+      <p class="hero-subtitle" id="hero-subtitle">
+        Tenha acesso às ferramentas que ajudam sua empresa a organizar agendamentos,
+        serviços, clientes, faturamento e muito mais.
+      </p>
+      <div class="hero-points">
+        <div class="hero-point">Gestão completa</div>
+        <div class="hero-point">Acesso online</div>
+        <div class="hero-point">Pagamento seguro</div>
+        <div class="hero-point">Controle simplificado</div>
+      </div>
+    </div>
+  </section>
 
-        <div class="secure-badge">
-          <span class="secure-dot"></span>
-          Ambiente seguro
+  <div id="alert-error" class="alert alert-error" role="alert">
+    <div class="alert-icon">!</div><div id="alert-error-text"></div>
+  </div>
+  <div id="alert-success" class="alert alert-success" role="status">
+    <div class="alert-icon">✓</div><div id="alert-success-text"></div>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <div class="card-heading">
+        <div class="card-icon">$</div>
+        <div>
+          <h2 class="card-title">Minha assinatura</h2>
+          <p class="card-description">Escolha ou gerencie seu plano.</p>
         </div>
       </div>
-
-      <!-- HERO -->
-      <section class="hero">
-        <div class="hero-content">
-          <div class="eyebrow">Orvix SaaS</div>
-
-          <h1>
-            Escolha o plano ideal<br>
-            para o seu negócio.
-          </h1>
-
-          <p class="hero-subtitle">
-            Tenha acesso às ferramentas que ajudam sua empresa
-            a organizar agendamentos, serviços, clientes,
-            faturamento e muito mais.
-          </p>
-
-          <div class="hero-points">
-            <div class="hero-point">Gestão completa</div>
-            <div class="hero-point">Acesso online</div>
-            <div class="hero-point">Pagamento seguro</div>
-            <div class="hero-point">Controle simplificado</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ALERTAS -->
-      <div id="alert-error" class="alert alert-error">
-        <div class="alert-icon">!</div>
-        <div id="alert-error-text"></div>
-      </div>
-
-      <div id="alert-success" class="alert alert-success">
-        <div class="alert-icon">✓</div>
-        <div id="alert-success-text"></div>
-      </div>
-
-      <!-- CARD PRINCIPAL -->
-      <section class="card">
-
-        <div class="card-header">
-          <div class="card-heading">
-            <div class="card-icon">$</div>
-            <div>
-              <h2 class="card-title">Minha assinatura</h2>
-              <p class="card-description">Escolha ou gerencie seu plano.</p>
-            </div>
-          </div>
-
-          <div class="card-status">Pagamento seguro</div>
-        </div>
-
-        <div class="body">
-
-          <div id="loading" class="loading">
-            Carregando informações...
-          </div>
-
-          <div id="content" class="hidden">
-
-            <!-- EMPRESA -->
-            <div id="company-info" class="company-info">
-              <div class="company-avatar">O</div>
-              <div>
-                <div class="company-label">Empresa</div>
-                <div id="company-name" class="company-name">Carregando...</div>
-              </div>
-            </div>
-
-            <!-- ASSINATURA EXISTENTE -->
-            <div id="subscription-section" class="hidden">
-
-              <div class="subscription-state">
-                <div class="subscription-state-icon">✓</div>
-
-                <h3>Sua empresa já possui uma assinatura</h3>
-
-                <p id="subscription-description">
-                  A assinatura atual da empresa está registrada no Orvix.
-                </p>
-
-                <div id="subscription-details" class="subscription-details"></div>
-
-                <div class="subscription-actions">
-                  <button type="button" class="btn btn-primary" id="btn-dashboard-assinatura">
-                    Ir para o painel
-                  </button>
-                </div>
-              </div>
-
-              <!-- Botões de gerenciamento: ficam dentro da seção da assinatura -->
-              <div class="subscription-actions">
-                <button type="button" id="btn-trocar-plano" class="btn-primary">
-                  Trocar de plano
-                </button>
-
-                <button type="button" id="btn-cancelar-assinatura" class="btn-danger">
-                  Cancelar assinatura
-                </button>
-              </div>
-
-              <div id="subscription-action-message" role="status" aria-live="polite"></div>
-
-            </div>
-
-            <!-- PLANOS -->
-            <div id="plans-section">
-              <div class="section-heading">
-                <div>
-                  <h3>Planos disponíveis</h3>
-                  <span>Selecione a opção que melhor atende sua empresa.</span>
-                </div>
-              </div>
-
-              <div id="plans" class="plans"></div>
-            </div>
-
-            <!-- PAGAMENTO -->
-            <div id="payment-section" class="hidden">
-
-              <div class="payment-header">
-                <div class="payment-header-icon">$</div>
-                <div>
-                  <strong id="payment-title">Finalize sua assinatura</strong>
-                  <span id="payment-subtitle">Preencha os dados para concluir o pagamento.</span>
-                </div>
-              </div>
-
-              <div id="selected-plan" class="selected-plan"></div>
-
-              <div class="form-shell">
-
-                <form id="card-form" autocomplete="off">
-
-                  <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input
-                      type="email"
-                      id="email"
-                      placeholder="cliente@email.com"
-                      autocomplete="email"
-                      required
-                    >
-                  </div>
-
-                  <div class="form-group">
-                    <label for="cardholder-name">Nome no cartão</label>
-                    <input
-                      type="text"
-                      id="cardholder-name"
-                      placeholder="Nome completo"
-                      autocomplete="cc-name"
-                      required
-                    >
-                  </div>
-
-                  <div class="form-group">
-                    <label>Número do cartão</label>
-                    <div id="card-number" class="mp-field"></div>
-                  </div>
-
-                  <div class="grid">
-                    <div class="form-group">
-                      <label>Validade</label>
-                      <div id="expiration-date" class="mp-field"></div>
-                    </div>
-
-                    <div class="form-group">
-                      <label>Código de segurança</label>
-                      <div id="security-code" class="mp-field"></div>
-                    </div>
-                  </div>
-
-                  <div class="grid">
-                    <div class="form-group">
-                      <label for="issuer">Banco emissor</label>
-                      <select id="issuer"></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="installments">Parcelas</label>
-                      <select id="installments"></select>
-                    </div>
-                  </div>
-
-                  <div class="grid">
-                    <div class="form-group">
-                      <label for="identification-type">Tipo de documento</label>
-                      <select id="identification-type"></select>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="identification-number">CPF</label>
-                      <input
-                        type="text"
-                        id="identification-number"
-                        placeholder="00000000000"
-                        inputmode="numeric"
-                        autocomplete="off"
-                        required
-                      >
-                    </div>
-                  </div>
-
-                  <div class="actions">
-                    <button type="button" class="btn btn-secondary" id="btn-voltar-planos">
-                      Voltar para planos
-                    </button>
-
-                    <button type="submit" class="btn btn-primary" id="btn-assinar">
-                      Assinar plano
-                    </button>
-                  </div>
-
-                </form>
-
-                <div class="security-box">
-                  <div class="security-icon">✓</div>
-                  <div class="security-text">
-                    <strong>Pagamento protegido</strong>
-                    Os dados do cartão são processados diretamente
-                    pelo Mercado Pago. O número completo do cartão
-                    não é enviado para o servidor da Orvix.
-                  </div>
-                </div>
-
-                <div id="mp-loading" class="mp-loading"></div>
-
-              </div>
-            </div>
-
-            <!-- SUCESSO -->
-            <div id="success-section" class="hidden">
-              <div class="success-state">
-                <div class="success-icon">✓</div>
-
-                <h3>Assinatura criada com sucesso</h3>
-
-                <p>
-                  Sua assinatura foi registrada. O pagamento
-                  está aguardando a confirmação do Mercado Pago.
-                  Você será direcionado para o painel em instantes.
-                </p>
-
-                <div id="success-plan" class="success-plan">
-                  Assinatura registrada
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
+      <div class="card-status">Pagamento seguro</div>
     </div>
 
-    <!-- MODAL DE TROCA DE PLANO -->
-    <div id="modal-trocar-plano" class="modal-planos hidden" aria-hidden="true">
-      <div class="modal-planos-overlay" data-fechar-modal></div>
+    <div class="body">
+      <div id="loading" class="loading">Carregando informações...</div>
 
-      <section class="modal-planos-conteudo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-planos">
-        <header class="modal-planos-header">
+      <div id="content" class="hidden">
+
+        <div id="company-info" class="company-info">
+          <div class="company-avatar">O</div>
           <div>
-            <h2 id="titulo-modal-planos">Trocar de plano</h2>
-            <p>Escolha o plano mais adequado para sua empresa.</p>
+            <div class="company-label">Empresa</div>
+            <div id="company-name" class="company-name">Carregando...</div>
+          </div>
+        </div>
+
+        <!-- ASSINATURA EXISTENTE -->
+        <div id="subscription-section" class="hidden">
+          <div class="subscription-state">
+            <div class="subscription-state-icon">✓</div>
+            <h3>Sua empresa já possui uma assinatura</h3>
+            <p id="subscription-description">A assinatura atual da empresa está registrada no Orvix.</p>
+            <div id="subscription-details" class="subscription-details"></div>
+
+            <div class="subscription-actions">
+              <button type="button" class="btn btn-primary" id="btn-dashboard-assinatura">Ir para o painel</button>
+              <button type="button" class="btn btn-secondary" id="btn-trocar-plano">Trocar de plano</button>
+              <button type="button" class="btn btn-danger" id="btn-cancelar-assinatura">Cancelar assinatura</button>
+            </div>
+            <div id="subscription-action-message" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- PLANOS -->
+        <div id="plans-section">
+          <div class="section-heading">
+            <div>
+              <h3>Planos disponíveis</h3>
+              <span>Selecione a opção que melhor atende sua empresa.</span>
+            </div>
+          </div>
+          <div id="plans" class="plans"></div>
+        </div>
+
+        <!-- PAGAMENTO -->
+        <div id="payment-section" class="hidden">
+          <div class="payment-header">
+            <div class="payment-header-icon">$</div>
+            <div>
+              <strong id="payment-title">Finalize sua assinatura</strong>
+              <span id="payment-subtitle">Preencha os dados para concluir o pagamento.</span>
+            </div>
           </div>
 
-          <button type="button" id="fechar-modal-planos" class="modal-planos-fechar" aria-label="Fechar">×</button>
-        </header>
+          <div id="selected-plan" class="selected-plan"></div>
 
-        <div id="lista-planos-troca" class="lista-planos-troca"></div>
+          <div class="form-shell">
+            <form id="card-form" autocomplete="off">
+              <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="cliente@email.com" autocomplete="email" required>
+              </div>
 
-        <div id="mensagem-modal-planos" class="mensagem-modal-planos" role="status"></div>
+              <div class="form-group">
+                <label for="cardholder-name">Nome no cartão</label>
+                <input type="text" id="cardholder-name" placeholder="Nome completo" autocomplete="cc-name" required>
+              </div>
 
-        <footer class="modal-planos-footer">
-          <button type="button" id="cancelar-modal-planos" class="btn-modal-secundario">
-            Voltar
-          </button>
+              <div class="form-group">
+                <label>Número do cartão</label>
+                <div id="card-number" class="mp-field"></div>
+              </div>
 
-          <button type="button" id="confirmar-troca-plano" class="btn-modal-principal" disabled>
-            Confirmar troca
-          </button>
-        </footer>
-      </section>
+              <div class="grid">
+                <div class="form-group">
+                  <label>Validade</label>
+                  <div id="expiration-date" class="mp-field"></div>
+                </div>
+                <div class="form-group">
+                  <label>Código de segurança</label>
+                  <div id="security-code" class="mp-field"></div>
+                </div>
+              </div>
+
+              <div class="grid">
+                <div class="form-group">
+                  <label for="issuer">Banco emissor</label>
+                  <select id="issuer"></select>
+                </div>
+                <div class="form-group">
+                  <label for="installments">Parcelas</label>
+                  <select id="installments"></select>
+                </div>
+              </div>
+
+              <div class="grid">
+                <div class="form-group">
+                  <label for="identification-type">Tipo de documento</label>
+                  <select id="identification-type"></select>
+                </div>
+                <div class="form-group">
+                  <label for="identification-number">CPF</label>
+                  <input type="text" id="identification-number" placeholder="00000000000" inputmode="numeric" autocomplete="off" required>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="button" class="btn btn-secondary" id="btn-voltar-planos">Voltar para planos</button>
+                <button type="submit" class="btn btn-primary" id="btn-assinar">Assinar plano</button>
+              </div>
+            </form>
+
+            <div class="security-box">
+              <div class="security-icon">✓</div>
+              <div class="security-text">
+                <strong>Pagamento protegido</strong>
+                Os dados do cartão são processados diretamente pelo Mercado Pago.
+                O número completo do cartão não é enviado para o servidor da Orvix.
+              </div>
+            </div>
+            <div id="mp-loading" class="mp-loading" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- SUCESSO -->
+        <div id="success-section" class="hidden">
+          <div class="success-state">
+            <div class="success-icon">✓</div>
+            <h3>Assinatura criada com sucesso</h3>
+            <p>
+              Sua assinatura foi registrada. O pagamento está aguardando a confirmação
+              do Mercado Pago. Você será direcionado para o painel em instantes.
+            </p>
+            <div id="success-plan" class="success-plan">Assinatura registrada</div>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </main>
-  
+  </section>
+</div>
+
+<!-- MODAL DE TROCA DE PLANO -->
+<div id="modal-trocar-plano" class="modal-planos hidden" aria-hidden="true">
+  <div class="modal-planos-overlay" data-fechar-modal></div>
+  <section class="modal-planos-conteudo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-planos">
+    <header class="modal-planos-header">
+      <div>
+        <h2 id="titulo-modal-planos">Trocar de plano</h2>
+        <p>Escolha o plano mais adequado para sua empresa.</p>
+      </div>
+      <button type="button" id="fechar-modal-planos" class="modal-planos-fechar" aria-label="Fechar">×</button>
+    </header>
+    <div id="lista-planos-troca" class="lista-planos-troca"></div>
+    <div id="mensagem-modal-planos" class="mensagem-modal-planos" role="status"></div>
+    <footer class="modal-planos-footer">
+      <button type="button" id="cancelar-modal-planos" class="btn-modal-secundario">Voltar</button>
+      <button type="button" id="confirmar-troca-plano" class="btn-modal-principal" disabled>Confirmar troca</button>
+    </footer>
+  </section>
+</div>
+</main>
 
 <script>
 (() => {
   'use strict';
 
-  // ============================================================
-  // CONFIGURAÇÃO
-  // ============================================================
-
   const API = '/api';
   const AUTH_TOKEN_KEY = 'lavajato_auth_token';
-
-  // ============================================================
-  // ELEMENTOS
-  // ============================================================
-
   const $ = id => document.getElementById(id);
 
-  const loading = $('loading');
-  const content = $('content');
-  const plans = $('plans');
-  const plansSection = $('plans-section');
-  const paymentSection = $('payment-section');
-  const successSection = $('success-section');
-  const selectedPlan = $('selected-plan');
-  const companyName = $('company-name');
-
-  const alertError = $('alert-error');
-  const alertSuccess = $('alert-success');
-  const alertErrorText = $('alert-error-text');
-  const alertSuccessText = $('alert-success-text');
-
-  const form = $('card-form');
-  const email = $('email');
-  const cardholderName = $('cardholder-name');
-  const identificationNumber = $('identification-number');
-
-  const btnAssinar = $('btn-assinar');
-  const btnVoltarPlanos = $('btn-voltar-planos');
+  const loading = $('loading'), content = $('content');
+  const plans = $('plans'), plansSection = $('plans-section');
+  const paymentSection = $('payment-section'), successSection = $('success-section');
+  const selectedPlan = $('selected-plan'), companyName = $('company-name');
+  const alertError = $('alert-error'), alertSuccess = $('alert-success');
+  const alertErrorText = $('alert-error-text'), alertSuccessText = $('alert-success-text');
+  const form = $('card-form'), email = $('email');
+  const cardholderName = $('cardholder-name'), identificationNumber = $('identification-number');
+  const btnAssinar = $('btn-assinar'), btnVoltarPlanos = $('btn-voltar-planos');
   const btnDashboardAssinatura = $('btn-dashboard-assinatura');
-
-  const paymentTitle = $('payment-title');
-  const paymentSubtitle = $('payment-subtitle');
-
+  const paymentTitle = $('payment-title'), paymentSubtitle = $('payment-subtitle');
   const mpLoading = $('mp-loading');
   const subscriptionSection = $('subscription-section');
   const subscriptionDetails = $('subscription-details');
   const subscriptionDescription = $('subscription-description');
   const successPlan = $('success-plan');
-
   const btnTrocarPlano = $('btn-trocar-plano');
   const btnCancelarAssinatura = $('btn-cancelar-assinatura');
   const subscriptionActionMessage = $('subscription-action-message');
-
-  // Modal de troca de plano
   const modalTrocarPlano = $('modal-trocar-plano');
   const listaPlanosTroca = $('lista-planos-troca');
   const mensagemModalPlanos = $('mensagem-modal-planos');
   const confirmarTrocaPlano = $('confirmar-troca-plano');
-
   const btnFecharModalPlanos = $('fechar-modal-planos');
   const btnCancelarModalPlanos = $('cancelar-modal-planos');
+  const hero = $('hero'), heroTitle = $('hero-title'), heroSubtitle = $('hero-subtitle');
 
-  // ============================================================
-  // ESTADO
-  // ============================================================
+  const TEXTO_HERO = {
+    titulo: heroTitle.innerHTML,
+    subtitulo: heroSubtitle.textContent
+  };
 
-  let usuario = null;
-  let empresa = null;
-  let planos = [];
-  let planoSelecionado = null;
-  let assinaturaAtual = null;
-  let planoTrocaSelecionado = null;
+  let usuario = null, empresa = null;
+  let planos = [], planoSelecionado = null, assinaturaAtual = null, planoTrocaSelecionado = null;
+  let modoTroca = false; // true: o formulário de cartão serve para trocar a periodicidade
+  let mp = null, cardForm = null;
+  let inicializandoCardForm = false, processandoAssinatura = false, processandoAcaoAssinatura = false;
+  let focoAnterior = null;
 
-  // true quando o formulário de cartão é usado para uma TROCA de
-  // periodicidade (nova assinatura com novo card_token_id)
-  let modoTroca = false;
-
-  let mp = null;
-  let cardForm = null;
-  let inicializandoCardForm = false;
-  let processandoAssinatura = false;
-  let processandoAcaoAssinatura = false;
-
-  // ============================================================
-  // ALERTAS
-  // ============================================================
-
-  function mostrarErro(mensagem) {
-    if (alertSuccess) alertSuccess.classList.remove('show');
-
-    if (alertErrorText) {
-      alertErrorText.textContent = mensagem || 'Ocorreu um erro.';
-    }
-
-    if (alertError) alertError.classList.add('show');
-
+  // ---------- alertas ----------
+  function mostrarErro(msg) {
+    alertSuccess.classList.remove('show');
+    alertErrorText.textContent = msg || 'Ocorreu um erro.';
+    alertError.classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function mostrarSucesso(mensagem) {
-    if (alertError) alertError.classList.remove('show');
-
-    if (alertSuccessText) {
-      alertSuccessText.textContent =
-        mensagem || 'Operação realizada com sucesso.';
-    }
-
-    if (alertSuccess) alertSuccess.classList.add('show');
-
+  function mostrarSucesso(msg) {
+    alertError.classList.remove('show');
+    alertSuccessText.textContent = msg || 'Operação realizada com sucesso.';
+    alertSuccess.classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function limparAlertas() {
-    if (alertError) alertError.classList.remove('show');
-    if (alertSuccess) alertSuccess.classList.remove('show');
-
-    if (alertErrorText) alertErrorText.textContent = '';
-    if (alertSuccessText) alertSuccessText.textContent = '';
+    alertError.classList.remove('show');
+    alertSuccess.classList.remove('show');
+    alertErrorText.textContent = '';
+    alertSuccessText.textContent = '';
   }
 
-  function mostrarMensagemAssinatura(mensagem, tipo = '') {
-    if (!subscriptionActionMessage) return;
-
-    subscriptionActionMessage.textContent = mensagem;
+  function mostrarMensagemAssinatura(msg, tipo = '') {
+    subscriptionActionMessage.textContent = msg;
     subscriptionActionMessage.className = tipo;
   }
 
-  function mostrarMensagemModal(mensagem, tipo = '') {
-    if (!mensagemModalPlanos) return;
-
-    mensagemModalPlanos.textContent = mensagem;
-    mensagemModalPlanos.className =
-      'mensagem-modal-planos' + (tipo ? ` ${tipo}` : '');
+  function mostrarMensagemModal(msg, tipo = '') {
+    mensagemModalPlanos.textContent = msg;
+    mensagemModalPlanos.className = 'mensagem-modal-planos' + (tipo ? ` ${tipo}` : '');
   }
 
-  // ============================================================
-  // UTILITÁRIOS
-  // ============================================================
+  // ---------- utilitários ----------
+  const formatarMoeda = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const limparCpf = v => String(v || '').replace(/\D/g, '');
 
-  function formatarMoeda(valor) {
-    return Number(valor || 0).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
+  function escapeHtml(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    })[c]);
   }
 
-  function escapeHtml(valor) {
-    return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    })[caractere]);
-  }
-
-  function limparCpf(valor) {
-    return String(valor || '').replace(/\D/g, '');
-  }
-
-  function formatarData(valor) {
-    if (!valor) return 'Não informado';
-
-    const data = new Date(valor);
-
-    if (Number.isNaN(data.getTime())) {
-      return 'Não informado';
-    }
-
-    return data.toLocaleDateString('pt-BR');
+  function formatarData(v) {
+    if (!v) return 'Não informado';
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? 'Não informado' : d.toLocaleDateString('pt-BR');
   }
 
   function textoStatus(status) {
     const mapa = {
-      pendente: 'Pendente',
-      ativa: 'Ativa',
-      pausada: 'Pausada',
-      inadimplente: 'Inadimplente',
-      cancelada: 'Cancelada',
-      canceled: 'Cancelada',
-      cancelled: 'Cancelada',
-      authorized: 'Ativa',
-      paused: 'Pausada'
+      pendente: 'Pendente', ativa: 'Ativa', pausada: 'Pausada', inadimplente: 'Inadimplente',
+      cancelada: 'Cancelada', canceled: 'Cancelada', cancelled: 'Cancelada',
+      authorized: 'Ativa', paused: 'Pausada'
     };
+    return mapa[String(status || '').toLowerCase()] || status || 'Não informado';
+  }
 
-    const chave = String(status || '').toLowerCase();
+  function classeStatus(status) {
+    const s = String(status || '').toLowerCase();
+    if (['inadimplente', 'cancelada', 'cancelled', 'canceled'].includes(s)) return 'is-bad';
+    if (['pausada', 'paused', 'pendente'].includes(s)) return 'is-warn';
+    return '';
+  }
 
-    return mapa[chave] || status || 'Não informado';
+  function estaCancelada(assinatura) {
+    return ['cancelada', 'cancelled', 'canceled'].includes(String(assinatura?.status || '').toLowerCase());
   }
 
   function periodoPlano(plano) {
-    const periodo = String(
-      plano?.periodo ||
-      plano?.plano_periodo ||
-      ''
-    ).toLowerCase();
-
-    if (periodo === 'anual') return 'anual';
-    if (periodo === 'trimestral') return 'trimestral';
-    if (periodo === 'semestral') return 'semestral';
-
-    return 'mensal';
+    const p = String(plano?.periodo || plano?.plano_periodo || '').toLowerCase();
+    return ['anual', 'trimestral', 'semestral'].includes(p) ? p : 'mensal';
   }
 
-  function nomePeriodo(periodo) {
-    const mapa = {
-      mensal: 'mês',
-      trimestral: 'trimestre',
-      semestral: 'semestre',
-      anual: 'ano'
-    };
+  const nomePeriodo = p => ({ mensal: 'mês', trimestral: 'trimestre', semestral: 'semestre', anual: 'ano' })[p] || 'mês';
 
-    return mapa[periodo] || 'mês';
-  }
-
-  function obterMensagemMercadoPago(error) {
-    const data = error?.data;
-
-    if (data?.detalhes?.message) {
-      return data.detalhes.message;
-    }
-
+  function obterMensagemMercadoPago(erro) {
+    const data = erro?.data;
+    if (data?.detalhes?.message) return data.detalhes.message;
     const causas = data?.detalhes?.cause || data?.cause;
-
     if (Array.isArray(causas) && causas.length > 0) {
-      const causa = causas[0];
-
-      if (causa?.description) return causa.description;
-      if (causa?.code) return `Mercado Pago: ${causa.code}`;
+      if (causas[0]?.description) return causas[0].description;
+      if (causas[0]?.code) return `Mercado Pago: ${causas[0].code}`;
     }
-
-    if (error?.status === 409) {
-      return data?.erro ||
-        'Sua empresa já possui uma assinatura em andamento.';
-    }
-
-    return error?.message ||
-      'Não foi possível concluir a operação.';
+    if (erro?.status === 409) return data?.erro || 'Sua empresa já possui uma assinatura em andamento.';
+    return erro?.message || 'Não foi possível concluir a operação.';
   }
 
-  // ============================================================
-  // MODAL DE TROCA DE PLANO
-  // ============================================================
-
-  function fecharModalTrocaPlano(forcar = false) {
-    if (!modalTrocarPlano) return;
-
-    if (processandoAcaoAssinatura && !forcar) return;
-
-    modalTrocarPlano.classList.add('hidden');
-    modalTrocarPlano.setAttribute('aria-hidden', 'true');
-
-    planoTrocaSelecionado = null;
-
-    if (confirmarTrocaPlano) {
-      confirmarTrocaPlano.disabled = true;
-    }
-  }
-
-  function mostrarModalTrocaPlano() {
-    if (
-      !modalTrocarPlano ||
-      !listaPlanosTroca ||
-      !confirmarTrocaPlano
-    ) {
-      mostrarMensagemAssinatura(
-        'O modal de troca de plano não foi encontrado. Confira o HTML.',
-        'error'
-      );
-      return;
-    }
-
-    planoTrocaSelecionado = null;
-    confirmarTrocaPlano.disabled = true;
-    confirmarTrocaPlano.textContent = 'Confirmar troca';
-
-    mostrarMensagemModal('');
-
-    const planoAtualId = Number(
-      assinaturaAtual?.plano_id ||
-      assinaturaAtual?.plano?.id
-    );
-
-    const disponiveis = planos.filter(plano =>
-      plano.ativo !== false &&
-      Number(plano.id) !== planoAtualId
-    );
-
-    if (disponiveis.length === 0) {
-      listaPlanosTroca.innerHTML = `
-        <p>Não há outros planos disponíveis para troca.</p>
-      `;
+  function atualizarHero(comAssinatura) {
+    hero.classList.toggle('compact', comAssinatura);
+    if (comAssinatura) {
+      heroTitle.textContent = 'Gerencie sua assinatura';
+      heroSubtitle.textContent = 'Acompanhe seu plano e a próxima cobrança. Troque ou cancele quando precisar.';
     } else {
-      listaPlanosTroca.innerHTML = disponiveis.map(plano => `
-        <label
-          class="card-plano-troca"
-          data-card-plano="${Number(plano.id)}"
-        >
-          <input
-            type="radio"
-            name="plano-troca"
-            value="${Number(plano.id)}"
-            aria-label="Selecionar ${escapeHtml(plano.nome)}"
-          >
-
-          <span class="card-plano-troca-nome">
-            ${escapeHtml(plano.nome)}
-          </span>
-
-          <span class="card-plano-troca-descricao">
-            ${escapeHtml(plano.descricao || 'Plano para sua empresa.')}
-          </span>
-
-          <span class="card-plano-troca-preco">
-            ${formatarMoeda(plano.valor)}
-          </span>
-
-          <span class="card-plano-troca-periodo">
-            por ${escapeHtml(nomePeriodo(periodoPlano(plano)))}
-          </span>
-
-          <span class="card-plano-troca-selo">
-            Selecionar plano
-          </span>
-        </label>
-      `).join('');
-
-      listaPlanosTroca
-        .querySelectorAll('[data-card-plano]')
-        .forEach(card => {
-          card.addEventListener('click', () => {
-            const id = Number(card.dataset.cardPlano);
-
-            planoTrocaSelecionado = disponiveis.find(
-              plano => Number(plano.id) === id
-            );
-
-            listaPlanosTroca
-              .querySelectorAll('.card-plano-troca')
-              .forEach(item => {
-                item.classList.remove('selecionado');
-
-                const selo = item.querySelector('.card-plano-troca-selo');
-
-                if (selo) selo.textContent = 'Selecionar plano';
-              });
-
-            card.classList.add('selecionado');
-
-            const radio = card.querySelector('input[type="radio"]');
-
-            if (radio) radio.checked = true;
-
-            const selo = card.querySelector('.card-plano-troca-selo');
-
-            if (selo) selo.textContent = 'Plano selecionado';
-
-            confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
-
-            mostrarMensagemModal('');
-          });
-        });
+      heroTitle.innerHTML = TEXTO_HERO.titulo;
+      heroSubtitle.textContent = TEXTO_HERO.subtitulo;
     }
-
-    modalTrocarPlano.classList.remove('hidden');
-    modalTrocarPlano.setAttribute('aria-hidden', 'false');
   }
 
-  btnFecharModalPlanos?.addEventListener('click', () => {
-    fecharModalTrocaPlano();
-  });
-
-  btnCancelarModalPlanos?.addEventListener('click', () => {
-    fecharModalTrocaPlano();
-  });
-
-  modalTrocarPlano?.querySelectorAll('[data-fechar-modal]')
-    .forEach(elemento => {
-      elemento.addEventListener('click', () => {
-        fecharModalTrocaPlano();
-      });
-    });
-
-  document.addEventListener('keydown', evento => {
-    if (
-      evento.key === 'Escape' &&
-      modalTrocarPlano &&
-      !modalTrocarPlano.classList.contains('hidden')
-    ) {
-      fecharModalTrocaPlano();
-    }
-  });
-
-  // ============================================================
-  // REQUISIÇÕES À API
-  // ============================================================
-
+  // ---------- API ----------
   async function api(caminho, opcoes = {}) {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
-
     const headers = {
-      ...(opcoes.body
-        ? { 'Content-Type': 'application/json' }
-        : {}),
+      ...(opcoes.body ? { 'Content-Type': 'application/json' } : {}),
       ...(opcoes.headers || {})
     };
+    if (token) headers.Authorization = `Bearer ${token}`;
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const resposta = await fetch(API + caminho, {
-      ...opcoes,
-      headers,
-      credentials: 'same-origin'
-    });
+    const resposta = await fetch(API + caminho, { ...opcoes, headers, credentials: 'same-origin' });
 
     let dados = null;
-
-    try {
-      dados = await resposta.json();
-    } catch (_) {
-      dados = null;
-    }
+    try { dados = await resposta.json(); } catch (_) { dados = null; }
 
     if (resposta.status === 401) {
       localStorage.removeItem(AUTH_TOKEN_KEY);
       window.location.href = '/';
-
       throw new Error('Sessão expirada. Entre novamente.');
     }
 
     if (!resposta.ok) {
-      const erro = new Error(
-        dados?.erro ||
-        dados?.mensagem ||
-        dados?.message ||
-        'Erro na requisição.'
-      );
-
+      const erro = new Error(dados?.erro || dados?.mensagem || dados?.message || 'Erro na requisição.');
       erro.status = resposta.status;
       erro.data = dados;
-
       throw erro;
     }
-
     return dados;
   }
 
-  // ============================================================
-  // USUÁRIO E EMPRESA
-  // ============================================================
+  const requisicaoAcaoAssinatura = (caminho, dados = {}) =>
+    api(caminho, { method: 'POST', body: JSON.stringify(dados) });
 
+  // ---------- usuário e empresa ----------
   async function verificarUsuario() {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-
-    if (!token) {
+    if (!localStorage.getItem(AUTH_TOKEN_KEY)) {
       window.location.href = '/';
       return null;
     }
 
     const dados = await api('/auth/me');
-
-    if (!dados?.usuario) {
-      throw new Error('Não foi possível identificar o usuário.');
-    }
+    if (!dados?.usuario) throw new Error('Não foi possível identificar o usuário.');
 
     usuario = dados.usuario;
     empresa = dados.empresa || null;
 
-    if (usuario.perfil === 'dev') {
-      throw new Error(
-        'A tela de assinatura deve ser acessada por uma empresa.'
-      );
-    }
+    if (usuario.perfil === 'dev') throw new Error('A tela de assinatura deve ser acessada por uma empresa.');
 
-    const empresaId =
-      empresa?.id ?? usuario.empresa_id ?? null;
-
-    if (!empresaId) {
-      throw new Error('Seu usuário não está vinculado a uma empresa.');
-    }
+    const empresaId = empresa?.id ?? usuario.empresa_id ?? null;
+    if (!empresaId) throw new Error('Seu usuário não está vinculado a uma empresa.');
 
     usuario.empresa_id = empresaId;
-
     return dados;
   }
 
-  function carregarEmpresa(dados) {
-    if (companyName) {
-      companyName.textContent = dados?.empresa?.nome || 'Sua empresa';
-    }
-  }
-
-  // ============================================================
-  // PLANOS DISPONÍVEIS
-  // ============================================================
-
+  // ---------- planos ----------
   async function carregarPlanos() {
-    if (plans) {
-      plans.innerHTML = `
-        <div class="loading">Carregando planos...</div>
-      `;
-    }
-
+    plans.innerHTML = '<div class="loading">Carregando planos...</div>';
     const dados = await api('/planos/disponiveis');
-
-    if (!Array.isArray(dados)) {
-      throw new Error('Resposta inválida ao carregar os planos.');
-    }
-
+    if (!Array.isArray(dados)) throw new Error('Resposta inválida ao carregar os planos.');
     planos = dados;
     renderizarPlanos();
   }
 
   function renderizarPlanos() {
-    if (!plans) return;
-
     if (planos.length === 0) {
-      plans.innerHTML = `
-        <div class="empty">
-          Nenhum plano está disponível no momento.
-        </div>
-      `;
+      plans.innerHTML = '<div class="empty">Nenhum plano está disponível no momento.</div>';
       return;
     }
 
     plans.innerHTML = planos.map(plano => {
       const periodo = periodoPlano(plano);
-
       return `
         <article class="plan">
-          <div class="plan-top">
-            <span class="plan-badge">Plano disponível</span>
-          </div>
-
-          <div class="plan-name">
-            ${escapeHtml(plano.nome)}
-          </div>
-
-          <div class="plan-description">
-            ${escapeHtml(plano.descricao || 'Plano para utilização do sistema.')}
-          </div>
-
+          <div><span class="plan-badge">Plano disponível</span></div>
+          <div class="plan-name">${escapeHtml(plano.nome)}</div>
+          <div class="plan-description">${escapeHtml(plano.descricao || 'Plano para utilização do sistema.')}</div>
           <div class="plan-divider"></div>
-
           <div class="plan-price-label">Investimento</div>
-
-          <div class="plan-price">
-            ${formatarMoeda(plano.valor)}
-            <small>/${nomePeriodo(periodo)}</small>
-          </div>
-
-          <div class="plan-period">
-            Cobrança ${escapeHtml(periodo)}
-          </div>
-
-          <button
-            type="button"
-            class="plan-button"
-            data-plano-id="${Number(plano.id)}"
-          >
-            Escolher este plano
-          </button>
-        </article>
-      `;
+          <div class="plan-price">${formatarMoeda(plano.valor)}<small>/${nomePeriodo(periodo)}</small></div>
+          <div class="plan-period">Cobrança ${escapeHtml(periodo)}</div>
+          <button type="button" class="plan-button" data-plano-id="${Number(plano.id)}"
+            aria-label="Escolher o plano ${escapeHtml(plano.nome)}">Escolher este plano</button>
+        </article>`;
     }).join('');
 
-    plans.querySelectorAll('[data-plano-id]').forEach(botao => {
-      botao.addEventListener('click', () => {
-        selecionarPlano(Number(botao.dataset.planoId));
-      });
-    });
+    plans.querySelectorAll('[data-plano-id]').forEach(botao =>
+      botao.addEventListener('click', () => selecionarPlano(Number(botao.dataset.planoId)))
+    );
   }
 
-  // ============================================================
-  // ASSINATURA ATUAL
-  // ============================================================
-
+  // ---------- assinatura atual ----------
   async function carregarAssinaturaAtual() {
     const dados = await api('/mercado-pago/minha-assinatura');
-
-    if (
-      !dados ||
-      dados.possui_assinatura !== true ||
-      !dados.assinatura
-    ) {
+    if (!dados || dados.possui_assinatura !== true || !dados.assinatura) {
       assinaturaAtual = null;
       return false;
     }
-
     assinaturaAtual = dados.assinatura;
     return true;
   }
@@ -2075,105 +719,70 @@ html[data-admin-check="bloqueado"] body {
     if (!assinaturaAtual) return;
 
     modoTroca = false;
-
-    plansSection?.classList.add('hidden');
-    paymentSection?.classList.add('hidden');
-    successSection?.classList.add('hidden');
-    subscriptionSection?.classList.remove('hidden');
+    plansSection.classList.add('hidden');
+    paymentSection.classList.add('hidden');
+    successSection.classList.add('hidden');
+    subscriptionSection.classList.remove('hidden');
+    atualizarHero(true);
 
     const assinatura = assinaturaAtual;
     const plano = assinatura.plano || {};
-
     const status = String(assinatura.status || '').toLowerCase();
-
     const statusTexto = textoStatus(assinatura.status);
+    const cancelada = estaCancelada(assinatura);
 
-    if (subscriptionDescription) {
-      subscriptionDescription.textContent =
-        status === 'ativa' || status === 'authorized'
-          ? 'Sua assinatura está ativa e vinculada à sua empresa.'
-          : `Sua assinatura está com status "${statusTexto}".`;
-    }
+    subscriptionDescription.textContent =
+      status === 'ativa' || status === 'authorized'
+        ? 'Sua assinatura está ativa e vinculada à sua empresa.'
+        : `Sua assinatura está com status "${statusTexto}".`;
 
-    if (subscriptionDetails) {
-      subscriptionDetails.innerHTML = `
-        <div class="subscription-detail">
-          <div class="subscription-detail-label">Plano</div>
-          <div class="subscription-detail-value">
-            ${escapeHtml(plano.nome || assinatura.plano_nome || 'Plano')}
-          </div>
+    subscriptionDetails.innerHTML = `
+      <div class="subscription-detail">
+        <div class="subscription-detail-label">Plano</div>
+        <div class="subscription-detail-value">${escapeHtml(plano.nome || assinatura.plano_nome || 'Plano')}</div>
+      </div>
+      <div class="subscription-detail">
+        <div class="subscription-detail-label">Valor</div>
+        <div class="subscription-detail-value">${formatarMoeda(plano.valor ?? assinatura.plano_valor)}</div>
+      </div>
+      <div class="subscription-detail">
+        <div class="subscription-detail-label">Status</div>
+        <div class="subscription-detail-value">
+          <span class="subscription-status ${classeStatus(assinatura.status)}">${escapeHtml(statusTexto)}</span>
         </div>
+      </div>
+      <div class="subscription-detail">
+        <div class="subscription-detail-label">Início</div>
+        <div class="subscription-detail-value">${formatarData(assinatura.inicio_em)}</div>
+      </div>
+      <div class="subscription-detail">
+        <div class="subscription-detail-label">Próxima cobrança</div>
+        <div class="subscription-detail-value">${cancelada ? 'Sem cobranças futuras' : formatarData(assinatura.proxima_cobranca_em)}</div>
+      </div>
+      <div class="subscription-detail">
+        <div class="subscription-detail-label">Período</div>
+        <div class="subscription-detail-value cap">${escapeHtml(periodoPlano(plano.nome ? plano : assinatura))}</div>
+      </div>`;
 
-        <div class="subscription-detail">
-          <div class="subscription-detail-label">Valor</div>
-          <div class="subscription-detail-value">
-            ${formatarMoeda(plano.valor ?? assinatura.plano_valor)}
-          </div>
-        </div>
-
-        <div class="subscription-detail">
-          <div class="subscription-detail-label">Status</div>
-          <div class="subscription-detail-value">
-            <span class="subscription-status">
-              ${escapeHtml(statusTexto)}
-            </span>
-          </div>
-        </div>
-
-        <div class="subscription-detail">
-          <div class="subscription-detail-label">Início</div>
-          <div class="subscription-detail-value">
-            ${formatarData(assinatura.inicio_em)}
-          </div>
-        </div>
-
-        <div class="subscription-detail">
-          <div class="subscription-detail-label">Próxima cobrança</div>
-          <div class="subscription-detail-value">
-            ${formatarData(assinatura.proxima_cobranca_em)}
-          </div>
-        </div>
-
-        <div class="subscription-detail">
-          <div class="subscription-detail-label">Período</div>
-          <div class="subscription-detail-value">
-            ${escapeHtml(periodoPlano(plano.nome ? plano : assinatura))}
-          </div>
-        </div>
-      `;
-    }
-
-    if (btnCancelarAssinatura) {
-      const cancelada =
-        status === 'cancelada' || status === 'cancelled';
-
-      btnCancelarAssinatura.disabled = cancelada;
-      btnCancelarAssinatura.textContent = cancelada
-        ? 'Assinatura cancelada'
-        : 'Cancelar assinatura';
-    }
+    btnCancelarAssinatura.disabled = cancelada;
+    btnCancelarAssinatura.textContent = cancelada ? 'Assinatura cancelada' : 'Cancelar assinatura';
+    btnTrocarPlano.hidden = cancelada;
   }
 
   async function atualizarTelaAssinatura() {
-    const possuiAssinatura = await carregarAssinaturaAtual();
-
-    if (possuiAssinatura) {
+    if (await carregarAssinaturaAtual()) {
       mostrarAssinaturaAtual();
       return;
     }
-
-    subscriptionSection?.classList.add('hidden');
-    paymentSection?.classList.add('hidden');
-    successSection?.classList.add('hidden');
-    plansSection?.classList.remove('hidden');
-
+    subscriptionSection.classList.add('hidden');
+    paymentSection.classList.add('hidden');
+    successSection.classList.add('hidden');
+    plansSection.classList.remove('hidden');
+    atualizarHero(false);
     await carregarPlanos();
   }
 
-  // ============================================================
-  // SELECIONAR PLANO (nova assinatura OU troca com cartão)
-  // ============================================================
-
+  // ---------- selecionar plano (nova assinatura ou troca com cartão) ----------
   async function selecionarPlano(planoId) {
     limparAlertas();
 
@@ -2182,75 +791,44 @@ html[data-admin-check="bloqueado"] body {
       return;
     }
 
-    const plano = planos.find(
-      item => Number(item.id) === Number(planoId)
-    );
-
+    const plano = planos.find(p => Number(p.id) === Number(planoId));
     if (!plano) {
       mostrarErro('Plano selecionado não encontrado.');
       return;
     }
 
     planoSelecionado = plano;
-
     const periodo = periodoPlano(plano);
 
-    if (paymentTitle) {
-      paymentTitle.textContent = modoTroca
-        ? 'Confirme a troca de plano'
-        : 'Finalize sua assinatura';
-    }
+    paymentTitle.textContent = modoTroca ? 'Confirme a troca de plano' : 'Finalize sua assinatura';
+    paymentSubtitle.textContent = modoTroca
+      ? 'A nova periodicidade exige os dados do cartão. O plano atual só é cancelado após a nova assinatura ser autorizada.'
+      : 'Preencha os dados para concluir o pagamento.';
 
-    if (paymentSubtitle) {
-      paymentSubtitle.textContent = modoTroca
-        ? 'A nova periodicidade exige os dados do cartão. O plano atual só é cancelado após a nova assinatura ser autorizada.'
-        : 'Preencha os dados para concluir o pagamento.';
-    }
+    btnAssinar.disabled = false;
+    btnAssinar.textContent = modoTroca ? 'Confirmar troca de plano' : 'Assinar plano';
+    btnVoltarPlanos.disabled = false;
 
-    if (btnAssinar) {
-      btnAssinar.disabled = false;
-      btnAssinar.textContent = modoTroca
-        ? 'Confirmar troca de plano'
-        : 'Assinar plano';
-    }
+    selectedPlan.innerHTML = `
+      <div>
+        <div class="selected-label">Plano selecionado</div>
+        <div class="selected-name">${escapeHtml(plano.nome)}</div>
+        <div class="selected-period">Cobrança ${escapeHtml(periodo)}</div>
+      </div>
+      <div class="selected-price">${formatarMoeda(plano.valor)}<small>/${nomePeriodo(periodo)}</small></div>`;
 
-    if (btnVoltarPlanos) btnVoltarPlanos.disabled = false;
+    plansSection.classList.add('hidden');
+    paymentSection.classList.remove('hidden');
+    successSection.classList.add('hidden');
+    subscriptionSection.classList.add('hidden');
 
-    if (selectedPlan) {
-      selectedPlan.innerHTML = `
-        <div>
-          <div class="selected-label">Plano selecionado</div>
-          <div class="selected-name">
-            ${escapeHtml(plano.nome)}
-          </div>
-          <div class="selected-period">
-            Cobrança ${escapeHtml(periodo)}
-          </div>
-        </div>
+    email.value = usuario?.email || '';
 
-        <div class="selected-price">
-          ${formatarMoeda(plano.valor)}
-          <small>/${nomePeriodo(periodo)}</small>
-        </div>
-      `;
-    }
-
-    plansSection?.classList.add('hidden');
-    paymentSection?.classList.remove('hidden');
-    successSection?.classList.add('hidden');
-    subscriptionSection?.classList.add('hidden');
-
-    if (email) email.value = usuario?.email || '';
-
-    // Desmonta o formulário anterior (se existir) antes de recriar
     try {
-      if (cardForm && typeof cardForm.unmount === 'function') {
-        cardForm.unmount();
-      }
-    } catch (erroUnmount) {
-      console.warn('Não foi possível desmontar o CardForm anterior:', erroUnmount);
+      if (cardForm && typeof cardForm.unmount === 'function') cardForm.unmount();
+    } catch (e) {
+      console.warn('Não foi possível desmontar o CardForm anterior:', e);
     }
-
     cardForm = null;
     mp = null;
 
@@ -2258,380 +836,173 @@ html[data-admin-check="bloqueado"] body {
       await iniciarMercadoPago();
     } catch (erro) {
       console.error('Erro ao iniciar Mercado Pago:', erro);
-
-      mostrarErro(
-        erro.message ||
-        'Não foi possível carregar o formulário de pagamento.'
-      );
+      mostrarErro(erro.message || 'Não foi possível carregar o formulário de pagamento.');
     }
   }
 
-  // ============================================================
-  // MERCADO PAGO
-  // ============================================================
-
+  // ---------- Mercado Pago ----------
   async function obterPublicKey() {
     const dados = await api('/mercado-pago/public-key');
-
-    if (!dados?.public_key) {
-      throw new Error('Chave pública do Mercado Pago não configurada.');
-    }
-
+    if (!dados?.public_key) throw new Error('Chave pública do Mercado Pago não configurada.');
     return dados.public_key;
   }
 
   async function iniciarMercadoPago() {
-    if (!planoSelecionado) {
-      throw new Error('Selecione um plano antes de continuar.');
-    }
-
-    if (typeof MercadoPago === 'undefined') {
-      throw new Error('Mercado Pago.js não foi carregado.');
-    }
-
+    if (!planoSelecionado) throw new Error('Selecione um plano antes de continuar.');
+    if (typeof MercadoPago === 'undefined') throw new Error('Mercado Pago.js não foi carregado.');
     if (inicializandoCardForm) return;
 
     inicializandoCardForm = true;
-
-    if (mpLoading) {
-      mpLoading.textContent =
-        'Carregando formulário seguro do Mercado Pago...';
-    }
+    mpLoading.textContent = 'Carregando formulário seguro do Mercado Pago...';
 
     try {
-      const publicKey = await obterPublicKey();
-
-      mp = new MercadoPago(publicKey, {
-        locale: 'pt-BR'
-      });
+      mp = new MercadoPago(await obterPublicKey(), { locale: 'pt-BR' });
 
       cardForm = mp.cardForm({
         amount: Number(planoSelecionado.valor).toFixed(2),
         iframe: true,
-
         form: {
           id: 'card-form',
-
-          cardNumber: {
-            id: 'card-number',
-            placeholder: 'Número do cartão'
-          },
-
-          expirationDate: {
-            id: 'expiration-date',
-            placeholder: 'MM/AA'
-          },
-
-          securityCode: {
-            id: 'security-code',
-            placeholder: 'CVV'
-          },
-
-          cardholderName: {
-            id: 'cardholder-name'
-          },
-
-          issuer: {
-            id: 'issuer'
-          },
-
-          installments: {
-            id: 'installments'
-          },
-
-          identificationType: {
-            id: 'identification-type'
-          },
-
-          identificationNumber: {
-            id: 'identification-number'
-          },
-
-          cardholderEmail: {
-            id: 'email'
-          }
+          cardNumber: { id: 'card-number', placeholder: 'Número do cartão' },
+          expirationDate: { id: 'expiration-date', placeholder: 'MM/AA' },
+          securityCode: { id: 'security-code', placeholder: 'CVV' },
+          cardholderName: { id: 'cardholder-name' },
+          issuer: { id: 'issuer' },
+          installments: { id: 'installments' },
+          identificationType: { id: 'identification-type' },
+          identificationNumber: { id: 'identification-number' },
+          cardholderEmail: { id: 'email' }
         },
-
         callbacks: {
           onFormMounted: erro => {
+            mpLoading.textContent = '';
             if (erro) {
               console.error('Erro ao montar CardForm:', erro);
-
-              if (mpLoading) mpLoading.textContent = '';
-
               cardForm = null;
-
               mostrarErro('Não foi possível carregar os campos do cartão.');
-
-              return;
             }
-
-            if (mpLoading) mpLoading.textContent = '';
           },
-
           onFetching: () => {
-            if (mpLoading) {
-              mpLoading.textContent = 'Validando os dados do pagamento...';
-            }
-
-            return () => {
-              if (mpLoading) mpLoading.textContent = '';
-            };
+            mpLoading.textContent = 'Validando os dados do pagamento...';
+            return () => { mpLoading.textContent = ''; };
           }
         }
       });
 
-      if (email) email.value = usuario?.email || '';
+      email.value = usuario?.email || '';
     } finally {
       inicializandoCardForm = false;
     }
   }
 
-  // ============================================================
-  // ESTADO DOS BOTÕES
-  // ============================================================
-
+  // ---------- estado dos botões ----------
   function prepararNovaTentativa() {
-    if (mpLoading) mpLoading.textContent = '';
-
-    if (btnAssinar) {
-      btnAssinar.disabled = false;
-      btnAssinar.textContent = 'Tentar novamente';
-    }
-
-    if (btnVoltarPlanos) {
-      btnVoltarPlanos.disabled = false;
-    }
-
+    mpLoading.textContent = '';
+    btnAssinar.disabled = false;
+    btnAssinar.textContent = 'Tentar novamente';
+    btnVoltarPlanos.disabled = false;
     processandoAssinatura = false;
   }
 
   function definirBotoesAssinatura(carregando) {
     processandoAcaoAssinatura = carregando;
 
-    if (btnTrocarPlano) {
-      btnTrocarPlano.disabled = carregando;
-      btnTrocarPlano.textContent = carregando
-        ? 'Processando...'
-        : 'Trocar de plano';
-    }
+    btnTrocarPlano.disabled = carregando;
+    btnTrocarPlano.textContent = carregando ? 'Processando...' : 'Trocar de plano';
 
-    if (btnCancelarAssinatura) {
-      const status = String(assinaturaAtual?.status || '').toLowerCase();
+    const cancelada = estaCancelada(assinaturaAtual);
+    btnCancelarAssinatura.disabled = carregando || cancelada;
+    btnCancelarAssinatura.textContent = carregando
+      ? 'Processando...'
+      : cancelada ? 'Assinatura cancelada' : 'Cancelar assinatura';
 
-      const cancelada =
-        status === 'cancelada' || status === 'cancelled';
-
-      btnCancelarAssinatura.disabled = carregando || cancelada;
-
-      btnCancelarAssinatura.textContent = carregando
-        ? 'Processando...'
-        : cancelada
-          ? 'Assinatura cancelada'
-          : 'Cancelar assinatura';
-    }
-
-    if (confirmarTrocaPlano) {
-      confirmarTrocaPlano.disabled =
-        carregando || !planoTrocaSelecionado;
-    }
+    confirmarTrocaPlano.disabled = carregando || !planoTrocaSelecionado;
   }
 
-  // ============================================================
-  // VOLTAR PARA PLANOS
-  // ============================================================
-
-  btnVoltarPlanos?.addEventListener('click', () => {
+  // ---------- voltar / painel ----------
+  btnVoltarPlanos.addEventListener('click', () => {
     limparAlertas();
+    mpLoading.textContent = '';
+    planoSelecionado = null;
+    btnAssinar.disabled = false;
+    btnAssinar.textContent = 'Assinar plano';
+    btnVoltarPlanos.disabled = false;
 
-    if (mpLoading) mpLoading.textContent = '';
-
-    // Em modo de troca, volta para a tela da assinatura atual
     if (modoTroca) {
       modoTroca = false;
-      planoSelecionado = null;
-
-      if (btnAssinar) {
-        btnAssinar.disabled = false;
-        btnAssinar.textContent = 'Assinar plano';
-      }
-
       mostrarAssinaturaAtual();
       return;
     }
 
-    plansSection?.classList.remove('hidden');
-    paymentSection?.classList.add('hidden');
-    successSection?.classList.add('hidden');
-
-    planoSelecionado = null;
-
-    if (btnAssinar) {
-      btnAssinar.disabled = false;
-      btnAssinar.textContent = 'Assinar plano';
-    }
-
-    if (btnVoltarPlanos) {
-      btnVoltarPlanos.disabled = false;
-    }
+    plansSection.classList.remove('hidden');
+    paymentSection.classList.add('hidden');
+    successSection.classList.add('hidden');
   });
 
-  // ============================================================
-  // DASHBOARD
-  // ============================================================
-
-  btnDashboardAssinatura?.addEventListener('click', () => {
+  btnDashboardAssinatura.addEventListener('click', () => {
     window.location.href = '/dashboard.html';
   });
 
-  // ============================================================
-  // SUCESSO DA NOVA ASSINATURA
-  // ============================================================
-
+  // ---------- sucesso da nova assinatura ----------
   function mostrarSucessoAssinatura(resultado) {
     const plano = planoSelecionado;
 
-    paymentSection?.classList.add('hidden');
-    plansSection?.classList.add('hidden');
-    subscriptionSection?.classList.add('hidden');
-    successSection?.classList.remove('hidden');
+    paymentSection.classList.add('hidden');
+    plansSection.classList.add('hidden');
+    subscriptionSection.classList.add('hidden');
+    successSection.classList.remove('hidden');
 
-    if (successPlan) {
-      successPlan.textContent = plano
-        ? `Plano ${plano.nome} registrado com sucesso`
-        : 'Assinatura registrada com sucesso';
-    }
+    successPlan.textContent = plano
+      ? `Plano ${plano.nome} registrado com sucesso`
+      : 'Assinatura registrada com sucesso';
 
-    if (btnAssinar) btnAssinar.disabled = true;
-    if (btnVoltarPlanos) btnVoltarPlanos.disabled = true;
-
+    btnAssinar.disabled = true;
+    btnVoltarPlanos.disabled = true;
     planoSelecionado = null;
+    mpLoading.textContent = '';
 
-    if (mpLoading) mpLoading.textContent = '';
-
-    mostrarSucesso(
-      'Assinatura criada com sucesso. Aguardando confirmação do pagamento.'
-    );
-
+    mostrarSucesso('Assinatura criada com sucesso. Aguardando confirmação do pagamento.');
     console.log('Assinatura criada:', resultado);
   }
 
-  // ============================================================
-  // CRIAR ASSINATURA / TROCAR PLANO COM CARTÃO
-  // Envia o card_token_id ao backend, que o repassa ao Mercado Pago.
-  // ============================================================
-
+  // ---------- criar assinatura / trocar plano com cartão ----------
   async function assinar() {
     if (processandoAssinatura) return;
-
     limparAlertas();
 
-    if (!planoSelecionado) {
-      mostrarErro('Selecione um plano.');
-      return;
-    }
+    if (!planoSelecionado) return mostrarErro('Selecione um plano.');
+    if (assinaturaAtual && !modoTroca) return mostrarErro('Sua empresa já possui uma assinatura.');
+    if (!usuario?.empresa_id) return mostrarErro('A empresa do usuário não foi identificada.');
 
-    if (assinaturaAtual && !modoTroca) {
-      mostrarErro('Sua empresa já possui uma assinatura.');
-      return;
-    }
+    const emailValue = email.value.trim();
+    const nomeValue = cardholderName.value.trim();
+    const cpfValue = limparCpf(identificationNumber.value);
 
-    if (!usuario?.empresa_id) {
-      mostrarErro('A empresa do usuário não foi identificada.');
-      return;
-    }
-
-    const emailValue = email?.value.trim() || '';
-    const nomeValue = cardholderName?.value.trim() || '';
-    const cpfValue = limparCpf(identificationNumber?.value);
-
-    if (!emailValue) {
-      mostrarErro('Informe o e-mail.');
-      email?.focus();
-      return;
-    }
-
-    if (!nomeValue) {
-      mostrarErro('Informe o nome do titular do cartão.');
-      cardholderName?.focus();
-      return;
-    }
-
-    if (cpfValue.length !== 11) {
-      mostrarErro('Informe um CPF com 11 dígitos.');
-      identificationNumber?.focus();
-      return;
-    }
-
-    if (!cardForm) {
-      mostrarErro('O formulário do cartão ainda não foi carregado.');
-      return;
-    }
+    if (!emailValue) { mostrarErro('Informe o e-mail.'); email.focus(); return; }
+    if (!nomeValue) { mostrarErro('Informe o nome do titular do cartão.'); cardholderName.focus(); return; }
+    if (cpfValue.length !== 11) { mostrarErro('Informe um CPF com 11 dígitos.'); identificationNumber.focus(); return; }
+    if (!cardForm) return mostrarErro('O formulário do cartão ainda não foi carregado.');
 
     let dadosCartao;
-
     try {
-      if (mpLoading) {
-        mpLoading.textContent = 'Validando os dados do cartão...';
-      }
-
+      mpLoading.textContent = 'Validando os dados do cartão...';
       dadosCartao = cardForm.getCardFormData();
     } catch (erro) {
       console.error('Erro ao obter dados do cartão:', erro);
-
-      if (mpLoading) mpLoading.textContent = '';
-
-      mostrarErro('Não foi possível validar os dados do cartão.');
-
-      return;
+      mpLoading.textContent = '';
+      return mostrarErro('Não foi possível validar os dados do cartão.');
     }
 
     if (!dadosCartao?.token) {
-      if (mpLoading) mpLoading.textContent = '';
-
-      mostrarErro(
-        'Não foi possível gerar o token do cartão. Verifique os dados informados.'
-      );
-
-      return;
+      mpLoading.textContent = '';
+      return mostrarErro('Não foi possível gerar o token do cartão. Verifique os dados informados.');
     }
-
-    const paymentMethodId =
-      dadosCartao.paymentMethodId ||
-      dadosCartao.payment_method_id ||
-      null;
-
-    const issuerId =
-      dadosCartao.issuerId ||
-      dadosCartao.issuer_id ||
-      null;
-
-    const installments = dadosCartao.installments
-      ? Number(dadosCartao.installments)
-      : 1;
-
-    const identificationType =
-      dadosCartao.identificationType ||
-      dadosCartao.identification_type ||
-      'CPF';
-
-    const identificationNumberValue =
-      dadosCartao.identificationNumber ||
-      dadosCartao.identification_number ||
-      cpfValue;
 
     processandoAssinatura = true;
-
-    if (btnAssinar) {
-      btnAssinar.disabled = true;
-      btnAssinar.textContent = 'Processando...';
-    }
-
-    if (btnVoltarPlanos) btnVoltarPlanos.disabled = true;
-
-    if (mpLoading) {
-      mpLoading.textContent = 'Enviando pagamento com segurança...';
-    }
+    btnAssinar.disabled = true;
+    btnAssinar.textContent = 'Processando...';
+    btnVoltarPlanos.disabled = true;
+    mpLoading.textContent = 'Enviando pagamento com segurança...';
 
     const endpoint = modoTroca
       ? '/mercado-pago/minha-assinatura/trocar-plano'
@@ -2645,287 +1016,263 @@ html[data-admin-check="bloqueado"] body {
           email: emailValue,
           nome: nomeValue,
           card_token_id: dadosCartao.token,
-          payment_method_id: paymentMethodId,
-          issuer_id: issuerId,
-          installments,
-          identification_type: identificationType,
-          identification_number: identificationNumberValue
+          payment_method_id: dadosCartao.paymentMethodId || dadosCartao.payment_method_id || null,
+          issuer_id: dadosCartao.issuerId || dadosCartao.issuer_id || null,
+          installments: dadosCartao.installments ? Number(dadosCartao.installments) : 1,
+          identification_type: dadosCartao.identificationType || dadosCartao.identification_type || 'CPF',
+          identification_number: dadosCartao.identificationNumber || dadosCartao.identification_number || cpfValue
         })
       });
 
-      // ----- Troca de plano com nova periodicidade -----
       if (modoTroca) {
         modoTroca = false;
         planoSelecionado = null;
-
-        if (btnAssinar) {
-          btnAssinar.disabled = false;
-          btnAssinar.textContent = 'Assinar plano';
-        }
-
-        if (btnVoltarPlanos) btnVoltarPlanos.disabled = false;
-        if (mpLoading) mpLoading.textContent = '';
+        btnAssinar.disabled = false;
+        btnAssinar.textContent = 'Assinar plano';
+        btnVoltarPlanos.disabled = false;
+        mpLoading.textContent = '';
 
         try {
           await atualizarTelaAssinatura();
-        } catch (erroAtualizacao) {
-          console.error(
-            'A troca foi processada, mas a atualização da tela falhou:',
-            erroAtualizacao
-          );
-
-          mostrarErro(
-            'A troca foi processada, mas não foi possível atualizar os dados exibidos. Recarregue a página.'
-          );
-
+        } catch (e) {
+          console.error('A troca foi processada, mas a atualização da tela falhou:', e);
+          mostrarErro('A troca foi processada, mas não foi possível atualizar os dados exibidos. Recarregue a página.');
           return;
         }
 
-        if (resultado?.aviso) {
-          mostrarErro(resultado.aviso);
-        } else {
-          mostrarSucesso(resultado?.mensagem || 'Plano atualizado.');
-        }
-
+        if (resultado?.aviso) mostrarErro(resultado.aviso);
+        else mostrarSucesso(resultado?.mensagem || 'Plano atualizado.');
         return;
       }
 
-      // ----- Nova assinatura -----
       mostrarSucessoAssinatura(resultado);
-
-      setTimeout(() => {
-        window.location.href = '/dashboard.html';
-      }, 2500);
+      setTimeout(() => { window.location.href = '/dashboard.html'; }, 2500);
     } catch (erro) {
       console.error('Erro ao enviar assinatura:', erro);
-
-      if (mpLoading) mpLoading.textContent = '';
+      mpLoading.textContent = '';
 
       if (erro.status === 409 && !modoTroca) {
         try {
-          const possuiAssinatura = await carregarAssinaturaAtual();
-
-          if (possuiAssinatura) {
+          if (await carregarAssinaturaAtual()) {
             mostrarAssinaturaAtual();
-
-            mostrarSucesso(
-              'Sua empresa já possui uma assinatura registrada.'
-            );
-
+            mostrarSucesso('Sua empresa já possui uma assinatura registrada.');
             return;
           }
-        } catch (erroConsulta) {
-          console.error(
-            'Erro ao consultar assinatura após conflito:',
-            erroConsulta
-          );
+        } catch (e) {
+          console.error('Erro ao consultar assinatura após conflito:', e);
         }
       }
 
       mostrarErro(obterMensagemMercadoPago(erro));
-
-      // O token de cartão é de uso único: o MercadoPago.js gera um novo
-      // a cada chamada de getCardFormData().
+      // O token do cartão é de uso único: um novo é gerado a cada getCardFormData().
       prepararNovaTentativa();
-
-      if (btnAssinar && modoTroca) {
-        btnAssinar.textContent = 'Tentar novamente';
-      }
     } finally {
       processandoAssinatura = false;
     }
   }
 
-  form?.addEventListener('submit', evento => {
-    evento.preventDefault();
-
-    if (btnAssinar?.disabled || processandoAssinatura) {
-      return;
-    }
-
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (btnAssinar.disabled || processandoAssinatura) return;
     assinar();
   });
 
-  identificationNumber?.addEventListener('input', () => {
-    identificationNumber.value =
-      limparCpf(identificationNumber.value).substring(0, 11);
+  identificationNumber.addEventListener('input', () => {
+    identificationNumber.value = limparCpf(identificationNumber.value).substring(0, 11);
   });
 
-  // ============================================================
-  // REQUISIÇÃO PARA AÇÕES DA ASSINATURA
-  // ============================================================
+  // ---------- modal de troca de plano ----------
+  function fecharModalTrocaPlano(forcar = false) {
+    if (processandoAcaoAssinatura && !forcar) return;
 
-  async function requisicaoAcaoAssinatura(caminho, dados = {}) {
-    return api(caminho, {
-      method: 'POST',
-      body: JSON.stringify(dados)
-    });
+    modalTrocarPlano.classList.add('hidden');
+    modalTrocarPlano.setAttribute('aria-hidden', 'true');
+    planoTrocaSelecionado = null;
+    confirmarTrocaPlano.disabled = true;
+
+    if (focoAnterior && typeof focoAnterior.focus === 'function') focoAnterior.focus();
+    focoAnterior = null;
   }
 
-  // ============================================================
-  // CANCELAR ASSINATURA
-  // ============================================================
+  function selecionarPlanoNoModal(card, disponiveis) {
+    const id = Number(card.dataset.cardPlano);
+    planoTrocaSelecionado = disponiveis.find(p => Number(p.id) === id) || null;
 
+    listaPlanosTroca.querySelectorAll('.card-plano-troca').forEach(item => {
+      item.classList.remove('selecionado');
+      item.querySelector('.card-plano-troca-selo').textContent = 'Selecionar plano';
+    });
+
+    card.classList.add('selecionado');
+    card.querySelector('input[type="radio"]').checked = true;
+    card.querySelector('.card-plano-troca-selo').textContent = 'Plano selecionado';
+
+    confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
+    mostrarMensagemModal('');
+  }
+
+  function mostrarModalTrocaPlano() {
+    planoTrocaSelecionado = null;
+    confirmarTrocaPlano.disabled = true;
+    confirmarTrocaPlano.textContent = 'Confirmar troca';
+    mostrarMensagemModal('');
+
+    const planoAtualId = Number(assinaturaAtual?.plano_id || assinaturaAtual?.plano?.id);
+    const disponiveis = planos.filter(p => p.ativo !== false && Number(p.id) !== planoAtualId);
+
+    if (disponiveis.length === 0) {
+      listaPlanosTroca.innerHTML = '<p>Não há outros planos disponíveis para troca.</p>';
+    } else {
+      listaPlanosTroca.innerHTML = disponiveis.map(plano => `
+        <label class="card-plano-troca" data-card-plano="${Number(plano.id)}">
+          <input type="radio" name="plano-troca" value="${Number(plano.id)}"
+            aria-label="Selecionar ${escapeHtml(plano.nome)}">
+          <span class="card-plano-troca-nome">${escapeHtml(plano.nome)}</span>
+          <span class="card-plano-troca-descricao">${escapeHtml(plano.descricao || 'Plano para sua empresa.')}</span>
+          <span class="card-plano-troca-preco">${formatarMoeda(plano.valor)}</span>
+          <span class="card-plano-troca-periodo">por ${escapeHtml(nomePeriodo(periodoPlano(plano)))}</span>
+          <span class="card-plano-troca-selo">Selecionar plano</span>
+        </label>`).join('');
+
+      listaPlanosTroca.querySelectorAll('[data-card-plano]').forEach(card =>
+        card.addEventListener('click', () => selecionarPlanoNoModal(card, disponiveis))
+      );
+    }
+
+    focoAnterior = document.activeElement;
+    modalTrocarPlano.classList.remove('hidden');
+    modalTrocarPlano.setAttribute('aria-hidden', 'false');
+    btnFecharModalPlanos.focus();
+  }
+
+  btnFecharModalPlanos.addEventListener('click', () => fecharModalTrocaPlano());
+  btnCancelarModalPlanos.addEventListener('click', () => fecharModalTrocaPlano());
+  modalTrocarPlano.querySelectorAll('[data-fechar-modal]').forEach(el =>
+    el.addEventListener('click', () => fecharModalTrocaPlano())
+  );
+
+  document.addEventListener('keydown', e => {
+    if (modalTrocarPlano.classList.contains('hidden')) return;
+
+    if (e.key === 'Escape') {
+      fecharModalTrocaPlano();
+      return;
+    }
+
+    // mantém o foco dentro do modal
+    if (e.key === 'Tab') {
+      const focaveis = [...modalTrocarPlano.querySelectorAll('button:not(:disabled), input')]
+        .filter(el => el.offsetParent !== null);
+      if (focaveis.length === 0) return;
+
+      const primeiro = focaveis[0];
+      const ultimo = focaveis[focaveis.length - 1];
+
+      if (e.shiftKey && document.activeElement === primeiro) {
+        e.preventDefault();
+        ultimo.focus();
+      } else if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault();
+        primeiro.focus();
+      }
+    }
+  });
+
+  // ---------- cancelar assinatura ----------
   async function cancelarMinhaAssinatura() {
     if (processandoAcaoAssinatura) return;
 
     if (!assinaturaAtual) {
-      mostrarMensagemAssinatura(
-        'Não foi possível localizar sua assinatura.',
-        'error'
-      );
+      mostrarMensagemAssinatura('Não foi possível localizar sua assinatura.', 'error');
       return;
     }
 
-    const status = String(assinaturaAtual.status || '').toLowerCase();
-
-    if (status === 'cancelada' || status === 'cancelled') {
-      mostrarMensagemAssinatura(
-        'Esta assinatura já está cancelada.',
-        'error'
-      );
+    if (estaCancelada(assinaturaAtual)) {
+      mostrarMensagemAssinatura('Esta assinatura já está cancelada.', 'error');
       return;
     }
 
     const confirmou = window.confirm(
-      'Deseja realmente cancelar sua assinatura?\n\n' +
-      'A solicitação será enviada ao Mercado Pago.'
+      'Deseja realmente cancelar sua assinatura?\n\nA solicitação será enviada ao Mercado Pago.'
     );
-
     if (!confirmou) return;
 
     definirBotoesAssinatura(true);
-
     mostrarMensagemAssinatura('Solicitando cancelamento ao Mercado Pago...');
 
     try {
-      const resultado = await requisicaoAcaoAssinatura(
-        '/mercado-pago/minha-assinatura/cancelar'
-      );
-
-      mostrarMensagemAssinatura(
-        resultado.mensagem || 'Solicitação de cancelamento concluída.',
-        'success'
-      );
-
+      const resultado = await requisicaoAcaoAssinatura('/mercado-pago/minha-assinatura/cancelar');
+      mostrarMensagemAssinatura(resultado.mensagem || 'Solicitação de cancelamento concluída.', 'success');
       await atualizarTelaAssinatura();
     } catch (erro) {
       console.error('Erro ao cancelar assinatura:', erro);
-
-      mostrarMensagemAssinatura(
-        erro.message || 'Erro ao cancelar a assinatura.',
-        'error'
-      );
+      mostrarMensagemAssinatura(erro.message || 'Erro ao cancelar a assinatura.', 'error');
     } finally {
       definirBotoesAssinatura(false);
     }
   }
 
-  // ============================================================
-  // ABRIR TROCA DE PLANO
-  // ============================================================
-
+  // ---------- abrir troca de plano ----------
   async function trocarMeuPlano() {
     if (processandoAcaoAssinatura) return;
 
     if (!assinaturaAtual) {
-      mostrarMensagemAssinatura(
-        'Não foi possível localizar sua assinatura.',
-        'error'
-      );
+      mostrarMensagemAssinatura('Não foi possível localizar sua assinatura.', 'error');
       return;
     }
 
     try {
-      if (!Array.isArray(planos) || planos.length === 0) {
-        await carregarPlanos();
-      }
-
+      if (!Array.isArray(planos) || planos.length === 0) await carregarPlanos();
       mostrarModalTrocaPlano();
     } catch (erro) {
       console.error('Erro ao carregar planos para troca:', erro);
-
-      mostrarMensagemAssinatura(
-        'Não foi possível carregar os planos disponíveis.',
-        'error'
-      );
+      mostrarMensagemAssinatura('Não foi possível carregar os planos disponíveis.', 'error');
     }
   }
 
-  // ============================================================
-  // CONFIRMAR TROCA DE PLANO
-  // ============================================================
-
-  confirmarTrocaPlano?.addEventListener('click', async () => {
-    if (processandoAcaoAssinatura) return;
-    if (!planoTrocaSelecionado) return;
+  // ---------- confirmar troca ----------
+  confirmarTrocaPlano.addEventListener('click', async () => {
+    if (processandoAcaoAssinatura || !planoTrocaSelecionado) return;
 
     const plano = planoTrocaSelecionado;
-
-    const periodoAtualPlano = periodoPlano(
-      assinaturaAtual?.plano || assinaturaAtual
-    );
-
-    const mudaPeriodicidade =
-      periodoPlano(plano) !== periodoAtualPlano;
+    const mudaPeriodicidade = periodoPlano(plano) !== periodoPlano(assinaturaAtual?.plano || assinaturaAtual);
 
     const confirmou = window.confirm(
       `Confirma a troca para o plano "${plano.nome}"?\n\n` +
-      `Valor: ${formatarMoeda(plano.valor)} por ` +
-      `${nomePeriodo(periodoPlano(plano))}.` +
+      `Valor: ${formatarMoeda(plano.valor)} por ${nomePeriodo(periodoPlano(plano))}.` +
       (mudaPeriodicidade
         ? '\n\nComo a periodicidade muda, você informará os dados do cartão na próxima etapa.'
         : '')
     );
-
     if (!confirmou) return;
 
-    // Periodicidade diferente: abre o formulário de cartão para gerar
-    // um novo card_token_id (o token é de uso único).
+    // Periodicidade diferente: precisa de um novo card_token_id (uso único).
     if (mudaPeriodicidade) {
       fecharModalTrocaPlano(true);
-
       modoTroca = true;
-
       await selecionarPlano(plano.id);
-
       return;
     }
 
     // Mesma periodicidade: só atualiza o valor, sem cartão.
     definirBotoesAssinatura(true);
-
-    if (confirmarTrocaPlano) {
-      confirmarTrocaPlano.disabled = true;
-      confirmarTrocaPlano.textContent = 'Processando...';
-    }
-
+    confirmarTrocaPlano.disabled = true;
+    confirmarTrocaPlano.textContent = 'Processando...';
     mostrarMensagemModal('Atualizando seu plano...');
 
     try {
       const resultado = await requisicaoAcaoAssinatura(
         '/mercado-pago/minha-assinatura/trocar-plano',
-        {
-          plano_id: Number(plano.id)
-        }
+        { plano_id: Number(plano.id) }
       );
 
-      // Fecha o modal logo após a confirmação do backend.
       fecharModalTrocaPlano(true);
-
-      mostrarMensagemAssinatura(
-        resultado?.mensagem || 'Plano atualizado com sucesso.',
-        'success'
-      );
+      mostrarMensagemAssinatura(resultado?.mensagem || 'Plano atualizado com sucesso.', 'success');
 
       try {
         await atualizarTelaAssinatura();
-      } catch (erroAtualizacao) {
-        console.error(
-          'A troca foi solicitada, mas a atualização da tela falhou:',
-          erroAtualizacao
-        );
-
+      } catch (e) {
+        console.error('A troca foi solicitada, mas a atualização da tela falhou:', e);
         mostrarMensagemAssinatura(
           'A troca foi processada, mas não foi possível atualizar os dados exibidos. Recarregue a página.',
           'error'
@@ -2933,78 +1280,43 @@ html[data-admin-check="bloqueado"] body {
       }
     } catch (erro) {
       console.error('Erro ao trocar plano:', erro);
-
-      mostrarMensagemModal(
-        erro.message || 'Não foi possível trocar o plano.',
-        'erro'
-      );
-
-      if (confirmarTrocaPlano) {
-        confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
-        confirmarTrocaPlano.textContent = 'Confirmar troca';
-      }
+      mostrarMensagemModal(erro.message || 'Não foi possível trocar o plano.', 'erro');
     } finally {
       definirBotoesAssinatura(false);
-
-      if (confirmarTrocaPlano) {
-        confirmarTrocaPlano.textContent = 'Confirmar troca';
-
-        if (
-          modalTrocarPlano &&
-          !modalTrocarPlano.classList.contains('hidden')
-        ) {
-          confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
-        }
+      confirmarTrocaPlano.textContent = 'Confirmar troca';
+      if (!modalTrocarPlano.classList.contains('hidden')) {
+        confirmarTrocaPlano.disabled = !planoTrocaSelecionado;
       }
     }
   });
 
-  // ============================================================
-  // EVENTOS DAS AÇÕES DA ASSINATURA
-  // ============================================================
+  btnCancelarAssinatura.addEventListener('click', cancelarMinhaAssinatura);
+  btnTrocarPlano.addEventListener('click', trocarMeuPlano);
 
-  btnCancelarAssinatura?.addEventListener('click', cancelarMinhaAssinatura);
-
-  btnTrocarPlano?.addEventListener('click', trocarMeuPlano);
-
-  // ============================================================
-  // INICIALIZAÇÃO
-  // ============================================================
-
+  // ---------- inicialização ----------
   async function iniciar() {
     try {
       const dados = await verificarUsuario();
-
       if (!dados) return;
 
-      carregarEmpresa(dados);
+      companyName.textContent = dados?.empresa?.nome || 'Sua empresa';
 
-      // Carregar os planos para permitir troca posteriormente.
-      await carregarPlanos();
+      await carregarPlanos(); // necessário para a troca de plano
 
-      const possuiAssinatura = await carregarAssinaturaAtual();
-
-      if (possuiAssinatura) {
+      if (await carregarAssinaturaAtual()) {
         mostrarAssinaturaAtual();
       } else {
-        subscriptionSection?.classList.add('hidden');
-        paymentSection?.classList.add('hidden');
-        successSection?.classList.add('hidden');
-        plansSection?.classList.remove('hidden');
+        subscriptionSection.classList.add('hidden');
+        paymentSection.classList.add('hidden');
+        successSection.classList.add('hidden');
+        plansSection.classList.remove('hidden');
       }
-
-      if (loading) loading.style.display = 'none';
-      content?.classList.remove('hidden');
     } catch (erro) {
       console.error('Erro ao iniciar página de assinatura:', erro);
-
-      if (loading) loading.style.display = 'none';
-      content?.classList.remove('hidden');
-
-      mostrarErro(
-        erro.message ||
-        'Não foi possível carregar a página de assinatura.'
-      );
+      mostrarErro(erro.message || 'Não foi possível carregar a página de assinatura.');
+    } finally {
+      loading.style.display = 'none';
+      content.classList.remove('hidden');
     }
   }
 
@@ -3012,60 +1324,29 @@ html[data-admin-check="bloqueado"] body {
 })();
 </script>
 
-
 <script>
 (() => {
   'use strict';
-
-  if (window.__orvixAdminPermitido === true) {
-    return;
-  }
+  if (window.__orvixAdminPermitido === true) return;
 
   function mostrarAcessoRestrito() {
     document.body.innerHTML = `
-      <main style="
-        max-width: 600px;
-        margin: 80px auto;
-        padding: 24px;
-        text-align: center;
-        font-family: system-ui, sans-serif;
-      ">
+      <main style="max-width:600px;margin:80px auto;padding:24px;text-align:center;font-family:system-ui,sans-serif">
         <h1>Acesso restrito</h1>
-
-        <p style="
-          margin: 12px 0 20px;
-          color: #64748b;
-          line-height: 1.6;
-        ">
-          A página Minha assinatura está disponível
-          somente para administradores da empresa.
+        <p style="margin:12px 0 20px;color:#64748b;line-height:1.6">
+          A página Minha assinatura está disponível somente para administradores da empresa.
         </p>
-
-        <a href="/" style="
-          color: #2563eb;
-          font-weight: 600;
-          text-decoration: none;
-        ">
-          Voltar ao painel
-        </a>
-      </main>
-    `;
-
+        <a href="/" style="color:#2563eb;font-weight:600;text-decoration:none">Voltar ao painel</a>
+      </main>`;
     document.body.style.visibility = 'visible';
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener(
-      'DOMContentLoaded',
-      mostrarAcessoRestrito,
-      { once: true }
-    );
+    document.addEventListener('DOMContentLoaded', mostrarAcessoRestrito, { once: true });
   } else {
     mostrarAcessoRestrito();
   }
 })();
 </script>
-
-
 </body>
 </html>
