@@ -36,10 +36,11 @@ class _CadastroPageState extends State<CadastroPage> {
 
   String? _erro;
 
-  // TROQUE pelas URLs reais dos seus documentos.
-  static const String _urlTermos = 'https://orvix.com.br/termos-de-uso';
+  // URLs dos documentos legais.
+  static const String _urlTermos = 
+      'https://sistemaagendamento-lavajato-sistema.vercel.app/termos.html';
   static const String _urlPrivacidade =
-      'https://orvix.com.br/politica-de-privacidade';
+      'https://sistemaagendamento-lavajato-sistema.vercel.app/politica-de-privacidade.html';
 
   late final TapGestureRecognizer _termosTap;
   late final TapGestureRecognizer _privacidadeTap;
@@ -146,10 +147,10 @@ class _CadastroPageState extends State<CadastroPage> {
     super.initState();
 
     _termosTap = TapGestureRecognizer()
-      ..onTap = () => _abrirLink'https://sistemaagendamento-lavajato-sistema.vercel.app/termos.html';
+      ..onTap = () => _abrirLink(_urlTermos);
 
     _privacidadeTap = TapGestureRecognizer()
-      ..onTap = () => _abrirLink'https://sistemaagendamento-lavajato-sistema.vercel.app/politica-de-privacidade.html';
+      ..onTap = () => _abrirLink(_urlPrivacidade);
   }
 
   @override
