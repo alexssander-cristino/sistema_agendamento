@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/theme/orvix_theme_controller.dart';
 
 class ServicosPage extends StatefulWidget {
   const ServicosPage({super.key});
@@ -10,13 +12,9 @@ class ServicosPage extends StatefulWidget {
 }
 
 class _ServicosPageState extends State<ServicosPage> {
-  static const Color _fundo = Color(0xFF0F1020);
-  static const Color _painel = Color(0xFF191A30);
-  static const Color _roxo = Color(0xFF8B5CF6);
-  static const Color _texto = Color(0xFFF4F3FF);
-  static const Color _secundario = Color(0xFFA6A4C2);
-  static const Color _verde = Color(0xFF35C99A);
-  static const Color _vermelho = Color(0xFFEF6464);
+  static const Color _roxo = Color(0xFF7965D8);
+  static const Color _verde = Color(0xFF239B70);
+  static const Color _vermelho = Color(0xFFD94F68);
 
   final TextEditingController _buscaController = TextEditingController();
 
@@ -25,14 +23,50 @@ class _ServicosPageState extends State<ServicosPage> {
   bool _excluindo = false;
   String? _erro;
 
+  bool get _temaEscuro => OrvixThemeController.instance.isDark;
+
+  Color get _fundo => _temaEscuro
+      ? const Color(0xFF0F1020)
+      : const Color(0xFFF6F5FB);
+
+  Color get _painel => _temaEscuro
+      ? const Color(0xFF191A30)
+      : Colors.white;
+
+  Color get _texto => _temaEscuro
+      ? const Color(0xFFF4F3FF)
+      : const Color(0xFF242033);
+
+  Color get _secundario => _temaEscuro
+      ? const Color(0xFFA6A4C2)
+      : const Color(0xFF777187);
+
+  Color get _borda => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.07)
+      : const Color(0xFFE4E0EF);
+
+  Color get _fundoCampo => _temaEscuro
+      ? const Color(0xFF0F1020)
+      : const Color(0xFFF8F7FC);
+
+  Color get _fundoEtiqueta => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.04)
+      : const Color(0xFFF1EFF8);
+
   @override
   void initState() {
     super.initState();
+    OrvixThemeController.instance.addListener(_aoAlterarTema);
     _carregar();
+  }
+
+  void _aoAlterarTema() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    OrvixThemeController.instance.removeListener(_aoAlterarTema);
     _buscaController.dispose();
     super.dispose();
   }
@@ -84,7 +118,9 @@ class _ServicosPageState extends State<ServicosPage> {
     final horas = minutos ~/ 60;
     final resto = minutos % 60;
 
-    return resto == 0 ? '${horas}h' : '${horas}h${resto.toString().padLeft(2, '0')}';
+    return resto == 0
+        ? '${horas}h'
+        : '${horas}h${resto.toString().padLeft(2, '0')}';
   }
 
   void _mensagem(String mensagem) {
@@ -97,6 +133,7 @@ class _ServicosPageState extends State<ServicosPage> {
           content: Text(mensagem),
           behavior: SnackBarBehavior.floating,
           backgroundColor: _painel,
+          showCloseIcon: true,
         ),
       );
   }
@@ -106,10 +143,12 @@ class _ServicosPageState extends State<ServicosPage> {
   // ============================================================
 
   Future<void> _carregar() async {
-    setState(() {
-      _carregando = true;
-      _erro = null;
-    });
+    if (mounted) {
+      setState(() {
+        _carregando = true;
+        _erro = null;
+      });
+    }
 
     try {
       final lista = await ApiClient.getList('/servicos');
@@ -140,7 +179,6 @@ class _ServicosPageState extends State<ServicosPage> {
 
     final lista = _servicos.where((servico) {
       if (busca.isEmpty) return true;
-
       return _s(servico['nome']).toLowerCase().contains(busca);
     }).toList();
 
@@ -161,21 +199,25 @@ class _ServicosPageState extends State<ServicosPage> {
     return InputDecoration(
       labelText: rotulo,
       prefixIcon: icone == null ? null : Icon(icone, size: 20),
-      labelStyle: const TextStyle(color: _secundario),
+      labelStyle: TextStyle(color: _secundario),
       prefixIconColor: _secundario,
       filled: true,
-      fillColor: _fundo,
+      fillColor: _fundoCampo,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 16,
+      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.07)),
+        borderSide: BorderSide(color: _borda),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: const BorderSide(color: _roxo),
+        borderSide: const BorderSide(color: _roxo, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
@@ -183,12 +225,14 @@ class _ServicosPageState extends State<ServicosPage> {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: const BorderSide(color: _vermelho),
+        borderSide: const BorderSide(color: _vermelho, width: 1.5),
       ),
     );
   }
 
-  Future<void> _abrirFormulario({Map<String, dynamic>? servico}) async {
+  Future<void> _abrirFormulario({
+    Map<String, dynamic>? servico,
+  }) async {
     if (_excluindo) return;
 
     final id = _id(servico?['id']);
@@ -198,12 +242,12 @@ class _ServicosPageState extends State<ServicosPage> {
     final preco = TextEditingController(
       text: servico == null
           ? ''
-          : _valor(servico['preco']).toStringAsFixed(2).replaceAll('.', ','),
+          : _valor(servico['preco'])
+              .toStringAsFixed(2)
+              .replaceAll('.', ','),
     );
     final duracao = TextEditingController(
-      text: servico == null
-          ? '30'
-          : _s(servico['duracao_min']),
+      text: servico == null ? '30' : _s(servico['duracao_min']),
     );
 
     bool salvandoDialog = false;
@@ -217,11 +261,17 @@ class _ServicosPageState extends State<ServicosPage> {
             builder: (context, setDialogState) {
               return AlertDialog(
                 backgroundColor: _painel,
+                surfaceTintColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  side: BorderSide(color: _borda),
+                ),
                 title: Text(
                   servico == null ? 'Novo serviço' : 'Editar serviço',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _texto,
                     fontWeight: FontWeight.w800,
+                    fontSize: 20,
                   ),
                 ),
                 content: SizedBox(
@@ -236,8 +286,9 @@ class _ServicosPageState extends State<ServicosPage> {
                             controller: nome,
                             maxLength: 150,
                             enabled: !salvandoDialog,
-                            textCapitalization: TextCapitalization.sentences,
-                            style: const TextStyle(color: _texto),
+                            textCapitalization:
+                                TextCapitalization.sentences,
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Nome do serviço *',
                               icone: Icons.design_services_outlined,
@@ -253,10 +304,11 @@ class _ServicosPageState extends State<ServicosPage> {
                           TextFormField(
                             controller: preco,
                             enabled: !salvandoDialog,
-                            keyboardType: const TextInputType.numberWithOptions(
+                            keyboardType:
+                                const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Preço (R\$) *',
                               icone: Icons.payments_outlined,
@@ -264,12 +316,6 @@ class _ServicosPageState extends State<ServicosPage> {
                             validator: (v) {
                               if (v == null || v.trim().isEmpty) {
                                 return 'Informe o preço.';
-                              }
-                              if (double.tryParse(
-                                    _valor(v).toString(),
-                                  ) ==
-                                  null) {
-                                return 'Preço inválido.';
                               }
                               if (_valor(v) < 0) {
                                 return 'O preço não pode ser negativo.';
@@ -282,13 +328,14 @@ class _ServicosPageState extends State<ServicosPage> {
                             controller: duracao,
                             enabled: !salvandoDialog,
                             keyboardType: TextInputType.number,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Duração em minutos *',
                               icone: Icons.schedule,
                             ),
                             validator: (v) {
-                              final minutos = int.tryParse(v?.trim() ?? '');
+                              final minutos =
+                                  int.tryParse(v?.trim() ?? '');
                               if (minutos == null || minutos <= 0) {
                                 return 'Informe a duração (maior que zero).';
                               }
@@ -300,12 +347,13 @@ class _ServicosPageState extends State<ServicosPage> {
                     ),
                   ),
                 ),
+                actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
                 actions: [
                   TextButton(
                     onPressed: salvandoDialog
                         ? null
                         : () => Navigator.of(dialogContext).pop(),
-                    child: const Text(
+                    child: Text(
                       'Cancelar',
                       style: TextStyle(color: _secundario),
                     ),
@@ -314,13 +362,16 @@ class _ServicosPageState extends State<ServicosPage> {
                     onPressed: salvandoDialog
                         ? null
                         : () async {
-                            if (!(formKey.currentState?.validate() ?? false)) {
+                            if (!(formKey.currentState?.validate() ??
+                                false)) {
                               return;
                             }
 
                             if (servico != null && id == null) return;
 
-                            setDialogState(() => salvandoDialog = true);
+                            setDialogState(
+                              () => salvandoDialog = true,
+                            );
 
                             final minutos =
                                 int.tryParse(duracao.text.trim()) ?? 0;
@@ -335,11 +386,16 @@ class _ServicosPageState extends State<ServicosPage> {
                               if (id == null) {
                                 await ApiClient.post('/servicos', dados);
                               } else {
-                                // A rota do backend usa PUT para atualizar serviços.
-                                await ApiClient.put('/servicos/$id', dados);
+                                await ApiClient.put(
+                                  '/servicos/$id',
+                                  dados,
+                                );
                               }
 
-                              if (!mounted || !dialogContext.mounted) return;
+                              if (!mounted ||
+                                  !dialogContext.mounted) {
+                                return;
+                              }
 
                               Navigator.of(dialogContext).pop();
 
@@ -352,7 +408,9 @@ class _ServicosPageState extends State<ServicosPage> {
                               await _carregar();
                             } catch (e) {
                               if (dialogContext.mounted) {
-                                setDialogState(() => salvandoDialog = false);
+                                setDialogState(
+                                  () => salvandoDialog = false,
+                                );
                               }
 
                               _mensagem(
@@ -365,6 +423,9 @@ class _ServicosPageState extends State<ServicosPage> {
                     style: FilledButton.styleFrom(
                       backgroundColor: _roxo,
                       foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     icon: salvandoDialog
                         ? const SizedBox(
@@ -376,7 +437,9 @@ class _ServicosPageState extends State<ServicosPage> {
                             ),
                           )
                         : const Icon(Icons.save_outlined),
-                    label: Text(salvandoDialog ? 'Salvando...' : 'Salvar'),
+                    label: Text(
+                      salvandoDialog ? 'Salvando...' : 'Salvar',
+                    ),
                   ),
                 ],
               );
@@ -385,8 +448,7 @@ class _ServicosPageState extends State<ServicosPage> {
         },
       );
     } finally {
-      // O showDialog completa ao fechar a rota, mas a animação de saída ainda
-      // usa os controllers. Por isso o descarte é adiado.
+      // Aguarda a animação de saída do diálogo antes de descartar os campos.
       Future<void>.delayed(const Duration(milliseconds: 500), () {
         nome.dispose();
         preco.dispose();
@@ -409,25 +471,39 @@ class _ServicosPageState extends State<ServicosPage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _painel,
-        title: const Text(
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(color: _borda),
+        ),
+        title: Text(
           'Excluir serviço?',
-          style: TextStyle(color: _texto),
+          style: TextStyle(
+            color: _texto,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         content: Text(
           'O serviço "$nome" será excluído. '
           'Essa ação não pode ser desfeita.',
-          style: const TextStyle(color: _secundario, height: 1.5),
+          style: TextStyle(
+            color: _secundario,
+            height: 1.5,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text(
+            child: Text(
               'Cancelar',
               style: TextStyle(color: _secundario),
             ),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: _vermelho),
+            style: FilledButton.styleFrom(
+              backgroundColor: _vermelho,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Excluir'),
           ),
@@ -461,13 +537,18 @@ class _ServicosPageState extends State<ServicosPage> {
   // WIDGETS
   // ============================================================
 
-  Widget _indicador(IconData icone, String titulo, String valor, Color cor) {
+  Widget _indicador(
+    IconData icone,
+    String titulo,
+    String valor,
+    Color cor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Row(
         children: [
@@ -475,7 +556,7 @@ class _ServicosPageState extends State<ServicosPage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: cor.withValues(alpha: 0.15),
+              color: cor.withValues(alpha: 0.13),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icone, color: cor, size: 21),
@@ -487,7 +568,10 @@ class _ServicosPageState extends State<ServicosPage> {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(color: _secundario, fontSize: 11),
+                  style: TextStyle(
+                    color: _secundario,
+                    fontSize: 11,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 FittedBox(
@@ -495,7 +579,7 @@ class _ServicosPageState extends State<ServicosPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     valor,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _texto,
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
@@ -520,7 +604,16 @@ class _ServicosPageState extends State<ServicosPage> {
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
+        boxShadow: _temaEscuro
+            ? null
+            : [
+                BoxShadow(
+                  color: const Color(0xFF33205F).withValues(alpha: 0.035),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,7 +625,7 @@ class _ServicosPageState extends State<ServicosPage> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: _roxo.withValues(alpha: 0.15),
+                  color: _roxo.withValues(alpha: 0.13),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(
@@ -543,29 +636,30 @@ class _ServicosPageState extends State<ServicosPage> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nome,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _texto,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                      ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    nome,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _texto,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
                     ),
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
-                _moeda(_valor(servico['preco'])),
-                style: const TextStyle(
-                  color: _verde,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 14,
+              Flexible(
+                child: Text(
+                  _moeda(_valor(servico['preco'])),
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    color: _verde,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
@@ -573,26 +667,36 @@ class _ServicosPageState extends State<ServicosPage> {
           if (duracao.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 9,
+                vertical: 7,
+              ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
+                color: _fundoEtiqueta,
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.schedule, color: _secundario, size: 14),
+                  Icon(
+                    Icons.schedule,
+                    color: _secundario,
+                    size: 14,
+                  ),
                   const SizedBox(width: 5),
                   Text(
                     duracao,
-                    style: const TextStyle(color: _secundario, fontSize: 11),
+                    style: TextStyle(
+                      color: _secundario,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
             ),
           ],
           const SizedBox(height: 12),
-          Divider(color: Colors.white.withValues(alpha: 0.07), height: 1),
+          Divider(color: _borda, height: 1),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -601,13 +705,20 @@ class _ServicosPageState extends State<ServicosPage> {
                 onPressed: _excluindo
                     ? null
                     : () => _abrirFormulario(servico: servico),
-                icon: const Icon(Icons.edit_outlined, size: 17),
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  size: 17,
+                ),
                 label: const Text('Editar'),
-                style: TextButton.styleFrom(foregroundColor: _texto),
+                style: TextButton.styleFrom(
+                  foregroundColor: _texto,
+                ),
               ),
               IconButton(
                 tooltip: 'Excluir serviço',
-                onPressed: _excluindo ? null : () => _excluir(servico),
+                onPressed: _excluindo
+                    ? null
+                    : () => _excluir(servico),
                 icon: const Icon(
                   Icons.delete_outline_rounded,
                   color: _vermelho,
@@ -626,24 +737,31 @@ class _ServicosPageState extends State<ServicosPage> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 36,
+      ),
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Column(
         children: [
           Icon(
-            buscando ? Icons.search_off_rounded : Icons.design_services_outlined,
+            buscando
+                ? Icons.search_off_rounded
+                : Icons.design_services_outlined,
             size: 45,
             color: _roxo,
           ),
           const SizedBox(height: 14),
           Text(
-            buscando ? 'Nenhum serviço encontrado' : 'Nenhum serviço cadastrado',
+            buscando
+                ? 'Nenhum serviço encontrado'
+                : 'Nenhum serviço cadastrado',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _texto,
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -655,7 +773,7 @@ class _ServicosPageState extends State<ServicosPage> {
                 ? 'Tente outro termo de busca.'
                 : 'Cadastre seus serviços para usá-los na agenda.',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _secundario,
               fontSize: 12,
               height: 1.5,
@@ -685,9 +803,13 @@ class _ServicosPageState extends State<ServicosPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_outlined, color: _vermelho, size: 45),
+            const Icon(
+              Icons.cloud_off_outlined,
+              color: _vermelho,
+              size: 45,
+            ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Não foi possível carregar os serviços',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -700,12 +822,15 @@ class _ServicosPageState extends State<ServicosPage> {
             Text(
               _erro ?? 'Tente novamente.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: _secundario),
+              style: TextStyle(color: _secundario),
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: _carregar,
-              style: FilledButton.styleFrom(backgroundColor: _roxo),
+              style: FilledButton.styleFrom(
+                backgroundColor: _roxo,
+                foregroundColor: Colors.white,
+              ),
               icon: const Icon(Icons.refresh),
               label: const Text('Tentar novamente'),
             ),
@@ -715,11 +840,18 @@ class _ServicosPageState extends State<ServicosPage> {
     );
   }
 
+  // ============================================================
+  // TELA
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     final lista = _filtrados;
 
-    final precos = _servicos.map((s) => _valor(s['preco'])).toList();
+    final precos = _servicos
+        .map((servico) => _valor(servico['preco']))
+        .toList();
+
     final precoMedio = precos.isEmpty
         ? 0.0
         : precos.fold<double>(0, (a, b) => a + b) / precos.length;
@@ -729,18 +861,26 @@ class _ServicosPageState extends State<ServicosPage> {
       appBar: AppBar(
         backgroundColor: _fundo,
         foregroundColor: _texto,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Serviços',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                color: _texto,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               'Catálogo de serviços e preços',
-              style: TextStyle(color: _secundario, fontSize: 12),
+              style: TextStyle(
+                color: _secundario,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
@@ -762,7 +902,9 @@ class _ServicosPageState extends State<ServicosPage> {
       ),
       body: SafeArea(
         child: _carregando
-            ? const Center(child: CircularProgressIndicator(color: _roxo))
+            ? const Center(
+                child: CircularProgressIndicator(color: _roxo),
+              )
             : _erro != null
                 ? _estadoErro()
                 : RefreshIndicator(
@@ -770,7 +912,12 @@ class _ServicosPageState extends State<ServicosPage> {
                     onRefresh: _carregar,
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 100),
+                      padding: const EdgeInsets.fromLTRB(
+                        18,
+                        10,
+                        18,
+                        100,
+                      ),
                       children: [
                         Row(
                           children: [
@@ -796,7 +943,8 @@ class _ServicosPageState extends State<ServicosPage> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: _buscaController,
-                          style: const TextStyle(color: _texto),
+                          style: TextStyle(color: _texto),
+                          cursorColor: _roxo,
                           onChanged: (_) => setState(() {}),
                           decoration: _decoracao(
                             'Buscar serviço',
@@ -809,7 +957,7 @@ class _ServicosPageState extends State<ServicosPage> {
                                       _buscaController.clear();
                                       setState(() {});
                                     },
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.close,
                                       color: _secundario,
                                     ),
@@ -825,7 +973,7 @@ class _ServicosPageState extends State<ServicosPage> {
                             child: Text(
                               '${lista.length} '
                               '${lista.length == 1 ? 'serviço' : 'serviços'}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: _secundario,
                                 fontSize: 12,
                               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/theme/orvix_theme_controller.dart';
 
 class ClientesPage extends StatefulWidget {
   const ClientesPage({super.key});
@@ -10,29 +11,72 @@ class ClientesPage extends StatefulWidget {
 }
 
 class _ClientesPageState extends State<ClientesPage> {
-  static const Color _fundo = Color(0xFF0F1020);
-  static const Color _painel = Color(0xFF191A30);
-  static const Color _roxo = Color(0xFF8B5CF6);
-  static const Color _texto = Color(0xFFF4F3FF);
-  static const Color _secundario = Color(0xFFA6A4C2);
-  static const Color _vermelho = Color(0xFFEF6464);
-
   final TextEditingController _buscaController = TextEditingController();
 
   List<Map<String, dynamic>> _clientes = [];
+
   bool _carregando = false;
   bool _salvando = false;
   bool _pesquisou = false;
+
   String? _erro;
   String _buscaAtual = '';
 
+  bool get _temaEscuro => OrvixThemeController.instance.isDark;
+
+  Color get _fundo => _temaEscuro
+      ? const Color(0xFF0F1020)
+      : const Color(0xFFF7F6FC);
+
+  Color get _painel => _temaEscuro
+      ? const Color(0xFF191A30)
+      : Colors.white;
+
+  Color get _painelSecundario => _temaEscuro
+      ? const Color(0xFF22223A)
+      : const Color(0xFFEFEAFB);
+
+  Color get _roxo => const Color(0xFF7965D8);
+
+  Color get _texto => _temaEscuro
+      ? const Color(0xFFF4F3FF)
+      : const Color(0xFF28243A);
+
+  Color get _secundario => _temaEscuro
+      ? const Color(0xFFA6A4C2)
+      : const Color(0xFF777287);
+
+  Color get _vermelho => _temaEscuro
+      ? const Color(0xFFEF6464)
+      : const Color(0xFFD9435B);
+
+  Color get _borda => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.07)
+      : const Color(0xFFE5E0F0);
+
+  Color get _divisor => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.08)
+      : const Color(0xFFE9E5F0);
+
+  @override
+  void initState() {
+    super.initState();
+    OrvixThemeController.instance.addListener(_aoAlterarTema);
+  }
+
+  void _aoAlterarTema() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
+    OrvixThemeController.instance.removeListener(_aoAlterarTema);
     _buscaController.dispose();
     super.dispose();
   }
 
-  // CORRIGIDO: antes se chamava `_texto`, o mesmo nome da cor acima.
   String _s(dynamic valor, [String padrao = '']) {
     if (valor == null) return padrao;
     return valor.toString();
@@ -45,6 +89,7 @@ class _ClientesPageState extends State<ClientesPage> {
 
   double _numero(dynamic valor) {
     if (valor is num) return valor.toDouble();
+
     return double.tryParse(
           valor?.toString().replaceAll(',', '.') ?? '',
         ) ??
@@ -54,17 +99,23 @@ class _ClientesPageState extends State<ClientesPage> {
   String _moeda(dynamic valor) {
     final numero = _numero(valor);
     final partes = numero.toStringAsFixed(2).split('.');
+
     final inteiro = partes[0].replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (_) => '.',
     );
+
     return 'R\$ $inteiro,${partes[1]}';
   }
 
   String _data(dynamic valor) {
-    if (valor == null || valor.toString().isEmpty) return 'Nunca';
+    if (valor == null || valor.toString().isEmpty) {
+      return 'Nunca';
+    }
+
     try {
       final data = DateTime.parse(valor.toString());
+
       return '${data.day.toString().padLeft(2, '0')}/'
           '${data.month.toString().padLeft(2, '0')}/'
           '${data.year}';
@@ -107,7 +158,6 @@ class _ClientesPageState extends State<ClientesPage> {
     });
 
     try {
-      // CORRIGIDO: ApiClient.get só devolve Map; listas exigem getList.
       final lista = await ApiClient.getList(
         '/clientes?busca=${Uri.encodeQueryComponent(termo)}',
       );
@@ -120,6 +170,7 @@ class _ClientesPageState extends State<ClientesPage> {
       });
     } catch (e) {
       if (!mounted) return;
+
       setState(() {
         _carregando = false;
         _erro = e is ApiException
@@ -136,52 +187,120 @@ class _ClientesPageState extends State<ClientesPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(mensagem),
+          content: Text(
+            mensagem,
+            style: TextStyle(color: _texto),
+          ),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: _painel,
+          backgroundColor: _painelSecundario,
         ),
       );
   }
 
-  InputDecoration _decoracao(String rotulo, {IconData? icone}) {
+  InputDecoration _decoracao(
+    String rotulo, {
+    IconData? icone,
+  }) {
     return InputDecoration(
       labelText: rotulo,
-      prefixIcon: icone == null ? null : Icon(icone, size: 20),
-      labelStyle: const TextStyle(color: _secundario),
+      prefixIcon: icone == null
+          ? null
+          : Icon(
+              icone,
+              size: 20,
+              color: _secundario,
+            ),
+      labelStyle: TextStyle(color: _secundario),
       prefixIconColor: _secundario,
       filled: true,
-      fillColor: _fundo,
+      fillColor: _temaEscuro
+          ? _fundo
+          : const Color(0xFFF9F8FD),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 15,
+      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: _borda),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.07)),
+        borderSide: BorderSide(color: _borda),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: const BorderSide(color: _roxo),
+        borderSide: BorderSide(
+          color: _roxo,
+          width: 1.5,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide(color: _vermelho),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide(
+          color: _vermelho,
+          width: 1.5,
+        ),
       ),
     );
   }
 
-  Future<void> _abrirFormulario({Map<String, dynamic>? cliente}) async {
+  ThemeData _temaSeletorData(BuildContext context) {
+    return Theme.of(context).copyWith(
+      colorScheme: _temaEscuro
+          ? ColorScheme.dark(
+              primary: _roxo,
+              onPrimary: Colors.white,
+              surface: _painel,
+              onSurface: _texto,
+            )
+          : ColorScheme.light(
+              primary: _roxo,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: _texto,
+            ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: _painel,
+      ),
+    );
+  }
+
+  Future<void> _abrirFormulario({
+    Map<String, dynamic>? cliente,
+  }) async {
     if (_salvando) return;
 
     final formKey = GlobalKey<FormState>();
+
     final nome = TextEditingController(
       text: _s(cliente?['nome'] ?? cliente?['cliente']),
     );
-    final telefone = TextEditingController(text: _s(cliente?['telefone']));
-    final email = TextEditingController(text: _s(cliente?['email']));
+
+    final telefone = TextEditingController(
+      text: _s(cliente?['telefone']),
+    );
+
+    final email = TextEditingController(
+      text: _s(cliente?['email']),
+    );
+
     final documento = TextEditingController(
       text: _s(cliente?['documento']),
     );
+
     final nascimento = TextEditingController(
       text: _s(cliente?['data_nascimento']).split('T').first,
     );
-    final endereco = TextEditingController(text: _s(cliente?['endereco']));
+
+    final endereco = TextEditingController(
+      text: _s(cliente?['endereco']),
+    );
+
     final observacoes = TextEditingController(
       text: _s(cliente?['observacoes']),
     );
@@ -195,11 +314,19 @@ class _ClientesPageState extends State<ClientesPage> {
             builder: (context, setDialogState) {
               return AlertDialog(
                 backgroundColor: _painel,
+                surfaceTintColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  side: BorderSide(color: _borda),
+                ),
                 title: Text(
-                  cliente == null ? 'Novo cliente' : 'Editar cliente',
-                  style: const TextStyle(
+                  cliente == null
+                      ? 'Novo cliente'
+                      : 'Editar cliente',
+                  style: TextStyle(
                     color: _texto,
                     fontWeight: FontWeight.w800,
+                    fontSize: 20,
                   ),
                 ),
                 content: SizedBox(
@@ -213,7 +340,7 @@ class _ClientesPageState extends State<ClientesPage> {
                           TextFormField(
                             controller: nome,
                             maxLength: 150,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Nome completo *',
                               icone: Icons.person_outline,
@@ -222,6 +349,7 @@ class _ClientesPageState extends State<ClientesPage> {
                               if (v == null || v.trim().isEmpty) {
                                 return 'Informe o nome do cliente.';
                               }
+
                               return null;
                             },
                           ),
@@ -230,7 +358,7 @@ class _ClientesPageState extends State<ClientesPage> {
                             controller: telefone,
                             maxLength: 30,
                             keyboardType: TextInputType.phone,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Telefone',
                               icone: Icons.phone_outlined,
@@ -241,18 +369,21 @@ class _ClientesPageState extends State<ClientesPage> {
                             controller: email,
                             maxLength: 254,
                             keyboardType: TextInputType.emailAddress,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'E-mail',
                               icone: Icons.email_outlined,
                             ),
                             validator: (v) {
                               final valor = v?.trim() ?? '';
+
                               if (valor.isNotEmpty &&
-                                  !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                                      .hasMatch(valor)) {
+                                  !RegExp(
+                                    r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+                                  ).hasMatch(valor)) {
                                 return 'Informe um e-mail válido.';
                               }
+
                               return null;
                             },
                           ),
@@ -260,7 +391,7 @@ class _ClientesPageState extends State<ClientesPage> {
                           TextFormField(
                             controller: documento,
                             maxLength: 18,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'CPF/CNPJ ou documento',
                               icone: Icons.badge_outlined,
@@ -270,7 +401,7 @@ class _ClientesPageState extends State<ClientesPage> {
                           TextFormField(
                             controller: nascimento,
                             readOnly: true,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Data de nascimento',
                               icone: Icons.calendar_month_outlined,
@@ -281,7 +412,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                         nascimento.clear();
                                         setDialogState(() {});
                                       },
-                                      icon: const Icon(
+                                      icon: Icon(
                                         Icons.close,
                                         color: _secundario,
                                       ),
@@ -290,33 +421,34 @@ class _ClientesPageState extends State<ClientesPage> {
                             ),
                             onTap: () async {
                               DateTime inicial;
+
                               try {
                                 inicial = DateTime.parse(nascimento.text);
                               } catch (_) {
                                 inicial = DateTime(2000);
                               }
 
+                              final hoje = DateTime.now();
+
+                              if (inicial.isAfter(hoje)) {
+                                inicial = hoje;
+                              }
+
                               final data = await showDatePicker(
                                 context: dialogContext,
                                 initialDate: inicial,
                                 firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
+                                lastDate: hoje,
                                 builder: (context, child) {
                                   return Theme(
-                                    data: Theme.of(context).copyWith(
-                                      colorScheme: const ColorScheme.dark(
-                                        primary: _roxo,
-                                        surface: _painel,
-                                      ),
-                                    ),
+                                    data: _temaSeletorData(context),
                                     child: child!,
                                   );
                                 },
                               );
 
-                              // CORRIGIDO: o diálogo pode ter sido fechado
-                              // enquanto o seletor de data estava aberto.
-                              if (data == null || !dialogContext.mounted) {
+                              if (data == null ||
+                                  !dialogContext.mounted) {
                                 return;
                               }
 
@@ -324,6 +456,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                   '${data.year}-'
                                   '${data.month.toString().padLeft(2, '0')}-'
                                   '${data.day.toString().padLeft(2, '0')}';
+
                               setDialogState(() {});
                             },
                           ),
@@ -331,7 +464,7 @@ class _ClientesPageState extends State<ClientesPage> {
                           TextFormField(
                             controller: endereco,
                             maxLength: 250,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Endereço',
                               icone: Icons.location_on_outlined,
@@ -342,7 +475,7 @@ class _ClientesPageState extends State<ClientesPage> {
                             controller: observacoes,
                             maxLength: 5000,
                             maxLines: 3,
-                            style: const TextStyle(color: _texto),
+                            style: TextStyle(color: _texto),
                             decoration: _decoracao(
                               'Observações',
                               icone: Icons.notes_outlined,
@@ -358,7 +491,7 @@ class _ClientesPageState extends State<ClientesPage> {
                     onPressed: _salvando
                         ? null
                         : () => Navigator.of(dialogContext).pop(),
-                    child: const Text(
+                    child: Text(
                       'Cancelar',
                       style: TextStyle(color: _secundario),
                     ),
@@ -367,12 +500,19 @@ class _ClientesPageState extends State<ClientesPage> {
                     onPressed: _salvando
                         ? null
                         : () async {
-                            if (!(formKey.currentState?.validate() ?? false)) {
+                            if (!(formKey.currentState?.validate() ??
+                                false)) {
                               return;
                             }
 
                             final id = _id(cliente?['id']);
-                            if (cliente != null && id == null) return;
+
+                            if (cliente != null && id == null) {
+                              _mensagem(
+                                'Não foi possível identificar o cliente.',
+                              );
+                              return;
+                            }
 
                             setState(() => _salvando = true);
                             setDialogState(() {});
@@ -389,14 +529,24 @@ class _ClientesPageState extends State<ClientesPage> {
 
                             try {
                               if (id == null) {
-                                await ApiClient.post('/clientes', dados);
+                                await ApiClient.post(
+                                  '/clientes',
+                                  dados,
+                                );
                               } else {
-                                await ApiClient.patch('/clientes/$id', dados);
+                                await ApiClient.patch(
+                                  '/clientes/$id',
+                                  dados,
+                                );
                               }
 
-                              if (!mounted || !dialogContext.mounted) return;
+                              if (!mounted ||
+                                  !dialogContext.mounted) {
+                                return;
+                              }
 
                               Navigator.of(dialogContext).pop();
+
                               _mensagem(
                                 id == null
                                     ? 'Cliente cadastrado com sucesso.'
@@ -408,6 +558,7 @@ class _ClientesPageState extends State<ClientesPage> {
                               }
                             } catch (e) {
                               if (!mounted) return;
+
                               _mensagem(
                                 e is ApiException
                                     ? e.message
@@ -417,6 +568,7 @@ class _ClientesPageState extends State<ClientesPage> {
                               if (mounted) {
                                 setState(() => _salvando = false);
                               }
+
                               if (dialogContext.mounted) {
                                 setDialogState(() {});
                               }
@@ -425,6 +577,10 @@ class _ClientesPageState extends State<ClientesPage> {
                     style: FilledButton.styleFrom(
                       backgroundColor: _roxo,
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 13,
+                      ),
                     ),
                     icon: _salvando
                         ? const SizedBox(
@@ -436,7 +592,9 @@ class _ClientesPageState extends State<ClientesPage> {
                             ),
                           )
                         : const Icon(Icons.save_outlined),
-                    label: Text(_salvando ? 'Salvando...' : 'Salvar'),
+                    label: Text(
+                      _salvando ? 'Salvando...' : 'Salvar',
+                    ),
                   ),
                 ],
               );
@@ -445,26 +603,32 @@ class _ClientesPageState extends State<ClientesPage> {
         },
       );
     } finally {
-      // O showDialog completa ao fechar a rota, mas a animação de saída ainda
-      // usa os controllers. Por isso o descarte é adiado.
-      Future<void>.delayed(const Duration(milliseconds: 500), () {
-        nome.dispose();
-        telefone.dispose();
-        email.dispose();
-        documento.dispose();
-        nascimento.dispose();
-        endereco.dispose();
-        observacoes.dispose();
-      });
+      Future<void>.delayed(
+        const Duration(milliseconds: 500),
+        () {
+          nome.dispose();
+          telefone.dispose();
+          email.dispose();
+          documento.dispose();
+          nascimento.dispose();
+          endereco.dispose();
+          observacoes.dispose();
+        },
+      );
     }
   }
 
-  Future<void> _verHistorico(Map<String, dynamic> cliente) async {
+  Future<void> _verHistorico(
+    Map<String, dynamic> cliente,
+  ) async {
     final clienteId = _id(cliente['id']);
     final telefone = _s(cliente['telefone']).trim();
-    final nome = _s(cliente['nome'] ?? cliente['cliente']).trim();
+    final nome = _s(
+      cliente['nome'] ?? cliente['cliente'],
+    ).trim();
 
     final parametros = <String, String>{};
+
     if (clienteId != null) {
       parametros['cliente_id'] = clienteId.toString();
     } else if (telefone.isNotEmpty) {
@@ -478,8 +642,9 @@ class _ClientesPageState extends State<ClientesPage> {
     try {
       final query = Uri(queryParameters: parametros).query;
 
-      // CORRIGIDO: getList em vez de get.
-      final resposta = await ApiClient.getList('/clientes/historico?$query');
+      final resposta = await ApiClient.getList(
+        '/clientes/historico?$query',
+      );
 
       if (!mounted) return;
 
@@ -490,9 +655,14 @@ class _ClientesPageState extends State<ClientesPage> {
         builder: (dialogContext) {
           return AlertDialog(
             backgroundColor: _painel,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+              side: BorderSide(color: _borda),
+            ),
             title: Text(
               'Histórico de $nome',
-              style: const TextStyle(
+              style: TextStyle(
                 color: _texto,
                 fontWeight: FontWeight.w800,
               ),
@@ -501,24 +671,37 @@ class _ClientesPageState extends State<ClientesPage> {
               width: 520,
               height: 400,
               child: lista.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Nenhum atendimento encontrado.',
-                        style: TextStyle(color: _secundario),
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 42,
+                            color: _secundario,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Nenhum atendimento encontrado.',
+                            style: TextStyle(color: _secundario),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     )
                   : ListView.separated(
                       itemCount: lista.length,
-                      separatorBuilder: (_, __) => Divider(
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
+                      separatorBuilder: (_, __) {
+                        return Divider(color: _divisor);
+                      },
                       itemBuilder: (context, index) {
                         final item = lista[index];
+
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const CircleAvatar(
-                            backgroundColor: Color(0x3328C7A1),
-                            child: Icon(
+                          leading: CircleAvatar(
+                            backgroundColor: const Color(0x3328C7A1),
+                            child: const Icon(
                               Icons.history,
                               color: Color(0xFF28C7A1),
                             ),
@@ -530,7 +713,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                   item['veiculo'],
                               'Atendimento',
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: _texto,
                               fontWeight: FontWeight.w700,
                             ),
@@ -539,14 +722,14 @@ class _ClientesPageState extends State<ClientesPage> {
                             '${_data(item['data'])} • '
                             '${_s(item['hora'])}\n'
                             'Status: ${_s(item['status'], 'Não informado')}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: _secundario,
                               height: 1.5,
                             ),
                           ),
                           trailing: Text(
                             _moeda(item['valor']),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: _texto,
                               fontWeight: FontWeight.w700,
                             ),
@@ -558,7 +741,7 @@ class _ClientesPageState extends State<ClientesPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text(
+                child: Text(
                   'Fechar',
                   style: TextStyle(color: _roxo),
                 ),
@@ -576,44 +759,72 @@ class _ClientesPageState extends State<ClientesPage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _carregando = false);
+      if (mounted) {
+        setState(() => _carregando = false);
+      }
     }
   }
 
-  Future<void> _desativar(Map<String, dynamic> cliente) async {
+  Future<void> _desativar(
+    Map<String, dynamic> cliente,
+  ) async {
     final id = _id(cliente['id']);
+
     if (id == null || _salvando) return;
 
-    final nome = _s(cliente['nome'] ?? cliente['cliente'], 'este cliente');
+    final nome = _s(
+      cliente['nome'] ?? cliente['cliente'],
+      'este cliente',
+    );
 
     final confirmar = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: _painel,
-        title: const Text(
-          'Desativar cliente?',
-          style: TextStyle(color: _texto),
-        ),
-        content: Text(
-          'O cadastro de "$nome" será desativado. '
-          'O histórico de atendimentos será preservado.',
-          style: const TextStyle(color: _secundario, height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: _secundario),
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: _painel,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+            side: BorderSide(color: _borda),
+          ),
+          title: Text(
+            'Desativar cliente?',
+            style: TextStyle(
+              color: _texto,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: _vermelho),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Desativar'),
+          content: Text(
+            'O cadastro de "$nome" será desativado. '
+            'O histórico de atendimentos será preservado.',
+            style: TextStyle(
+              color: _secundario,
+              height: 1.5,
+            ),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: _secundario),
+              ),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: _vermelho,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('Desativar'),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmar != true || !mounted) return;
@@ -622,6 +833,7 @@ class _ClientesPageState extends State<ClientesPage> {
 
     try {
       await ApiClient.delete('/clientes/$id');
+
       if (!mounted) return;
 
       _mensagem('Cliente desativado.');
@@ -635,7 +847,9 @@ class _ClientesPageState extends State<ClientesPage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _salvando = false);
+      if (mounted) {
+        setState(() => _salvando = false);
+      }
     }
   }
 
@@ -649,7 +863,7 @@ class _ClientesPageState extends State<ClientesPage> {
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Row(
         children: [
@@ -657,10 +871,14 @@ class _ClientesPageState extends State<ClientesPage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _roxo.withValues(alpha: 0.15),
+              color: _roxo.withValues(alpha: 0.13),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icone, color: _roxo, size: 21),
+            child: Icon(
+              icone,
+              color: _roxo,
+              size: 21,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -669,12 +887,15 @@ class _ClientesPageState extends State<ClientesPage> {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(color: _secundario, fontSize: 11),
+                  style: TextStyle(
+                    color: _secundario,
+                    fontSize: 11,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   valor,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _texto,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -690,13 +911,21 @@ class _ClientesPageState extends State<ClientesPage> {
 
   Widget _cartaoCliente(Map<String, dynamic> cliente) {
     final historico = _historico(cliente);
+
     final nome = _s(
       cliente['nome'] ?? cliente['cliente'],
       'Cliente sem nome',
     );
+
     final telefone = _s(cliente['telefone']);
-    final totalAtendimentos = _s(cliente['total_atendimentos'], '0');
-    final concluidos = _s(cliente['atendimentos_concluidos'], '0');
+    final totalAtendimentos = _s(
+      cliente['total_atendimentos'],
+      '0',
+    );
+    final concluidos = _s(
+      cliente['atendimentos_concluidos'],
+      '0',
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -704,7 +933,16 @@ class _ClientesPageState extends State<ClientesPage> {
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
+        boxShadow: _temaEscuro
+            ? null
+            : [
+                BoxShadow(
+                  color: const Color(0xFF292044).withValues(alpha: 0.035),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,10 +952,12 @@ class _ClientesPageState extends State<ClientesPage> {
             children: [
               CircleAvatar(
                 radius: 23,
-                backgroundColor: _roxo.withValues(alpha: 0.17),
+                backgroundColor: _roxo.withValues(alpha: 0.14),
                 child: Text(
-                  nome.trim().isEmpty ? '?' : nome.trim()[0].toUpperCase(),
-                  style: const TextStyle(
+                  nome.trim().isEmpty
+                      ? '?'
+                      : nome.trim()[0].toUpperCase(),
+                  style: TextStyle(
                     color: _roxo,
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
@@ -731,7 +971,7 @@ class _ClientesPageState extends State<ClientesPage> {
                   children: [
                     Text(
                       nome,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _texto,
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
@@ -741,7 +981,7 @@ class _ClientesPageState extends State<ClientesPage> {
                     if (telefone.isNotEmpty)
                       Text(
                         telefone,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: _secundario,
                           fontSize: 12,
                         ),
@@ -751,7 +991,7 @@ class _ClientesPageState extends State<ClientesPage> {
                         padding: const EdgeInsets.only(top: 3),
                         child: Text(
                           _s(cliente['email']),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: _secundario,
                             fontSize: 12,
                           ),
@@ -773,7 +1013,7 @@ class _ClientesPageState extends State<ClientesPage> {
                   child: const Text(
                     'Histórico',
                     style: TextStyle(
-                      color: Colors.orangeAccent,
+                      color: Color(0xFFCF831D),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                     ),
@@ -786,8 +1026,14 @@ class _ClientesPageState extends State<ClientesPage> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _tag(Icons.event_available_outlined, '$totalAtendimentos atend.'),
-              _tag(Icons.check_circle_outline, '$concluidos concluídos'),
+              _tag(
+                Icons.event_available_outlined,
+                '$totalAtendimentos atend.',
+              ),
+              _tag(
+                Icons.check_circle_outline,
+                '$concluidos concluídos',
+              ),
               _tag(
                 Icons.payments_outlined,
                 _moeda(cliente['total_gasto']),
@@ -797,34 +1043,48 @@ class _ClientesPageState extends State<ClientesPage> {
           const SizedBox(height: 10),
           Text(
             'Última visita: ${_data(cliente['ultima_visita'])}',
-            style: const TextStyle(color: _secundario, fontSize: 11),
+            style: TextStyle(
+              color: _secundario,
+              fontSize: 11,
+            ),
           ),
           const SizedBox(height: 14),
-          Divider(color: Colors.white.withValues(alpha: 0.07), height: 1),
+          Divider(color: _divisor, height: 1),
           const SizedBox(height: 8),
           Wrap(
             alignment: WrapAlignment.end,
             spacing: 4,
             children: [
               TextButton.icon(
-                onPressed: _carregando ? null : () => _verHistorico(cliente),
+                onPressed: _carregando
+                    ? null
+                    : () => _verHistorico(cliente),
                 icon: const Icon(Icons.history, size: 17),
                 label: const Text('Histórico'),
-                style: TextButton.styleFrom(foregroundColor: _roxo),
+                style: TextButton.styleFrom(
+                  foregroundColor: _roxo,
+                ),
               ),
               if (!historico) ...[
                 TextButton.icon(
                   onPressed: _salvando
                       ? null
                       : () => _abrirFormulario(cliente: cliente),
-                  icon: const Icon(Icons.edit_outlined, size: 17),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 17,
+                  ),
                   label: const Text('Editar'),
-                  style: TextButton.styleFrom(foregroundColor: _texto),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _texto,
+                  ),
                 ),
                 IconButton(
                   tooltip: 'Desativar cliente',
-                  onPressed: _salvando ? null : () => _desativar(cliente),
-                  icon: const Icon(
+                  onPressed: _salvando
+                      ? null
+                      : () => _desativar(cliente),
+                  icon: Icon(
                     Icons.person_off_outlined,
                     color: _vermelho,
                     size: 20,
@@ -840,19 +1100,32 @@ class _ClientesPageState extends State<ClientesPage> {
 
   Widget _tag(IconData icone, String texto) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 7,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: _temaEscuro
+            ? Colors.white.withValues(alpha: 0.04)
+            : const Color(0xFFF5F2FB),
         borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: _borda),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icone, color: _secundario, size: 14),
+          Icon(
+            icone,
+            color: _secundario,
+            size: 14,
+          ),
           const SizedBox(width: 5),
           Text(
             texto,
-            style: const TextStyle(color: _secundario, fontSize: 11),
+            style: TextStyle(
+              color: _secundario,
+              fontSize: 11,
+            ),
           ),
         ],
       ),
@@ -864,11 +1137,14 @@ class _ClientesPageState extends State<ClientesPage> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 36,
+      ),
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Column(
         children: [
@@ -881,9 +1157,11 @@ class _ClientesPageState extends State<ClientesPage> {
           ),
           const SizedBox(height: 14),
           Text(
-            semBusca ? 'Encontre seus clientes' : 'Nenhum cliente encontrado',
+            semBusca
+                ? 'Encontre seus clientes'
+                : 'Nenhum cliente encontrado',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _texto,
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -895,7 +1173,7 @@ class _ClientesPageState extends State<ClientesPage> {
                 ? 'Digite um nome, telefone, e-mail ou documento para pesquisar.'
                 : 'Tente outro termo ou cadastre um novo cliente.',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _secundario,
               fontSize: 12,
               height: 1.5,
@@ -904,7 +1182,9 @@ class _ClientesPageState extends State<ClientesPage> {
           if (!semBusca) ...[
             const SizedBox(height: 18),
             FilledButton.icon(
-              onPressed: () => _abrirFormulario(),
+              onPressed: _salvando
+                  ? null
+                  : () => _abrirFormulario(),
               style: FilledButton.styleFrom(
                 backgroundColor: _roxo,
                 foregroundColor: Colors.white,
@@ -925,9 +1205,13 @@ class _ClientesPageState extends State<ClientesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_outlined, color: _vermelho, size: 45),
+            Icon(
+              Icons.cloud_off_outlined,
+              color: _vermelho,
+              size: 45,
+            ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Não foi possível carregar os clientes',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -940,12 +1224,15 @@ class _ClientesPageState extends State<ClientesPage> {
             Text(
               _erro ?? 'Tente novamente.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: _secundario),
+              style: TextStyle(color: _secundario),
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: _buscar,
-              style: FilledButton.styleFrom(backgroundColor: _roxo),
+              style: FilledButton.styleFrom(
+                backgroundColor: _roxo,
+                foregroundColor: Colors.white,
+              ),
               icon: const Icon(Icons.refresh),
               label: const Text('Tentar novamente'),
             ),
@@ -957,33 +1244,47 @@ class _ClientesPageState extends State<ClientesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cadastrados = _clientes.where((c) => !_historico(c)).length;
-    final historicos = _clientes.where(_historico).length;
+    final cadastrados = _clientes
+        .where((c) => !_historico(c))
+        .length;
+
+    final historicos = _clientes
+        .where(_historico)
+        .length;
 
     return Scaffold(
       backgroundColor: _fundo,
       appBar: AppBar(
         backgroundColor: _fundo,
         foregroundColor: _texto,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Clientes',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                color: _texto,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               'Cadastros e histórico de atendimentos',
-              style: TextStyle(color: _secundario, fontSize: 12),
+              style: TextStyle(
+                color: _secundario,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'Atualizar busca',
-            onPressed: _carregando || _buscaController.text.trim().isEmpty
+            onPressed: _carregando ||
+                    _buscaController.text.trim().isEmpty
                 ? null
                 : _buscar,
             icon: const Icon(Icons.refresh_rounded),
@@ -992,7 +1293,9 @@ class _ClientesPageState extends State<ClientesPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _salvando ? null : () => _abrirFormulario(),
+        onPressed: _salvando
+            ? null
+            : () => _abrirFormulario(),
         backgroundColor: _roxo,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add_alt_1),
@@ -1002,7 +1305,12 @@ class _ClientesPageState extends State<ClientesPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(18, 10, 18, 12),
+              padding: const EdgeInsets.fromLTRB(
+                18,
+                10,
+                18,
+                12,
+              ),
               child: Column(
                 children: [
                   Row(
@@ -1027,7 +1335,7 @@ class _ClientesPageState extends State<ClientesPage> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _buscaController,
-                    style: const TextStyle(color: _texto),
+                    style: TextStyle(color: _texto),
                     textInputAction: TextInputAction.search,
                     onChanged: (_) => setState(() {}),
                     onSubmitted: (_) => _buscar(),
@@ -1038,7 +1346,9 @@ class _ClientesPageState extends State<ClientesPage> {
                       suffixIcon: IconButton(
                         tooltip: 'Pesquisar',
                         onPressed: _carregando ? null : _buscar,
-                        icon: const Icon(Icons.arrow_forward_rounded),
+                        icon: const Icon(
+                          Icons.arrow_forward_rounded,
+                        ),
                         color: _roxo,
                       ),
                     ),
@@ -1050,7 +1360,7 @@ class _ClientesPageState extends State<ClientesPage> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Resultados para "$_buscaAtual"',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: _secundario,
                             fontSize: 11,
                           ),
@@ -1062,8 +1372,10 @@ class _ClientesPageState extends State<ClientesPage> {
             ),
             Expanded(
               child: _carregando
-                  ? const Center(
-                      child: CircularProgressIndicator(color: _roxo),
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: _roxo,
+                      ),
                     )
                   : _erro != null
                       ? _estadoErro()
@@ -1071,19 +1383,26 @@ class _ClientesPageState extends State<ClientesPage> {
                           color: _roxo,
                           onRefresh: _buscar,
                           child: ListView(
-                            // Permite puxar para atualizar mesmo com poucos itens.
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: const EdgeInsets.fromLTRB(18, 4, 18, 100),
+                            physics:
+                                const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(
+                              18,
+                              4,
+                              18,
+                              100,
+                            ),
                             children: [
                               if (_clientes.isEmpty)
                                 _estadoVazio()
                               else ...[
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.only(
+                                    bottom: 12,
+                                  ),
                                   child: Text(
                                     '${_clientes.length} '
                                     '${_clientes.length == 1 ? 'resultado' : 'resultados'}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _secundario,
                                       fontSize: 12,
                                     ),

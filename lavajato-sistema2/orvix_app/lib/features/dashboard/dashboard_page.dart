@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/theme/orvix_theme_controller.dart';
 import '../auth/auth_service.dart';
 import '../auth/login_page.dart';
 import '../agenda/agenda_page.dart';
@@ -16,16 +17,11 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  static const Color _background = Color(0xFF0C0B12);
-  static const Color _surface = Color(0xFF15131E);
-  static const Color _surface2 = Color(0xFF1D1929);
-  static const Color _purple = Color(0xFF9B85FF);
-  static const Color _purpleDark = Color(0xFF7557E8);
-  static const Color _text = Color(0xFFF5F2FC);
-  static const Color _muted = Color(0xFFAAA4BB);
-  static const Color _green = Color(0xFF56D6A0);
-  static const Color _red = Color(0xFFFF8295);
-  static const Color _yellow = Color(0xFFFFCA75);
+  static const Color _purple = Color(0xFF7965D8);
+  static const Color _purpleDark = Color(0xFF6550C7);
+  static const Color _green = Color(0xFF239B70);
+  static const Color _red = Color(0xFFD94F68);
+  static const Color _yellow = Color(0xFFB98220);
 
   bool _loading = true;
   bool _loggingOut = false;
@@ -37,10 +33,46 @@ class _DashboardPageState extends State<DashboardPage> {
   List<dynamic> _recentes = [];
   List<dynamic> _servicos = [];
 
+  bool get _isDark => OrvixThemeController.instance.isDark;
+
+  Color get _background =>
+      _isDark ? const Color(0xFF0C0B12) : const Color(0xFFF6F5FB);
+
+  Color get _surface =>
+      _isDark ? const Color(0xFF15131E) : Colors.white;
+
+  Color get _surface2 =>
+      _isDark ? const Color(0xFF1D1929) : const Color(0xFFEDEAF7);
+
+  Color get _text =>
+      _isDark ? const Color(0xFFF5F2FC) : const Color(0xFF242033);
+
+  Color get _muted =>
+      _isDark ? const Color(0xFFAAA4BB) : const Color(0xFF777187);
+
+  Color get _border => _isDark
+      ? Colors.white.withValues(alpha: 0.065)
+      : const Color(0xFFE4E0EF);
+
   @override
   void initState() {
     super.initState();
+    OrvixThemeController.instance.addListener(_onThemeChanged);
     _carregarDashboard();
+  }
+
+  @override
+  void dispose() {
+    OrvixThemeController.instance.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _alternarTema() {
+    OrvixThemeController.instance.toggleTheme();
   }
 
   Future<void> _carregarDashboard() async {
@@ -153,8 +185,8 @@ class _DashboardPageState extends State<DashboardPage> {
     if (value == null) return 'Sem data';
 
     final raw = value.toString();
-    final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})')
-        .firstMatch(raw);
+    final match =
+        RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(raw);
 
     if (match == null) return raw;
 
@@ -188,8 +220,7 @@ class _DashboardPageState extends State<DashboardPage> {
       return _red;
     }
 
-    if (status.contains('andamento') ||
-        status.contains('confirm')) {
+    if (status.contains('andamento') || status.contains('confirm')) {
       return _purple;
     }
 
@@ -213,16 +244,11 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // ============================================================
-  // NAVEGAÇÃO ENTRE MÓDULOS
-  // ============================================================
-
   Future<void> _abrirPagina(Widget pagina) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => pagina),
     );
 
-    // Ao voltar, atualiza os números do painel.
     if (mounted) _carregarDashboard();
   }
 
@@ -246,9 +272,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(
-            'O módulo $nome será conectado na próxima etapa.',
-          ),
+          content: Text('O módulo $nome será conectado na próxima etapa.'),
           backgroundColor: _surface2,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -268,10 +292,10 @@ class _DashboardPageState extends State<DashboardPage> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         titleSpacing: 20,
-        title: const Row(
+        title: Row(
           children: [
-            _BrandMark(),
-            SizedBox(width: 10),
+            const _BrandMark(),
+            const SizedBox(width: 10),
             Text(
               'orvix',
               style: TextStyle(
@@ -284,15 +308,29 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
         actions: [
+          // Alternar entre tema claro e escuro.
+          IconButton(
+            tooltip: _isDark ? 'Ativar tema claro' : 'Ativar tema escuro',
+            onPressed: _alternarTema,
+            icon: Icon(
+              _isDark
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+              color: _text,
+            ),
+          ),
+
+          // Atualizar o painel.
           IconButton(
             tooltip: 'Atualizar painel',
             onPressed: _loading ? null : _carregarDashboard,
             icon: const Icon(Icons.refresh_rounded),
           ),
+
           PopupMenuButton<String>(
             tooltip: 'Conta',
             color: _surface2,
-            icon: const Icon(
+            icon: Icon(
               Icons.account_circle_outlined,
               color: _text,
               size: 27,
@@ -313,7 +351,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(width: 10),
                     Text(
                       _loggingOut ? 'Saindo...' : 'Sair da conta',
-                      style: const TextStyle(color: _text),
+                      style: TextStyle(color: _text),
                     ),
                   ],
                 ),
@@ -325,7 +363,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: SafeArea(
         child: _loading
-            ? const Center(
+            ? Center(
                 child: CircularProgressIndicator(color: _purple),
               )
             : _error != null
@@ -362,7 +400,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Não foi possível carregar o painel',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -375,7 +413,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Text(
                   _error!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _muted,
                     height: 1.6,
                     fontSize: 13,
@@ -424,12 +462,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              horizontal,
-              16,
-              horizontal,
-              32,
-            ),
+            padding: EdgeInsets.fromLTRB(horizontal, 16, horizontal, 32),
             children: [
               _buildWelcome(
                 primeiroNome.isEmpty ? 'Usuário' : primeiroNome,
@@ -493,15 +526,23 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildWelcome(String nome, String empresa) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
+    final gradientColors = _isDark
+        ? const [
             Color(0xFF29203E),
             Color(0xFF191627),
             Color(0xFF171521),
-          ],
+          ]
+        : const [
+            Color(0xFFEAE4FF),
+            Color(0xFFF5F1FF),
+            Color(0xFFFFFFFF),
+          ];
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -570,11 +611,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.circle,
-                          color: _green,
-                          size: 7,
-                        ),
+                        Icon(Icons.circle, color: _green, size: 7),
                         SizedBox(width: 6),
                         Text(
                           'Conectado',
@@ -592,7 +629,7 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 23),
               Text(
                 'Olá, $nome!',
-                style: const TextStyle(
+                style: TextStyle(
                   color: _text,
                   fontSize: 27,
                   height: 1.2,
@@ -601,7 +638,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Tudo o que acontece na sua empresa, '
                 'em um só lugar.',
                 style: TextStyle(
@@ -619,7 +656,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: _purple,
                   ),
                   const SizedBox(width: 7),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Seu negócio. Sua gestão. Orvix.',
                       style: TextStyle(
@@ -657,7 +694,7 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _text,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -667,7 +704,7 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _muted,
                   fontSize: 12,
                   height: 1.4,
@@ -686,10 +723,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildCountBadge(int count) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 11,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
         color: _purple.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(10),
@@ -781,9 +815,7 @@ class _DashboardPageState extends State<DashboardPage> {
         mainAxisSpacing: 12,
         mainAxisExtent: 143,
       ),
-      itemBuilder: (context, index) {
-        return _buildMetricCard(metrics[index]);
-      },
+      itemBuilder: (context, index) => _buildMetricCard(metrics[index]),
     );
   }
 
@@ -803,11 +835,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   color: metric.color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  metric.icon,
-                  color: metric.color,
-                  size: 20,
-                ),
+                child: Icon(metric.icon, color: metric.color, size: 20),
               ),
               const Spacer(),
               Icon(
@@ -824,7 +852,7 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Text(
               metric.value,
               maxLines: 1,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _text,
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
@@ -837,7 +865,7 @@ class _DashboardPageState extends State<DashboardPage> {
             metric.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: _muted,
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -854,8 +882,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final color = _statusColor(status);
 
     final cliente = appointment['cliente']?.toString() ?? 'Cliente';
-    final servico = appointment['servico_nome']?.toString() ??
-        'Serviço não informado';
+    final servico =
+        appointment['servico_nome']?.toString() ?? 'Serviço não informado';
     final hora = appointment['hora']?.toString() ?? '';
     final data = _date(appointment['data']);
 
@@ -888,7 +916,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   cliente,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -899,10 +927,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   servico,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _muted,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: _muted, fontSize: 11),
                 ),
                 const SizedBox(height: 9),
                 Wrap(
@@ -910,15 +935,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    _smallInfo(
-                      Icons.calendar_today_outlined,
-                      data,
-                    ),
+                    _smallInfo(Icons.calendar_today_outlined, data),
                     if (hora.isNotEmpty)
-                      _smallInfo(
-                        Icons.access_time_rounded,
-                        hora,
-                      ),
+                      _smallInfo(Icons.access_time_rounded, hora),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -931,7 +950,7 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Text(
               _money(appointment['valor']),
               textAlign: TextAlign.end,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _text,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -947,18 +966,11 @@ class _DashboardPageState extends State<DashboardPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 12,
-          color: _muted,
-        ),
+        Icon(icon, size: 12, color: _muted),
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
-            color: _muted,
-            fontSize: 10,
-          ),
+          style: TextStyle(color: _muted, fontSize: 10),
         ),
       ],
     );
@@ -966,10 +978,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _statusBadge(dynamic status, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.11),
         borderRadius: BorderRadius.circular(7),
@@ -1019,7 +1028,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   nome,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _text,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -1028,10 +1037,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 5),
                 Text(
                   '$quantidade atendimentos',
-                  style: const TextStyle(
-                    color: _muted,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: _muted, fontSize: 11),
                 ),
               ],
             ),
@@ -1060,10 +1066,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 25,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
       decoration: _cardDecoration(),
       child: Column(
         children: [
@@ -1074,17 +1077,13 @@ class _DashboardPageState extends State<DashboardPage> {
               color: _purple.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(15),
             ),
-            child: Icon(
-              icon,
-              color: _purple,
-              size: 23,
-            ),
+            child: Icon(icon, color: _purple, size: 23),
           ),
           const SizedBox(height: 13),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _text,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -1094,7 +1093,7 @@ class _DashboardPageState extends State<DashboardPage> {
           Text(
             description,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: _muted,
               fontSize: 11,
               height: 1.5,
@@ -1135,7 +1134,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Acesso rápido',
             style: TextStyle(
               color: _text,
@@ -1144,12 +1143,9 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
+          Text(
             'Encontre rapidamente as principais áreas.',
-            style: TextStyle(
-              color: _muted,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: _muted, fontSize: 12),
           ),
           const SizedBox(height: 17),
           ...actions.map((action) {
@@ -1185,14 +1181,14 @@ class _DashboardPageState extends State<DashboardPage> {
                         Expanded(
                           child: Text(
                             action.$1,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: _text,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_forward_ios_rounded,
                           color: _muted,
                           size: 14,
@@ -1223,30 +1219,31 @@ class _DashboardPageState extends State<DashboardPage> {
           'Financeiro',
         ];
 
-        if (index != 0) {
-          _mostrarModulo(names[index]);
-        }
+        if (index != 0) _mostrarModulo(names[index]);
       },
       selectedIndex: 0,
-      destinations: const [
+      destinations: [
         NavigationDestination(
-          icon: Icon(Icons.grid_view_rounded),
-          selectedIcon: Icon(
+          icon: Icon(Icons.grid_view_rounded, color: _muted),
+          selectedIcon: const Icon(
             Icons.grid_view_rounded,
             color: _purple,
           ),
           label: 'Painel',
         ),
         NavigationDestination(
-          icon: Icon(Icons.calendar_month_outlined),
+          icon: Icon(Icons.calendar_month_outlined, color: _muted),
           label: 'Agenda',
         ),
         NavigationDestination(
-          icon: Icon(Icons.people_outline_rounded),
+          icon: Icon(Icons.people_outline_rounded, color: _muted),
           label: 'Clientes',
         ),
         NavigationDestination(
-          icon: Icon(Icons.account_balance_wallet_outlined),
+          icon: Icon(
+            Icons.account_balance_wallet_outlined,
+            color: _muted,
+          ),
           label: 'Financeiro',
         ),
       ],
@@ -1257,9 +1254,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return BoxDecoration(
       color: _surface,
       borderRadius: BorderRadius.circular(17),
-      border: Border.all(
-        color: Colors.white.withValues(alpha: 0.065),
-      ),
+      border: Border.all(color: _border),
     );
   }
 }
