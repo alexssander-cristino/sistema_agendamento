@@ -25,26 +25,67 @@ class _LoginPageState extends State<LoginPage> {
   bool _carregando = false;
   String? _erro;
 
-  // Aceite dos termos
   bool _aceitouTermos = false;
   bool _erroTermos = false;
 
-  // URLs dos documentos legais.
-  static const String _urlTermos = 
+  static const String _urlTermos =
       'https://sistemaagendamento-lavajato-sistema.vercel.app/termos.html';
+
   static const String _urlPrivacidade =
       'https://sistemaagendamento-lavajato-sistema.vercel.app/politica-de-privacidade.html';
 
   late final TapGestureRecognizer _termosTap;
   late final TapGestureRecognizer _privacidadeTap;
 
-  static const Color _fundo = Color(0xFF090D19);
-  static const Color _painel = Color(0xFF11182A);
-  static const Color _borda = Color(0xFF263149);
-  static const Color _roxo = Color(0xFF8B5CF6);
-  static const Color _ciano = Color(0xFF22D3EE);
-  static const Color _texto = Color(0xFFF4F6FC);
-  static const Color _textoSecundario = Color(0xFF9BA8C0);
+  // ============================================================
+  // TEMA
+  // ============================================================
+
+  bool get _temaEscuro => OrvixThemeController.instance.isDark;
+
+  Color get _fundo => _temaEscuro
+      ? const Color(0xFF090D19)
+      : const Color(0xFFF7F5FF);
+
+  Color get _painel => _temaEscuro
+      ? const Color(0xFF11182A)
+      : Colors.white;
+
+  Color get _borda => _temaEscuro
+      ? const Color(0xFF263149)
+      : const Color(0xFFE5DFF3);
+
+  static const Color _roxo = Color(0xFF7965D8);
+  static const Color _roxoClaro = Color(0xFF8B5CF6);
+  static const Color _ciano = Color(0xFF0891B2);
+
+  Color get _texto => _temaEscuro
+      ? const Color(0xFFF4F6FC)
+      : const Color(0xFF211B35);
+
+  Color get _textoSecundario => _temaEscuro
+      ? const Color(0xFF9BA8C0)
+      : const Color(0xFF716B85);
+
+  Color get _fundoCampo => _temaEscuro
+      ? const Color(0xFF0B1120)
+      : const Color(0xFFFAF9FF);
+
+  Color get _textoDestaque => _temaEscuro
+      ? const Color(0xFFD9D5FF)
+      : const Color(0xFF6550B8);
+
+  Color get _corBotoesSecundarios => _temaEscuro
+      ? _ciano
+      : const Color(0xFF6D55C7);
+
+  Color get _corIcones => _temaEscuro
+      ? _ciano
+      : const Color(0xFF7965D8);
+
+  Color get _corDivisor => _temaEscuro
+      ? _borda
+      : const Color(0xFFE8E3F3);
 
   @override
   void initState() {
@@ -84,8 +125,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível abrir o link.'),
+        SnackBar(
+          content: const Text('Não foi possível abrir o link.'),
+          backgroundColor: _painel,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
@@ -139,7 +182,6 @@ class _LoginPageState extends State<LoginPage> {
 
       final perfil = usuario['perfil']?.toString() ?? '';
 
-      // Conta de desenvolvedor não entra pelo aplicativo comum.
       if (perfil == 'dev') {
         await AuthService.logout();
 
@@ -154,7 +196,6 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Impede acesso de contas desativadas.
       if (usuario['ativo'] == false) {
         await AuthService.logout();
 
@@ -169,8 +210,6 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Consulta a assinatura no backend.
-      // Não libera o dashboard se essa consulta falhar.
       final resposta = await ApiClient.get(
         '/mercado-pago/minha-assinatura',
       );
@@ -185,7 +224,6 @@ class _LoginPageState extends State<LoginPage> {
 
       final assinaturaAtiva = status == 'ativa';
 
-      // Usuário sem assinatura ativa vai para a seleção de planos.
       final Widget paginaDestino = assinaturaAtiva
           ? const DashboardPage()
           : const PlanosPage();
@@ -266,7 +304,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // ============================================================
-  // TEMA
+  // BOTÃO DE TEMA
   // ============================================================
 
   Widget _botaoTema() {
@@ -275,16 +313,27 @@ class _LoginPageState extends State<LoginPage> {
     return AnimatedBuilder(
       animation: theme,
       builder: (context, _) {
-        return IconButton(
-          tooltip: theme.isDark
-              ? 'Ativar tema claro'
-              : 'Ativar tema escuro',
-          onPressed: theme.toggleTheme,
-          icon: Icon(
-            theme.isDark
-                ? Icons.light_mode_rounded
-                : Icons.dark_mode_rounded,
-            color: _texto,
+        return Material(
+          color: _painel,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: _borda),
+          ),
+          child: IconButton(
+            tooltip: theme.isDark
+                ? 'Ativar tema claro'
+                : 'Ativar tema escuro',
+            onPressed: theme.toggleTheme,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              child: Icon(
+                theme.isDark
+                    ? Icons.light_mode_rounded
+                    : Icons.dark_mode_rounded,
+                key: ValueKey<bool>(theme.isDark),
+                color: _corIcones,
+              ),
+            ),
           ),
         );
       },
@@ -297,60 +346,69 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _fundo,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final largura = constraints.maxWidth;
-          final desktop = largura >= 900;
+    final theme = OrvixThemeController.instance;
 
-          return Stack(
-            children: [
-              const Positioned(
-                top: -150,
-                left: -120,
-                child: _Glow(
-                  cor: _roxo,
-                  tamanho: 340,
-                ),
-              ),
-              const Positioned(
-                bottom: -180,
-                right: -100,
-                child: _Glow(
-                  cor: _ciano,
-                  tamanho: 360,
-                ),
-              ),
-              Positioned(
-                top: 16,
-                right: 16,
-                child: SafeArea(
-                  child: _botaoTema(),
-                ),
-              ),
-              SafeArea(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: largura < 420 ? 20 : 32,
-                      vertical: 28,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: desktop ? 1040 : 460,
-                      ),
-                      child: desktop
-                          ? _layoutDesktop()
-                          : _layoutMobile(),
+    return AnimatedBuilder(
+      animation: theme,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: _fundo,
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final largura = constraints.maxWidth;
+              final desktop = largura >= 900;
+
+              return Stack(
+                children: [
+                  Positioned(
+                    top: -150,
+                    left: -120,
+                    child: _Glow(
+                      cor: _roxo,
+                      tamanho: 340,
+                      opacidade: _temaEscuro ? 0.055 : 0.075,
                     ),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+                  Positioned(
+                    bottom: -180,
+                    right: -100,
+                    child: _Glow(
+                      cor: _ciano,
+                      tamanho: 360,
+                      opacidade: _temaEscuro ? 0.055 : 0.045,
+                    ),
+                  ),
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: SafeArea(
+                      child: _botaoTema(),
+                    ),
+                  ),
+                  SafeArea(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: largura < 420 ? 20 : 32,
+                          vertical: 28,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: desktop ? 1040 : 460,
+                          ),
+                          child: desktop
+                              ? _layoutDesktop()
+                              : _layoutMobile(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -418,13 +476,13 @@ class _LoginPageState extends State<LoginPage> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                _roxo,
+                Color(0xFF8B5CF6),
                 Color(0xFF5B4BE7),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: _roxo.withValues(alpha: 0.25),
+                color: _roxo.withValues(alpha: 0.20),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -437,7 +495,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         const SizedBox(width: 13),
-        const Text(
+        Text(
           'orvix',
           style: TextStyle(
             color: _texto,
@@ -466,25 +524,27 @@ class _LoginPageState extends State<LoginPage> {
             vertical: 8,
           ),
           decoration: BoxDecoration(
-            color: _roxo.withValues(alpha: 0.12),
+            color: _roxo.withValues(
+              alpha: _temaEscuro ? 0.12 : 0.09,
+            ),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
               color: _roxo.withValues(alpha: 0.28),
             ),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.auto_awesome_rounded,
-                color: _ciano,
+                color: _corIcones,
                 size: 16,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'GESTÃO MAIS INTELIGENTE',
                 style: TextStyle(
-                  color: Color(0xFFD9D5FF),
+                  color: _textoDestaque,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.1,
@@ -494,7 +554,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         const SizedBox(height: 25),
-        const Text(
+        Text(
           'Sua empresa.\nSeu controle.\nSeu próximo nível.',
           style: TextStyle(
             color: _texto,
@@ -505,7 +565,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         const SizedBox(height: 22),
-        const Text(
+        Text(
           'Organize sua operação, acompanhe os resultados '
           'e tenha as informações da sua empresa em um '
           'só lugar.',
@@ -548,13 +608,15 @@ class _LoginPageState extends State<LoginPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.045),
+            color: _temaEscuro
+                ? Colors.white.withValues(alpha: 0.045)
+                : _roxo.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(13),
             border: Border.all(color: _borda),
           ),
           child: Icon(
             icone,
-            color: _ciano,
+            color: _corIcones,
             size: 21,
           ),
         ),
@@ -565,7 +627,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Text(
                 titulo,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _texto,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -574,7 +636,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 4),
               Text(
                 descricao,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _textoSecundario,
                   fontSize: 12,
                   height: 1.5,
@@ -588,7 +650,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // ============================================================
-  // CHECKBOX DE TERMOS E PRIVACIDADE
+  // TERMOS E PRIVACIDADE
   // ============================================================
 
   void _alternarTermos() {
@@ -596,17 +658,21 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _aceitouTermos = !_aceitouTermos;
-      if (_aceitouTermos) _erroTermos = false;
+
+      if (_aceitouTermos) {
+        _erroTermos = false;
+      }
+
       _erro = null;
     });
   }
 
   Widget _campoTermos() {
-    const estiloLink = TextStyle(
-      color: _ciano,
+    final estiloLink = TextStyle(
+      color: _corBotoesSecundarios,
       fontWeight: FontWeight.w700,
       decoration: TextDecoration.underline,
-      decorationColor: _ciano,
+      decorationColor: _corBotoesSecundarios,
     );
 
     return Column(
@@ -624,7 +690,7 @@ class _LoginPageState extends State<LoginPage> {
                 checkColor: Colors.white,
                 side: BorderSide(
                   color: _erroTermos
-                      ? const Color(0xFFF87171)
+                      ? const Color(0xFFEF4444)
                       : _textoSecundario,
                   width: 1.5,
                 ),
@@ -636,7 +702,11 @@ class _LoginPageState extends State<LoginPage> {
                     : (valor) {
                         setState(() {
                           _aceitouTermos = valor ?? false;
-                          if (_aceitouTermos) _erroTermos = false;
+
+                          if (_aceitouTermos) {
+                            _erroTermos = false;
+                          }
+
                           _erro = null;
                         });
                       },
@@ -651,7 +721,7 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(top: 2),
                   child: Text.rich(
                     TextSpan(
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _textoSecundario,
                         fontSize: 12,
                         height: 1.6,
@@ -684,7 +754,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Text(
               'Você precisa aceitar os termos para entrar.',
               style: TextStyle(
-                color: Color(0xFFF87171),
+                color: Color(0xFFEF4444),
                 fontSize: 11,
                 height: 1.5,
               ),
@@ -703,12 +773,14 @@ class _LoginPageState extends State<LoginPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: _painel.withValues(alpha: 0.96),
+        color: _painel.withValues(alpha: 0.98),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: _borda),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.20),
+            color: _temaEscuro
+                ? Colors.black.withValues(alpha: 0.20)
+                : const Color(0xFF6550A0).withValues(alpha: 0.07),
             blurRadius: 50,
             offset: const Offset(0, 20),
           ),
@@ -723,7 +795,7 @@ class _LoginPageState extends State<LoginPage> {
               _logo(),
               const SizedBox(height: 30),
             ],
-            const Text(
+            Text(
               'Bem-vindo de volta',
               style: TextStyle(
                 color: _texto,
@@ -733,7 +805,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 9),
-            const Text(
+            Text(
               'Entre na sua conta para continuar.',
               style: TextStyle(
                 color: _textoSecundario,
@@ -743,7 +815,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 30),
 
-            const _Label('E-mail'),
+            _Label('E-mail', cor: _texto),
             const SizedBox(height: 9),
             TextFormField(
               controller: _emailController,
@@ -754,7 +826,7 @@ class _LoginPageState extends State<LoginPage> {
               autofillHints: const [
                 AutofillHints.username,
               ],
-              style: const TextStyle(
+              style: TextStyle(
                 color: _texto,
                 fontSize: 14,
               ),
@@ -784,7 +856,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
 
             const SizedBox(height: 22),
-            const _Label('Senha'),
+            _Label('Senha', cor: _texto),
             const SizedBox(height: 9),
             TextFormField(
               controller: _senhaController,
@@ -794,7 +866,7 @@ class _LoginPageState extends State<LoginPage> {
               autofillHints: const [
                 AutofillHints.password,
               ],
-              style: const TextStyle(
+              style: TextStyle(
                 color: _texto,
                 fontSize: 14,
               ),
@@ -898,11 +970,11 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: Container(
                     height: 1,
-                    color: _borda,
+                    color: _corDivisor,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'ORVIX',
                     style: TextStyle(
@@ -916,14 +988,14 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: Container(
                     height: 1,
-                    color: _borda,
+                    color: _corDivisor,
                   ),
                 ),
               ],
             ),
 
             const SizedBox(height: 18),
-            const Center(
+            Center(
               child: Text(
                 'Acesse com as credenciais da sua empresa.',
                 textAlign: TextAlign.center,
@@ -941,7 +1013,7 @@ class _LoginPageState extends State<LoginPage> {
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Ainda não tem uma conta?',
                     style: TextStyle(
                       color: _textoSecundario,
@@ -949,10 +1021,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   TextButton(
-                    onPressed:
-                        _carregando ? null : _abrirCadastro,
+                    onPressed: _carregando ? null : _abrirCadastro,
                     style: TextButton.styleFrom(
-                      foregroundColor: _ciano,
+                      foregroundColor: _corBotoesSecundarios,
                     ),
                     child: const Text(
                       'Criar conta',
@@ -982,8 +1053,10 @@ class _LoginPageState extends State<LoginPage> {
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(
-        color: Color(0xFF68758E),
+      hintStyle: TextStyle(
+        color: _temaEscuro
+            ? const Color(0xFF68758E)
+            : const Color(0xFF9992AB),
         fontSize: 13,
       ),
       prefixIcon: Icon(
@@ -993,18 +1066,18 @@ class _LoginPageState extends State<LoginPage> {
       ),
       suffixIcon: sufixo,
       filled: true,
-      fillColor: const Color(0xFF0B1120),
+      fillColor: _fundoCampo,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 15,
         vertical: 17,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _borda),
+        borderSide: BorderSide(color: _borda),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _borda),
+        borderSide: BorderSide(color: _borda),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -1016,17 +1089,18 @@ class _LoginPageState extends State<LoginPage> {
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(
-          color: Color(0xFFF87171),
+          color: Color(0xFFEF4444),
         ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(
-          color: Color(0xFFF87171),
+          color: Color(0xFFEF4444),
           width: 1.3,
         ),
       ),
       errorStyle: const TextStyle(
+        color: Color(0xFFDC2626),
         fontSize: 11,
         height: 1.5,
       ),
@@ -1042,10 +1116,10 @@ class _LoginPageState extends State<LoginPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFFEF4444).withValues(alpha: 0.09),
+        color: const Color(0xFFEF4444).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(11),
         border: Border.all(
-          color: const Color(0xFFEF4444).withValues(alpha: 0.35),
+          color: const Color(0xFFEF4444).withValues(alpha: 0.30),
         ),
       ),
       child: Row(
@@ -1053,15 +1127,17 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           const Icon(
             Icons.error_outline_rounded,
-            color: Color(0xFFF87171),
+            color: Color(0xFFEF4444),
             size: 19,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               mensagem,
-              style: const TextStyle(
-                color: Color(0xFFFCA5A5),
+              style: TextStyle(
+                color: _temaEscuro
+                    ? const Color(0xFFFCA5A5)
+                    : const Color(0xFFB91C1C),
                 fontSize: 12,
                 height: 1.6,
               ),
@@ -1077,7 +1153,7 @@ class _LoginPageState extends State<LoginPage> {
   // ============================================================
 
   Widget _rodape() {
-    return const Column(
+    return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1087,7 +1163,7 @@ class _LoginPageState extends State<LoginPage> {
               size: 13,
               color: _textoSecundario,
             ),
-            SizedBox(width: 7),
+            const SizedBox(width: 7),
             Text(
               'Acesso protegido',
               style: TextStyle(
@@ -1097,12 +1173,14 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Orvix © 2026 · Gestão para sua empresa',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Color(0xFF66728A),
+            color: _temaEscuro
+                ? const Color(0xFF66728A)
+                : const Color(0xFF8A849B),
             fontSize: 11,
           ),
         ),
@@ -1117,15 +1195,19 @@ class _LoginPageState extends State<LoginPage> {
 
 class _Label extends StatelessWidget {
   final String texto;
+  final Color cor;
 
-  const _Label(this.texto);
+  const _Label(
+    this.texto, {
+    required this.cor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Text(
       texto,
-      style: const TextStyle(
-        color: Color(0xFFDCE3F2),
+      style: TextStyle(
+        color: cor,
         fontSize: 13,
         fontWeight: FontWeight.w600,
       ),
@@ -1140,10 +1222,12 @@ class _Label extends StatelessWidget {
 class _Glow extends StatelessWidget {
   final Color cor;
   final double tamanho;
+  final double opacidade;
 
   const _Glow({
     required this.cor,
     required this.tamanho,
+    this.opacidade = 0.055,
   });
 
   @override
@@ -1154,7 +1238,7 @@ class _Glow extends StatelessWidget {
         height: tamanho,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: cor.withValues(alpha: 0.055),
+          color: cor.withValues(alpha: opacidade),
         ),
       ),
     );

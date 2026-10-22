@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/theme/orvix_theme_controller.dart';
 
 class AgendaPage extends StatefulWidget {
   const AgendaPage({super.key});
@@ -13,15 +14,33 @@ class AgendaPage extends StatefulWidget {
 }
 
 class _AgendaPageState extends State<AgendaPage> {
-  static const Color _background = Color(0xFF0B0B12);
-  static const Color _surface = Color(0xFF151522);
-  static const Color _surfaceAlt = Color(0xFF1D1B2D);
-  static const Color _purple = Color(0xFF9B7BFF);
-  static const Color _purpleDark = Color(0xFF6F4DE8);
-  static const Color _green = Color(0xFF56D6A0);
-  static const Color _red = Color(0xFFFF7185);
-  static const Color _yellow = Color(0xFFFFC66D);
-  static const Color _blue = Color(0xFF69B8FF);
+  bool get _temaEscuro => OrvixThemeController.instance.isDark;
+
+  Color get _background =>
+      _temaEscuro ? const Color(0xFF0B0B12) : const Color(0xFFF7F6FC);
+
+  Color get _surface =>
+      _temaEscuro ? const Color(0xFF151522) : Colors.white;
+
+  Color get _surfaceAlt =>
+      _temaEscuro ? const Color(0xFF1D1B2D) : const Color(0xFFEDEAF7);
+
+  Color get _texto =>
+      _temaEscuro ? const Color(0xFFF5F2FC) : const Color(0xFF262238);
+
+  Color get _textoSecundario =>
+      _temaEscuro ? const Color(0xFFAAA4BB) : const Color(0xFF777187);
+
+  Color get _borda => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.08)
+      : const Color(0xFFE5E0F0);
+
+  static const Color _purple = Color(0xFF7965D8);
+  static const Color _purpleDark = Color(0xFF6550C7);
+  static const Color _green = Color(0xFF239B70);
+  static const Color _red = Color(0xFFD94F68);
+  static const Color _yellow = Color(0xFFB98220);
+  static const Color _blue = Color(0xFF397DC4);
 
   static const List<String> _statusOpcoes = [
     'agendado',
@@ -138,14 +157,87 @@ class _AgendaPageState extends State<AgendaPage> {
   @override
   void initState() {
     super.initState();
+    OrvixThemeController.instance.addListener(_atualizarTema);
     _carregarNichoEmpresa();
     _carregarDados();
   }
 
+  void _atualizarTema() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    OrvixThemeController.instance.removeListener(_atualizarTema);
     _searchController.dispose();
     super.dispose();
+  }
+
+  ThemeData _temaDosSeletores(ThemeData tema) {
+    return tema.copyWith(
+      colorScheme: ColorScheme(
+        brightness: _temaEscuro ? Brightness.dark : Brightness.light,
+        primary: _purple,
+        onPrimary: Colors.white,
+        secondary: _purpleDark,
+        onSecondary: Colors.white,
+        surface: _surface,
+        onSurface: _texto,
+        error: _red,
+        onError: Colors.white,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: _surface,
+        titleTextStyle: TextStyle(
+          color: _texto,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        contentTextStyle: TextStyle(color: _textoSecundario),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: _purple),
+      ),
+    );
+  }
+
+  InputDecoration _decoracaoCampo(
+    String label, {
+    IconData? icon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: icon == null ? null : Icon(icon, size: 19),
+      filled: true,
+      fillColor: _surfaceAlt,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 15,
+      ),
+      labelStyle: TextStyle(color: _textoSecundario),
+      hintStyle: TextStyle(color: _textoSecundario),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide(color: _borda),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(color: _purple, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(color: _red),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(color: _red),
+      ),
+    );
   }
 
   // ============================================================
@@ -302,8 +394,6 @@ class _AgendaPageState extends State<AgendaPage> {
     }
   }
 
-  /// Normaliza a forma de pagamento vinda do backend para um valor
-  /// que exista no dropdown (evita o erro "exactly one item with value").
   String _normalizarForma(String valor) {
     final v = valor.trim().toLowerCase();
 
@@ -437,14 +527,7 @@ class _AgendaPageState extends State<AgendaPage> {
       confirmText: 'Selecionar',
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: _purple,
-              onPrimary: Colors.white,
-              surface: _surface,
-              onSurface: Colors.white,
-            ),
-          ),
+          data: _temaDosSeletores(Theme.of(context)),
           child: child!,
         );
       },
@@ -471,13 +554,7 @@ class _AgendaPageState extends State<AgendaPage> {
       ),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: _purple,
-              surface: _surface,
-              onSurface: Colors.white,
-            ),
-          ),
+          data: _temaDosSeletores(Theme.of(context)),
           child: child!,
         );
       },
@@ -528,10 +605,8 @@ class _AgendaPageState extends State<AgendaPage> {
     );
 
     int? servicoId = int.tryParse(agendamento?['servico_id']?.toString() ?? '');
-
     final clienteId = agendamento?['cliente_id'];
 
-    // Valores já normalizados para existirem nos dropdowns.
     final statusBruto = (agendamento?['status'] ?? 'agendado')
         .toString()
         .toLowerCase();
@@ -582,43 +657,6 @@ class _AgendaPageState extends State<AgendaPage> {
               final tamanho = MediaQuery.sizeOf(context);
               final alturaMaxima = (tamanho.height - 150).clamp(250.0, 700.0);
 
-              InputDecoration decoracao(String label, {IconData? icon}) {
-                return InputDecoration(
-                  labelText: label,
-                  prefixIcon: icon == null ? null : Icon(icon, size: 19),
-                  filled: true,
-                  fillColor: _surfaceAlt,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 15,
-                  ),
-                  labelStyle: const TextStyle(color: Colors.white60),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.07),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(color: _purple),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(color: _red),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(color: _red),
-                  ),
-                );
-              }
-
               Widget campo(
                 TextEditingController controller,
                 String label, {
@@ -636,8 +674,8 @@ class _AgendaPageState extends State<AgendaPage> {
                   validator: validator,
                   readOnly: readOnly,
                   onTap: onTap,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: decoracao(label, icon: icon),
+                  style: TextStyle(color: _texto, fontSize: 14),
+                  decoration: _decoracaoCampo(label, icon: icon),
                 );
               }
 
@@ -649,7 +687,7 @@ class _AgendaPageState extends State<AgendaPage> {
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22),
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                  side: BorderSide(color: _borda),
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
@@ -683,8 +721,8 @@ class _AgendaPageState extends State<AgendaPage> {
                                     agendamento == null
                                         ? 'Novo agendamento'
                                         : 'Editar agendamento',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: _texto,
                                       fontSize: 17,
                                       fontWeight: FontWeight.w800,
                                     ),
@@ -694,8 +732,8 @@ class _AgendaPageState extends State<AgendaPage> {
                                     _tituloAgenda,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white54,
+                                    style: TextStyle(
+                                      color: _textoSecundario,
                                       fontSize: 11,
                                     ),
                                   ),
@@ -707,18 +745,15 @@ class _AgendaPageState extends State<AgendaPage> {
                               onPressed: salvandoDialog
                                   ? null
                                   : () => Navigator.of(dialogContext).pop(),
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.close_rounded,
-                                color: Colors.white70,
+                                color: _textoSecundario,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Divider(
-                        height: 1,
-                        color: Colors.white.withValues(alpha: 0.07),
-                      ),
+                      Divider(height: 1, color: _borda),
                       Flexible(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.all(18),
@@ -747,11 +782,11 @@ class _AgendaPageState extends State<AgendaPage> {
                                   initialValue: servicoId,
                                   isExpanded: true,
                                   dropdownColor: _surface,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: _texto,
                                     fontSize: 13,
                                   ),
-                                  decoration: decoracao(
+                                  decoration: _decoracaoCampo(
                                     'Serviço *',
                                     icon: Icons.design_services_outlined,
                                   ),
@@ -781,17 +816,14 @@ class _AgendaPageState extends State<AgendaPage> {
                                           setDialogState(() {
                                             servicoId = value;
 
-                                            final servico = _servicos
-                                                .firstWhere(
-                                                  (s) =>
-                                                      int.tryParse(
-                                                        s['id']?.toString() ??
-                                                            '',
-                                                      ) ==
-                                                      value,
-                                                  orElse: () =>
-                                                      <String, dynamic>{},
-                                                );
+                                            final servico = _servicos.firstWhere(
+                                              (s) =>
+                                                  int.tryParse(
+                                                    s['id']?.toString() ?? '',
+                                                  ) ==
+                                                  value,
+                                              orElse: () => <String, dynamic>{},
+                                            );
 
                                             valorController.text =
                                                 _valorNumerico(
@@ -831,26 +863,14 @@ class _AgendaPageState extends State<AgendaPage> {
                                                 confirmText: 'Selecionar',
                                                 builder: (context, child) {
                                                   return Theme(
-                                                    data: Theme.of(context)
-                                                        .copyWith(
-                                                          colorScheme:
-                                                              const ColorScheme.dark(
-                                                                primary:
-                                                                    _purple,
-                                                                surface:
-                                                                    _surface,
-                                                                onSurface:
-                                                                    Colors
-                                                                        .white,
-                                                              ),
-                                                        ),
+                                                    data: _temaDosSeletores(
+                                                      Theme.of(context),
+                                                    ),
                                                     child: child!,
                                                   );
                                                 },
                                               );
 
-                                              // O contexto do StatefulBuilder pode ser
-                                              // desmontado enquanto o seletor está aberto.
                                               if (!context.mounted ||
                                                   data == null) {
                                                 return;
@@ -884,6 +904,7 @@ class _AgendaPageState extends State<AgendaPage> {
                                               horaController.text =
                                                   '${hora.hour.toString().padLeft(2, '0')}:'
                                                   '${hora.minute.toString().padLeft(2, '0')}';
+
                                               setDialogState(() {});
                                             },
                                     );
@@ -922,11 +943,9 @@ class _AgendaPageState extends State<AgendaPage> {
                                     if (v == null || v.trim().isEmpty) {
                                       return 'Informe um valor.';
                                     }
-
                                     if (_valorNumerico(v) < 0) {
                                       return 'O valor não pode ser negativo.';
                                     }
-
                                     return null;
                                   },
                                 ),
@@ -955,12 +974,12 @@ class _AgendaPageState extends State<AgendaPage> {
                                 ),
                                 if (agendamento != null) ...[
                                   const SizedBox(height: 18),
-                                  const Align(
+                                  Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       'Status do agendamento',
                                       style: TextStyle(
-                                        color: Colors.white70,
+                                        color: _textoSecundario,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -971,11 +990,11 @@ class _AgendaPageState extends State<AgendaPage> {
                                     initialValue: status,
                                     isExpanded: true,
                                     dropdownColor: _surface,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: _texto,
                                       fontSize: 13,
                                     ),
-                                    decoration: decoracao('Status'),
+                                    decoration: _decoracaoCampo('Status'),
                                     items: const [
                                       DropdownMenuItem(
                                         value: 'agendado',
@@ -1013,11 +1032,11 @@ class _AgendaPageState extends State<AgendaPage> {
                                     initialValue: statusPagamento,
                                     isExpanded: true,
                                     dropdownColor: _surface,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: _texto,
                                       fontSize: 13,
                                     ),
-                                    decoration: decoracao('Pagamento'),
+                                    decoration: _decoracaoCampo('Pagamento'),
                                     items: const [
                                       DropdownMenuItem(
                                         value: 'pendente',
@@ -1051,11 +1070,13 @@ class _AgendaPageState extends State<AgendaPage> {
                                     initialValue: formaPagamento,
                                     isExpanded: true,
                                     dropdownColor: _surface,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: _texto,
                                       fontSize: 13,
                                     ),
-                                    decoration: decoracao('Forma de pagamento'),
+                                    decoration: _decoracaoCampo(
+                                      'Forma de pagamento',
+                                    ),
                                     items: const [
                                       DropdownMenuItem(
                                         value: '',
@@ -1094,10 +1115,7 @@ class _AgendaPageState extends State<AgendaPage> {
                           ),
                         ),
                       ),
-                      Divider(
-                        height: 1,
-                        color: Colors.white.withValues(alpha: 0.07),
-                      ),
+                      Divider(height: 1, color: _borda),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
                         child: Row(
@@ -1108,10 +1126,8 @@ class _AgendaPageState extends State<AgendaPage> {
                                     ? null
                                     : () => Navigator.of(dialogContext).pop(),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.white70,
-                                  side: BorderSide(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                  ),
+                                  foregroundColor: _textoSecundario,
+                                  side: BorderSide(color: _borda),
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 13,
                                   ),
@@ -1180,8 +1196,6 @@ class _AgendaPageState extends State<AgendaPage> {
                                               id: agendamento?['id'],
                                             );
 
-                                        // Não atualize o diálogo se o StatefulBuilder
-                                        // ou a rota do diálogo já foram desmontados.
                                         if (!context.mounted ||
                                             !dialogContext.mounted) {
                                           return;
@@ -1226,8 +1240,6 @@ class _AgendaPageState extends State<AgendaPage> {
         },
       );
     } finally {
-      // O showDialog completa assim que a rota é fechada, mas a animação de
-      // saída ainda usa os controllers. Por isso o descarte é adiado.
       Future<void>.delayed(const Duration(milliseconds: 500), () {
         clienteController.dispose();
         telefoneController.dispose();
@@ -1281,9 +1293,7 @@ class _AgendaPageState extends State<AgendaPage> {
 
       return true;
     } on ApiException catch (e) {
-      if (mounted) {
-        setState(() => _salvando = false);
-      }
+      if (mounted) setState(() => _salvando = false);
 
       if (e.statusCode == 409 && mounted) {
         final continuar = await showDialog<bool>(
@@ -1291,13 +1301,13 @@ class _AgendaPageState extends State<AgendaPage> {
           barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             backgroundColor: _surface,
-            title: const Text(
+            title: Text(
               'Conflito de horário',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: _texto),
             ),
             content: Text(
               '${e.message}\n\nDeseja forçar este agendamento mesmo assim?',
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(color: _textoSecundario),
             ),
             actions: [
               TextButton(
@@ -1347,7 +1357,6 @@ class _AgendaPageState extends State<AgendaPage> {
       if (id == null) {
         await ApiClient.post('/agendamentos', body);
       } else {
-        // CORRIGIDO: antes enviava `child` (sempre null) em vez de `body`.
         await ApiClient.patch('/agendamentos/$id', body);
       }
 
@@ -1396,14 +1405,14 @@ class _AgendaPageState extends State<AgendaPage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _surface,
-        title: const Text(
+        title: Text(
           'Excluir agendamento?',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: _texto),
         ),
         content: Text(
           'O agendamento de ${item['cliente'] ?? 'cliente'} '
           'será excluído permanentemente.',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: _textoSecundario),
         ),
         actions: [
           TextButton(
@@ -1435,11 +1444,16 @@ class _AgendaPageState extends State<AgendaPage> {
     }
   }
 
-  Future<void> _alterarStatus(Map<String, dynamic> item, String status) async {
+  Future<void> _alterarStatus(
+    Map<String, dynamic> item,
+    String status,
+  ) async {
     if (_salvando) return;
 
     try {
-      await ApiClient.patch('/agendamentos/${item['id']}', {'status': status});
+      await ApiClient.patch('/agendamentos/${item['id']}', {
+        'status': status,
+      });
 
       if (!mounted) return;
 
@@ -1462,6 +1476,7 @@ class _AgendaPageState extends State<AgendaPage> {
           content: Text(mensagem),
           behavior: SnackBarBehavior.floating,
           backgroundColor: _surfaceAlt,
+          showCloseIcon: true,
         ),
       );
   }
@@ -1472,29 +1487,32 @@ class _AgendaPageState extends State<AgendaPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculado uma única vez por build.
     final lista = _agendamentosDoDia;
 
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
         backgroundColor: _background,
-        foregroundColor: Colors.white,
+        foregroundColor: _texto,
         elevation: 0,
         titleSpacing: 20,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Agenda',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
+              style: TextStyle(
+                color: _texto,
+                fontWeight: FontWeight.w800,
+                fontSize: 22,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               _tituloAgenda,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: Colors.white54),
+              style: TextStyle(fontSize: 12, color: _textoSecundario),
             ),
           ],
         ),
@@ -1535,11 +1553,11 @@ class _AgendaPageState extends State<AgendaPage> {
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Atendimentos do dia',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: _texto,
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
                             ),
@@ -1548,8 +1566,8 @@ class _AgendaPageState extends State<AgendaPage> {
                         Text(
                           '${lista.length} '
                           '${lista.length == 1 ? 'registro' : 'registros'}',
-                          style: const TextStyle(
-                            color: Colors.white54,
+                          style: TextStyle(
+                            color: _textoSecundario,
                             fontSize: 12,
                           ),
                         ),
@@ -1572,12 +1590,24 @@ class _AgendaPageState extends State<AgendaPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF282044), Color(0xFF171523)],
+          colors: _temaEscuro
+              ? const [
+                  Color(0xFF282044),
+                  Color(0xFF171523),
+                ]
+              : const [
+                  Color(0xFFEAE4FF),
+                  Color(0xFFF5F1FF),
+                ],
         ),
-        border: Border.all(color: _purple.withValues(alpha: 0.25)),
+        border: Border.all(
+          color: _temaEscuro
+              ? _purple.withValues(alpha: 0.25)
+              : const Color(0xFFDED5FF),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1604,16 +1634,18 @@ class _AgendaPageState extends State<AgendaPage> {
                   children: [
                     Text(
                       _nomeDia(_dataSelecionada),
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: _temaEscuro
+                            ? Colors.white70
+                            : const Color(0xFF655B7F),
                         fontSize: 12,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       _formatarData(_dataSelecionada),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _temaEscuro ? Colors.white : _texto,
                         fontWeight: FontWeight.w800,
                         fontSize: 20,
                       ),
@@ -1625,11 +1657,13 @@ class _AgendaPageState extends State<AgendaPage> {
                 onPressed: _selecionarData,
                 tooltip: 'Selecionar data',
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.07),
+                  backgroundColor: _temaEscuro
+                      ? Colors.white.withValues(alpha: 0.07)
+                      : _purple.withValues(alpha: 0.09),
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.edit_calendar_outlined,
-                  color: Colors.white,
+                  color: _temaEscuro ? Colors.white : _purpleDark,
                 ),
               ),
             ],
@@ -1637,7 +1671,6 @@ class _AgendaPageState extends State<AgendaPage> {
           const SizedBox(height: 16),
           Row(
             children: [
-              // Atalhos fixos, sempre relativos a HOJE.
               Expanded(
                 child: _atalhoDia(
                   'Ontem',
@@ -1682,8 +1715,12 @@ class _AgendaPageState extends State<AgendaPage> {
       icon: Icon(icone, size: 16),
       label: Text(texto),
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+        foregroundColor: _temaEscuro ? Colors.white : _purpleDark,
+        side: BorderSide(
+          color: _temaEscuro
+              ? Colors.white.withValues(alpha: 0.12)
+              : _purple.withValues(alpha: 0.22),
+        ),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
         textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1699,10 +1736,10 @@ class _AgendaPageState extends State<AgendaPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Resumo do dia',
           style: TextStyle(
-            color: Colors.white,
+            color: _texto,
             fontWeight: FontWeight.w800,
             fontSize: 16,
           ),
@@ -1768,7 +1805,7 @@ class _AgendaPageState extends State<AgendaPage> {
       decoration: BoxDecoration(
         color: _surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.055)),
+        border: Border.all(color: _borda),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1780,7 +1817,7 @@ class _AgendaPageState extends State<AgendaPage> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.white,
+              color: _texto,
               fontSize: compacto ? 16 : 23,
               fontWeight: FontWeight.w800,
             ),
@@ -1790,7 +1827,7 @@ class _AgendaPageState extends State<AgendaPage> {
             titulo,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white54, fontSize: 11),
+            style: TextStyle(color: _textoSecundario, fontSize: 11),
           ),
         ],
       ),
@@ -1801,13 +1838,13 @@ class _AgendaPageState extends State<AgendaPage> {
     return TextField(
       controller: _searchController,
       onChanged: (_) => setState(() {}),
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: _texto),
       decoration: InputDecoration(
         hintText: _usaVeiculo
             ? 'Buscar cliente, telefone, serviço ou placa...'
             : 'Buscar cliente, telefone ou serviço...',
-        hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
-        prefixIcon: const Icon(Icons.search_rounded, color: Colors.white54),
+        hintStyle: TextStyle(color: _textoSecundario, fontSize: 13),
+        prefixIcon: Icon(Icons.search_rounded, color: _textoSecundario),
         suffixIcon: _searchController.text.isEmpty
             ? null
             : IconButton(
@@ -1815,7 +1852,7 @@ class _AgendaPageState extends State<AgendaPage> {
                   _searchController.clear();
                   setState(() {});
                 },
-                icon: const Icon(Icons.close, color: Colors.white54),
+                icon: Icon(Icons.close, color: _textoSecundario),
               ),
         filled: true,
         fillColor: _surface,
@@ -1825,7 +1862,11 @@ class _AgendaPageState extends State<AgendaPage> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+          borderSide: BorderSide(color: _borda),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: _purple),
         ),
       ),
     );
@@ -1856,12 +1897,14 @@ class _AgendaPageState extends State<AgendaPage> {
               selectedColor: _purpleDark,
               backgroundColor: _surface,
               labelStyle: TextStyle(
-                color: ativo ? Colors.white : Colors.white60,
+                color: ativo
+                    ? Colors.white
+                    : _textoSecundario,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
               side: BorderSide(
-                color: ativo ? _purple : Colors.white.withValues(alpha: 0.07),
+                color: ativo ? _purple : _borda,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1892,7 +1935,7 @@ class _AgendaPageState extends State<AgendaPage> {
       decoration: BoxDecoration(
         color: _surface,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15),
@@ -1914,8 +1957,8 @@ class _AgendaPageState extends State<AgendaPage> {
                       const SizedBox(height: 5),
                       Text(
                         _hora(item['hora']),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: _texto,
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
@@ -1932,8 +1975,8 @@ class _AgendaPageState extends State<AgendaPage> {
                         cliente,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: _texto,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                         ),
@@ -1943,8 +1986,8 @@ class _AgendaPageState extends State<AgendaPage> {
                         servico,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white70,
+                        style: TextStyle(
+                          color: _textoSecundario,
                           fontSize: 12,
                         ),
                       ),
@@ -1952,8 +1995,8 @@ class _AgendaPageState extends State<AgendaPage> {
                         const SizedBox(height: 5),
                         Text(
                           telefone,
-                          style: const TextStyle(
-                            color: Colors.white38,
+                          style: TextStyle(
+                            color: _textoSecundario,
                             fontSize: 11,
                           ),
                         ),
@@ -1967,8 +2010,8 @@ class _AgendaPageState extends State<AgendaPage> {
                   children: [
                     Text(
                       _moeda(item['valor']),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _texto,
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
                       ),
@@ -2013,7 +2056,7 @@ class _AgendaPageState extends State<AgendaPage> {
               ),
             ],
             const SizedBox(height: 12),
-            Divider(color: Colors.white.withValues(alpha: 0.07), height: 1),
+            Divider(color: _borda, height: 1),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -2056,11 +2099,11 @@ class _AgendaPageState extends State<AgendaPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.white38, size: 14),
+        Icon(icon, color: _textoSecundario, size: 14),
         const SizedBox(width: 5),
         Text(
           texto,
-          style: const TextStyle(color: Colors.white54, fontSize: 11),
+          style: TextStyle(color: _textoSecundario, fontSize: 11),
         ),
       ],
     );
@@ -2070,14 +2113,14 @@ class _AgendaPageState extends State<AgendaPage> {
     String texto,
     IconData icone,
     VoidCallback acao, {
-    Color cor = Colors.white70,
+    Color? cor,
   }) {
     return TextButton.icon(
       onPressed: _salvando ? null : acao,
       icon: Icon(icone, size: 16),
       label: Text(texto),
       style: TextButton.styleFrom(
-        foregroundColor: cor,
+        foregroundColor: cor ?? _textoSecundario,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
       ),
@@ -2094,7 +2137,7 @@ class _AgendaPageState extends State<AgendaPage> {
       decoration: BoxDecoration(
         color: _surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Column(
         children: [
@@ -2112,20 +2155,24 @@ class _AgendaPageState extends State<AgendaPage> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Nenhum agendamento encontrado',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
+              color: _texto,
               fontWeight: FontWeight.w800,
               fontSize: 15,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Mude a data ou os filtros, ou crie um novo agendamento.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.5),
+            style: TextStyle(
+              color: _textoSecundario,
+              fontSize: 12,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
@@ -2151,11 +2198,11 @@ class _AgendaPageState extends State<AgendaPage> {
           children: [
             const Icon(Icons.cloud_off_outlined, size: 48, color: _red),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Não foi possível abrir a agenda',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: _texto,
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
               ),
@@ -2164,7 +2211,7 @@ class _AgendaPageState extends State<AgendaPage> {
             Text(
               _erro ?? 'Tente novamente.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white60),
+              style: TextStyle(color: _textoSecundario),
             ),
             const SizedBox(height: 18),
             FilledButton.icon(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/theme/orvix_theme_controller.dart';
 
 class FinanceiroPage extends StatefulWidget {
   const FinanceiroPage({super.key});
@@ -10,15 +11,6 @@ class FinanceiroPage extends StatefulWidget {
 }
 
 class _FinanceiroPageState extends State<FinanceiroPage> {
-  static const Color _fundo = Color(0xFF0F1020);
-  static const Color _painel = Color(0xFF191A30);
-  static const Color _roxo = Color(0xFF8B5CF6);
-  static const Color _texto = Color(0xFFF4F3FF);
-  static const Color _secundario = Color(0xFFA6A4C2);
-  static const Color _verde = Color(0xFF35C99A);
-  static const Color _vermelho = Color(0xFFEF6464);
-  static const Color _laranja = Color(0xFFFFB454);
-
   bool _carregando = false;
   bool _dadosIncompletos = false;
   String? _erro;
@@ -28,13 +20,70 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
   List<Map<String, dynamic>> _despesas = [];
   List<Map<String, dynamic>> _contas = [];
 
+  bool get _temaEscuro => OrvixThemeController.instance.isDark;
+
+  Color get _fundo => _temaEscuro
+      ? const Color(0xFF0F1020)
+      : const Color(0xFFF7F6FC);
+
+  Color get _painel => _temaEscuro
+      ? const Color(0xFF191A30)
+      : Colors.white;
+
+  Color get _painelSecundario => _temaEscuro
+      ? const Color(0xFF22223A)
+      : const Color(0xFFEFEAFB);
+
+  Color get _roxo => const Color(0xFF7965D8);
+
+  Color get _texto => _temaEscuro
+      ? const Color(0xFFF4F3FF)
+      : const Color(0xFF28243A);
+
+  Color get _secundario => _temaEscuro
+      ? const Color(0xFFA6A4C2)
+      : const Color(0xFF777287);
+
+  Color get _verde => _temaEscuro
+      ? const Color(0xFF35C99A)
+      : const Color(0xFF218A66);
+
+  Color get _vermelho => _temaEscuro
+      ? const Color(0xFFEF6464)
+      : const Color(0xFFD9435B);
+
+  Color get _laranja => _temaEscuro
+      ? const Color(0xFFFFB454)
+      : const Color(0xFFB87518);
+
+  Color get _borda => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.07)
+      : const Color(0xFFE5E0F0);
+
+  Color get _divisor => _temaEscuro
+      ? Colors.white.withValues(alpha: 0.08)
+      : const Color(0xFFE9E5F0);
+
   @override
   void initState() {
     super.initState();
+
+    OrvixThemeController.instance.addListener(_aoAlterarTema);
     _carregarDados();
   }
 
-  // CORRIGIDO: antes se chamava `_texto`, o mesmo nome da cor acima.
+  void _aoAlterarTema() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    OrvixThemeController.instance.removeListener(_aoAlterarTema);
+    super.dispose();
+  }
+
   String _s(dynamic valor, [String padrao = '']) {
     if (valor == null) return padrao;
     return valor.toString();
@@ -42,6 +91,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
 
   double _valor(dynamic valor) {
     if (valor is num) return valor.toDouble();
+
     return double.tryParse(
           valor?.toString().replaceAll(',', '.') ?? '',
         ) ??
@@ -50,16 +100,18 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
 
   String _moeda(num valor) {
     final partes = valor.toStringAsFixed(2).split('.');
+
     final inteiro = partes[0].replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (_) => '.',
     );
+
     return 'R\$ $inteiro,${partes[1]}';
   }
 
-  // Usa só a parte da data (AAAA-MM-DD) para evitar deslocamento de fuso.
   DateTime? _data(dynamic valor) {
     final texto = valor?.toString().trim() ?? '';
+
     if (texto.isEmpty) return null;
 
     try {
@@ -73,6 +125,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
 
   String _dataFormatada(dynamic valor) {
     final data = _data(valor);
+
     if (data == null) return 'Sem data';
 
     return '${data.day.toString().padLeft(2, '0')}/'
@@ -82,6 +135,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
 
   bool _concluido(Map<String, dynamic> item) {
     final status = _s(item['status']).toLowerCase().trim();
+
     return status == 'concluido' || status == 'concluído';
   }
 
@@ -91,6 +145,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
 
   bool _dentroDoPeriodo(dynamic valor) {
     final data = _data(valor);
+
     if (data == null) return false;
 
     final agora = DateTime.now();
@@ -114,6 +169,8 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
   }
 
   Future<void> _carregarDados() async {
+    if (!mounted) return;
+
     setState(() {
       _carregando = true;
       _erro = null;
@@ -121,13 +178,8 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
     });
 
     try {
-      // CORRIGIDO: ApiClient.get só devolve Map; listas exigem getList.
-      // Os agendamentos são obrigatórios (são a base das receitas).
       final agendamentos = await ApiClient.getList('/agendamentos');
 
-      // Despesas e contas são opcionais: se a rota não existir no backend,
-      // a tela continua funcionando e avisa que os dados estão incompletos.
-      // Confirme os caminhos abaixo com as rotas registradas no backend.
       var falhouOpcional = false;
 
       Future<List<dynamic>> opcional(String rota) async {
@@ -196,20 +248,28 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
     return _contas.where((item) {
       final tipo = _s(item['tipo']).toLowerCase();
       final status = _s(item['status']).toLowerCase();
+
       return tipo.contains('pagar') &&
           !status.contains('pago') &&
           !status.contains('cancelado');
-    }).fold<double>(0, (total, item) => total + _valor(item['valor']));
+    }).fold<double>(
+      0,
+      (total, item) => total + _valor(item['valor']),
+    );
   }
 
   double get _totalContasReceber {
     return _contas.where((item) {
       final tipo = _s(item['tipo']).toLowerCase();
       final status = _s(item['status']).toLowerCase();
+
       return tipo.contains('receber') &&
           !status.contains('recebido') &&
           !status.contains('cancelado');
-    }).fold<double>(0, (total, item) => total + _valor(item['valor']));
+    }).fold<double>(
+      0,
+      (total, item) => total + _valor(item['valor']),
+    );
   }
 
   Widget _indicador({
@@ -224,28 +284,27 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: _borda),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: cor.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icone, color: cor, size: 20),
-              ),
-            ],
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: cor.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icone, color: cor, size: 20),
           ),
           const Spacer(),
           Text(
             titulo,
-            style: const TextStyle(color: _secundario, fontSize: 12),
+            style: TextStyle(
+              color: _secundario,
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 6),
           FittedBox(
@@ -253,7 +312,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
             alignment: Alignment.centerLeft,
             child: Text(
               valor,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _texto,
                 fontSize: 23,
                 fontWeight: FontWeight.w800,
@@ -266,7 +325,10 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
               descricao,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: _secundario, fontSize: 10),
+              style: TextStyle(
+                color: _secundario,
+                fontSize: 10,
+              ),
             ),
           ],
         ],
@@ -282,7 +344,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
         children: [
           Text(
             titulo,
-            style: const TextStyle(
+            style: TextStyle(
               color: _texto,
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -292,7 +354,10 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
             const SizedBox(height: 4),
             Text(
               subtitulo,
-              style: const TextStyle(color: _secundario, fontSize: 11),
+              style: TextStyle(
+                color: _secundario,
+                fontSize: 11,
+              ),
             ),
           ],
         ],
@@ -313,7 +378,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: _borda),
       ),
       child: Row(
         children: [
@@ -335,7 +400,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
                   titulo,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _texto,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -346,7 +411,10 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
                   subtitulo,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: _secundario, fontSize: 11),
+                  style: TextStyle(
+                    color: _secundario,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -372,10 +440,11 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
       decoration: BoxDecoration(
         color: _painel,
         borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: _borda),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.receipt_long_outlined,
             color: _roxo,
             size: 36,
@@ -384,7 +453,10 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
           Text(
             mensagem,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: _secundario, fontSize: 12),
+            style: TextStyle(
+              color: _secundario,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -399,18 +471,28 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
       decoration: BoxDecoration(
         color: _laranja.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: _laranja.withValues(alpha: 0.30)),
+        border: Border.all(
+          color: _laranja.withValues(alpha: 0.30),
+        ),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.warning_amber_rounded, color: _laranja, size: 19),
-          SizedBox(width: 10),
+          Icon(
+            Icons.warning_amber_rounded,
+            color: _laranja,
+            size: 19,
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Não foi possível carregar as despesas ou as contas '
               'financeiras. Os valores abaixo podem estar incompletos.',
-              style: TextStyle(color: _laranja, fontSize: 11, height: 1.5),
+              style: TextStyle(
+                color: _laranja,
+                fontSize: 11,
+                height: 1.5,
+              ),
             ),
           ),
         ],
@@ -418,7 +500,70 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
     );
   }
 
-  Widget _conteudo() {
+  Widget _cartaoResultado() {
+    return Container(
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: _temaEscuro
+              ? const [
+                  Color(0xFF292047),
+                  Color(0xFF191A30),
+                ]
+              : const [
+                  Color(0xFFEAE4FF),
+                  Color(0xFFF8F5FF),
+                ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _roxo.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                color: _roxo,
+              ),
+              const SizedBox(width: 9),
+              Text(
+                'Resultado do período',
+                style: TextStyle(
+                  color: _secundario,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 13),
+          Text(
+            _moeda(_saldo),
+            style: TextStyle(
+              color: _saldo >= 0 ? _verde : _vermelho,
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Receitas concluídas menos despesas registradas.',
+            style: TextStyle(
+              color: _secundario,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> _obterMovimentacoes() {
     final movimentacoes = <Map<String, dynamic>>[];
 
     for (final item in _agendamentosPeriodo.where(_concluido)) {
@@ -445,62 +590,31 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
     movimentacoes.sort((a, b) {
       final dataA = _data(a['_data_movimento']) ?? DateTime(1970);
       final dataB = _data(b['_data_movimento']) ?? DateTime(1970);
+
       return dataB.compareTo(dataA);
     });
+
+    return movimentacoes;
+  }
+
+  Widget _conteudo() {
+    final movimentacoes = _obterMovimentacoes();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 100),
       children: [
         if (_dadosIncompletos) _avisoDadosIncompletos(),
-        Container(
-          padding: const EdgeInsets.all(17),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF292047), Color(0xFF191A30)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _roxo.withValues(alpha: 0.25)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.account_balance_wallet_outlined, color: _roxo),
-                  SizedBox(width: 9),
-                  Text(
-                    'Resultado do período',
-                    style: TextStyle(color: _secundario, fontSize: 12),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 13),
-              Text(
-                _moeda(_saldo),
-                style: TextStyle(
-                  color: _saldo >= 0 ? _verde : _vermelho,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Receitas concluídas menos despesas registradas.',
-                style: TextStyle(color: _secundario, fontSize: 11),
-              ),
-            ],
-          ),
-        ),
+
+        _cartaoResultado(),
+
         const SizedBox(height: 18),
+
         _secaoTitulo(
           'Visão geral',
           subtitulo: 'Indicadores do período selecionado',
         ),
-        // CORRIGIDO: altura fixa em vez de childAspectRatio, que causava
-        // overflow em telas estreitas.
+
         GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -541,13 +655,19 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
             ),
           ],
         ),
+
         const SizedBox(height: 24),
+
         _secaoTitulo('Movimentações recentes'),
+
         if (movimentacoes.isEmpty)
-          _estadoVazio('Nenhuma movimentação encontrada neste período.')
+          _estadoVazio(
+            'Nenhuma movimentação encontrada neste período.',
+          )
         else
           ...movimentacoes.take(30).map((item) {
             final receita = item['_origem'] == 'receita';
+
             return _cartaoMovimentacao(
               icone: receita
                   ? Icons.south_west_rounded
@@ -560,8 +680,11 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
                   '${_moeda(_valor(item['valor']))}',
             );
           }),
+
         const SizedBox(height: 14),
+
         _secaoTitulo('Contas financeiras'),
+
         if (_contas.isEmpty)
           _estadoVazio(
             _dadosIncompletos
@@ -572,6 +695,7 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
           ..._contas.take(10).map((item) {
             final status = _s(item['status'], 'Pendente');
             final tipo = _s(item['tipo'], 'Conta');
+
             return _cartaoMovimentacao(
               icone: Icons.receipt_long_outlined,
               cor: status.toLowerCase().contains('vencid')
@@ -597,18 +721,26 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
       appBar: AppBar(
         backgroundColor: _fundo,
         foregroundColor: _texto,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Financeiro',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                color: _texto,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               'Receitas, despesas e contas',
-              style: TextStyle(color: _secundario, fontSize: 12),
+              style: TextStyle(
+                color: _secundario,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
@@ -628,23 +760,27 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 4),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_month_outlined,
                     color: _secundario,
                     size: 19,
                   ),
                   const SizedBox(width: 9),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Período de análise',
-                      style: TextStyle(color: _secundario, fontSize: 12),
+                      style: TextStyle(
+                        color: _secundario,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _periodo,
                       dropdownColor: _painel,
-                      style: const TextStyle(
+                      iconEnabledColor: _secundario,
+                      style: TextStyle(
                         color: _texto,
                         fontSize: 12,
                       ),
@@ -678,8 +814,10 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
             ),
             Expanded(
               child: _carregando
-                  ? const Center(
-                      child: CircularProgressIndicator(color: _roxo),
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: _roxo,
+                      ),
                     )
                   : _erro != null
                       ? Center(
@@ -688,13 +826,13 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.cloud_off_outlined,
                                   color: _vermelho,
                                   size: 42,
                                 ),
                                 const SizedBox(height: 12),
-                                const Text(
+                                Text(
                                   'Falha ao carregar o financeiro',
                                   style: TextStyle(
                                     color: _texto,
@@ -705,13 +843,16 @@ class _FinanceiroPageState extends State<FinanceiroPage> {
                                 Text(
                                   _erro!,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(color: _secundario),
+                                  style: TextStyle(
+                                    color: _secundario,
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                                 FilledButton.icon(
                                   onPressed: _carregarDados,
                                   style: FilledButton.styleFrom(
                                     backgroundColor: _roxo,
+                                    foregroundColor: Colors.white,
                                   ),
                                   icon: const Icon(Icons.refresh),
                                   label: const Text('Tentar novamente'),
