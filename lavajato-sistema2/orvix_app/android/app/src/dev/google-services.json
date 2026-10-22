@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "454025108283",
+    "project_id": "orvix-notificacoes",
+    "storage_bucket": "orvix-notificacoes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454025108283:android:d87cb5cdbb00e5797f751e",
+        "android_client_info": {
+          "package_name": "com.example.orvix_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtsLQJERhDEgUziSzbI6knJuXiH1Gl9aM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454025108283:android:8ab5b32be07a093f7f751e",
+        "android_client_info": {
+          "package_name": "com.orvix.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtsLQJERhDEgUziSzbI6knJuXiH1Gl9aM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
