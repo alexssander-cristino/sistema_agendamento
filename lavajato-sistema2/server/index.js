@@ -55,6 +55,9 @@ const mercadoPagoRouter =
 const mercadoPagoWebhookRouter =
   require('./routes/mercadoPagoWebhook');
 
+  const solicitacoesReembolsoRouter =
+  require('./routes/solicitacoesReembolso');  
+
 const adminAssinaturasRouter =
   require('./routes/adminAssinaturas');
 
@@ -112,6 +115,10 @@ const notificacoesRouter =
   require('./routes/listaEspera');
 
   const dispositivosRoutes = require('./routes/dispositivos');
+
+  const adminSolicitacoesReembolsoRouter =
+  require('./routes/adminSolicitacoesReembolso');
+
 
 // ============================================================
 // APP
@@ -390,6 +397,7 @@ app.use(
 app.use('/api/dispositivos', dispositivosRoutes);
 
 
+
 // ============================================================
 // API — AGENDAMENTO PÚBLICO
 // ============================================================
@@ -434,6 +442,10 @@ app.use(
   adminIncidentesRouter
 );
 
+app.use(
+  '/api/admin/solicitacoes-reembolso',
+  adminSolicitacoesReembolsoRouter
+);
 
 // ============================================================
 // ADMIN — DEV
@@ -465,6 +477,10 @@ app.use(
   mercadoPagoWebhookRouter
 );
 
+app.use(
+  '/api/solicitacoes-reembolso',
+  solicitacoesReembolsoRouter
+);
 
 // ============================================================
 // ASSINATURAS — ADMIN DEV

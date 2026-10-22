@@ -1,0 +1,923 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7965D8">
+
+  <title>Minhas solicitações | Orvix</title>
+
+  <link rel="icon" type="image/png" href="/favicon-32x32.png">
+
+  <style>
+    :root {
+      color-scheme: light;
+      --primary: #7965D8;
+      --primary-dark: #6551c5;
+      --bg: #f7f7fc;
+      --surface: #ffffff;
+      --text: #202033;
+      --muted: #77778c;
+      --border: #e9e8f2;
+      --success: #16845b;
+      --warning: #a96708;
+      --danger: #c43d4d;
+      --shadow: 0 8px 28px rgba(36, 28, 79, .055);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, a {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, .94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      max-width: 1100px;
+      min-height: 70px;
+      margin: auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.8px;
+    }
+
+    .brand-symbol {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--primary);
+      border-radius: 11px;
+      font-size: 20px;
+    }
+
+    .brand span:last-child {
+      color: var(--primary);
+    }
+
+    .topbar-link {
+      color: #55546b;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .topbar-link:hover {
+      color: var(--primary);
+    }
+
+    main {
+      width: min(100% - 40px, 900px);
+      margin: 42px auto 70px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 26px;
+    }
+
+    .back-link:hover {
+      color: var(--primary);
+    }
+
+    .page-heading {
+      margin-bottom: 27px;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(27px, 4vw, 35px);
+      letter-spacing: -1.1px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      max-width: 600px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .info-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      padding: 17px 19px;
+      margin-bottom: 26px;
+      border: 1px solid #e4defc;
+      background: #f0edff;
+      border-radius: 15px;
+    }
+
+    .info-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      background: white;
+      color: var(--primary);
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    .info-banner strong {
+      display: block;
+      margin: 1px 0 5px;
+      font-size: 13px;
+    }
+
+    .info-banner p {
+      margin: 0;
+      color: #68627e;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 30px 0 15px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.3px;
+    }
+
+    .count {
+      min-width: 28px;
+      padding: 5px 9px;
+      text-align: center;
+      border-radius: 20px;
+      background: #ece9fc;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .requests {
+      display: grid;
+      gap: 17px;
+    }
+
+    .request-card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .request-header {
+      padding: 21px 23px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid #f0eff6;
+    }
+
+    .request-number {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .request-header h3 {
+      margin: 8px 0 5px;
+      font-size: 17px;
+      line-height: 1.4;
+    }
+
+    .request-date {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-pendente,
+    .status-em_analise {
+      color: var(--warning);
+      background: #fff4df;
+    }
+
+    .status-aprovada,
+    .status-concluida {
+      color: var(--success);
+      background: #e4f7ee;
+    }
+
+    .status-recusada {
+      color: var(--danger);
+      background: #ffeaed;
+    }
+
+    .request-body {
+      padding: 21px 23px 23px;
+    }
+
+    .detail-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .55px;
+      text-transform: uppercase;
+    }
+
+    .detail-text {
+      margin: 0;
+      color: #45445b;
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .customer-details {
+      margin-bottom: 22px;
+    }
+
+    .reply {
+      margin-top: 22px;
+      padding: 18px;
+      border: 1px solid #e6e0ff;
+      border-radius: 13px;
+      background: #f8f6ff;
+    }
+
+    .reply-heading {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 10px;
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .reply-icon {
+      display: grid;
+      place-items: center;
+      width: 27px;
+      height: 27px;
+      background: white;
+      border-radius: 8px;
+    }
+
+    .reply-date {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .waiting {
+      margin-top: 20px;
+      padding: 15px 16px;
+      border: 1px solid #f1e5c7;
+      border-radius: 12px;
+      background: #fffaf0;
+    }
+
+    .waiting strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #895d13;
+      font-size: 12px;
+    }
+
+    .waiting p {
+      margin: 0;
+      color: #7e7157;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .empty-state,
+    .error-state,
+    .loading-state {
+      padding: 44px 24px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: white;
+    }
+
+    .state-icon {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 16px;
+      border-radius: 16px;
+      background: #f0edff;
+      color: var(--primary);
+      font-size: 24px;
+    }
+
+    .empty-state h3,
+    .error-state h3,
+    .loading-state h3 {
+      margin: 0 0 9px;
+      font-size: 16px;
+    }
+
+    .empty-state p,
+    .error-state p,
+    .loading-state p {
+      max-width: 390px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .error-state .state-icon {
+      background: #ffeaed;
+      color: var(--danger);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: white;
+      color: #414057;
+      font-size: 12px;
+      font-weight: 750;
+      transition: .18s ease;
+    }
+
+    .button:hover {
+      border-color: #cfc6fa;
+      color: var(--primary-dark);
+    }
+
+    .button-primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
+    .button-primary:hover {
+      border-color: var(--primary-dark);
+      background: var(--primary-dark);
+      color: white;
+    }
+
+    .empty-state .button,
+    .error-state .button {
+      margin-top: 19px;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .page-footer {
+      padding-top: 25px;
+      margin-top: 45px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 600px) {
+      .topbar-inner {
+        min-height: 62px;
+        padding: 0 18px;
+      }
+
+      .brand {
+        font-size: 19px;
+      }
+
+      main {
+        width: calc(100% - 28px);
+        margin-top: 28px;
+      }
+
+      .request-header {
+        padding: 18px;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .request-body {
+        padding: 18px;
+      }
+
+      .status {
+        order: -1;
+      }
+
+      .info-banner {
+        padding: 14px;
+      }
+
+      .footer-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .footer-actions .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Orvix - página inicial">
+        <span class="brand-symbol">O</span>
+        <span>Orvix</span>
+      </a>
+
+      <a class="topbar-link" href="/assinaturas.html">
+        Minha assinatura →
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <a class="back-link" href="/assinaturas.html">
+      <span aria-hidden="true">←</span>
+      Voltar para minha assinatura
+    </a>
+
+    <section class="page-heading">
+      <p class="eyebrow">Conta e assinatura</p>
+      <h1>Minhas solicitações</h1>
+      <p class="subtitle">
+        Acompanhe seus pedidos de reembolso e consulte as respostas
+        registradas pela equipe Orvix em um só lugar.
+      </p>
+    </section>
+
+    <section class="info-banner">
+      <div class="info-icon" aria-hidden="true">i</div>
+      <div>
+        <strong>Acompanhe tudo por aqui</strong>
+        <p>
+          Quando sua solicitação for analisada, a decisão e a resposta
+          da equipe aparecerão nesta página. Consulte o andamento
+          sempre que precisar.
+        </p>
+      </div>
+    </section>
+
+    <div class="section-heading">
+      <h2>Histórico de solicitações</h2>
+      <span class="count" id="request-count">—</span>
+    </div>
+
+    <section
+      id="loading-state"
+      class="loading-state"
+      aria-live="polite"
+    >
+      <div class="state-icon" aria-hidden="true">↻</div>
+      <h3>Carregando suas solicitações</h3>
+      <p>Estamos consultando os dados da sua conta.</p>
+    </section>
+
+    <section id="error-state" class="error-state" hidden>
+      <div class="state-icon" aria-hidden="true">!</div>
+      <h3>Não foi possível carregar os pedidos</h3>
+      <p id="error-message">
+        Verifique sua conexão e tente novamente.
+      </p>
+      <button class="button button-primary" id="retry-button" type="button">
+        Tentar novamente
+      </button>
+    </section>
+
+    <section id="empty-state" class="empty-state" hidden>
+      <div class="state-icon" aria-hidden="true">▤</div>
+      <h3>Você ainda não tem solicitações</h3>
+      <p>
+        Quando você enviar um pedido de reembolso, ele aparecerá
+        nesta área para acompanhamento.
+      </p>
+      <a class="button button-primary" href="/assinaturas.html">
+        Voltar para minha assinatura
+      </a>
+    </section>
+
+    <section id="request-list" class="requests" hidden></section>
+
+    <div class="footer-actions">
+      <span class="footer-note">
+        As informações exibidas correspondem às solicitações da sua conta.
+      </span>
+      <button class="button" id="refresh-button" type="button">
+        ↻ Atualizar solicitações
+      </button>
+    </div>
+
+    <footer class="page-footer">
+      Orvix · Gestão da sua empresa<br>
+      Consulte os termos e a política de reembolso aplicáveis à sua assinatura.
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const API = '/api';
+      const TOKEN_KEY = 'lavajato_auth_token';
+
+      const el = {
+        loading: document.getElementById('loading-state'),
+        error: document.getElementById('error-state'),
+        errorMessage: document.getElementById('error-message'),
+        empty: document.getElementById('empty-state'),
+        list: document.getElementById('request-list'),
+        count: document.getElementById('request-count'),
+        retry: document.getElementById('retry-button'),
+        refresh: document.getElementById('refresh-button')
+      };
+
+      const STATUS = {
+        pendente: {
+          label: 'Aguardando análise',
+          className: 'status-pendente'
+        },
+        em_analise: {
+          label: 'Em análise',
+          className: 'status-em_analise'
+        },
+        aprovada: {
+          label: 'Aprovada',
+          className: 'status-aprovada'
+        },
+        recusada: {
+          label: 'Recusada',
+          className: 'status-recusada'
+        },
+        concluida: {
+          label: 'Concluída',
+          className: 'status-concluida'
+        }
+      };
+
+      const MOTIVOS = {
+        arrependimento: 'Arrependimento da compra',
+        cobranca_indevida: 'Cobrança indevida',
+        duplicidade: 'Cobrança em duplicidade',
+        falha_servico: 'Falha no serviço',
+        outro: 'Outro motivo'
+      };
+
+      function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[char]);
+      }
+
+      function formatDate(value) {
+        if (!value) return 'Data não informada';
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+          return 'Data não informada';
+        }
+
+        return new Intl.DateTimeFormat('pt-BR', {
+          dateStyle: 'long',
+          timeStyle: 'short'
+        }).format(date);
+      }
+
+      function formatShortDate(value) {
+        if (!value) return '';
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return '';
+
+        return new Intl.DateTimeFormat('pt-BR', {
+          dateStyle: 'medium'
+        }).format(date);
+      }
+
+      async function api(path) {
+        const token = localStorage.getItem(TOKEN_KEY);
+
+        if (!token) {
+          window.location.href = '/';
+          throw new Error('Faça login para consultar suas solicitações.');
+        }
+
+        const response = await fetch(API + path, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          cache: 'no-store'
+        });
+
+        if (response.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.href = '/';
+          throw new Error('Sua sessão expirou. Entre novamente.');
+        }
+
+        let data = null;
+
+        try {
+          data = await response.json();
+        } catch (_) {
+          // A resposta pode não conter JSON.
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data?.erro ||
+            data?.mensagem ||
+            'Não foi possível consultar as solicitações.'
+          );
+        }
+
+        return data;
+      }
+
+      function showState(state) {
+        el.loading.hidden = state !== 'loading';
+        el.error.hidden = state !== 'error';
+        el.empty.hidden = state !== 'empty';
+        el.list.hidden = state !== 'list';
+      }
+
+      function renderRequest(item) {
+        const id = item.id ?? item.solicitacao_id ?? '—';
+        const statusKey = String(item.status || 'pendente').toLowerCase();
+        const status = STATUS[statusKey] || {
+          label: statusKey.replaceAll('_', ' '),
+          className: 'status-pendente'
+        };
+
+        const motivoKey = String(item.motivo || 'outro').toLowerCase();
+        const motivo = MOTIVOS[motivoKey] || motivoKey.replaceAll('_', ' ');
+        const createdAt = item.criado_em || item.created_at;
+        const updatedAt = item.analisada_em || item.atualizado_em;
+        const details = item.detalhes || item.descricao || '';
+        const responseText = String(item.resposta || '').trim();
+
+        let responseSection = '';
+
+        if (responseText) {
+          responseSection = `
+            <section class="reply">
+              <div class="reply-heading">
+                <span class="reply-icon" aria-hidden="true">✓</span>
+                Resposta da equipe Orvix
+              </div>
+              <p class="detail-text">${escapeHtml(responseText)}</p>
+              ${updatedAt ? `
+                <p class="reply-date">
+                  Resposta registrada em ${escapeHtml(formatDate(updatedAt))}
+                </p>
+              ` : ''}
+            </section>
+          `;
+        } else if (
+          statusKey === 'pendente' ||
+          statusKey === 'em_analise'
+        ) {
+          responseSection = `
+            <section class="waiting">
+              <strong>
+                ${statusKey === 'pendente'
+                  ? 'Aguardando análise'
+                  : 'Sua solicitação está sendo analisada'}
+              </strong>
+              <p>
+                A resposta será exibida aqui quando a equipe registrar
+                uma decisão no sistema.
+              </p>
+            </section>
+          `;
+        } else {
+          responseSection = `
+            <section class="reply">
+              <div class="reply-heading">
+                <span class="reply-icon" aria-hidden="true">i</span>
+                Informação
+              </div>
+              <p class="detail-text">
+                O status foi atualizado, mas ainda não há uma resposta
+                registrada para esta solicitação. Entre em contato com
+                o suporte se precisar de esclarecimentos.
+              </p>
+            </section>
+          `;
+        }
+
+        return `
+          <article class="request-card">
+            <header class="request-header">
+              <div>
+                <div class="request-number">
+                  Solicitação #${escapeHtml(id)}
+                </div>
+                <h3>${escapeHtml(motivo)}</h3>
+                <div class="request-date">
+                  Enviada em ${escapeHtml(formatDate(createdAt))}
+                </div>
+              </div>
+              <span class="status ${escapeHtml(status.className)}">
+                ${escapeHtml(status.label)}
+              </span>
+            </header>
+
+            <div class="request-body">
+              <div class="customer-details">
+                <p class="detail-label">Motivo da solicitação</p>
+                <p class="detail-text">${escapeHtml(motivo)}</p>
+              </div>
+
+              ${details ? `
+                <div class="customer-details">
+                  <p class="detail-label">Detalhes enviados</p>
+                  <p class="detail-text">${escapeHtml(details)}</p>
+                </div>
+              ` : ''}
+
+              ${responseSection}
+            </div>
+          </article>
+        `;
+      }
+
+      async function carregarSolicitacoes() {
+        showState('loading');
+        el.count.textContent = '—';
+        el.list.replaceChildren();
+        el.errorMessage.textContent = 'Verifique sua conexão e tente novamente.';
+
+        try {
+          const data = await api('/solicitacoes-reembolso/minhas');
+
+          const solicitacoes = Array.isArray(data)
+            ? data
+            : (
+                data?.solicitacoes ||
+                data?.pedidos ||
+                data?.data ||
+                []
+              );
+
+          if (!Array.isArray(solicitacoes)) {
+            throw new Error('A resposta da API está em um formato inesperado.');
+          }
+
+          solicitacoes.sort((a, b) => {
+            const dateA = new Date(a.criado_em || a.created_at || 0).getTime();
+            const dateB = new Date(b.criado_em || b.created_at || 0).getTime();
+            return dateB - dateA;
+          });
+
+          el.count.textContent = String(solicitacoes.length);
+
+          if (solicitacoes.length === 0) {
+            showState('empty');
+            return;
+          }
+
+          el.list.innerHTML = solicitacoes.map(renderRequest).join('');
+          showState('list');
+        } catch (error) {
+          console.error('Erro ao carregar solicitações de reembolso:', error);
+
+          if (error.message.includes('Failed to fetch')) {
+            el.errorMessage.textContent =
+              'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+          } else {
+            el.errorMessage.textContent = error.message ||
+              'Ocorreu um erro ao consultar suas solicitações.';
+          }
+
+          showState('error');
+        }
+      }
+
+      el.retry.addEventListener('click', carregarSolicitacoes);
+      el.refresh.addEventListener('click', carregarSolicitacoes);
+
+      carregarSolicitacoes();
+    })();
+  </script>
+</body>
+</html>
