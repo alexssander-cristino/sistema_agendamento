@@ -61,8 +61,8 @@ function obterFirebase() {
       );
     }
 
-    credencial.private_key = credencial.private_key
-      .replace(/\\n/g, '\n');
+    credencial.private_key =
+      credencial.private_key.replace(/\\n/g, '\n');
 
     const apps = getApps();
 
@@ -131,8 +131,9 @@ async function enviarParaTokens(
   const lista = [
     ...new Set(
       (tokens || [])
-        .filter((token) =>
-          typeof token === 'string' && token.trim()
+        .filter(
+          (token) =>
+            typeof token === 'string' && token.trim()
         )
         .map((token) => token.trim())
     )
@@ -150,7 +151,7 @@ async function enviarParaTokens(
 
   if (!lista.length) {
     return {
-      sucesso: true,
+      sucesso: false,
       total: 0,
       enviados: 0,
       falhas: 0,
@@ -159,7 +160,8 @@ async function enviarParaTokens(
   }
 
   const titulo =
-    String(title || 'Orvix').trim().slice(0, 200) || 'Orvix';
+    String(title || 'Orvix').trim().slice(0, 200) ||
+    'Orvix';
 
   const mensagem =
     String(body || 'Você tem uma nova notificação.')
@@ -238,7 +240,8 @@ async function enviarParaTokens(
       resposta.responses.forEach((item, index) => {
         if (item.success) return;
 
-        const codigo = item.error?.code || 'erro desconhecido';
+        const codigo =
+          item.error?.code || 'erro desconhecido';
 
         console.warn(
           '[ORVIX PUSH] Envio falhou:',
@@ -253,21 +256,19 @@ async function enviarParaTokens(
 
     await removerTokensInvalidos(invalidos);
 
-    console.info(
-      '[ORVIX PUSH] Resultado do envio:',
-      JSON.stringify({
-        total: lista.length,
-        enviados,
-        falhas
-      })
-    );
-
-    return {
-      sucesso: falhas === 0,
+    const resultado = {
+      sucesso: falhas === 0 && enviados > 0,
       total: lista.length,
       enviados,
       falhas
     };
+
+    console.info(
+      '[ORVIX PUSH] Resultado do envio:',
+      JSON.stringify(resultado)
+    );
+
+    return resultado;
   } catch (erro) {
     console.error(
       '[ORVIX PUSH] Erro ao enviar notificações:',
@@ -329,7 +330,8 @@ async function obterTokensDoUsuario(usuarioId) {
       `SELECT token
        FROM public.dispositivos
        WHERE usuario_id = $1
-         AND token IS NOT NULL`,
+         AND token IS NOT NULL
+         AND BTRIM(token) <> ''`,
       [usuarioId]
     ),
 
@@ -338,7 +340,8 @@ async function obterTokensDoUsuario(usuarioId) {
        FROM public.notificacoes_tokens
        WHERE usuario_id = $1
          AND ativo = TRUE
-         AND token IS NOT NULL`,
+         AND token IS NOT NULL
+         AND BTRIM(token) <> ''`,
       [usuarioId]
     )
   ]);
@@ -438,40 +441,106 @@ async function enviarParaTokensAtivos({
   );
 }
 
+/**
+ * Envia push exclusivamente aos desenvolvedores ativos.
+ *
+ * Busca tokens de dispositivos móveis e web, elimina
+ * duplicados e registra a quantidade encontrada.
+ */
 async function enviarParaDesenvolvedores({
   titulo = 'Orvix — Notificação de teste',
   corpo = 'O serviço de notificações está funcionando.',
   link = '/'
 } = {}) {
-  const [web, movel] = await Promise.all([
-    pool.query(
-      `SELECT nt.token
-       FROM public.notificacoes_tokens nt
-       INNER JOIN public.usuarios u
-         ON u.id = nt.usuario_id
-       WHERE nt.ativo = TRUE
-         AND u.perfil = 'dev'
-         AND u.ativo = TRUE`
-    ),
+  try {
+    const [web, movel] = await Promise.all([
+      pool.query(
+        `SELECT nt.token
+         FROM public.notificacoes_tokens nt
+         INNER JOIN public.usuarios u
+           ON u.id = nt.usuario_id
+         WHERE nt.ativo = TRUE
+           AND LOWER(BTRIM(COALESCE(u.perfil, ''))) = 'dev'
+           AND u.ativo = TRUE
+           AND nt.token IS NOT NULL
+           AND BTRIM(nt.token) <> ''`
+      ),
 
-    pool.query(
-      `SELECT d.token
-       FROM public.dispositivos d
-       INNER JOIN public.usuarios u
-         ON u.id = d.usuario_id
-       WHERE u.perfil = 'dev'
-         AND u.ativo = TRUE`
-    )
-  ]);
+      pool.query(
+        `SELECT d.token
+         FROM public.dispositivos d
+         INNER JOIN public.usuarios u
+           ON u.id = d.usuario_id
+         WHERE LOWER(BTRIM(COALESCE(u.perfil, ''))) = 'dev'
+           AND u.ativo = TRUE
+           AND d.token IS NOT NULL
+           AND BTRIM(d.token) <> ''`
+      )
+    ]);
 
-  return enviarParaTokens(
-    [...web.rows, ...movel.rows].map((row) => row.token),
-    {
+    const tokens = [
+      ...new Set(
+        [...web.rows, ...movel.rows]
+          .map((row) => row.token)
+          .filter(
+            (token) =>
+              typeof token === 'string' &&
+              token.trim().length > 0
+          )
+          .map((token) => token.trim())
+      )
+    ];
+
+    console.info(
+      '[ORVIX DEV PUSH] Tokens encontrados:',
+      JSON.stringify({
+        tokensWeb: web.rows.length,
+        tokensMoveis: movel.rows.length,
+        tokensUnicos: tokens.length
+      })
+    );
+
+    if (tokens.length === 0) {
+      console.warn(
+        '[ORVIX DEV PUSH] Nenhum token encontrado para usuários dev ativos.'
+      );
+
+      return {
+        sucesso: false,
+        total: 0,
+        enviados: 0,
+        falhas: 0,
+        motivo: 'NENHUM_TOKEN_DEV'
+      };
+    }
+
+    const resultado = await enviarParaTokens(tokens, {
       title: titulo,
       body: corpo,
       route: link
-    }
-  );
+    });
+
+    console.info(
+      '[ORVIX DEV PUSH] Resultado:',
+      JSON.stringify(resultado)
+    );
+
+    return resultado;
+  } catch (erro) {
+    console.error(
+      '[ORVIX DEV PUSH] Falha ao buscar tokens ou enviar:',
+      erro.code || '',
+      erro.message
+    );
+
+    return {
+      sucesso: false,
+      total: 0,
+      enviados: 0,
+      falhas: 0,
+      motivo: erro.code || 'ERRO_DEV_PUSH'
+    };
+  }
 }
 
 async function enviarAlertaSeguranca({
@@ -480,8 +549,10 @@ async function enviarAlertaSeguranca({
   link = '/admin/logs'
 } = {}) {
   return enviarParaDesenvolvedores({
-    titulo: titulo || 'Orvix — Alerta de segurança',
-    corpo: corpo ||
+    titulo:
+      titulo || 'Orvix — Alerta de segurança',
+    corpo:
+      corpo ||
       'Foi detectado um evento que requer verificação.',
     link
   });
