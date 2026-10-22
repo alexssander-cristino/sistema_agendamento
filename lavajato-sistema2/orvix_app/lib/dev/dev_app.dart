@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../core/push/push_registration.dart';
 
 import '../core/network/api_client.dart';
 
@@ -179,7 +180,10 @@ class _DevGateState extends State<DevGate> {
 
         authenticated = user['perfil'] == 'dev';
 
-        if (!authenticated) {
+        if (authenticated) {
+          // Registra/atualiza o dispositivo para receber notificações.
+          unawaited(PushRegistration.registrar());
+        } else {
           await ApiClient.clearSession();
         }
       }
@@ -276,6 +280,9 @@ class _DevLoginState extends State<DevLogin> {
           'O servidor não confirmou o perfil dev.',
         );
       }
+
+      // O registro de push não deve impedir a entrada no painel se falhar.
+      unawaited(PushRegistration.registrar());
 
       if (mounted) widget.onSuccess();
     } catch (e) {
