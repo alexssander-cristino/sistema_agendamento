@@ -1,0 +1,6 @@
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/orvix_icon.jpeg"
+  adaptive_icon_background: "#B39DDB"
+  adaptive_icon_foreground: "assets/icon/orvix_icon.jpeg"
