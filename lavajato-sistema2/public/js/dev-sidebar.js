@@ -21,7 +21,8 @@
       { page: 'incidentes', label: 'Incidentes', icon: '⚠', href: '/admin/incidentes.html' }
     ]},
     { title: 'Atendimento', items: [
-      { page: 'suporte', label: 'Solicitações', icon: '▤', href: '/admin/admin-suporte.html' }
+      { page: 'suporte', label: 'Solicitações', icon: '▤', href: '/admin/admin-suporte.html' },
+      { page: 'solicitacoes-reembolso', label: 'Solicitações de Reembolso', icon: '↩', href: '/admin-solicitacoes-reembolso.html'}
     ]},
     { title: 'Plataforma', items: [
       { page: 'novidades', label: 'Centro de Novidades', icon: '✦', href: '/admin/novidades.html' }
