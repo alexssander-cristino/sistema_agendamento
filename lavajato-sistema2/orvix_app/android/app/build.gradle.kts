@@ -1,10 +1,7 @@
+
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
-    id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -31,10 +28,26 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += "app"
+
+    productFlavors {
+        create("normal") {
+            dimension = "app"
+            applicationId = "com.example.orvix_app"
+            resValue("string", "app_name", "Orvix One")
+        }
+
+        create("dev") {
+            dimension = "app"
+            applicationId = "com.orvix.dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Orvix Dev")
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Use assinatura própria antes de distribuir o aplicativo.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
