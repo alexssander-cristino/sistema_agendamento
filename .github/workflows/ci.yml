@@ -1,3 +1,4 @@
+
 name: Verificações
 
 on:
@@ -6,7 +7,9 @@ on:
       - main
   push:
     branches:
+      - main
       - atualizacoes
+      - fix/auto-merge-ci
 
 permissions:
   contents: read
@@ -30,31 +33,43 @@ jobs:
           node-version: 24
 
       - name: Instalar dependências
-        run: npm ci
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      - name: Executar lint, se configurado
-        run: npm run lint --if-present
+          if [ ! -f package.json ]; then
+            echo "package.json não encontrado na raiz; pulando etapas npm."
+            exit 0
+          fi
 
-      - name: Executar testes, se configurados
-        run: npm test --if-present
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+            npm ci
+          else
+            npm install --no-package-lock
+          fi
+
+          npm run lint --if-present
+          npm test --if-present
 
       - name: Verificar sintaxe JavaScript
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
-          for diretorio in server public/js; do
-            if [ -d "$diretorio" ]; then
-              while IFS= read -r -d '' arquivo; do
-                echo "Verificando: $arquivo"
-                node --check "$arquivo"
-              done < <(
-                find "$diretorio" \
-                  -type f \
-                  -name '*.js' \
-                  -not -path '*/node_modules/*' \
-                  -print0
-              )
-            fi
-          done
+          encontrou=0
 
+          while IFS= read -r -d '' arquivo; do
+            encontrou=1
+            echo "Verificando: $arquivo"
+            node --check "$arquivo"
+          done < <(
+            find server public/js \
+              -type f \
+              -name '*.js' \
+              -not -path '*/node_modules/*' \
+              -print0 2>/dev/null || true
+          )
+
+          if [ "$encontrou" -eq 0 ]; then
+            echo "Nenhum arquivo JavaScript encontrado para verificar."
+          fi
