@@ -600,6 +600,141 @@ async function criarAssinaturaPendente({
 }
 
 
+async function buscarUltimoPagamentoAprovadoAssinatura(
+  mercadoPagoId
+) {
+  if (!mercadoPagoId) {
+    throw new Error(
+      'ID da assinatura do Mercado Pago não informado.'
+    );
+  }
+
+  const resultado = await mercadoPagoRequest(
+    `/authorized_payments/search?preapproval_id=${encodeURIComponent(
+      mercadoPagoId
+    )}&limit=20&offset=0`
+  );
+
+  const faturas = Array.isArray(resultado?.results)
+    ? resultado.results
+    : [];
+
+  const aprovadas = faturas
+    .filter((fatura) =>
+      fatura?.payment?.id &&
+      String(fatura.payment.status).toLowerCase() === 'approved'
+    )
+    .sort((a, b) =>
+      new Date(b.date_created || 0) -
+      new Date(a.date_created || 0)
+    );
+
+  if (!aprovadas.length) {
+    throw new Error(
+      'Não encontramos uma cobrança aprovada para esta assinatura.'
+    );
+  }
+
+  return aprovadas[0];
+}
+
+async function buscarPagamentoMercadoPago(pagamentoId) {
+  if (!pagamentoId) {
+    throw new Error('ID do pagamento não informado.');
+  }
+
+  return mercadoPagoRequest(
+    `/v1/payments/${encodeURIComponent(pagamentoId)}`
+  );
+}
+
+async function criarEstornoMercadoPago({
+  pagamentoId,
+  chaveIdempotencia
+}) {
+  if (!pagamentoId || !chaveIdempotencia) {
+    throw new Error(
+      'Pagamento e chave de idempotência são obrigatórios.'
+    );
+  }
+
+  // Sem body: solicita estorno integral.
+  return mercadoPagoRequest(
+    `/v1/payments/${encodeURIComponent(pagamentoId)}/refunds`,
+    {
+      method: 'POST',
+      headers: {
+        'X-Idempotency-Key': chaveIdempotencia
+      }
+    }
+  );
+}
+
+async function buscarUltimoPagamentoAprovadoAssinatura(mercadoPagoId) {
+  if (!mercadoPagoId) {
+    throw new Error('ID da assinatura do Mercado Pago não informado.');
+  }
+
+  const resultado = await mercadoPagoRequest(
+    `/authorized_payments/search?preapproval_id=${encodeURIComponent(mercadoPagoId)}&limit=20&offset=0`
+  );
+
+  const faturas = Array.isArray(resultado?.results)
+    ? resultado.results
+    : [];
+
+  const aprovadas = faturas
+    .filter((fatura) => {
+      return (
+        fatura?.payment?.id &&
+        String(fatura.payment.status).toLowerCase() === 'approved'
+      );
+    })
+    .sort((a, b) => {
+      return new Date(b.date_created || 0) - new Date(a.date_created || 0);
+    });
+
+  if (!aprovadas.length) {
+    throw new Error(
+      'Não encontramos uma cobrança aprovada para esta assinatura.'
+    );
+  }
+
+  return aprovadas[0];
+}
+
+async function buscarPagamentoMercadoPago(pagamentoId) {
+  if (!pagamentoId) {
+    throw new Error('ID do pagamento não informado.');
+  }
+
+  return mercadoPagoRequest(
+    `/v1/payments/${encodeURIComponent(pagamentoId)}`
+  );
+}
+
+async function criarEstornoMercadoPago({
+  pagamentoId,
+  chaveIdempotencia
+}) {
+  if (!pagamentoId || !chaveIdempotencia) {
+    throw new Error(
+      'Pagamento e chave de idempotência são obrigatórios.'
+    );
+  }
+
+  return mercadoPagoRequest(
+    `/v1/payments/${encodeURIComponent(pagamentoId)}/refunds`,
+    {
+      method: 'POST',
+      headers: {
+        'X-Idempotency-Key': chaveIdempotencia
+      }
+    }
+  );
+}
+
+
 // ============================================================
 // EXPORTS
 // ============================================================
@@ -620,6 +755,10 @@ module.exports = {
   atualizarAssinatura,
   atualizarValorAssinatura,
 
-  buscarPagamentoAutorizado
+  buscarPagamentoAutorizado,
+
+  buscarUltimoPagamentoAprovadoAssinatura,
+  buscarPagamentoMercadoPago,
+  criarEstornoMercadoPago
 
 };

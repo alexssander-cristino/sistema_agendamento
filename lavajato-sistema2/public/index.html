@@ -28,6 +28,101 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
+
+  <style>
+    
+.orvix-cookie-banner {
+  position: fixed;
+  z-index: 1000000;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  width: min(760px, calc(100% - 32px));
+  margin: auto;
+  padding: 22px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: #e9e8f5;
+  background: #111426;
+  border: 1px solid rgba(167, 139, 250, .3);
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .38);
+}
+
+.orvix-cookie-banner.is-visible {
+  display: flex;
+}
+
+.orvix-cookie-banner h2 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.orvix-cookie-banner p {
+  margin: 0;
+  color: #b9bfd3;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.orvix-cookie-banner a {
+  color: #c4b5fd;
+  font-weight: 700;
+}
+
+.orvix-cookie-actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orvix-cookie-actions button {
+  min-height: 42px;
+  margin: 0;
+  padding: 10px 15px;
+  border-radius: 11px;
+  font-size: 13px;
+}
+
+#orvix-cookie-accept {
+  color: #fff;
+  background: linear-gradient(135deg, #8b5cf6, #6d5ce8);
+}
+
+#orvix-cookie-reject {
+  color: #e5e7f2;
+  background: #24263a;
+  border: 1px solid #45465c;
+  box-shadow: none;
+}
+
+@media (max-width: 620px) {
+  .orvix-cookie-banner {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    padding: 18px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .orvix-cookie-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .orvix-cookie-actions button {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
+  </style>
 </head>
 
 <body>
@@ -5635,6 +5730,69 @@ aria-label="Abrir menu"
     });
 
   </script>
+
+  
+<section id="orvix-cookie-banner" class="orvix-cookie-banner"
+  role="dialog" aria-labelledby="orvix-cookie-title">
+  <div>
+    <h2 id="orvix-cookie-title">Sua privacidade importa</h2>
+    <p>
+      O Orvix utiliza tecnologias essenciais para manter a plataforma
+      funcionando. Com sua autorização, também poderemos usar tecnologias
+      opcionais para lembrar preferências e melhorar sua experiência.
+      Você pode recusar as opcionais sem perder acesso às funções essenciais.
+      <a href="/politica-de-privacidade.html" target="_blank" rel="noopener">
+        Saiba mais na Política de Privacidade
+      </a>.
+    </p>
+  </div>
+
+  <div class="orvix-cookie-actions">
+    <button type="button" id="orvix-cookie-accept">
+      Aceitar cookies
+    </button>
+    <button type="button" id="orvix-cookie-reject">
+      Recusar opcionais
+    </button>
+  </div>
+</section>
+
+<script>
+(() => {
+  const banner = document.getElementById('orvix-cookie-banner');
+  const accept = document.getElementById('orvix-cookie-accept');
+  const reject = document.getElementById('orvix-cookie-reject');
+  const key = 'orvix-cookie-consent-v1';
+
+  if (!banner || !accept || !reject) return;
+
+  try {
+    if (!localStorage.getItem(key)) {
+      banner.classList.add('is-visible');
+    }
+  } catch (_) {
+    banner.classList.add('is-visible');
+  }
+
+  function saveConsent(choice) {
+    try {
+      localStorage.setItem(key, JSON.stringify({
+        choice,
+        essential: true,
+        optional: choice === 'accepted',
+        updatedAt: new Date().toISOString()
+      }));
+    } catch (_) {}
+
+    banner.classList.remove('is-visible');
+    banner.hidden = true;
+  }
+
+  accept.addEventListener('click', () => saveConsent('accepted'));
+  reject.addEventListener('click', () => saveConsent('rejected'));
+})();
+</script>
+
 
 <!-- Firebase Cloud Messaging -->
 
