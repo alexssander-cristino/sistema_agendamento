@@ -13,6 +13,7 @@
   let messaging = null;
   let serviceWorkerRegistration = null;
 
+  
   function iniciarFirebase() {
     if (!window.firebase) throw new Error('Bibliotecas Firebase não foram carregadas.');
     const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
