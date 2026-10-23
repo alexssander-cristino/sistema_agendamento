@@ -1,0 +1,120 @@
+
+name: Criar PR e mesclar automaticamente
+
+on:
+  push:
+    branches:
+      - auto-merge-ci
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-pr-merge-ci
+  cancel-in-progress: false
+
+jobs:
+  validar:
+    name: Validar projeto
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Instalar dependências e executar testes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -f package.json ]; then
+            if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+              npm ci
+            else
+              npm install --no-package-lock
+            fi
+
+            npm run lint --if-present
+            npm test --if-present
+          else
+            echo "package.json não encontrado na raiz."
+            echo "Verificação npm ignorada."
+          fi
+
+      - name: Verificar sintaxe JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for diretorio in server public/js; do
+            if [ -d "$diretorio" ]; then
+              while IFS= read -r -d '' arquivo; do
+                echo "Verificando: $arquivo"
+                node --check "$arquivo"
+              done < <(
+                find "$diretorio" \
+                  -type f \
+                  -name '*.js' \
+                  -not -path '*/node_modules/*' \
+                  -print0
+              )
+            fi
+          done
+
+  criar-pr:
+    name: Criar PR e ativar Auto-merge
+    needs: validar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Criar PR e ativar mesclagem automática
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="$(gh pr list \
+            --repo "$REPO" \
+            --head auto-merge-ci \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -z "$PR_NUMBER" ]; then
+            gh pr create \
+              --repo "$REPO" \
+              --head auto-merge-ci \
+              --base main \
+              --title "Automação CI: auto-merge-ci para main" \
+              --body "PR criado automaticamente pelo GitHub Actions. O merge automático será solicitado após as verificações."
+
+            PR_NUMBER="$(gh pr list \
+              --repo "$REPO" \
+              --head auto-merge-ci \
+              --base main \
+              --state open \
+              --json number \
+              --jq '.[0].number // empty')"
+          fi
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Não foi possível localizar o Pull Request."
+            exit 1
+          fi
+
+          echo "Pull Request: #${PR_NUMBER}"
+
+          gh pr merge "$PR_NUMBER" \
+            --repo "$REPO" \
+            --auto \
+            --squash
