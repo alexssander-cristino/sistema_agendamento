@@ -96,7 +96,7 @@ jobs:
               --head auto-merge-ci \
               --base main \
               --title "Automação CI: auto-merge-ci para main" \
-              --body "PR criado automaticamente pelo GitHub Actions. A mesclagem automática será solicitada após as validações."
+              --body "PR criado automaticamente pelo GitHub Actions. O merge automático será solicitado após as verificações."
 
             PR_NUMBER="$(gh pr list \
               --repo "$REPO" \
