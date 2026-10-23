@@ -75,37 +75,6 @@
     });
   }
 
-  function criarBotaoAtivacao() {
-    if (!document.body || document.getElementById('orvix-push-ativar')) return;
-    const botao = document.createElement('button');
-    botao.id = 'orvix-push-ativar';
-    botao.type = 'button';
-    botao.textContent = 'Ativar notificações';
-    botao.title = 'Receba alertas do Orvix neste navegador';
-    Object.assign(botao.style, {
-      position: 'fixed', right: '18px', bottom: '18px', zIndex: '9999',
-      border: '0', borderRadius: '12px', padding: '12px 16px',
-      background: '#6554c0', color: '#fff', fontWeight: '600',
-      fontSize: '13px', boxShadow: '0 6px 22px rgba(0,0,0,.18)', cursor: 'pointer'
-    });
-    botao.addEventListener('click', async function () {
-      const textoOriginal = botao.textContent;
-      botao.disabled = true;
-      botao.textContent = 'Ativando...';
-      try {
-        const resultado = await ativarNotificacoes();
-        botao.textContent = 'Notificações ativadas';
-        botao.title = resultado.mensagem;
-        window.setTimeout(() => { botao.remove(); }, 3500);
-      } catch (erro) {
-        botao.textContent = textoOriginal;
-        alert(erro.message || 'Não foi possível ativar as notificações.');
-      } finally {
-        botao.disabled = false;
-      }
-    });
-    document.body.appendChild(botao);
-  }
 
   window.OrvixFirebaseNotific = { ativarNotificacoes, desativarNotificacoes };
   try {

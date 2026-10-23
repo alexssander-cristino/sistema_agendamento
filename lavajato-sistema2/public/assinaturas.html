@@ -255,6 +255,113 @@ html[data-admin-check="bloqueado"] body{visibility:hidden}
   .btn-modal-secundario,.btn-modal-principal{width:100%}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+.refund-access-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.refund-access-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  color: #173b63;
+  text-decoration: none;
+  background: linear-gradient(135deg, #dceefa, #cfe3f7);
+  border: 1px solid #b4d0ef;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgba(37, 99, 235, 0.07);
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.refund-access-btn:hover {
+  color: #173b63;
+  text-decoration: none;
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #cce4fb, #bddafa);
+  border-color: #7baee8;
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.14);
+}
+
+.refund-access-btn:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 4px;
+}
+
+.refund-access-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  color: #245486;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(123, 174, 232, 0.5);
+  border-radius: 12px;
+  font-size: 19px;
+}
+
+.refund-access-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.refund-access-copy strong {
+  color: #173b63;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.refund-access-copy small {
+  color: #476887;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.refund-access-arrow {
+  flex-shrink: 0;
+  color: #2563eb;
+  font-size: 15px;
+  transition: transform .2s ease;
+}
+
+.refund-access-btn:hover .refund-access-arrow {
+  transform: translateX(4px);
+}
+
+@media (max-width: 600px) {
+  .refund-access-actions {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .refund-access-btn {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .refund-access-btn,
+  .refund-access-arrow {
+    transition: none;
+  }
+}
+
+
 </style>
 </head>
 
@@ -339,22 +446,29 @@ html[data-admin-check="bloqueado"] body{visibility:hidden}
           </div>
 
           <p style="margin-top: 12px; font-size: 13px;">
-  <a
-    href="/politica-cancelamento.html"
-    style="color: #7965D8; text-decoration: none; font-weight: 600;"
-  >
-    Consultar política de cancelamento e reembolso
+
+<div class="refund-access-actions">
+  <a href="/politica-cancelamento.html"
+     class="refund-access-btn refund-policy-btn">
+    <span class="refund-access-icon">↗</span>
+    <span class="refund-access-copy">
+      <strong>Política de cancelamento e reembolso</strong>
+      <small>Consulte as condições e seus direitos</small>
+    </span>
+    <span class="refund-access-arrow">→</span>
   </a>
-</p>
 
+  <a href="/minhas-solicitacoes-reembolso.html"
+     class="refund-access-btn refund-requests-btn">
+    <span class="refund-access-icon">↗</span>
+    <span class="refund-access-copy">
+      <strong>Meus reembolsos</strong>
+      <small>Acompanhe suas solicitações e respostas</small>
+    </span>
+    <span class="refund-access-arrow">→</span>
+  </a>
+</div>
 
-<a href="/minhas-solicitacoes-reembolso.html" class="menu-item">
-  <span class="menu-item-icon">
-    <i class="fas fa-receipt"></i>
-  </span>
-  <span>Meus reembolsos</span>
-  <i class="fas fa-chevron-right menu-arrow"></i>
-</a>
 
         </div>
 

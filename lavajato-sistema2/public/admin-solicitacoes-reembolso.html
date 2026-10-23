@@ -1,4 +1,4 @@
-
+ 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -22,9 +22,43 @@
       --yellow: #f5c76c;
       --red: #ff828c;
       --blue: #7dbaff;
+      --input: #13131e;
+      --card: #1b1b28;
+      --detail: #151520;
+      --response: #242037;
+      --notice-error-bg: #321d25;
+      --notice-success-bg: #18382e;
+      --notice-info-bg: #28223f;
+      --shadow: 0 12px 36px rgba(0, 0, 0, .12);
+    }
+
+    body[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f3f5fb;
+      --panel: #ffffff;
+      --panel-soft: #eef1fa;
+      --border: #dce1ee;
+      --text: #22243a;
+      --muted: #69718a;
+      --purple: #7357d5;
+      --purple-soft: #eee9ff;
+      --green: #16845a;
+      --yellow: #95610a;
+      --red: #c9364d;
+      --blue: #276cb1;
+      --input: #ffffff;
+      --card: #ffffff;
+      --detail: #f3f5fb;
+      --response: #f0ecff;
+      --notice-error-bg: #fff0f1;
+      --notice-success-bg: #e8f8ef;
+      --notice-info-bg: #eeeaff;
+      --shadow: 0 12px 36px rgba(37, 45, 80, .06);
     }
 
     * { box-sizing: border-box; }
+
+    html { min-height: 100%; }
 
     body {
       margin: 0;
@@ -34,11 +68,22 @@
         var(--bg);
       color: var(--text);
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: background-color .2s ease, color .2s ease;
+    }
+
+    body[data-theme="light"] {
+      background:
+        radial-gradient(ellipse at 80% 0%, #e8e0ff 0%, transparent 38%),
+        var(--bg);
     }
 
     button, select, textarea { font: inherit; }
-
     button { cursor: pointer; }
+
+    button:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 3px;
+    }
 
     .layout {
       width: min(1440px, 100%);
@@ -103,27 +148,39 @@
       font-size: 13px;
       font-weight: 700;
       text-decoration: none;
-      transition: .18s ease;
+      transition: background .18s ease, border-color .18s ease, opacity .18s ease;
     }
 
-    .btn:hover { filter: brightness(1.15); }
+    .btn:hover:not(:disabled) { filter: brightness(1.08); }
 
     .btn-primary {
       border-color: transparent;
       background: var(--purple);
-      color: #171124;
+      color: #fff;
     }
 
     .btn-success {
       border-color: #276d52;
       background: #173b30;
-      color: var(--green);
+      color: #8ce7bd;
     }
 
     .btn-danger {
       border-color: #70343c;
       background: #3d2028;
-      color: var(--red);
+      color: #ffabb2;
+    }
+
+    body[data-theme="light"] .btn-success {
+      border-color: #b3e4cb;
+      background: #e7f8ef;
+      color: #176c49;
+    }
+
+    body[data-theme="light"] .btn-danger {
+      border-color: #f1c4cb;
+      background: #fff0f2;
+      color: #ad263b;
     }
 
     .btn:disabled {
@@ -154,9 +211,7 @@
       line-height: 1.7;
     }
 
-    .heading {
-      margin-bottom: 28px;
-    }
+    .heading { margin-bottom: 28px; }
 
     .metrics {
       display: grid;
@@ -170,7 +225,8 @@
       padding: 19px;
       border: 1px solid var(--border);
       border-radius: 17px;
-      background: linear-gradient(145deg, #1d1d2c, #171721);
+      background: linear-gradient(145deg, var(--panel-soft), var(--panel));
+      box-shadow: var(--shadow);
     }
 
     .metric-label {
@@ -191,7 +247,7 @@
 
     .metric-note {
       margin-top: 5px;
-      color: #88869f;
+      color: var(--muted);
       font-size: 11px;
     }
 
@@ -203,7 +259,8 @@
       overflow: hidden;
       border: 1px solid var(--border);
       border-radius: 18px;
-      background: rgba(25, 25, 37, .94);
+      background: var(--panel);
+      box-shadow: var(--shadow);
     }
 
     .panel-header {
@@ -238,7 +295,7 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       outline: none;
-      background: #13131e;
+      background: var(--input);
       color: var(--text);
     }
 
@@ -248,9 +305,7 @@
       padding: 11px 12px;
     }
 
-    select:focus, textarea:focus {
-      border-color: var(--purple);
-    }
+    select:focus, textarea:focus { border-color: var(--purple); }
 
     .notice {
       display: none;
@@ -260,23 +315,22 @@
       border-radius: 11px;
       font-size: 13px;
       line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
     .notice.show { display: block; }
-    .notice.error { border-color: #75404a; background: #321d25; color: #ffb4ba; }
-    .notice.success { border-color: #2e6c52; background: #18382e; color: #a6f1ce; }
-    .notice.info { border-color: #51447e; background: #28223f; color: #d3caff; }
+    .notice.error { border-color: #75404a; background: var(--notice-error-bg); color: var(--red); }
+    .notice.success { border-color: #2e6c52; background: var(--notice-success-bg); color: var(--green); }
+    .notice.info { border-color: #51447e; background: var(--notice-info-bg); color: var(--purple); }
 
-    .list {
-      padding: 12px;
-    }
+    .list { padding: 12px; }
 
     .request {
       margin: 0 0 10px;
       padding: 19px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      background: #1b1b28;
+      background: var(--card);
     }
 
     .request:last-child { margin-bottom: 0; }
@@ -303,10 +357,7 @@
       font-size: 12px;
     }
 
-    .request-id {
-      color: var(--purple);
-      font-weight: 800;
-    }
+    .request-id { color: var(--purple); font-weight: 800; }
 
     .status {
       display: inline-flex;
@@ -335,6 +386,12 @@
     .status-recusada { color: var(--red); background: #3b2228; }
     .status-concluida { color: #c0aaff; background: #30264b; }
 
+    body[data-theme="light"] .status-pendente { background: #fff5dc; }
+    body[data-theme="light"] .status-em_analise { background: #e9f3ff; }
+    body[data-theme="light"] .status-aprovada { background: #e7f8ef; }
+    body[data-theme="light"] .status-recusada { background: #fff0f2; }
+    body[data-theme="light"] .status-concluida { background: #eee8ff; }
+
     .request-details {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -342,12 +399,12 @@
       margin-top: 18px;
       padding: 16px;
       border-radius: 11px;
-      background: #151520;
+      background: var(--detail);
     }
 
     .detail-label {
       margin-bottom: 6px;
-      color: #88869f;
+      color: var(--muted);
       font-size: 10px;
       font-weight: 800;
       letter-spacing: .8px;
@@ -355,7 +412,7 @@
     }
 
     .detail-value {
-      color: #e9e7f4;
+      color: var(--text);
       font-size: 13px;
       line-height: 1.55;
       overflow-wrap: anywhere;
@@ -367,7 +424,28 @@
       padding: 13px 15px;
       border-left: 3px solid var(--purple);
       border-radius: 5px 10px 10px 5px;
-      background: #242037;
+      background: var(--response);
+    }
+
+    .refund-box {
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--detail);
+    }
+
+    .refund-heading {
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--purple);
+    }
+
+    .refund-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 13px;
     }
 
     .request-actions {
@@ -389,6 +467,7 @@
       padding: 60px 20px;
       color: var(--muted);
       text-align: center;
+      overflow-wrap: anywhere;
     }
 
     .empty strong {
@@ -404,9 +483,21 @@
       flex-wrap: wrap;
       gap: 10px;
       padding: 18px 3px 0;
-      color: #77758c;
+      color: var(--muted);
       font-size: 11px;
       line-height: 1.6;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     @media (max-width: 1050px) {
@@ -416,6 +507,8 @@
     @media (max-width: 680px) {
       .layout { padding: 18px 13px; }
       .topbar { align-items: flex-start; flex-direction: column; margin-bottom: 28px; }
+      .top-actions { width: 100%; }
+      .top-actions .btn { flex: 1 1 auto; }
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
       .metric { padding: 14px; }
       .metric-number { font-size: 26px; }
@@ -423,9 +516,17 @@
       .filters, .filters select { width: 100%; }
       .request { padding: 14px; }
       .request-top { flex-direction: column; }
-      .request-details { grid-template-columns: 1fr; gap: 13px; }
+      .request-details, .refund-grid { grid-template-columns: 1fr; gap: 13px; }
       .request-actions { justify-content: flex-start; }
       .request-actions .btn { flex: 1 1 auto; }
+      .notice { margin-right: 13px; margin-left: 13px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
@@ -442,8 +543,11 @@
       </div>
 
       <div class="top-actions">
+        <button class="btn" id="themeToggle" type="button" aria-label="Ativar tema claro">
+          Tema claro
+        </button>
         <button class="btn" id="refreshButton" type="button">
-          ↻ Atualizar solicitações
+          Atualizar solicitações
         </button>
         <a class="btn" href="/">Voltar ao sistema</a>
       </div>
@@ -454,8 +558,8 @@
       <h1>Solicitações de reembolso</h1>
       <p class="subtitle">
         Receba e analise os pedidos enviados pelas empresas que utilizam
-        o Orvix. Registre a decisão e acompanhe cada solicitação até sua
-        conclusão.
+        o Orvix. Registre a decisão, execute o estorno pelo Mercado Pago
+        e acompanhe cada solicitação até sua conclusão.
       </p>
     </section>
 
@@ -475,7 +579,7 @@
       <article class="metric approved">
         <div class="metric-label">Aprovadas <span>●</span></div>
         <div class="metric-number" id="count-aprovada">—</div>
-        <div class="metric-note">Aguardando conclusão</div>
+        <div class="metric-note">Aguardando estorno</div>
       </article>
 
       <article class="metric">
@@ -499,7 +603,8 @@
         </div>
 
         <div class="filters">
-          <select id="statusFilter" aria-label="Filtrar por status">
+          <label class="sr-only" for="statusFilter">Filtrar por status</label>
+          <select id="statusFilter">
             <option value="">Todos os status</option>
             <option value="pendente">Pendentes</option>
             <option value="em_analise">Em análise</option>
@@ -526,6 +631,7 @@
     'use strict';
 
     const API = '/api/admin/solicitacoes-reembolso';
+    const THEME_KEY = 'orvix-admin-theme';
 
     const STATUS_LABELS = {
       pendente: 'Pendente',
@@ -547,6 +653,62 @@
 
     let solicitacoes = [];
     let carregando = false;
+    const operacoesEmAndamento = new Set();
+
+    function aplicarTema(tema) {
+      const temaValido = tema === 'light' ? 'light' : 'dark';
+
+      document.body.dataset.theme = temaValido;
+
+      const botao = $('themeToggle');
+
+      if (botao) {
+        botao.textContent = temaValido === 'dark'
+          ? 'Tema claro'
+          : 'Tema escuro';
+
+        botao.setAttribute(
+          'aria-label',
+          temaValido === 'dark'
+            ? 'Ativar tema claro'
+            : 'Ativar tema escuro'
+        );
+      }
+
+      $('theme-color')?.setAttribute(
+        'content',
+        temaValido === 'dark' ? '#11111b' : '#f3f5fb'
+      );
+
+      document.querySelector('meta[name="theme-color"]')
+        ?.setAttribute(
+          'content',
+          temaValido === 'dark' ? '#11111b' : '#f3f5fb'
+        );
+    }
+
+    let temaInicial = 'dark';
+
+    try {
+      temaInicial = localStorage.getItem(THEME_KEY) || 'dark';
+    } catch (_) {
+      // A página continua funcionando caso o armazenamento esteja bloqueado.
+    }
+
+    aplicarTema(temaInicial);
+
+    $('themeToggle').addEventListener('click', () => {
+      const proximoTema =
+        document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+
+      try {
+        localStorage.setItem(THEME_KEY, proximoTema);
+      } catch (_) {
+        // A troca continua valendo até a página ser recarregada.
+      }
+
+      aplicarTema(proximoTema);
+    });
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -569,6 +731,24 @@
         dateStyle: 'short',
         timeStyle: 'short'
       }).format(date);
+    }
+
+    function formatarDinheiro(valor, moeda = 'BRL') {
+      const numero = Number(valor);
+
+      if (!Number.isFinite(numero)) return '—';
+
+      try {
+        return new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: moeda || 'BRL'
+        }).format(numero);
+      } catch (_) {
+        return numero.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
     }
 
     function labelStatus(status) {
@@ -611,26 +791,29 @@
       }
 
       if (!response.ok) {
-        throw new Error(
+        const erro = new Error(
           data.erro || 'Não foi possível concluir a operação.'
         );
+        erro.status = response.status;
+        erro.data = data;
+        throw erro;
       }
 
       return data;
     }
 
     function atualizarContagens(contagens = {}) {
-      for (const status of Object.keys(STATUS_LABELS)) {
+      const mapeamento = {
+        pendente: 'pendentes',
+        em_analise: 'em_analise',
+        aprovada: 'aprovadas',
+        recusada: 'recusadas',
+        concluida: 'concluidas'
+      };
+
+      for (const [status, chave] of Object.entries(mapeamento)) {
         $(`count-${status}`).textContent =
-          Number(contagens[status === 'pendente'
-            ? 'pendentes'
-            : status === 'em_analise'
-              ? 'em_analise'
-              : status === 'aprovada'
-                ? 'aprovadas'
-                : status === 'recusada'
-                  ? 'recusadas'
-                  : 'concluidas'] || 0).toLocaleString('pt-BR');
+          Number(contagens[chave] || 0).toLocaleString('pt-BR');
       }
     }
 
@@ -658,13 +841,17 @@
       list.innerHTML = exibidas.map((item) => {
         const status = item.status;
         const podeAnalisar = ['pendente', 'em_analise'].includes(status);
-        const podeConcluir = status === 'aprovada';
+        const podeEstornar = status === 'aprovada';
 
         let botoes = '';
 
         if (status === 'pendente') {
           botoes += `
-            <button class="btn" data-action="em_analise" data-id="${item.id}">
+            <button
+              class="btn"
+              data-action="em_analise"
+              data-id="${escapeHtml(item.id)}"
+            >
               Colocar em análise
             </button>
           `;
@@ -672,22 +859,53 @@
 
         if (podeAnalisar) {
           botoes += `
-            <button class="btn btn-success" data-action="aprovada" data-id="${item.id}">
+            <button
+              class="btn btn-success"
+              data-action="aprovada"
+              data-id="${escapeHtml(item.id)}"
+            >
               Aprovar pedido
             </button>
-            <button class="btn btn-danger" data-action="recusada" data-id="${item.id}">
+            <button
+              class="btn btn-danger"
+              data-action="recusada"
+              data-id="${escapeHtml(item.id)}"
+            >
               Recusar pedido
             </button>
           `;
         }
 
-        if (podeConcluir) {
+        if (podeEstornar) {
+          const emProcessamento = operacoesEmAndamento.has(String(item.id));
+          const textoBotao =
+            item.refund_status === 'pending' ||
+            item.refund_status === 'processing' ||
+            item.refund_status === 'failed'
+              ? 'Consultar / retomar estorno'
+              : 'Estornar pelo Mercado Pago';
+
           botoes += `
-            <button class="btn btn-primary" data-action="concluida" data-id="${item.id}">
-              Marcar como concluída
+            <button
+              class="btn btn-primary"
+              data-action="estornar"
+              data-id="${escapeHtml(item.id)}"
+              ${emProcessamento ? 'disabled' : ''}
+            >
+              ${emProcessamento ? 'Processando...' : textoBotao}
             </button>
           `;
         }
+
+        const temDadosEstorno = Boolean(
+          item.refund_payment_id ||
+          item.refund_id ||
+          item.refund_amount != null ||
+          item.refund_status ||
+          item.refunded_at
+        );
+
+        const statusEstorno = item.refund_status || 'Não iniciado';
 
         return `
           <article class="request">
@@ -698,7 +916,7 @@
                 </h3>
                 <div class="request-meta">
                   <span class="request-id">Protocolo #${escapeHtml(item.id)}</span>
-                  <span>${escapeHtml(MOTIVO_LABELS[item.motivo] || item.motivo)}</span>
+                  <span>${escapeHtml(MOTIVO_LABELS[item.motivo] || item.motivo || 'Motivo não informado')}</span>
                   <span>Recebida em ${escapeHtml(formatarData(item.criado_em))}</span>
                 </div>
               </div>
@@ -717,8 +935,8 @@
 
               <div>
                 <div class="detail-label">Identificação</div>
-                <div class="detail-value">Empresa: #${escapeHtml(item.empresa_id)}</div>
-                <div class="detail-value">Assinatura: #${escapeHtml(item.assinatura_id)}</div>
+                <div class="detail-value">Empresa: #${escapeHtml(item.empresa_id ?? '—')}</div>
+                <div class="detail-value">Assinatura: #${escapeHtml(item.assinatura_id ?? '—')}</div>
                 <div class="detail-value">Status da assinatura: ${escapeHtml(item.assinatura_status || '—')}</div>
               </div>
 
@@ -727,6 +945,38 @@
                 <div class="detail-value">${escapeHtml(item.detalhes || 'O cliente não adicionou detalhes.')}</div>
               </div>
             </div>
+
+            ${temDadosEstorno ? `
+              <section class="refund-box" aria-label="Informações do estorno">
+                <h4 class="refund-heading">Informações do estorno</h4>
+                <div class="refund-grid">
+                  <div>
+                    <div class="detail-label">Status do estorno</div>
+                    <div class="detail-value">${escapeHtml(statusEstorno)}</div>
+                  </div>
+                  <div>
+                    <div class="detail-label">Pagamento Mercado Pago</div>
+                    <div class="detail-value">${escapeHtml(item.refund_payment_id || '—')}</div>
+                  </div>
+                  <div>
+                    <div class="detail-label">Valor registrado</div>
+                    <div class="detail-value">${escapeHtml(
+                      item.refund_amount == null
+                        ? '—'
+                        : formatarDinheiro(item.refund_amount)
+                    )}</div>
+                  </div>
+                  <div>
+                    <div class="detail-label">Protocolo do estorno</div>
+                    <div class="detail-value">${escapeHtml(item.refund_id || '—')}</div>
+                  </div>
+                  <div>
+                    <div class="detail-label">Confirmado em</div>
+                    <div class="detail-value">${escapeHtml(formatarData(item.refunded_at))}</div>
+                  </div>
+                </div>
+              </section>
+            ` : ''}
 
             ${item.resposta ? `
               <div class="response-box">
@@ -780,11 +1030,19 @@
 
     async function alterarStatus(id, status) {
       const item = solicitacoes.find(
-        (solicitacao) => Number(solicitacao.id) === Number(id)
+        (solicitacao) => String(solicitacao.id) === String(id)
       );
 
       if (!item) {
         mostrarAviso('Solicitação não encontrada na lista atual.', 'error');
+        return;
+      }
+
+      if (status === 'concluida') {
+        mostrarAviso(
+          'A conclusão só pode ocorrer depois da confirmação do estorno pelo Mercado Pago.',
+          'error'
+        );
         return;
       }
 
@@ -810,12 +1068,6 @@
         }
       } else if (status === 'em_analise') {
         if (!confirm(`Colocar a solicitação #${id} em análise?`)) return;
-      } else if (status === 'concluida') {
-        const confirmacao = confirm(
-          'Confirme somente se o procedimento de reembolso já foi realmente concluído no meio de pagamento. Marcar como concluída não realiza o estorno. Continuar?'
-        );
-
-        if (!confirmacao) return;
       }
 
       try {
@@ -835,18 +1087,108 @@
       }
     }
 
+    async function executarEstorno(id) {
+      const item = solicitacoes.find(
+        (solicitacao) => String(solicitacao.id) === String(id)
+      );
+
+      if (!item || item.status !== 'aprovada') {
+        mostrarAviso(
+          'A solicitação precisa estar aprovada para iniciar o estorno.',
+          'error'
+        );
+        return;
+      }
+
+      if (operacoesEmAndamento.has(String(id))) return;
+
+      operacoesEmAndamento.add(String(id));
+      renderizar();
+      limparAviso();
+
+      try {
+        // Consulta o pagamento antes de solicitar a devolução.
+        const consulta = await requisicao(
+          `${API}/${encodeURIComponent(id)}/estorno`
+        );
+
+        if (!consulta?.ok) {
+          throw new Error(
+            consulta?.erro || 'Não foi possível consultar a cobrança.'
+          );
+        }
+
+        const valor = formatarDinheiro(
+          consulta.valor,
+          consulta.moeda || 'BRL'
+        );
+
+        const confirmado = confirm(
+          'CONFIRMAR ESTORNO INTEGRAL\n\n' +
+          `Empresa: ${item.empresa_nome || 'Não identificada'}\n` +
+          `Solicitação: #${consulta.solicitacao_id}\n` +
+          `Pagamento Mercado Pago: ${consulta.pagamento_id}\n` +
+          `Valor integral: ${valor}\n` +
+          `Data da cobrança: ${formatarData(consulta.data_pagamento)}\n\n` +
+          'Ao confirmar, o Orvix enviará uma solicitação de estorno ao Mercado Pago. ' +
+          'Essa operação financeira não pode ser desfeita pelo painel.\n\n' +
+          'Deseja continuar?'
+        );
+
+        if (!confirmado) {
+          mostrarAviso('Estorno cancelado pelo operador. Nenhuma solicitação foi enviada.', 'info');
+          return;
+        }
+
+        mostrarAviso(
+          'Enviando solicitação de estorno ao Mercado Pago...',
+          'info'
+        );
+
+        const resultado = await requisicao(
+          `${API}/${encodeURIComponent(id)}/estornar`,
+          {
+            method: 'POST',
+            body: JSON.stringify({})
+          }
+        );
+
+        mostrarAviso(
+          resultado.mensagem ||
+            'Solicitação de estorno processada. Confira o status atualizado.',
+          'success'
+        );
+
+        await carregarSolicitacoes();
+      } catch (error) {
+        mostrarAviso(
+          `${error.message} Se houve timeout ou falha de comunicação, confira o status no Mercado Pago antes de tentar novamente.`,
+          'error'
+        );
+
+        await carregarSolicitacoes();
+      } finally {
+        operacoesEmAndamento.delete(String(id));
+        renderizar();
+      }
+    }
+
     $('refreshButton').addEventListener('click', carregarSolicitacoes);
     $('statusFilter').addEventListener('change', renderizar);
 
     $('requestList').addEventListener('click', (event) => {
       const button = event.target.closest('button[data-action]');
 
-      if (!button) return;
+      if (!button || button.disabled) return;
 
-      alterarStatus(
-        button.dataset.id,
-        button.dataset.action
-      );
+      const { id, action } = button.dataset;
+
+      if (action === 'estornar') {
+        executarEstorno(id);
+        return;
+      }
+
+      alterarStatus(id, action);
     });
 
     carregarSolicitacoes();
